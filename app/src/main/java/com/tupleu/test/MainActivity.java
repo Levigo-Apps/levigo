@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
         });
         if(!barcodeDetector.isOperational()) {
             Log.e(TAG, "Barcode detector is not operational");
-            return;
         }
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
