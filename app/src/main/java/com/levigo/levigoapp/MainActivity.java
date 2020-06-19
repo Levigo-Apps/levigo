@@ -1,4 +1,4 @@
-package com.tupleu.test;
+package com.levigo.levigoapp;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
