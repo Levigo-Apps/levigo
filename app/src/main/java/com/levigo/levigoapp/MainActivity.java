@@ -7,9 +7,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_HANDLE_CAMERA_PERM = 1;
 
     private TextView mTextView;
+    private ImageView mImageView;
     private Button mButton;
 
     @Override
@@ -38,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         mTextView = findViewById(R.id.textView);
+        mImageView = findViewById(R.id.imageView);
 
         getPermissions();
     }
@@ -46,11 +51,9 @@ public class MainActivity extends AppCompatActivity {
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setCaptureActivity(CaptureActivity.class);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-
+        integrator.setBarcodeImageEnabled(true);
         integrator.initiateScan();
     }
-
-
 
     private void getPermissions() {
         final String[] permissions = new String[]{Manifest.permission.CAMERA};
@@ -65,8 +68,12 @@ public class MainActivity extends AppCompatActivity {
         if(result != null){
             String contents = result.getContents();
             if(contents != null) {
-                Toast.makeText(this, "Success", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Success: Scanned " + result.getFormatName(), Toast.LENGTH_LONG).show();
                 mTextView.setText(contents);
+            }
+            if(result.getBarcodeImagePath() != null) {
+                Log.d(TAG, "" + result.getBarcodeImagePath());
+                mImageView.setImageBitmap(BitmapFactory.decodeFile(result.getBarcodeImagePath()));
             }
         }
         else{
