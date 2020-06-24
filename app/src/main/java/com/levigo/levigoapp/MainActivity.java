@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,22 +30,36 @@ public class MainActivity extends AppCompatActivity {
     private TextView mTextView;
     private ImageView mImageView;
     private Button mButton;
+    private ImageButton add_entry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mButton = findViewById(R.id.button);
+        add_entry = findViewById(R.id.manual_entry_button);
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startScanner();
             }
         });
+        add_entry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                change_layout(view);
+            }
+        });
         mTextView = findViewById(R.id.textView);
         mImageView = findViewById(R.id.imageView);
 
         getPermissions();
+
+    }
+    // changes layout from main to manual entry view
+    public void change_layout(View view){
+        Intent myIntent = new Intent(view.getContext(), Firebase.class);
+        startActivityForResult(myIntent, 0);
     }
 
     private void startScanner() {
