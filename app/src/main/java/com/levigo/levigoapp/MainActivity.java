@@ -1,107 +1,53 @@
 package com.levigo.levigoapp;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresPermission;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
-import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.util.SparseArray;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.vision.CameraSource;
-import com.google.android.gms.vision.Detector;
-import com.google.android.gms.vision.barcode.Barcode;
-import com.google.android.gms.vision.barcode.BarcodeDetector;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+import com.journeyapps.barcodescanner.CaptureActivity;
 
-import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final int RC_HANDLE_CAMERA_PERM = 1;
 
-    private CameraSource mCameraSource;
-    private SurfaceView mCameraView;
     private TextView mTextView;
+    private Button mButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mCameraView = findViewById(R.id.cameraView);
+        mButton = findViewById(R.id.button);
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startScanner();
+            }
+        });
         mTextView = findViewById(R.id.textView);
 
-
-        mCameraView.getHolder().addCallback(new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-                getPermissions();
-            }
-
-            @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-            }
-
-            @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-                if(mCameraSource != null) {
-                    mCameraSource.stop();
-                }
-            }
-        });
-
         getPermissions();
-
     }
 
-    @RequiresPermission(Manifest.permission.CAMERA)
-    private void initCamera() throws IOException, SecurityException {
-        Context context = getApplicationContext();
+    private void startScanner() {
+        IntentIntegrator integrator = new IntentIntegrator(this);
+        integrator.setCaptureActivity(CaptureActivity.class);
+        integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
 
-        BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(context).build();
-        barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
-            @Override
-            public void release() {
-
-            }
-
-            @Override
-            public void receiveDetections(Detector.Detections<Barcode> detections) {
-                final SparseArray<Barcode> barcodes = detections.getDetectedItems();
-                if(barcodes.size() > 0) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mTextView.setText(barcodes.valueAt(0).rawValue);
-                        }
-                    });
-                }
-            }
-        });
-        if(!barcodeDetector.isOperational()) {
-            Log.e(TAG, "Barcode detector is not operational");
-        }
-
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-                getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
-        CameraSource.Builder builder = new CameraSource.Builder(context, barcodeDetector)
-                .setFacing(CameraSource.CAMERA_FACING_BACK)
-                .setRequestedPreviewSize(displayMetrics.heightPixels,displayMetrics.widthPixels)
-                .setRequestedFps(15.0f)
-                .setAutoFocusEnabled(true);
-
-        mCameraSource = builder.build();
-        mCameraSource.start(mCameraView.getHolder());
+        integrator.initiateScan();
     }
 
 
@@ -111,40 +57,20 @@ public class MainActivity extends AppCompatActivity {
         if (checkSelfPermission(permissions[0]) != PackageManager.PERMISSION_GRANTED){
             requestPermissions(permissions, RC_HANDLE_CAMERA_PERM);
         }
-        else {
-            try {
-                initCamera();
-            }
-            catch (SecurityException se) {
-                Log.e(TAG, "Camera permission not granted", se);
-                Toast.makeText(getApplicationContext(), "Camera permission not granted", Toast.LENGTH_SHORT).show();
-            }
-            catch (IOException ie) {
-                Log.e(TAG, "Error in starting camera", ie);
-                Toast.makeText(getApplicationContext(), "Error in starting camera", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode,resultCode,data);
+        if(result != null){
+            String contents = result.getContents();
+            if(contents != null) {
+                Toast.makeText(this, "Success", Toast.LENGTH_LONG).show();
+                mTextView.setText(contents);
             }
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        getPermissions();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if(mCameraSource != null) {
-            mCameraSource.stop();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(mCameraSource != null) {
-            mCameraSource.release();
+        else{
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -153,18 +79,7 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode != RC_HANDLE_CAMERA_PERM) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-        else if(grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            try {
-                initCamera();
-            }
-            catch (SecurityException se) {
-                Log.e(TAG, "Camera permission not granted", se);
-            }
-            catch (IOException ie) {
-                Log.e(TAG, "Error in starting camera", ie);
-            }
-        }
-        else {
+        else if(!(grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             finish();
         }
 
