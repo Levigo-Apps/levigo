@@ -19,7 +19,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Firebase"></activity>
+        <activity android:name=".Firebase">
+
+        </activity>
+        <activity android:name=".LogIn">
+
+        </activity>
+
     </application>
 
 </manifest>
