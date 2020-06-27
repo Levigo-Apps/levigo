@@ -6,19 +6,19 @@ import android.view.View;
 import android.widget.EditText;
 import android.os.Bundle;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 public class Firebase extends Activity {
     // Firebase database
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private DocumentReference equipRef;
+    InventoryTemplate in;
 
     private static final String TAG = "Firebasectivity";
 
@@ -60,7 +60,7 @@ public class Firebase extends Activity {
         String hospital_name_str = hospital_name.getText().toString();
         String physical_location_str = physical_location.getText().toString();
         String notes_str  = notes.getText().toString();
-        InventoryTemplate in = new InventoryTemplate(barcode_str,name_str, equipment_type_str,
+        in = new InventoryTemplate(barcode_str,name_str, equipment_type_str,
                 manufacturer_str,procedure_used_str, procedure_date_str,patient_id_str,expiration_str,
                 quantity_str, hospital_name_str, current_date_time, physical_location_str, notes_str);
 
@@ -82,6 +82,7 @@ public class Firebase extends Activity {
                     }
                 });
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

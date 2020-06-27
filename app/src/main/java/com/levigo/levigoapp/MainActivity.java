@@ -62,6 +62,12 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(myIntent, 0);
     }
 
+    // change layout to login page
+    public void move_login(View view){
+        Intent myIntent = new Intent(view.getContext(), LogIn.class);
+        startActivityForResult(myIntent, 0);
+    }
+
     private void startScanner() {
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setCaptureActivity(CaptureActivity.class);
