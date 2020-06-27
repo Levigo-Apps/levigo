@@ -20,7 +20,7 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
 
         clear = true;
-        userIsLoggedIn();
+//        userIsLoggedIn();
 
         setContentView(R.layout.activity_login);
 
