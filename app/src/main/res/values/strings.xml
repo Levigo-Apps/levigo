@@ -2,4 +2,13 @@
     <string name="app_name">levigoapp</string>
     <string name="levigo">Levigo</string>
     <string name="button_label">Scan Barcode</string>
+    <string name="login">Login</string>
+    <string name="registerHere_label">Don\'t have an account? Register here</string>
+    <string name="rememberMe_label">Remember me</string>
+    <string name="forgotPassword_label">Forgot your password?</string>
+    <string name="Iam_label">I am a:</string>
+    <string name="adminText_label">Admin</string>
+    <string name="userText_label">User</string>
+    <string name="username_label">Username</string>
+    <string name="password_label">Password</string>
 </resources>

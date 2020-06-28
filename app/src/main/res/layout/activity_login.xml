@@ -41,8 +41,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="I am a:"
-                    android:textColor="#353232"
+                    android:text="@string/Iam_label"
+                    android:textColor="#ffffff"
                     android:textSize="20sp"
                     android:layout_marginBottom="10dp"/>
             </TableRow>
@@ -56,16 +56,17 @@
                     android:id="@+id/user_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="20dp"
-                    android:text="Admin"
+                    android:layout_marginEnd="20dp"
+                    android:text="@string/adminText_label"
                     android:textColor="#ffffff"
                     android:textSize="15sp"
-                    android:background="@color/colorPrimary"/>
+                    android:background="@color/colorPrimary"
+                   />
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/admin_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="User"
+                    android:text="@string/userText_label"
                     android:textSize="15sp"
                     android:textColor="#ffffff"
                     android:background="@color/colorPrimary"/>
@@ -79,7 +80,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:hint="Username"/>
+                android:hint="@string/username_label"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="250dp"
@@ -91,22 +92,34 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:inputType="textPassword"
-                android:hint="Password"/>
+                android:hint="@string/password_label"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.checkbox.MaterialCheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Remember me"
-
+            android:text="@string/rememberMe_label"
             android:layout_gravity="left"/>
+
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/outlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login"
+            android:layout_gravity="center"
+            android:textSize="15sp"
+            android:textColor="#ffffff"
+            android:background="@color/colorPrimary"
+           
+            />
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:textSize="10sp"
-            android:text="Forgot your password?"
             android:background="?attr/selectableItemBackground"
-            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+            android:text="@string/forgotPassword_label"
+            android:textSize="12sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -123,7 +136,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Don't have an account? Register here"
+            android:text="@string/registerHere_label"
             android:textSize="18sp" />
 
     </LinearLayout>

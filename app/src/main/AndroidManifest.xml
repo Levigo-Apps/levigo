@@ -15,6 +15,7 @@
         <activity android:name="com.levigo.levigoapp.MainActivity"/>
         <activity android:name=".LoginActivity"
             android:theme="@style/Theme.MaterialComponents.NoActionBar">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
