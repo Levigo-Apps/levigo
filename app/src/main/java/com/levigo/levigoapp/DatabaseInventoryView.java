@@ -71,7 +71,7 @@ public class DatabaseInventoryView extends Activity {
    }
 
     public void goToManualAdd(View view) {
-       Intent manualAddPage = new Intent(this, Firebase.class);
+       Intent manualAddPage = new Intent(this, FirebaseActivity.class);
        startActivity(manualAddPage);
     }
 
