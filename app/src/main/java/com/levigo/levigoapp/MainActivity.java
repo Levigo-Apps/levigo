@@ -15,8 +15,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -128,6 +126,10 @@ public class MainActivity extends AppCompatActivity {
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 finish();
+                return true;
+            case R.id.inventoryView:
+                Intent db = new Intent(getApplicationContext(), DatabaseInventoryActivity.class);
+                startActivity(db);
                 return true;
             case R.id.settings:
                 Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
