@@ -5,6 +5,15 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="@string/app_name"
+        android:id="@+id/main_toolbar"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -41,8 +50,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="@string/Iam_label"
-                    android:textColor="#ffffff"
+                    android:text="I am a:"
+                    android:textColor="#353232"
                     android:textSize="20sp"
                     android:layout_marginBottom="10dp"/>
             </TableRow>
@@ -56,31 +65,28 @@
                     android:id="@+id/user_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="20dp"
-                    android:text="@string/adminText_label"
-                    android:textColor="#ffffff"
-                    android:textSize="15sp"
-                    android:background="@color/colorPrimary"
-                   />
+                    android:layout_marginRight="20dp"
+                    android:text="Admin"
+                    android:textSize="15sp"/>
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/admin_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/userText_label"
-                    android:textSize="15sp"
-                    android:textColor="#ffffff"
-                    android:background="@color/colorPrimary"/>
+                    android:text="User"
+                    android:textSize="15sp"/>
             </TableRow>
         </TableLayout>
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal">
+            android:layout_gravity="center_horizontal"
+            app:errorEnabled="true">
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/login_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:hint="@string/username_label"/>
+                android:hint="Email"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="250dp"
@@ -88,57 +94,48 @@
             android:layout_gravity="center_horizontal"
             app:endIconMode="password_toggle">
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/login_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:inputType="textPassword"
-                android:hint="@string/password_label"/>
+                android:hint="Password"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/login_remember"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/rememberMe_label"
+            android:text="Remember me"
             android:layout_gravity="left"/>
-
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/outlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/login"
-            android:layout_gravity="center"
-            android:textSize="15sp"
-            android:textColor="#ffffff"
-            android:background="@color/colorPrimary"
-           
-            />
-
-        <com.google.android.material.button.MaterialButton
-            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:textSize="10sp"
+            android:text="Forgot your password?"
             android:background="?attr/selectableItemBackground"
-            android:text="@string/forgotPassword_label"
-            android:textSize="12sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/bottom_linear"
-        android:layout_width="409dp"
-        android:layout_height="33dp"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <TextView
-            android:id="@+id/newAccount_textView"
-            android:layout_width="match_parent"
+            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/login_button"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/registerHere_label"
-            android:textSize="18sp" />
-
+            android:layout_gravity="center_horizontal"
+            android:text="Login"
+            android:textColor="#ffffff"
+            android:background="@color/colorPrimary"/>
     </LinearLayout>
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/login_register"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Don't have an account? Register here"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="?attr/selectableItemBackground"
+        style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

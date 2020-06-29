@@ -3,6 +3,7 @@ package com.levigo.levigoapp;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.Manifest;
 import android.content.Intent;
@@ -10,6 +11,9 @@ import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -17,6 +21,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
@@ -29,38 +35,33 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mTextView;
     private ImageView mImageView;
-    private Button mButton;
-    private ImageButton add_entry;
+    private FloatingActionButton mAdd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mButton = findViewById(R.id.button);
-        add_entry = findViewById(R.id.manual_entry_button);
-        mButton.setOnClickListener(new View.OnClickListener() {
+        mAdd = findViewById(R.id.main_add);
+        mAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startScanner();
             }
         });
-        add_entry.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                change_layout(view);
-            }
-        });
         mTextView = findViewById(R.id.textView);
         mImageView = findViewById(R.id.imageView);
+
+        Toolbar mToolbar = findViewById(R.id.main_toolbar);
+        setSupportActionBar(mToolbar);
 
         getPermissions();
 
     }
     // changes layout from main to manual entry view
-    public void change_layout(View view){
-        Intent myIntent = new Intent(view.getContext(), Firebase.class);
-        startActivityForResult(myIntent, 0);
-    }
+//    public void change_layout(View view){
+//        Intent myIntent = new Intent(view.getContext(), FirebaseActivity.class);
+//        startActivityForResult(myIntent, 0);
+//    }
 
     private void startScanner() {
         IntentIntegrator integrator = new IntentIntegrator(this);
@@ -105,5 +106,34 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_toolbar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.manual_entry:
+                Intent myIntent = new Intent(this, FirebaseActivity.class);
+                startActivityForResult(myIntent, 0);
+                return true;
+            case R.id.logout:
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+                return true;
+            case R.id.settings:
+                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+            return super.onOptionsItemSelected(item);
+        }
     }
 }
