@@ -25,6 +25,9 @@
         <activity android:name=".LogIn">
 
         </activity>
+        <activity android:name=".DatabaseInventoryView">
+
+        </activity>
 
     </application>
 

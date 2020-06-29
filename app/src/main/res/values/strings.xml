@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">levigoapp</string>
     <string name="button_label">Scan Barcode</string>
+    <string name="inventory">Inventory</string>
+    <string name="scan">SCAN</string>
 </resources>
