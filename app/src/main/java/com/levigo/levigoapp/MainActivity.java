@@ -63,6 +63,12 @@ public class MainActivity extends AppCompatActivity {
 //        startActivityForResult(myIntent, 0);
 //    }
 
+    public void change_to_networkView(View view){
+        Intent myIntent = new Intent(view.getContext(), NetworkActivity.class);
+//        startActivityForResult(myIntent, 0);
+
+    }
+
     private void startScanner() {
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setCaptureActivity(CaptureActivity.class);
