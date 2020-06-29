@@ -7,14 +7,13 @@ import android.widget.EditText;
 import android.os.Bundle;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 
-public class Firebase extends Activity {
+public class FirebaseActivity extends Activity {
     // Firebase database
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private DocumentReference equipRef;
@@ -70,14 +69,14 @@ public class Firebase extends Activity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(Firebase.this, "equipment saved", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(FirebaseActivity.this, "equipment saved", Toast.LENGTH_SHORT).show();
                     }
                 })
                 // in case of failure
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(Firebase.this, "Error!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(FirebaseActivity.this, "Error!", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, e.toString());
                     }
                 });
