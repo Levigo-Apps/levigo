@@ -18,7 +18,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/levigo"
+            android:text="@string/levigo_label"
             android:fontFamily="sans-serif-light"
             android:textColor="#5E5A5A"
             android:textSize="40sp"
@@ -41,7 +41,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="I am a:"
+                    android:text="@string/I_label"
                     android:textColor="#353232"
                     android:textSize="20sp"
                     android:layout_marginBottom="10dp"/>
@@ -56,14 +56,14 @@
                     android:id="@+id/user_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="20dp"
-                    android:text="Admin"
+                    android:layout_marginEnd="20dp"
+                    android:text="@string/admin_label"
                     android:textSize="15sp"/>
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/admin_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="User"
+                    android:text="@string/user_label"
                     android:textSize="15sp"/>
             </TableRow>
         </TableLayout>
@@ -77,7 +77,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:hint="Email"
+                android:hint="@string/email_label"
                 android:inputType="textEmailAddress"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
@@ -91,20 +91,20 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:inputType="textPassword"
-                android:hint="Password"/>
+                android:hint="@string/password_label"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/login_remember"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Remember me"
+            android:text="@string/remember_me_label"
             android:layout_gravity="left"/>
         <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:textSize="10sp"
-            android:text="Forgot your password?"
+            android:textSize="12sp"
+            android:text="@string/forgot_your_password_label"
             android:background="?attr/selectableItemBackground"
             style="@style/Widget.MaterialComponents.Button.TextButton"/>
         <com.google.android.material.button.MaterialButton
@@ -112,7 +112,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Login"
+            android:text="@string/login_label"
             android:textColor="#ffffff"
             android:background="@color/colorPrimary"/>
     </LinearLayout>
@@ -123,7 +123,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Don't have an account? Register here"
+        android:text="@string/register_label"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         android:background="?attr/selectableItemBackground"

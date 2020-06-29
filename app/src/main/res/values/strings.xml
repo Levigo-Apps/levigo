@@ -3,4 +3,15 @@
     <string name="button_label">Scan Barcode</string>
     <string name="inventory">Inventory</string>
     <string name="scan">SCAN</string>
+    <string name="mask_label">Mask</string>
+    <string name="levigo_label">Levigo</string>
+    <string name="I_label">I am a:</string>
+    <string name="admin_label">Admin</string>
+    <string name="user_label">User</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Password</string>
+    <string name="forgot_your_password_label">Forgot your password?</string>
+    <string name="remember_me_label">Remember me</string>
+    <string name="login_label">Login</string>
+    <string name="register_label">Don\'t have an account? Register here</string>
 </resources>

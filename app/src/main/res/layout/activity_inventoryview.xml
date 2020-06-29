@@ -75,7 +75,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:onClick="goToManualAdd"
-                android:text="Mask" />
+                android:text="@string/mask_label" />
 
             <TextView
                 android:id="@+id/type"
