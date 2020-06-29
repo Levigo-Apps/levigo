@@ -12,18 +12,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.levigo.levigoapp.MainActivity">
+        <activity android:name="com.levigo.levigoapp.MainActivity"/>
+        <activity android:name=".LoginActivity"
+            android:theme="@style/Theme.MaterialComponents.NoActionBar">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Firebase">
-
-        </activity>
-        <activity android:name=".LogIn">
-
+        <activity android:name=".FirebaseActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                        android:value=".MainActivity"/>
         </activity>
 
     </application>
