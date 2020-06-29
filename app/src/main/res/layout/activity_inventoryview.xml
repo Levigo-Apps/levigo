@@ -75,13 +75,13 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:onClick="goToManualAdd"
-                android:text="US Sleeves/Covers" />
+                android:text="Mask" />
 
             <TextView
                 android:id="@+id/type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Type: Sleeve/Cover                       Qty: 200" />
+                android:text="Type: N95                       Qty: 2" />
 
         </LinearLayout>
     </ScrollView>
