@@ -40,7 +40,7 @@ import java.net.URLEncoder;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = MainActivity.class.getSimpleName();
     private static final int RC_HANDLE_CAMERA_PERM = 1;
 
     private TextView mTextView;
@@ -78,9 +78,6 @@ public class MainActivity extends AppCompatActivity {
         integrator.setCaptureActivity(CaptureActivity.class);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
         integrator.setBarcodeImageEnabled(true);
-
-//        integrator.setOrientationLocked(false);
-//        integrator.setPrompt("SCANNING!");
         integrator.initiateScan();
     }
 

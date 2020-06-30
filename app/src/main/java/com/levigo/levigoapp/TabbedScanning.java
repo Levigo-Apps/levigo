@@ -118,7 +118,7 @@ public class TabbedScanning extends AppCompatActivity implements ActionBar.TabLi
             return rootView;
         }
 
-
+/*
         @Override
         public void setUserVisibleHint(boolean isVisibleToUser) {
             super.setUserVisibleHint(isVisibleToUser);
@@ -131,7 +131,7 @@ public class TabbedScanning extends AppCompatActivity implements ActionBar.TabLi
                 }
             }
         }
-
+*/
         @Override
         public void onPause() {
             super.onPause();
