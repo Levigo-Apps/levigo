@@ -1,10 +1,5 @@
 package com.levigo.levigoapp;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,6 +13,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                 finish();
                 return true;
             case R.id.inventoryView:
-                Intent db = new Intent(getApplicationContext(), DatabaseInventoryActivity.class);
+                Intent db = new Intent(getApplicationContext(), InventoryViewActivity.class);
                 startActivity(db);
                 return true;
             case R.id.settings:
