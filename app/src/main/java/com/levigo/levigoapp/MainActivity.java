@@ -66,6 +66,9 @@ public class MainActivity extends AppCompatActivity {
         integrator.setCaptureActivity(CaptureActivity.class);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
         integrator.setBarcodeImageEnabled(true);
+
+//        integrator.setOrientationLocked(false);
+//        integrator.setPrompt("SCANNING!");
         integrator.initiateScan();
     }
 
@@ -78,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode,resultCode,data);
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if(result != null){
             String contents = result.getContents();
             if(contents != null) {
@@ -137,5 +140,10 @@ public class MainActivity extends AppCompatActivity {
             default:
             return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void tabs(View view) {
+        Intent intent = new Intent(this, TabbedScanning.class);
+        startActivity(intent);
     }
 }

@@ -14,4 +14,6 @@
     <string name="remember_me_label">Remember me</string>
     <string name="login_label">Login</string>
     <string name="register_label">Don\'t have an account? Register here</string>
+    <string name="scan_from_fragment">SCAN FROM FRAGMENT</string>
+    <string name="title_activity_tabbed_scanning">Tabbed Scanning Activity Title</string>
 </resources>
