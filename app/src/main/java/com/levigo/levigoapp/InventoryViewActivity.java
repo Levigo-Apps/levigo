@@ -24,12 +24,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-
 public class InventoryViewActivity extends Activity {
+
+    private static final String TAG = "InventoryViewActivity";
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance() ;
     private CollectionReference inventoryRef = levigoDb.collection("Inventory") ;
-
-
 
 
     private RecyclerView inventoryScroll ;
@@ -51,6 +50,7 @@ public class InventoryViewActivity extends Activity {
         iAdapter = new InventoryViewAdapter(names);
         inventoryScroll.setAdapter(iAdapter);
 
+
         inventoryRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) throws NullPointerException{
@@ -66,12 +66,14 @@ public class InventoryViewActivity extends Activity {
                             if(task.getResult() != null) {
                                 for (QueryDocumentSnapshot inventoryItem : task.getResult()) {
                                     names.add(inventoryItem.getString("name"));
+                                    Log.d(TAG, "Success");
+                                    iAdapter.notifyDataSetChanged();
                                 }
                             } else {
                                 throw new NullPointerException("Error getting list of inventory items");
                             }
                         } else {
-                            Log.d("TAG", "Error getting list of inventory items: ", task.getException());
+                            Log.d(TAG, "Error getting list of inventory items: ", task.getException());
                         }
                     }
                 });
