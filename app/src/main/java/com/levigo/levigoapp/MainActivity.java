@@ -67,11 +67,6 @@ public class MainActivity extends AppCompatActivity {
         getPermissions();
 
     }
-    // changes layout from main to manual entry view
-//    public void change_layout(View view){
-//        Intent myIntent = new Intent(view.getContext(), FirebaseActivity.class);
-//        startActivityForResult(myIntent, 0);
-//    }
 
     private void startScanner() {
         IntentIntegrator integrator = new IntentIntegrator(this);
@@ -184,8 +179,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void tabs(View view) {
-        Intent intent = new Intent(this, TabbedScanning.class);
-        startActivity(intent);
-    }
 }
