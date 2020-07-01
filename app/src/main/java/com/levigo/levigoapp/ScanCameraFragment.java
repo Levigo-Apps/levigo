@@ -15,13 +15,13 @@ public class ScanCameraFragment extends Fragment {
     public ScanCameraFragment() {
     }
 
-    /**
-     * Returns a new instance of this fragment for the given section
-     * number.
-     */
-    public static ScanCameraFragment newInstance() {
-        return new ScanCameraFragment();
-    }
+//    /**
+//     * Returns a new instance of this fragment for the given section
+//     * number.
+//     */
+//    public static ScanCameraFragment newInstance() {
+//        return new ScanCameraFragment();
+//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

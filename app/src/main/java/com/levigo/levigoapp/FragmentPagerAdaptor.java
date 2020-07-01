@@ -25,7 +25,9 @@ class ScanningFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         if (position == 0) {
-            return ScanCameraFragment.newInstance();
+//            return ScanCameraFragment.newInstance();
+//            return new ScanFragment();
+            return new ScanCameraFragment();
         } else if (position == 1) {
             return ScanAlbumFragment.newInstance();
         } else {
