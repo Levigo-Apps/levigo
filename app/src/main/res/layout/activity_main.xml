@@ -17,29 +17,39 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintTop_toBottomOf="@id/main_toolbar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+<!--    <ImageView-->
+<!--        android:id="@+id/imageView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_margin="10dp"-->
+<!--        android:scaleType="centerCrop"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/main_toolbar"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent" />-->
 
-    <TextView
-        android:id="@+id/textView"
+<!--    <TextView-->
+<!--        android:id="@+id/textView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:elevation="1dp"-->
+<!--        android:paddingBottom="10dp"-->
+<!--        android:textAlignment="center"-->
+<!--        android:textColor="@color/colorPrimary"-->
+<!--        android:textSize="30sp"-->
+<!--        android:layout_margin="10dp"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/imageView"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent" />-->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/inventoryScroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="1dp"
-        android:paddingBottom="10dp"
-        android:textAlignment="center"
-        android:textColor="@color/colorPrimary"
-        android:textSize="30sp"
-        android:layout_margin="10dp"
-        app:layout_constraintTop_toBottomOf="@id/imageView"
+        android:scrollbars="vertical"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_toolbar"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/main_add"
@@ -51,26 +61,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@android:drawable/ic_input_add" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/main_add_tabbed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:layout_marginBottom="16dp"
-        android:onClick="tabs"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.811"
-        app:layout_constraintStart_toEndOf="@+id/main_add"
-        app:srcCompat="@android:drawable/ic_input_add" />
-    <!--    <Button-->
-<!--        android:id="@+id/button"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="@string/button_label"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/textView"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"/>-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
