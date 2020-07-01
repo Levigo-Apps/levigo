@@ -20,87 +20,66 @@
         android:textColorHint="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.384" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <ImageView
         android:id="@+id/manualAdd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="70dp"
+        android:layout_height="48dp"
         android:layout_marginStart="75dp"
-        android:layout_marginTop="18dp"
+        android:layout_marginTop="17dp"
         android:layout_marginEnd="94dp"
-        android:layout_marginBottom="657dp"
-        android:backgroundTint="#FFFFFF"
+        android:layout_marginBottom="665dp"
+        android:backgroundTint="@android:color/transparent"
+        android:backgroundTintMode="multiply"
         android:clickable="true"
         android:focusable="true"
-        android:tint="#360E0E0E"
-        app:backgroundTint="#8BFFFFFF"
+        android:onClick="goToManualAdd"
+        android:tint="#070707"
+        app:backgroundTint="@color/zxing_transparent"
+        app:backgroundTintMode="multiply"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.028"
         app:layout_constraintStart_toEndOf="@+id/title"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        app:rippleColor="#D5131313"
+        app:rippleColor="#D5000000"
         app:srcCompat="@android:drawable/ic_menu_add"
-        android:onClick="goToManualAdd" />
+        tools:ignore="ContentDescription" />
 
-    <ScrollView
-        android:id="@+id/inventoryList"
-        style="@android:style/Widget.DeviceDefault.ScrollView"
-        android:layout_width="284dp"
-        android:layout_height="439dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="72dp"
-        android:layout_marginEnd="111dp"
-        android:layout_marginBottom="146dp"
-        android:fillViewport="true"
-        android:scrollbars="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/manualAdd">
-
-        <LinearLayout
-            android:id="@+id/linearScroll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
-
-            <Button
-                android:id="@+id/child_1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:onClick="goToManualAdd"
-                android:text="@string/mask_label" />
-
-            <TextView
-                android:id="@+id/type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Type: N95                       Qty: 2" />
-
-        </LinearLayout>
-    </ScrollView>
-
-    <Button
-        android:id="@+id/autoFill"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="157dp"
-        android:layout_marginTop="88dp"
-        android:layout_marginEnd="167dp"
-        android:layout_marginBottom="10dp"
+    <ImageView
+        android:id="@+id/scan"
+        android:layout_width="59dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="17dp"
+        android:layout_marginEnd="17dp"
+        android:layout_marginBottom="690dp"
         android:clickable="true"
         android:focusable="true"
-        android:text="@string/scan"
+        android:onClick="goToScan"
+        android:tint="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.923"
+        app:layout_constraintStart_toEndOf="@+id/manualAdd"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@android:drawable/ic_menu_camera"
+        tools:ignore="ContentDescription" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/inventoryScroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inventoryList"
-        android:onClick="goToAutoFill" />
+        app:layout_constraintTop_toBottomOf="@+id/title"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

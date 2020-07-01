@@ -32,7 +32,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-        <activity android:name=".DatabaseInventoryActivity">
+        <activity android:name=".InventoryViewActivity">
 
         </activity>
 
