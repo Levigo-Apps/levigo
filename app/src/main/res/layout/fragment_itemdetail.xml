@@ -76,7 +76,6 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:backgroundTint="#020202"
-                    android:onClick="save_data"
                     android:text="Save"
                     android:textColor="#FFFFFF" />
 
