@@ -9,24 +9,24 @@ import androidx.fragment.app.Fragment;
 
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
-public class ScanFragment extends Fragment {
+public class ScanCameraFragment extends Fragment {
     DecoratedBarcodeView barcodeView;
 
-    public ScanFragment() {
+    public ScanCameraFragment() {
     }
 
     /**
      * Returns a new instance of this fragment for the given section
      * number.
      */
-    public static ScanFragment newInstance() {
-        return new ScanFragment();
+    public static ScanCameraFragment newInstance() {
+        return new ScanCameraFragment();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_tabbed_scanning, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_camera, container, false);
         barcodeView = rootView.findViewById(R.id.barcode_view);
         return rootView;
     }

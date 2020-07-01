@@ -1,23 +1,19 @@
 package com.levigo.levigoapp;
 
-//import android.app.FragmentManager;
+
 import android.content.Context;
 
-//import android.app.Fragment;
-
-//import androidx.legacy.app.FragmentPagerAdapter;
-//import android.support.v4.app.Fragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-class SampleFragmentPagerAdapter extends FragmentPagerAdapter {
+class ScanningFragmentPagerAdapter extends FragmentPagerAdapter {
     final int PAGE_COUNT = 3;
-    private String tabTitles[] = new String[] { "Scan", "Manual", "Tab3" };
+    private String tabTitles[] = new String[]{"Camera", "Album", "Manual"};
     private Context context;
 
-    public SampleFragmentPagerAdapter(FragmentManager fm, Context context) {
-        super(fm);
+    public ScanningFragmentPagerAdapter(FragmentManager fm, Context context) {
+        super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         this.context = context;
     }
 
@@ -28,10 +24,13 @@ class SampleFragmentPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        if (position == 0){
-            return ScanFragment.newInstance();
+        if (position == 0) {
+            return ScanCameraFragment.newInstance();
+        } else if (position == 1) {
+            return ScanAlbumFragment.newInstance();
+        } else {
+            return ScanManualFragment.newInstance();
         }
-        return PageFragment.newInstance(position + 1);
     }
 
     @Override
