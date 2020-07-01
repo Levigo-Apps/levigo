@@ -11,6 +11,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -29,11 +31,13 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -45,6 +49,7 @@ import com.journeyapps.barcodescanner.CaptureActivity;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -90,19 +95,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mAdd2 = findViewById(R.id.main_add3);
-        mAdd2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "there");
-//                new ItemDetailFragment();
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                ItemDetailFragment fragment = new ItemDetailFragment();
-                fragmentTransaction.add(R.id.fragment_container, fragment);
-                fragmentTransaction.commit();
-            }
-        });
+//        mAdd2 = findViewById(R.id.main_add3);
+//        mAdd2.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Log.d(TAG, "there");
+////                new ItemDetailFragment();
+//                FragmentManager fragmentManager = getSupportFragmentManager();
+//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//                ItemDetailFragment fragment = new ItemDetailFragment();
+//                fragmentTransaction.add(R.id.fragment_container, fragment);
+//                fragmentTransaction.commit();
+//            }
+//        });
 
 
         Toolbar mToolbar = findViewById(R.id.main_toolbar);
@@ -250,8 +255,13 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch(item.getItemId()) {
             case R.id.manual_entry:
-                Intent myIntent = new Intent(this, FirebaseActivity.class);
-                startActivityForResult(myIntent, 0);
+//                Intent myIntent = new Intent(this, FirebaseActivity.class);
+//                startActivityForResult(myIntent, 0);
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                ItemDetailFragment fragment = new ItemDetailFragment();
+                fragmentTransaction.add(R.id.fragment_container, fragment);
+                fragmentTransaction.commit();
                 return true;
             case R.id.logout:
                 FirebaseAuth.getInstance().signOut();
@@ -269,11 +279,105 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static class ItemDetailFragment extends Fragment {
+
+        // Firebase database
+        private FirebaseFirestore db = FirebaseFirestore.getInstance();
+        InventoryTemplate in;
+
+        private static final String TAG = ItemDetailFragment.class.getSimpleName();
+
+        // USER INPUT VALUES
+        private EditText barcode;
+        private EditText name;
+        private EditText equipment_type;
+        private EditText manufacturer;
+        private EditText procedure_used;
+        private EditText procedure_date;
+        private EditText patient_id;
+        private EditText expiration;
+        private EditText quantity;
+        private EditText hospital_name;
+        private EditText physical_location;
+        private EditText notes;
+        private Button mSave;
+
+
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             // Inflate the layout for this fragment
-            return inflater.inflate(R.layout.fragment_itemdetail, container, false);
+
+            final View rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
+            barcode = rootView.findViewById(R.id.barcode_editText);
+            name = rootView.findViewById(R.id.name_editText);
+            equipment_type = rootView.findViewById(R.id.equipment_editText);
+            manufacturer = rootView.findViewById(R.id.manufacturer_editText);
+            procedure_used =  rootView.findViewById(R.id.procedure_editText);
+            procedure_date = rootView.findViewById(R.id.procedureDate_editText);
+            patient_id = rootView.findViewById(R.id.patientID_editText);
+            expiration = rootView.findViewById(R.id.expiration_editText);
+            hospital_name = rootView.findViewById(R.id.hospitalName_editText);
+            physical_location = rootView.findViewById(R.id.physicalLocation_editText);
+            notes = rootView.findViewById(R.id.notes_editText);
+            mSave = rootView.findViewById(R.id.save_button);
+
+            mSave.setOnClickListener( new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    saveData(rootView);
+                }
+            });
+            return rootView;
+        }
+
+        // method for saving data to firebase cloud firestore
+        public void saveData(View view){
+
+            //assigning user input values to string parameters
+            // naming each document with barcode number of the equipment
+        /* each document needs (which will include an equipment) a document number. I am assigning
+        barcode number of the equipment to a document number. it is possible to have random id as
+        a document number as well
+         */
+
+            Log.d(TAG, "SAVING");
+            String barcode_str = barcode.getText().toString();
+            DocumentReference equipRef = db.document("Inventory/" + barcode_str);
+
+            String name_str = name.getText().toString();
+            String equipment_type_str = equipment_type.getText().toString();
+            String manufacturer_str = manufacturer.getText().toString();
+            String procedure_used_str = procedure_used.getText().toString();
+            String procedure_date_str = procedure_date.getText().toString();
+            String patient_id_str = patient_id.getText().toString();
+            String expiration_str = expiration.getText().toString();
+            String quantity_str = "2"; // temporarily
+            String current_date_time = Calendar.getInstance().getTime().toString();
+            String hospital_name_str = hospital_name.getText().toString();
+            String physical_location_str = physical_location.getText().toString();
+            String notes_str  = notes.getText().toString();
+            in = new InventoryTemplate(barcode_str,name_str, equipment_type_str,
+                    manufacturer_str,procedure_used_str, procedure_date_str,patient_id_str,expiration_str,
+                    quantity_str, hospital_name_str, current_date_time, physical_location_str, notes_str);
+
+            //saving data of InventoryTemplate to database
+            equipRef.set(in)
+                    //in case of success
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    // in case of failure
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, e.toString());
+                        }
+                    });
         }
     }
 
