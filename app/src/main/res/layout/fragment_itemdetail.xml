@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:backgroundTint="#040303"
+    android:fillViewport="true"
+    android:scrollbars="vertical">
+
+    <LinearLayout
+        android:id="@+id/linear_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:scrollbars="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraint_for_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical">
+
+            <LinearLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="#020202"
+                android:orientation="horizontal"
+
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <Button
+                    android:id="@+id/cancel_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="#020202"
+                    android:text="Cancel"
+                    android:textColor="#FFFFFF" />
+
+                <LinearLayout
+                    android:id="@+id/top_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/editText_textView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Edit Item"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/add_edit_textView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:gravity="center"
+                        android:text="add/edit fields"
+                        android:textColor="#D5C4C4" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/save_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="#020202"
+                    android:onClick="save_data"
+                    android:text="Save"
+                    android:textColor="#FFFFFF" />
+
+            </LinearLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/middle_layout"
+                android:layout_width="400dp"
+                android:layout_height="1114dp"
+                android:layout_marginStart="7dp"
+                android:layout_marginEnd="7dp"
+                android:layout_weight="1"
+                android:background="#272727"
+                android:orientation="vertical"
+
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+                <TextView
+                    android:id="@+id/barcode_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="315dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_weight="1"
+                    android:text="Barcode"
+                    android:textColor="#5C5959"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/barcode_editText"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <EditText
+                    android:id="@+id/barcode_editText"
+                    android:layout_width="308dp"
+                    android:layout_height="67dp"
+                    android:layout_marginStart="10dp"
+                    android:background="#050505"
+                    android:backgroundTint="#171616"
+                    android:ems="10"
+                    android:hint="Enter Barcode"
+                    android:inputType="textPersonName"
+                    android:textColor="#F3F4F4"
+                    android:textColorHint="#9E9C9C"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/barcode_textView" />
+
+                <ImageButton
+                    android:id="@+id/imageButton_barcode"
+                    android:layout_width="62dp"
+                    android:layout_height="80dp"
+                    android:layout_marginStart="-2dp"
+                    android:layout_marginTop="23dp"
+                    android:layout_marginEnd="26dp"
+                    android:backgroundTint="#888282"
+                    android:src="@android:drawable/ic_menu_more"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/barcode_editText"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/name_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="334dp"
+                    android:layout_weight="1"
+                    android:text="Name"
+                    android:textColor="#5C5959"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/imageButton_name_left"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/barcode_editText" />
+
+                <EditText
+                    android:id="@+id/name_editText"
+                    android:layout_width="250dp"
+                    android:layout_height="67dp"
+                    android:layout_marginTop="39dp"
+                    android:background="#050505"
+                    android:backgroundTint="#171616"
+                    android:ems="10"
+                    android:hint="Equipment Name"
+                    android:inputType="textPersonName"
+                    android:textColor="#F3F4F4"
+                    android:textColorHint="#9E9C9C"
+                    app:layout_constraintEnd_toStartOf="@+id/imageButton_name"
+                    app:layout_constraintStart_toEndOf="@+id/imageButton_name_left"
+                    app:layout_constraintTop_toBottomOf="@+id/barcode_editText" />
+
+                <ImageButton
+                    android:id="@+id/imageButton_name"
+                    android:layout_width="62dp"
+                    android:layout_height="78dp"
+                    android:layout_marginStart="-2dp"
+                    android:layout_marginTop="26dp"
+                    android:layout_marginEnd="26dp"
+                    android:backgroundTint="#888282"
+                    android:src="@android:drawable/ic_menu_more"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toEndOf="@+id/name_editText"
+                    app:layout_constraintTop_toBottomOf="@+id/imageButton_barcode" />
+
+                <ImageButton
+                    android:id="@+id/imageButton_name_left"
+                    android:layout_width="58dp"
+                    android:layout_height="78dp"
+                    android:layout_marginStart="9dp"
+                    android:layout_marginEnd="-6dp"
+                    android:backgroundTint="#888282"
+                    android:src="?android:attr/fingerprintAuthDrawable"
+                    app:layout_constraintEnd_toStartOf="@+id/name_editText"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/name_textView" />
+
+                <TextView
+                    android:id="@+id/type_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="344dp"
+                    android:layout_weight="1"
+                    android:text="Type"
+                    android:textColor="#5C5959"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/imageButton_name_left" />
+
+                <EditText
+                    android:id="@+id/equipment_editText"
+                    android:layout_width="308dp"
+                    android:layout_height="67dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="75dp"
+                    android:background="#050505"
+                    android:backgroundTint="#171616"
+                    android:ems="10"
+                    android:hint="Equipment Type"
+                    android:inputType="textPersonName"
+                    android:textColor="#F3F4F4"
+                    android:textColorHint="#9E9C9C"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/type_textView" />
+
+                <TextView
+                    android:id="@+id/manufacturer_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="274dp"
+                    android:layout_weight="1"
+                    android:text="Manufacturer"
+                    android:textColor="#5C5959"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/manufacturer_editText"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/equipment_editText" />
+
+                <EditText
+                    android:id="@+id/manufacturer_editText"
+                    android:layout_width="308dp"
+                    android:layout_height="67dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="75dp"
+                    android:background="#050505"
+                    android:backgroundTint="#171616"
+                    android:ems="10"
+                    android:hint="Equipment Manufacturer"
+                    android:inputType="textPersonName"
+                    android:textColor="#F3F4F4"
+                    android:textColorHint="#9E9C9C"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/manufacturer_textView" />
+
+                <TextView
+                    android:id="@+id/procedure_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="299dp"
+                    android:layout_weight="1"
+                    android:text="Procedure"
+                    android:textColor="#5C5959"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/procedure_editText"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/manufacturer_editText" />
+
+                <EditText
+                    android:id="@+id/procedure_editText"
+                    android:layout_width="308dp"
+                    android:layout_height="67dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="75dp"
+                    android:background="#050505"
+                    android:backgroundTint="#171616"
+                    android:ems="10"
+                    android:hint="Procedure Name"
+                    android:inputType="textPersonName"
+                    android:textColor="#F3F4F4"
+                    android:textColorHint="#9E9C9C"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/procedure_textView" />
+
+                <TextView
+                    android:id="@+id/procedureDate_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="259dp"
+                    android:layout_weight="1"
+                    android:text="Procedure Date"
+                    android:textColor="#5C5959"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/procedureDate_editText"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/procedure_editText" />
+
+                <EditText
+                    android:id="@+id/procedureDate_editText"
+                    android:layout_width="308dp"
+                    android:layout_height="67dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="75dp"
+                    android:background="#050505"
+                    android:backgroundTint="#171616"
+                    android:ems="10"
+                    android:hint="Procedure Date"
+                    android:inputType="textPersonName"
+                    android:textColor="#F3F4F4"
+                    android:textColorHint="#9E9C9C"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/procedureDate_textView" />
+
+                <TextView
+                    android:id="@+id/patientID_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="305dp"
+                    android:layout_weight="1"
+                    android:text="Patient ID"
+                    android:textColor="#5C5959"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/patientID_editText"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/procedureDate_editText" />
+
+                <EditText
+                    android:id="@+id/patientID_editText"
+                    android:layout_width="308dp"
+                    android:layout_height="67dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="75dp"
+                    android:background="#050505"
+                    android:backgroundTint="#171616"
+                    android:ems="10"
+                    android:hint="Patient ID"
+                    android:inputType="textPersonName"
+                    android:textColor="#F3F4F4"
+                    android:textColorHint="#9E9C9C"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/patientID_textView" />
+
+                <TextView
+                    android:id="@+id/expiration_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="271dp"
+                    android:layout_weight="1"
+                    android:text="Expiration"
+                    android:textColor="#5C5959"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/expiration_editText"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.093"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/patientID_editText" />
+
+                <EditText
+                    android:id="@+id/expiration_editText"
+                    android:layout_width="308dp"
+                    android:layout_height="67dp"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="82dp"
+                    android:background="#050505"
+                    android:backgroundTint="#171616"
+                    android:ems="10"
+                    android:hint="Expiration Date"
+                    android:inputType="textPersonName"
+                    android:textColor="#F3F4F4"
+                    android:textColorHint="#9E9C9C"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/expiration_textView" />
+
+                <TextView
+                    android:id="@+id/hospitalName_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="320dp"
+                    android:layout_weight="1"
+                    android:text="Hospital"
+                    android:textColor="#5C5959"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/hospitalName_editText"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/expiration_editText" />
+
+                <EditText
+                    android:id="@+id/hospitalName_editText"
+                    android:layout_width="308dp"
+                    android:layout_height="67dp"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="80dp"
+                    android:background="#050505"
+                    android:backgroundTint="#171616"
+                    android:ems="10"
+                    android:hint="Hospital Name"
+                    android:inputType="textPersonName"
+                    android:textColor="#F3F4F4"
+                    android:textColorHint="#9E9C9C"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/hospitalName_textView" />
+
+                <TextView
+                    android:id="@+id/physicalLocation_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="249dp"
+                    android:layout_weight="1"
+                    android:text="Physical Location"
+                    android:textColor="#5C5959"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/hospitalName_editText" />
+
+                <EditText
+                    android:id="@+id/physicalLocation_editText"
+                    android:layout_width="308dp"
+                    android:layout_height="67dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="85dp"
+                    android:background="#050505"
+                    android:backgroundTint="#171616"
+                    android:ems="10"
+                    android:hint="Physical Location"
+                    android:inputType="textPersonName"
+                    android:textColor="#F3F4F4"
+                    android:textColorHint="#9E9C9C"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/physicalLocation_textView" />
+
+                <TextView
+                    android:id="@+id/notes_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="337dp"
+                    android:layout_weight="1"
+                    android:text="Notes"
+                    android:textColor="#5C5959"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/physicalLocation_editText" />
+
+                <EditText
+                    android:id="@+id/notes_editText"
+                    android:layout_width="308dp"
+                    android:layout_height="67dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="77dp"
+                    android:background="#050505"
+                    android:backgroundTint="#171616"
+                    android:ems="10"
+                    android:hint="Additional Remarks"
+                    android:inputType="textPersonName"
+                    android:textColor="#F3F4F4"
+                    android:textColorHint="#9E9C9C"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/notes_textView" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+</ScrollView>

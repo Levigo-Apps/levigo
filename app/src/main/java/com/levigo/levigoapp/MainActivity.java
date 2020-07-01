@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -21,6 +23,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -63,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
 //    private TextView mTextView;
 //    private ImageView mImageView;
     private FloatingActionButton mAdd;
+    private FloatingActionButton mAdd2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +87,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startScanner();
+            }
+        });
+
+        mAdd2 = findViewById(R.id.main_add3);
+        mAdd2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "there");
+//                new ItemDetailFragment();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                ItemDetailFragment fragment = new ItemDetailFragment();
+                fragmentTransaction.add(R.id.fragment_container, fragment);
+                fragmentTransaction.commit();
             }
         });
 
@@ -245,6 +265,15 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             default:
             return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public static class ItemDetailFragment extends Fragment {
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            // Inflate the layout for this fragment
+            return inflater.inflate(R.layout.fragment_itemdetail, container, false);
         }
     }
 
