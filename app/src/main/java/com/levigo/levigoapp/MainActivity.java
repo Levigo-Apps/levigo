@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -49,7 +51,10 @@ import com.journeyapps.barcodescanner.CaptureActivity;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -321,6 +326,39 @@ public class MainActivity extends AppCompatActivity {
             physical_location = rootView.findViewById(R.id.physicalLocation_editText);
             notes = rootView.findViewById(R.id.notes_editText);
             mSave = rootView.findViewById(R.id.save_button);
+            mSave.setEnabled(false);
+
+            // disabling save button if required fields are empty
+            TextWatcher textWatcher = new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    for (EditText et  : new EditText[] {barcode,name,equipment_type,manufacturer,hospital_name,
+                        physical_location}) {
+                            if(et.getText().toString().isEmpty()){
+                                mSave.setEnabled(false);
+                                et.setError("Please enter " + et.getHint().toString().toLowerCase());
+                                return;
+                        }
+                    }
+                    mSave.setEnabled(true);
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+
+                }
+            };
+            barcode.addTextChangedListener(textWatcher);
+            name.addTextChangedListener(textWatcher);
+            equipment_type.addTextChangedListener(textWatcher);
+            manufacturer.addTextChangedListener(textWatcher);
+
 
             mSave.setOnClickListener( new View.OnClickListener() {
                 @Override
@@ -344,10 +382,9 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "SAVING");
             String barcode_str = barcode.getText().toString();
             DocumentReference equipRef = db.document("Inventory/" + barcode_str);
-
             String name_str = name.getText().toString();
             String equipment_type_str = equipment_type.getText().toString();
-            String manufacturer_str = manufacturer.getText().toString();
+            String manufacturer_str = equipment_type.getText().toString();
             String procedure_used_str = procedure_used.getText().toString();
             String procedure_date_str = procedure_date.getText().toString();
             String patient_id_str = patient_id.getText().toString();

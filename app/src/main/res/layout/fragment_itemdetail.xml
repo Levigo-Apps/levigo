@@ -121,7 +121,7 @@
                     android:background="#050505"
                     android:backgroundTint="#171616"
                     android:ems="10"
-                    android:hint="Enter Barcode"
+                    android:hint="Barcode"
                     android:inputType="textPersonName"
                     android:textColor="#F3F4F4"
                     android:textColorHint="#9E9C9C"
