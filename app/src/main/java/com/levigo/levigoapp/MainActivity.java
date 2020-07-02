@@ -51,6 +51,9 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.ParseException;
@@ -81,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
 //    private TextView mTextView;
 //    private ImageView mImageView;
     private FloatingActionButton mAdd;
-    private FloatingActionButton mAdd2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -270,6 +272,54 @@ public class MainActivity extends AppCompatActivity {
             default:
             return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void test_autopupulate(View view) {
+        String barcode = "(01)00885672101114(17)180401(10)DP02149";
+
+//        final TextView textView = (TextView) findViewById(R.id.text);
+// ...
+
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+//        String url ="https://accessgudid.nlm.nih.gov/api/v2/parse_udi.json?udi=";
+        String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
+
+        url = url + barcode;
+        Log.d(TAG, "URL: " + url);
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+//                        textView.setText("Response is: "+ response.substring(0,500));
+                        JSONObject responseJson = null;
+                        try {
+                            responseJson = new JSONObject(response);
+
+                            Log.d(TAG, "Response: " + response);
+                            Log.d(TAG, responseJson.toString());
+//                            Log.d(TAG, responseJson.getString("lotNumber"));
+//                            String udi = responseJson.getString("udi");
+                            String udi = responseJson.getJSONObject("udi").getString("lotNumber");
+                            Log.d(TAG, "uDI: " + udi);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+//                textView.setText("That didn't work!");
+                Log.d(TAG, "Volley error");
+            }
+        });
+
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
+
     }
 
     public static class ItemDetailFragment extends Fragment {
