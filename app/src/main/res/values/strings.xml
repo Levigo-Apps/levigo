@@ -23,11 +23,9 @@
     <string name="expiration_date_lbl">Expiration Date</string>
     <string name="notes_lbl">Notes</string>
     <string name="additional_remarks_lbl">Additional Remarks</string>
-    <string name="barcode_lbl">Barcode</string>
-    <string name="patient_id_lbl">Patient ID</string>
+    <string name="patient_id_label">Patient ID</string>
     <string name="patient_id_lbl">Patient ID</string>
     <string name="expiration_lbl">Expiration</string>
-    <string name="procedure_date_label">Procedure Date</string>
     <string name="cancel_lbl">Cancel</string>
     <string name="edit_item_lbl">Edit Item</string>
     <string name="add_edit_fields_lbl">add/edit fields</string>

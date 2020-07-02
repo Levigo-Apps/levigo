@@ -323,12 +323,14 @@
                     android:backgroundTint="#171616"
                     android:ems="10"
                     android:hint="@string/procedure_date_label"
-                    android:inputType="textPersonName"
+                    android:inputType="date"
                     android:textColor="#F3F4F4"
                     android:textColorHint="#9E9C9C"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/procedureDate_textView" />
+                    app:layout_constraintTop_toBottomOf="@+id/procedureDate_textView"
+                    android:clickable="true"
+                    android:focusable="false"/>
 
                 <TextView
                     android:id="@+id/patientID_textView"
@@ -390,12 +392,14 @@
                     android:backgroundTint="#171616"
                     android:ems="10"
                     android:hint="@string/expiration_date_lbl"
-                    android:inputType="textPersonName"
+                    android:inputType="date"
+                    android:clickable="true"
                     android:textColor="#F3F4F4"
                     android:textColorHint="#9E9C9C"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/expiration_textView" />
+                    app:layout_constraintTop_toBottomOf="@+id/expiration_textView"
+                    android:focusable="false" />
 
                 <TextView
                     android:id="@+id/hospitalName_textView"

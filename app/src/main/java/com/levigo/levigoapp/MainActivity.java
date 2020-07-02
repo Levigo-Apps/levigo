@@ -1,6 +1,7 @@
 package com.levigo.levigoapp;
 
 import android.Manifest;
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -58,6 +60,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -314,6 +317,7 @@ public class MainActivity extends AppCompatActivity {
             // Inflate the layout for this fragment
 
             final View rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
+            final Calendar myCalendar = Calendar.getInstance();
             barcode = rootView.findViewById(R.id.barcode_editText);
             name = rootView.findViewById(R.id.name_editText);
             equipment_type = rootView.findViewById(R.id.equipment_editText);
@@ -327,6 +331,51 @@ public class MainActivity extends AppCompatActivity {
             notes = rootView.findViewById(R.id.notes_editText);
             mSave = rootView.findViewById(R.id.save_button);
             mSave.setEnabled(false);
+
+            // datepicker for Expiration field
+            final DatePickerDialog.OnDateSetListener date_exp = new DatePickerDialog.OnDateSetListener() {
+                @Override
+                public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                    myCalendar.set(Calendar.YEAR, i);
+                    myCalendar.set(Calendar.MONTH, i1);
+                    myCalendar.set(Calendar.DAY_OF_MONTH, i2);
+                    String myFormat = "yyyy/MM/dd";
+                    SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+                    expiration.setText(sdf.format(myCalendar.getTime()));
+                }
+            };
+
+            // datepicker for Procedure date field
+            final DatePickerDialog.OnDateSetListener date_proc = new DatePickerDialog.OnDateSetListener() {
+                @Override
+                public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                    myCalendar.set(Calendar.YEAR, i);
+                    myCalendar.set(Calendar.MONTH, i1);
+                    myCalendar.set(Calendar.DAY_OF_MONTH, i2);
+                    String myFormat = "yyyy/MM/dd";
+                    SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+                    procedure_date.setText(sdf.format(myCalendar.getTime()));
+                }
+            };
+
+            procedure_date.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new DatePickerDialog(view.getContext(), date_proc, myCalendar
+                            .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                            myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+
+                }
+            });
+
+            expiration.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new DatePickerDialog(view.getContext(), date_exp, myCalendar
+                            .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                            myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+                }
+            });
 
             // disabling save button if required fields are empty
             TextWatcher textWatcher = new TextWatcher() {
