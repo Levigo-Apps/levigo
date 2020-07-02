@@ -103,20 +103,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        mAdd2 = findViewById(R.id.main_add3);
-//        mAdd2.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Log.d(TAG, "there");
-////                new ItemDetailFragment();
-//                FragmentManager fragmentManager = getSupportFragmentManager();
-//                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                ItemDetailFragment fragment = new ItemDetailFragment();
-//                fragmentTransaction.add(R.id.fragment_container, fragment);
-//                fragmentTransaction.commit();
-//            }
-//        });
-
 
         Toolbar mToolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(mToolbar);

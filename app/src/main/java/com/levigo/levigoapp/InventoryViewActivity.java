@@ -85,12 +85,13 @@ public class InventoryViewActivity extends Activity {
 
 
     public void goToManualAdd(View view) {
-       Intent manualAddPage = new Intent(this, FirebaseActivity.class);
-       startActivity(manualAddPage);
+//       Intent manualAddPage = new Intent(this, FirebaseActivity.class);
+//       startActivity(manualAddPage);
+        // Let me know when you need to implement this --Elliot
     }
 
     public void goToScan(View view) {
-        Intent scanPage = new Intent(this, MainActivity.class);
-        startActivity(scanPage);
+//        Intent scanPage = new Intent(this, MainActivity.class);
+//        startActivity(scanPage);
     }
 }

@@ -27,19 +27,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".FirebaseActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
-        </activity>
         <activity android:name=".InventoryViewActivity">
 
         </activity>
-
-        <activity
-            android:name=".TabbedScanning"
-            android:label="@string/title_activity_tabbed_scanning"
-            android:theme="@style/Theme.AppCompat" />
 
     </application>
 
