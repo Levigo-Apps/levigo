@@ -493,30 +493,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             });
-/*
-            // datepicker for Procedure date field
-            final DatePickerDialog.OnDateSetListener date_proc = new DatePickerDialog.OnDateSetListener() {
-                @Override
-                public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-                    myCalendar.set(Calendar.YEAR, i);
-                    myCalendar.set(Calendar.MONTH, i1);
-                    myCalendar.set(Calendar.DAY_OF_MONTH, i2);
-                    String myFormat = "yyyy/MM/dd";
-                    SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                    procedure_date.setText(sdf.format(myCalendar.getTime()));
-                }
-            };
 
-            procedure_date.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    new DatePickerDialog(view.getContext(), date_proc, myCalendar
-                            .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                            myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-
-                }
-            });
-*/
             // disabling save button if required fields are empty
             TextWatcher textWatcher = new TextWatcher() {
                 @Override
