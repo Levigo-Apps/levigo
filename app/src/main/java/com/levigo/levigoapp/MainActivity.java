@@ -39,6 +39,12 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.datepicker.CalendarConstraints;
@@ -77,6 +83,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -512,8 +519,34 @@ public class MainActivity extends AppCompatActivity {
                                 return;
                         }
                     }
-                    mSave.setEnabled(true);
+                    String barcode_str = Objects.requireNonNull(barcode.getText()).toString();
+                    for(int i = 0; i < barcode_str.length(); i++) {
+                        if(!(Character.isDigit(barcode_str.charAt(i)) || Character.isLetter(barcode_str.charAt(i))
+                                || barcode_str.charAt(i) == '(' || barcode_str.charAt(i) == ')')){
+                            mSave.setEnabled(false);
+                            et.setError("Barcode entry does not match format. Please check");
+                            return;
+                        }
+                    }
+                    if(barcode_str.charAt(0) == '(' && Character.isDigit(barcode_str.charAt(1))
+                            && Character.isDigit(barcode_str.charAt(2)) && barcode_str.charAt(3) == ')' &&
+                            barcode_str.charAt(18) == '(' && Character.isDigit(barcode_str.charAt(19))
+                            && Character.isDigit(barcode_str.charAt(20)) && barcode_str.charAt(21) == ')'){
+                        for(int j = 4; j < 18; j++){
+                            if(!(Character.isDigit(barcode_str.charAt(j)))) {
+                                mSave.setEnabled(false);
+                                et.setError("Barcode entry does not match format. Please check");
+                                return;
+                            }
+                        }
+                    } else {
+                        mSave.setEnabled(false);
+                        et.setError("Barcode entry does not match format. Please check");
+                        return;
+                    }
 
+                    product_id.setText(barcode_str.substring(0,18));
+                    mSave.setEnabled(true);
                 }
 
                 @Override
@@ -526,10 +559,38 @@ public class MainActivity extends AppCompatActivity {
                             return;
                         }
                     }
-                    mSave.setEnabled(true);
+                    String barcode_str = Objects.requireNonNull(barcode.getText()).toString();
+                    for(int i = 0; i < barcode_str.length(); i++) {
+                        if(!(Character.isDigit(barcode_str.charAt(i)) || Character.isLetter(barcode_str.charAt(i))
+                                || barcode_str.charAt(i) == '(' || barcode_str.charAt(i) == ')')){
+                            mSave.setEnabled(false);
+                            et.setError("Barcode entry does not match format. Please check");
+                            return;
+                        }
+                    }
+                    if(barcode_str.charAt(0) == '(' && Character.isDigit(barcode_str.charAt(1))
+                            && Character.isDigit(barcode_str.charAt(2)) && barcode_str.charAt(3) == ')' &&
+                            barcode_str.charAt(18) == '(' && Character.isDigit(barcode_str.charAt(19))
+                            && Character.isDigit(barcode_str.charAt(20)) && barcode_str.charAt(21) == ')'){
+                        for(int j = 4; j < 18; j++){
+                            if(!(Character.isDigit(barcode_str.charAt(j)))) {
+                                mSave.setEnabled(false);
+                                et.setError("Barcode entry does not match format. Please check");
+                                return;
+                            }
+                        }
+                    } else {
+                        mSave.setEnabled(false);
+                        et.setError("Barcode entry does not match format. Please check");
+                        return;
+                    }
 
+                    product_id.setText(barcode_str.substring(0,18));
+                    mSave.setEnabled(true);
                 }
             };
+
+
             barcode.addTextChangedListener(textWatcher);
             name.addTextChangedListener(textWatcher);
             equipment_type.addTextChangedListener(textWatcher);
