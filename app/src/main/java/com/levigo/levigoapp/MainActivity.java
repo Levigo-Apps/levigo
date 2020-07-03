@@ -564,11 +564,12 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     String barcode_str = Objects.requireNonNull(barcode.getText()).toString();
-                    for(int i = 0; i < barcode_str.length(); i++) {
-                        if(!(Character.isDigit(barcode_str.charAt(i)) || Character.isLetter(barcode_str.charAt(i))
-                                || barcode_str.charAt(i) == '(' || barcode_str.charAt(i) == ')')){
+                    for(int j = 0; j < barcode_str.length(); j++) {
+                        if(!(Character.isDigit(barcode_str.charAt(j)) || Character.isLetter(barcode_str.charAt(j))
+                                || barcode_str.charAt(j) == '(' || barcode_str.charAt(j) == ')')){
                             mSave.setEnabled(false);
-                            et.setError("Barcode entry does not match format. Please check");
+                            // todo: cannot find symbol "et"
+//                            et.setError("Barcode entry does not match format. Please check");
                             return;
                         }
                     }
@@ -579,13 +580,13 @@ public class MainActivity extends AppCompatActivity {
                         for(int j = 4; j < 18; j++){
                             if(!(Character.isDigit(barcode_str.charAt(j)))) {
                                 mSave.setEnabled(false);
-                                et.setError("Barcode entry does not match format. Please check");
+//                                et.setError("Barcode entry does not match format. Please check");
                                 return;
                             }
                         }
                     } else {
                         mSave.setEnabled(false);
-                        et.setError("Barcode entry does not match format. Please check");
+//                        et.setError("Barcode entry does not match format. Please check");
                         return;
                     }
 
@@ -608,7 +609,7 @@ public class MainActivity extends AppCompatActivity {
                         if(!(Character.isDigit(barcode_str.charAt(i)) || Character.isLetter(barcode_str.charAt(i))
                                 || barcode_str.charAt(i) == '(' || barcode_str.charAt(i) == ')')){
                             mSave.setEnabled(false);
-                            et.setError("Barcode entry does not match format. Please check");
+//                            et.setError("Barcode entry does not match format. Please check");
                             return;
                         }
                     }
@@ -619,13 +620,13 @@ public class MainActivity extends AppCompatActivity {
                         for(int j = 4; j < 18; j++){
                             if(!(Character.isDigit(barcode_str.charAt(j)))) {
                                 mSave.setEnabled(false);
-                                et.setError("Barcode entry does not match format. Please check");
+//                                et.setError("Barcode entry does not match format. Please check");
                                 return;
                             }
                         }
                     } else {
                         mSave.setEnabled(false);
-                        et.setError("Barcode entry does not match format. Please check");
+//                        et.setError("Barcode entry does not match format. Please check");
                         return;
                     }
 
