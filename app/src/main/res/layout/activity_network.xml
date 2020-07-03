@@ -106,6 +106,14 @@
 
             />
 
+        <Button
+            android:id="@+id/exit_outlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/exit_lbl"
+            style="?attr/materialButtonOutlinedStyle"
+            />
+
 
     </LinearLayout>
 

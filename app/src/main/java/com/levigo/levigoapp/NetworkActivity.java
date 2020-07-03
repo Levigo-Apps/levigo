@@ -1,21 +1,37 @@
 package com.levigo.levigoapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-
+import android.widget.Button;
 import androidx.annotation.Nullable;
 
+import com.google.android.material.button.MaterialButton;
+
 public class NetworkActivity extends Activity {
+
+    private Button exitButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_network);
 
-        String[] OPTIONS = new String[] {"Item 1", "Item 2", "Item 3", "Item 4"};
+        exitButton =  findViewById(R.id.exit_outlinedButton);
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent_inventory = new Intent(getApplicationContext(), MainActivity.class);
+                intent_inventory.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent_inventory);
+                finish();
 
+            }
+        });
+        String[] OPTIONS = new String[] {"Item 1", "Item 2", "Item 3", "Item 4"};
         ArrayAdapter<String> adapter =
                 new ArrayAdapter<>(
                         getApplicationContext(),
