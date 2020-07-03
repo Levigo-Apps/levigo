@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="300dp"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/barcode_string"
                 android:hint="@string/barcode_label"
@@ -53,7 +53,7 @@
             android:layout_marginTop="5dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="300dp"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/name_string"
                 android:hint="@string/name_lbl"
@@ -68,7 +68,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/type_string"
-                android:layout_width="300dp"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:hint="@string/type_lbl" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -79,10 +79,23 @@
             android:layout_marginTop="5dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="300dp"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/company_string"
                 android:hint="@string/company_lbl"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/numberAdded_string"
+                android:hint="@string/number_added_lbl"
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -102,7 +115,7 @@
             android:layout_marginTop="5dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="300dp"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/productID_string"
                 android:hint="@string/product_id_lbl"
@@ -115,7 +128,7 @@
             android:layout_marginTop="5dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="300dp"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/lotNumber_string"
                 android:hint="@string/lot_number_lbl"
@@ -132,7 +145,7 @@
             app:endIconTint="@color/colorPrimary"
             app:endIconDrawable="@drawable/calendar">
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="300dp"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/expiration_date_string"
                 android:hint="@string/expiration_date_lbl"
@@ -147,7 +160,7 @@
             android:layout_marginTop="5dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="300dp"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/quantity_string"
                 android:hint="@string/quantity_lbl"
@@ -164,7 +177,7 @@
             android:layout_marginTop="5dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="300dp"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/siteLocation_string"
                 android:hint="@string/site_location_lbl"
@@ -177,7 +190,7 @@
             android:layout_marginTop="5dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="300dp"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/physicallocation_string"
                 android:hint="@string/physical_location_label"
@@ -185,12 +198,15 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/time_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/clock"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="300dp"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/datetime_string"
                 android:hint="@string/dateTime_label"
@@ -207,7 +223,7 @@
             android:layout_marginTop="5dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="300dp"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/notes_string"
                 android:hint="@string/notes_lbl"
@@ -215,532 +231,44 @@
         </com.google.android.material.textfield.TextInputLayout>
 
 
-
-        <Button
-            android:id="@+id/saveChanges_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="90dp"
-            android:text="@string/save_changes_lbl"
-            style="?attr/materialButtonOutlinedStyle"
-            />
-
-        <Button
-            android:id="@+id/rescan_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="90dp"
-            android:text="@string/rescan_items_lbl"
-            style="?attr/materialButtonOutlinedStyle"
-            />
-
-
-
-
-    </LinearLayout>
-</ScrollView>
-
-    <!--
-
-    <LinearLayout
-        android:id="@+id/linear_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:scrollbars="vertical">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraint_for_scroll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="vertical">
-
-            <LinearLayout
-                android:id="@+id/linearLayout"
-                android:layout_width="match_parent"
+        <RelativeLayout
+            android:layout_width="320dp"
+            android:layout_height="match_parent">
+            <Button
+                android:id="@+id/rescan_button"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:background="#020202"
-                android:orientation="horizontal"
+                android:layout_gravity="end"
+                android:layout_marginTop="5dp"
+                android:layout_alignParentEnd="true"
+                android:text="@string/rescan_items_lbl"
+                style="?attr/materialButtonOutlinedStyle"
+                />
+        </RelativeLayout>
 
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+        <RelativeLayout
+            android:layout_width="320dp"
+            android:layout_height="match_parent">
 
-                <Button
-                    android:id="@+id/cancel_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:backgroundTint="#020202"
-                    android:text="@string/cancel_lbl"
-                    android:textColor="#FFFFFF" />
+            <ImageButton
+                android:id="@+id/back_imageButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:backgroundTint="@color/colorPrimaryDark"
+                android:contentDescription="back_button"
+                app:srcCompat="@android:drawable/ic_menu_revert" />
 
-                <LinearLayout
-                    android:id="@+id/top_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/editText_textView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="@string/edit_item_lbl"
-                        android:textColor="#FFFFFF"
-                        android:textSize="18sp" />
-
-                    <TextView
-                        android:id="@+id/add_edit_textView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:gravity="center"
-                        android:text="@string/add_edit_fields_lbl"
-                        android:textColor="#D5C4C4" />
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/save_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:backgroundTint="#020202"
-                    android:text="@string/save_lbl"
-                    android:textColor="#FFFFFF" />
-
-            </LinearLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/middle_layout"
-                android:layout_width="400dp"
-                android:layout_height="1114dp"
-                android:layout_marginStart="7dp"
-                android:layout_marginEnd="7dp"
-                android:layout_weight="1"
-                android:background="#272727"
-                android:orientation="vertical"
-
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout">
-
-                <TextView
-                    android:id="@+id/barcode_textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginEnd="315dp"
-                    android:layout_marginBottom="2dp"
-                    android:layout_weight="1"
-                    android:text="@string/barcode_lbl"
-                    android:textColor="#5C5959"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toTopOf="@+id/barcode_editText"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <EditText
-                    android:id="@+id/barcode_editText"
-                    android:layout_width="308dp"
-                    android:layout_height="67dp"
-                    android:layout_marginStart="10dp"
-                    android:background="#050505"
-                    android:backgroundTint="#171616"
-                    android:ems="10"
-                    android:hint="@string/barcode_lbl"
-                    android:inputType="textPersonName"
-                    android:textColor="#F3F4F4"
-                    android:textColorHint="#9E9C9C"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/barcode_textView" />
-
-                <ImageButton
-                    android:id="@+id/imageButton_barcode"
-                    android:layout_width="62dp"
-                    android:layout_height="80dp"
-                    android:layout_marginStart="-2dp"
-                    android:layout_marginTop="23dp"
-                    android:layout_marginEnd="26dp"
-                    android:backgroundTint="#888282"
-                    android:src="@android:drawable/ic_menu_more"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/barcode_editText"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/name_textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="334dp"
-                    android:layout_weight="1"
-                    android:text="@string/name_lbl"
-                    android:textColor="#5C5959"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toTopOf="@+id/imageButton_name_left"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/barcode_editText" />
-
-                <EditText
-                    android:id="@+id/name_editText"
-                    android:layout_width="250dp"
-                    android:layout_height="67dp"
-                    android:layout_marginTop="39dp"
-                    android:background="#050505"
-                    android:backgroundTint="#171616"
-                    android:ems="10"
-                    android:hint="@string/equipment_name_lbl"
-                    android:inputType="textPersonName"
-                    android:textColor="#F3F4F4"
-                    android:textColorHint="#9E9C9C"
-                    app:layout_constraintEnd_toStartOf="@+id/imageButton_name"
-                    app:layout_constraintStart_toEndOf="@+id/imageButton_name_left"
-                    app:layout_constraintTop_toBottomOf="@+id/barcode_editText" />
-
-                <ImageButton
-                    android:id="@+id/imageButton_name"
-                    android:layout_width="62dp"
-                    android:layout_height="78dp"
-                    android:layout_marginStart="-2dp"
-                    android:layout_marginTop="26dp"
-                    android:layout_marginEnd="26dp"
-                    android:backgroundTint="#888282"
-                    android:src="@android:drawable/ic_menu_more"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toEndOf="@+id/name_editText"
-                    app:layout_constraintTop_toBottomOf="@+id/imageButton_barcode" />
-
-                <ImageButton
-                    android:id="@+id/imageButton_name_left"
-                    android:layout_width="58dp"
-                    android:layout_height="78dp"
-                    android:layout_marginStart="9dp"
-                    android:layout_marginEnd="-6dp"
-                    android:backgroundTint="#888282"
-                    android:src="?android:attr/fingerprintAuthDrawable"
-                    app:layout_constraintEnd_toStartOf="@+id/name_editText"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/name_textView" />
-
-                <TextView
-                    android:id="@+id/type_textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="344dp"
-                    android:layout_weight="1"
-                    android:text="@string/type_lbl"
-                    android:textColor="#5C5959"
-                    android:textSize="18sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/imageButton_name_left" />
-
-                <EditText
-                    android:id="@+id/equipment_editText"
-                    android:layout_width="308dp"
-                    android:layout_height="67dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="75dp"
-                    android:background="#050505"
-                    android:backgroundTint="#171616"
-                    android:ems="10"
-                    android:hint="@string/equipment_type_lbl"
-                    android:inputType="textPersonName"
-                    android:textColor="#F3F4F4"
-                    android:textColorHint="#9E9C9C"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/type_textView" />
-
-                <TextView
-                    android:id="@+id/manufacturer_textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="274dp"
-                    android:layout_weight="1"
-                    android:text="@string/manufacturer_lbl"
-                    android:textColor="#5C5959"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toTopOf="@+id/manufacturer_editText"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/equipment_editText" />
-
-                <EditText
-                    android:id="@+id/manufacturer_editText"
-                    android:layout_width="308dp"
-                    android:layout_height="67dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="75dp"
-                    android:background="#050505"
-                    android:backgroundTint="#171616"
-                    android:ems="10"
-                    android:hint="@string/equipment_manufacturer_lbl"
-                    android:inputType="textPersonName"
-                    android:textColor="#F3F4F4"
-                    android:textColorHint="#9E9C9C"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/manufacturer_textView" />
-
-                <TextView
-                    android:id="@+id/procedure_textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="299dp"
-                    android:layout_weight="1"
-                    android:text="@string/procedure_lbl"
-                    android:textColor="#5C5959"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toTopOf="@+id/procedure_editText"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/manufacturer_editText" />
-
-                <EditText
-                    android:id="@+id/procedure_editText"
-                    android:layout_width="308dp"
-                    android:layout_height="67dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="75dp"
-                    android:background="#050505"
-                    android:backgroundTint="#171616"
-                    android:ems="10"
-                    android:hint="@string/procedure_name_lbl"
-                    android:inputType="textPersonName"
-                    android:textColor="#F3F4F4"
-                    android:textColorHint="#9E9C9C"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/procedure_textView" />
-
-                <TextView
-                    android:id="@+id/procedureDate_textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="259dp"
-                    android:layout_weight="1"
-                    android:text="@string/procedure_date_label"
-                    android:textColor="#5C5959"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toTopOf="@+id/procedureDate_editText"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/procedure_editText" />
-
-                <EditText
-                    android:id="@+id/procedureDate_editText"
-                    android:layout_width="308dp"
-                    android:layout_height="67dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="75dp"
-                    android:background="#050505"
-                    android:backgroundTint="#171616"
-                    android:ems="10"
-                    android:hint="@string/procedure_date_label"
-                    android:inputType="date"
-                    android:textColor="#F3F4F4"
-                    android:textColorHint="#9E9C9C"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/procedureDate_textView"
-                    android:clickable="true"
-                    android:focusable="false"/>
-
-                <TextView
-                    android:id="@+id/patientID_textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="305dp"
-                    android:layout_weight="1"
-                    android:text="@string/patient_id_lbl"
-                    android:textColor="#5C5959"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toTopOf="@+id/patientID_editText"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/procedureDate_editText" />
-
-                <EditText
-                    android:id="@+id/patientID_editText"
-                    android:layout_width="308dp"
-                    android:layout_height="67dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="75dp"
-                    android:background="#050505"
-                    android:backgroundTint="#171616"
-                    android:ems="10"
-                    android:hint="@string/patient_id_lbl"
-                    android:inputType="textPersonName"
-                    android:textColor="#F3F4F4"
-                    android:textColorHint="#9E9C9C"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/patientID_textView" />
-
-                <TextView
-                    android:id="@+id/expiration_textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="271dp"
-                    android:layout_weight="1"
-                    android:text="@string/expiration_lbl"
-                    android:textColor="#5C5959"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toTopOf="@+id/expiration_editText"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.093"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/patientID_editText" />
-
-                <EditText
-                    android:id="@+id/expiration_editText"
-                    android:layout_width="308dp"
-                    android:layout_height="67dp"
-                    android:layout_marginStart="18dp"
-                    android:layout_marginEnd="82dp"
-                    android:background="#050505"
-                    android:backgroundTint="#171616"
-                    android:ems="10"
-                    android:hint="@string/expiration_date_lbl"
-                    android:inputType="date"
-                    android:clickable="true"
-                    android:textColor="#F3F4F4"
-                    android:textColorHint="#9E9C9C"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/expiration_textView"
-                    android:focusable="false" />
-
-                <TextView
-                    android:id="@+id/hospitalName_textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="320dp"
-                    android:layout_weight="1"
-                    android:text="@string/hospital_lbl"
-                    android:textColor="#5C5959"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toTopOf="@+id/hospitalName_editText"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/expiration_editText" />
-
-                <EditText
-                    android:id="@+id/hospitalName_editText"
-                    android:layout_width="308dp"
-                    android:layout_height="67dp"
-                    android:layout_marginStart="18dp"
-                    android:layout_marginEnd="80dp"
-                    android:background="#050505"
-                    android:backgroundTint="#171616"
-                    android:ems="10"
-                    android:hint="@string/hospital_name_label"
-                    android:inputType="textPersonName"
-                    android:textColor="#F3F4F4"
-                    android:textColorHint="#9E9C9C"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="1.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/hospitalName_textView" />
-
-                <TextView
-                    android:id="@+id/physicalLocation_textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="249dp"
-                    android:layout_weight="1"
-                    android:text="@string/physical_location_label"
-                    android:textColor="#5C5959"
-                    android:textSize="18sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/hospitalName_editText" />
-
-                <EditText
-                    android:id="@+id/physicalLocation_editText"
-                    android:layout_width="308dp"
-                    android:layout_height="67dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="85dp"
-                    android:background="#050505"
-                    android:backgroundTint="#171616"
-                    android:ems="10"
-                    android:hint="@string/physical_location_lbl"
-                    android:inputType="textPersonName"
-                    android:textColor="#F3F4F4"
-                    android:textColorHint="#9E9C9C"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/physicalLocation_textView" />
-
-                <TextView
-                    android:id="@+id/notes_textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="337dp"
-                    android:layout_weight="1"
-                    android:text="@string/notes_lbl"
-                    android:textColor="#5C5959"
-                    android:textSize="18sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/physicalLocation_editText" />
-
-                <EditText
-                    android:id="@+id/notes_editText"
-                    android:layout_width="308dp"
-                    android:layout_height="67dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="77dp"
-                    android:background="#050505"
-                    android:backgroundTint="#171616"
-                    android:ems="10"
-                    android:hint="@string/additional_remarks_lbl"
-                    android:inputType="textPersonName"
-                    android:textColor="#F3F4F4"
-                    android:textColorHint="#9E9C9C"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/notes_textView" />
+            <Button
+                android:id="@+id/saveChanges_button"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="5dp"
+                android:text="@string/save_changes_lbl" />
 
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
+        </RelativeLayout>
     </LinearLayout>
 </ScrollView>
--->
