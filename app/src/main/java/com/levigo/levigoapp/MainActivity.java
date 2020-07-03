@@ -293,6 +293,13 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
                 return true;
+            case R.id.network:
+
+                Intent intent_network = new Intent(getApplicationContext(), NetworkActivity.class);
+                intent_network.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent_network);
+                finish();
+                return true;
             case R.id.settings:
                 Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
                 return true;
