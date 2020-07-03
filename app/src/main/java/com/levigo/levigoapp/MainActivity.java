@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -364,9 +365,15 @@ public class MainActivity extends AppCompatActivity {
         private TextInputEditText notes;
         private TextInputEditText numberUsed;
         private TextInputEditText currentDateTime;
+        private TextInputEditText number_added;
         private TextInputLayout expiration_textLayout;
+        private TextInputLayout time_layout;
+
+
         private Button mSave;
         private SwitchMaterial item_used;
+        private ImageButton back_button;
+        private Button rescan_button;
 
 
 
@@ -387,17 +394,54 @@ public class MainActivity extends AppCompatActivity {
             physical_location = (TextInputEditText)rootView.findViewById(R.id.physicallocation_string);
             notes = (TextInputEditText)rootView.findViewById(R.id.notes_string);
             lotNumber =  (TextInputEditText)rootView.findViewById(R.id.lotNumber_string);
+            number_added =  (TextInputEditText)rootView.findViewById(R.id.numberAdded_string);
             product_id = (TextInputEditText)rootView.findViewById(R.id.productID_string);
             lotNumber = (TextInputEditText)rootView.findViewById(R.id.lotNumber_string);
             currentDateTime = (TextInputEditText)rootView.findViewById(R.id.datetime_string);
-            Date current = new Date();
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a",java.util.Locale.getDefault());
-            currentDateTime.setText(format.format(current));
             expiration_textLayout = (TextInputLayout) rootView.findViewById(R.id.expiration_date_string2);
+            time_layout = (TextInputLayout) rootView.findViewById(R.id.time_layout);
             item_used = rootView.findViewById(R.id.item_used_switch);
             item_used.setChecked(false);
             mSave = rootView.findViewById(R.id.saveChanges_button);
+            back_button = rootView.findViewById(R.id.back_imageButton);
+            rescan_button = rootView.findViewById(R.id.rescan_button);
 
+
+            //setting current date and time when clicked icon
+            time_layout.setEndIconOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Date current = new Date();
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a",java.util.Locale.getDefault());
+                    currentDateTime.setText(format.format(current));
+                }
+            });
+
+            // going back to the scanner view
+            rescan_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    IntentIntegrator integrator = new IntentIntegrator(getActivity());
+                    integrator.setCaptureActivity(CaptureActivity.class);
+                    integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
+                    integrator.setBarcodeImageEnabled(true);
+                    integrator.initiateScan();
+                    
+                }
+            });
+
+            //going back to inventory view
+            back_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent();
+                    intent.setClass(getActivity(), MainActivity.class);
+                    getActivity().startActivity(intent);
+                }
+            });
+
+
+            // checking switch icon
             item_used.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {

@@ -54,4 +54,5 @@
     <string name="product_id_lbl">Product ID</string>
     <string name="save_changes_lbl">Save changes</string>
     <string name="rescan_items_lbl">Rescan items</string>
+    <string name="number_added_lbl">Number added</string>
 </resources>
