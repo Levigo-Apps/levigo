@@ -64,6 +64,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
@@ -297,53 +298,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void test_autopupulate(View view) {
-        String barcode = "(01)00885672101114(17)180401(10)DP02149";
 
-//        final TextView textView = (TextView) findViewById(R.id.text);
-// ...
-
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
-//        String url ="https://accessgudid.nlm.nih.gov/api/v2/parse_udi.json?udi=";
-        String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
-
-        url = url + barcode;
-        Log.d(TAG, "URL: " + url);
-
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        // Display the first 500 characters of the response string.
-//                        textView.setText("Response is: "+ response.substring(0,500));
-                        JSONObject responseJson = null;
-                        try {
-                            responseJson = new JSONObject(response);
-
-                            Log.d(TAG, "Response: " + response);
-                            Log.d(TAG, responseJson.toString());
-//                            Log.d(TAG, responseJson.getString("lotNumber"));
-//                            String udi = responseJson.getString("udi");
-                            String udi = responseJson.getJSONObject("udi").getString("lotNumber");
-                            Log.d(TAG, "uDI: " + udi);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-//                textView.setText("That didn't work!");
-                Log.d(TAG, "Volley error");
-            }
-        });
-
-// Add the request to the RequestQueue.
-        queue.add(stringRequest);
-
-    }
 
     public static class ItemDetailFragment extends Fragment {
 
@@ -382,6 +337,9 @@ public class MainActivity extends AppCompatActivity {
         private ImageButton back_button;
         private Button rescan_button;
 
+        // TODO: delete later
+        private Button testAutopop;
+
 
 
         @Override
@@ -391,6 +349,8 @@ public class MainActivity extends AppCompatActivity {
 
             final View rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
             final Calendar myCalendar = Calendar.getInstance();
+
+            // TODO: refactor, convert to camel case
             linearLayout = rootView.findViewById(R.id.linear_layout);
             barcode = (TextInputEditText) rootView.findViewById(R.id.barcode_string);
             name = (TextInputEditText)rootView.findViewById(R.id.name_string);
@@ -413,6 +373,14 @@ public class MainActivity extends AppCompatActivity {
             back_button = rootView.findViewById(R.id.back_imageButton);
             rescan_button = rootView.findViewById(R.id.rescan_button);
 
+            testAutopop = rootView.findViewById(R.id.test_autopop);
+
+            testAutopop.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View view){
+                    test_autopupulate();
+                }
+            });
 
             //setting current date and time when clicked icon
             time_layout.setEndIconOnClickListener(new View.OnClickListener() {
@@ -697,6 +665,59 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, e.toString());
                         }
                     });
+        }
+
+
+        public void test_autopupulate() {
+            String barcode = "(01)00885672101114(17)180401(10)DP02149";
+
+//        final TextView textView = (TextView) findViewById(R.id.text);
+// ...
+            // Instantiate the RequestQueue.
+            RequestQueue queue = Volley.newRequestQueue(super.getContext());
+            String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
+
+            url = url + barcode;
+            Log.d(TAG, "URL: " + url);
+
+            // Request a string response from the provided URL.
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            JSONObject responseJson = null;
+                            try {
+                                responseJson = new JSONObject(response);
+
+                                Log.d(TAG, "Response: " + response);
+//                                Log.d(TAG, responseJson.toString());
+
+                                JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
+                                JSONObject udi =  responseJson.getJSONObject("udi");
+//                                Log.d(TAG, "DEVICE INFO: " + deviceInfo);
+//                                String lotNumberText = responseJson.getJSONObject("udi").getString("lotNumber");
+                                lotNumber.setText(udi.getString("lotNumber"));
+                                company.setText(deviceInfo.getString("companyName"));
+                                expiration.setText(udi.getString("expirationDate"));
+                                product_id.setText(udi.getString("di"));
+//                                name.setText(responseJson.getJSONObject("gudid").get);
+//                                Log.d(TAG, "uDI: " + udi);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+//                textView.setText("That didn't work!");
+                    Log.d(TAG, "Volley error");
+                }
+            });
+
+// Add the request to the RequestQueue.
+            queue.add(stringRequest);
+
+
         }
     }
 
