@@ -57,17 +57,7 @@ public class MainActivity extends AppCompatActivity {
         getPermissions();
 
     }
-    // changes layout from main to manual entry view
-//    public void change_layout(View view){
-//        Intent myIntent = new Intent(view.getContext(), FirebaseActivity.class);
-//        startActivityForResult(myIntent, 0);
-//    }
 
-    public void change_to_networkView(View view){
-        Intent myIntent = new Intent(view.getContext(), NetworkActivity.class);
-//        startActivityForResult(myIntent, 0);
-
-    }
 
     private void startScanner() {
         IntentIntegrator integrator = new IntentIntegrator(this);
@@ -133,6 +123,12 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
+                finish();
+                return true;
+            case R.id.network:
+                Intent intent_network = new Intent(getApplicationContext(), NetworkActivity.class);
+                intent_network.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent_network);
                 finish();
                 return true;
             case R.id.settings:
