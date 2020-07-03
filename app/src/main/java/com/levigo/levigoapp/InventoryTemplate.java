@@ -2,7 +2,7 @@ package com.levigo.levigoapp;
 
 public class InventoryTemplate {
 
-    private String barcode;
+    private String udi;
     private String name;
     private String equipment_type;
     private String manufacturer;
@@ -20,7 +20,7 @@ public class InventoryTemplate {
         // empty Constructor
     }
 
-    public InventoryTemplate(String barcode, String name,
+    public InventoryTemplate(String udi, String name,
                              String equipment_type,
                              String manufacturer,  String procedure_used,
                              String procedure_date,
@@ -29,7 +29,7 @@ public class InventoryTemplate {
                              String current_date_time,  String physical_location,
                               String notes) {
 
-        this.barcode = barcode;
+        this.udi = udi;
         this.name = name;
         this.equipment_type = equipment_type;
         this.manufacturer = manufacturer;
@@ -46,11 +46,11 @@ public class InventoryTemplate {
 
 
 
-    public String getBarcode() {
-        return barcode;
+    public String getUdi() {
+        return udi;
     }
-    public void setBarcode(String barcode) {
-        this.barcode = barcode;
+    public void setUdi(String udi) {
+        this.udi = udi;
     }
 
     public String getName() {
