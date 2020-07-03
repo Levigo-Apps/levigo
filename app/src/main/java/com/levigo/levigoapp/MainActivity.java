@@ -21,6 +21,8 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -48,6 +50,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
@@ -378,9 +381,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         private Button mSave;
+        MaterialButton addPatient;
+        MaterialButton removePatient;
         private SwitchMaterial item_used;
         private ImageButton back_button;
         private Button rescan_button;
+        private int patientidAdded  = 0;
 
 
 
@@ -449,10 +455,88 @@ public class MainActivity extends AppCompatActivity {
 
 
             // checking switch icon
+
             item_used.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                     if(b){
+                        RadioGroup item_usable = new RadioGroup(rootView.getContext());
+                        item_usable.setOrientation(RadioGroup.HORIZONTAL);
+
+                        RadioButton singleUse  = new RadioButton(rootView.getContext());
+                        singleUse.setText(R.string.SingleUse_lbl);
+                        singleUse.setId(View.generateViewId());
+                        item_usable.addView(singleUse);
+
+                        RadioButton multiUse  = new RadioButton(rootView.getContext());
+                        multiUse.setText(R.string.reusable_lbl);
+                        multiUse.setId(View.generateViewId());
+                        item_usable.addView(multiUse);
+
+                        linearLayout.addView(item_usable,1 + linearLayout.indexOfChild(item_used));
+
+
+                        // Checks which buttons is chosen
+                        multiUse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                                // if reusable button is chosen, gives an user option to add multiple patient IDs
+                                if(b){
+                                    addPatient = new MaterialButton(rootView.getContext(),
+                                            null, R.attr.materialButtonOutlinedStyle);
+                                    addPatient.setText(R.string.addID_lbl);
+                                    addPatient.setLayoutParams(new LinearLayout.LayoutParams(barcode.getWidth(),
+                                            ViewGroup.LayoutParams.WRAP_CONTENT));
+
+                                    removePatient = new MaterialButton(rootView.getContext(),
+                                            null, R.attr.materialButtonOutlinedStyle);
+                                    removePatient.setText(R.string.removeID_lbl);
+                                    removePatient.setLayoutParams(new LinearLayout.LayoutParams(barcode.getWidth(),
+                                            ViewGroup.LayoutParams.WRAP_CONTENT));
+
+                                    // when clicked add one more additional field for Patient ID
+                                    addPatient.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            patientidAdded++;
+                                            TextInputLayout patient_id_layout = new TextInputLayout(rootView.getContext(), null,
+                                                    R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
+                                            patient_id_layout.setHint("Enter patient ID");
+                                            patient_id_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+                                            patient_id =  new TextInputEditText(patient_id_layout.getContext());
+                                            patient_id.setLayoutParams(new LinearLayout.LayoutParams(barcode.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+                                            patient_id_layout.addView(patient_id);
+                                            linearLayout.addView(patient_id_layout,4 + linearLayout.indexOfChild(item_used));
+                                        }
+                                    });
+
+                                    // when clicked remove one added field "Patient ID"
+                                    removePatient.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            if(patientidAdded > 0){
+                                                linearLayout.removeViewAt(5 + linearLayout.indexOfChild(item_used));
+                                                patientidAdded--;
+                                            }
+                                        }
+                                    });
+                                    linearLayout.addView(addPatient,5 + linearLayout.indexOfChild(item_used));
+                                    linearLayout.addView(removePatient,6 + linearLayout.indexOfChild(item_used));
+
+                                    // if users changes from reusable to single us removes all unnecessary fields.
+                                }else{
+                                    linearLayout.removeViewAt(linearLayout.indexOfChild(addPatient));
+                                    linearLayout.removeViewAt(linearLayout.indexOfChild(removePatient));
+                                    while(patientidAdded > 0) {
+                                        linearLayout.removeViewAt(5 + linearLayout.indexOfChild(item_used));
+                                        patientidAdded--;
+                                    }
+
+                                }
+                            }
+                        });
+
+                        // programmatically creates four additional fields if item is used
                         TextInputLayout procedure_layout = new TextInputLayout(rootView.getContext(), null,
                                 R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
                         procedure_layout.setHint("Enter procedure");
@@ -460,7 +544,7 @@ public class MainActivity extends AppCompatActivity {
                         procedure_used =  new TextInputEditText(procedure_layout.getContext());
                         procedure_used.setLayoutParams(new LinearLayout.LayoutParams(barcode.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
                         procedure_layout.addView(procedure_used);
-                        linearLayout.addView(procedure_layout,1 + linearLayout.indexOfChild(item_used));
+                        linearLayout.addView(procedure_layout,2 + linearLayout.indexOfChild(item_used));
 
                         TextInputLayout procedure_dateTime_layout = new TextInputLayout(rootView.getContext(),null,
                                 R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
@@ -473,7 +557,7 @@ public class MainActivity extends AppCompatActivity {
                         procedure_dateTime_layout.setEndIconDrawable(R.drawable.calendar);
                         procedure_dateTime_layout.setEndIconTintList(ColorStateList.valueOf(ContextCompat
                                 .getColor(rootView.getContext(),R.color.colorPrimary)));
-                        linearLayout.addView(procedure_dateTime_layout,2 + linearLayout.indexOfChild(item_used));
+                        linearLayout.addView(procedure_dateTime_layout,3 + linearLayout.indexOfChild(item_used));
                         final DatePickerDialog.OnDateSetListener date_proc = new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
@@ -501,7 +585,7 @@ public class MainActivity extends AppCompatActivity {
                         patient_id =  new TextInputEditText(patient_id_layout.getContext());
                         patient_id.setLayoutParams(new LinearLayout.LayoutParams(barcode.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
                         patient_id_layout.addView(patient_id);
-                        linearLayout.addView(patient_id_layout,3 + linearLayout.indexOfChild(item_used));
+                        linearLayout.addView(patient_id_layout,4 + linearLayout.indexOfChild(item_used));
 
                         TextInputLayout numbersUsed_layout = new TextInputLayout(rootView.getContext(), null,
                                 R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
@@ -510,9 +594,11 @@ public class MainActivity extends AppCompatActivity {
                         numberUsed =  new TextInputEditText(numbersUsed_layout.getContext());
                         numberUsed.setLayoutParams(new LinearLayout.LayoutParams(barcode.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
                         numbersUsed_layout.addView(numberUsed);
-                        linearLayout.addView(numbersUsed_layout,4 + linearLayout.indexOfChild(item_used));
+                        linearLayout.addView(numbersUsed_layout,5 + linearLayout.indexOfChild(item_used));
 
+                        //programmatically removes four additional fields if users switches from reusable to single use
                     }else{
+                        linearLayout.removeViewAt(1 + linearLayout.indexOfChild(item_used));
                         linearLayout.removeViewAt(1 + linearLayout.indexOfChild(item_used));
                         linearLayout.removeViewAt(1 + linearLayout.indexOfChild(item_used));
                         linearLayout.removeViewAt(1 + linearLayout.indexOfChild(item_used));
@@ -562,14 +648,14 @@ public class MainActivity extends AppCompatActivity {
                                 et.setError("Please enter " + et.getHint().toString().toLowerCase());
                                 return;
                         }
-                    }
+
                     String barcode_str = Objects.requireNonNull(barcode.getText()).toString();
                     for(int j = 0; j < barcode_str.length(); j++) {
                         if(!(Character.isDigit(barcode_str.charAt(j)) || Character.isLetter(barcode_str.charAt(j))
                                 || barcode_str.charAt(j) == '(' || barcode_str.charAt(j) == ')')){
                             mSave.setEnabled(false);
                             // todo: cannot find symbol "et"
-//                            et.setError("Barcode entry does not match format. Please check");
+                            et.setError("Barcode entry does not match format. Please check");
                             return;
                         }
                     }
@@ -580,19 +666,20 @@ public class MainActivity extends AppCompatActivity {
                         for(int j = 4; j < 18; j++){
                             if(!(Character.isDigit(barcode_str.charAt(j)))) {
                                 mSave.setEnabled(false);
-//                                et.setError("Barcode entry does not match format. Please check");
+                                et.setError("Barcode entry does not match format. Please check");
                                 return;
                             }
                         }
                     } else {
                         mSave.setEnabled(false);
-//                        et.setError("Barcode entry does not match format. Please check");
+                        et.setError("Barcode entry does not match format. Please check");
                         return;
                     }
 
                     product_id.setText(barcode_str.substring(0,18));
                     mSave.setEnabled(true);
                 }
+                    }
 
                 @Override
                 public void afterTextChanged(Editable editable) {

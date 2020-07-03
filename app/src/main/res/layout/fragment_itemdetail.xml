@@ -86,6 +86,18 @@
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
+
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:checked="true"
+            android:text="@string/item_used_label"
+            android:textSize="17sp"
+            android:layout_marginTop="5dp"
+            android:id="@+id/item_used_switch"/>
+
+
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -98,15 +110,6 @@
                 android:hint="@string/number_added_lbl"
                 />
         </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:checked="true"
-            android:text="@string/item_used_label"
-            android:textSize="17sp"
-            android:layout_marginTop="5dp"
-            android:id="@+id/item_used_switch"/>
 
 
         <com.google.android.material.textfield.TextInputLayout

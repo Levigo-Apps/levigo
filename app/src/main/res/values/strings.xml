@@ -55,4 +55,8 @@
     <string name="save_changes_lbl">Save changes</string>
     <string name="rescan_items_lbl">Rescan items</string>
     <string name="number_added_lbl">Number added</string>
+    <string name="SingleUse_lbl">Single Use</string>
+    <string name="reusable_lbl">Reusable</string>
+    <string name="addID_lbl">Add patient ID</string>
+    <string name="removeID_lbl">Remove patient ID</string>
 </resources>
