@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -15,8 +16,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -29,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -37,7 +41,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
@@ -56,14 +66,17 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -258,6 +271,8 @@ public class MainActivity extends AppCompatActivity {
                 ItemDetailFragment fragment = new ItemDetailFragment();
                 fragmentTransaction.add(R.id.fragment_container, fragment);
                 fragmentTransaction.commit();
+                mAdd.setVisibility(View.INVISIBLE);
+
                 return true;
             case R.id.logout:
                 FirebaseAuth.getInstance().signOut();
@@ -324,6 +339,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static class ItemDetailFragment extends Fragment {
 
+        LinearLayout linearLayout;
+
         // Firebase database
         private FirebaseFirestore db = FirebaseFirestore.getInstance();
         InventoryTemplate in;
@@ -331,19 +348,25 @@ public class MainActivity extends AppCompatActivity {
         private static final String TAG = ItemDetailFragment.class.getSimpleName();
 
         // USER INPUT VALUES
-        private EditText barcode;
-        private EditText name;
-        private EditText equipment_type;
-        private EditText manufacturer;
-        private EditText procedure_used;
-        private EditText procedure_date;
-        private EditText patient_id;
-        private EditText expiration;
-        private EditText quantity;
-        private EditText hospital_name;
-        private EditText physical_location;
-        private EditText notes;
+        private TextInputEditText barcode;
+        private TextInputEditText name;
+        private TextInputEditText equipment_type;
+        private TextInputEditText company;
+        private TextInputEditText procedure_used;
+        private TextInputEditText procedure_date;
+        private TextInputEditText patient_id;
+        private TextInputEditText product_id;
+        private TextInputEditText expiration;
+        private TextInputEditText quantity;
+        private TextInputEditText lotNumber;
+        private TextInputEditText hospital_name;
+        private TextInputEditText physical_location;
+        private TextInputEditText notes;
+        private TextInputEditText numberUsed;
+        private TextInputEditText currentDateTime;
+        private TextInputLayout expiration_textLayout;
         private Button mSave;
+        private SwitchMaterial item_used;
 
 
 
@@ -354,21 +377,102 @@ public class MainActivity extends AppCompatActivity {
 
             final View rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
             final Calendar myCalendar = Calendar.getInstance();
-            barcode = rootView.findViewById(R.id.barcode_editText);
-            name = rootView.findViewById(R.id.name_editText);
-            equipment_type = rootView.findViewById(R.id.equipment_editText);
-            manufacturer = rootView.findViewById(R.id.manufacturer_editText);
-            procedure_used =  rootView.findViewById(R.id.procedure_editText);
-            procedure_date = rootView.findViewById(R.id.procedureDate_editText);
-            patient_id = rootView.findViewById(R.id.patientID_editText);
-            expiration = rootView.findViewById(R.id.expiration_editText);
-            hospital_name = rootView.findViewById(R.id.hospitalName_editText);
-            physical_location = rootView.findViewById(R.id.physicalLocation_editText);
-            notes = rootView.findViewById(R.id.notes_editText);
-            mSave = rootView.findViewById(R.id.save_button);
-            mSave.setEnabled(false);
+            linearLayout = rootView.findViewById(R.id.linear_layout);
+            barcode = (TextInputEditText) rootView.findViewById(R.id.barcode_string);
+            name = (TextInputEditText)rootView.findViewById(R.id.name_string);
+            equipment_type = (TextInputEditText)rootView.findViewById(R.id.type_string);
+            company = (TextInputEditText)rootView.findViewById(R.id.company_string);
+            expiration = (TextInputEditText)rootView.findViewById(R.id.expiration_date_string);
+            hospital_name = (TextInputEditText)rootView.findViewById(R.id.siteLocation_string);
+            physical_location = (TextInputEditText)rootView.findViewById(R.id.physicallocation_string);
+            notes = (TextInputEditText)rootView.findViewById(R.id.notes_string);
+            lotNumber =  (TextInputEditText)rootView.findViewById(R.id.lotNumber_string);
+            product_id = (TextInputEditText)rootView.findViewById(R.id.productID_string);
+            lotNumber = (TextInputEditText)rootView.findViewById(R.id.lotNumber_string);
+            currentDateTime = (TextInputEditText)rootView.findViewById(R.id.datetime_string);
+            Date current = new Date();
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a",java.util.Locale.getDefault());
+            currentDateTime.setText(format.format(current));
+            expiration_textLayout = (TextInputLayout) rootView.findViewById(R.id.expiration_date_string2);
+            item_used = rootView.findViewById(R.id.item_used_switch);
+            item_used.setChecked(false);
+            mSave = rootView.findViewById(R.id.saveChanges_button);
 
-            // datepicker for Expiration field
+            item_used.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if(b){
+                        TextInputLayout procedure_layout = new TextInputLayout(rootView.getContext(), null,
+                                R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
+                        procedure_layout.setHint("Enter procedure");
+                        procedure_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+                        procedure_used =  new TextInputEditText(procedure_layout.getContext());
+                        procedure_used.setLayoutParams(new LinearLayout.LayoutParams(barcode.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+                        procedure_layout.addView(procedure_used);
+                        linearLayout.addView(procedure_layout,1 + linearLayout.indexOfChild(item_used));
+
+                        TextInputLayout procedure_dateTime_layout = new TextInputLayout(rootView.getContext(),null,
+                                R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
+                        procedure_dateTime_layout.setHint("Enter procedure date");
+                        procedure_dateTime_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+                        procedure_date =  new TextInputEditText(procedure_dateTime_layout.getContext());
+                        procedure_date.setLayoutParams(new LinearLayout.LayoutParams(barcode.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+                        procedure_dateTime_layout.addView(procedure_date);
+                        procedure_dateTime_layout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
+                        procedure_dateTime_layout.setEndIconDrawable(R.drawable.calendar);
+                        procedure_dateTime_layout.setEndIconTintList(ColorStateList.valueOf(ContextCompat
+                                .getColor(rootView.getContext(),R.color.colorPrimary)));
+                        linearLayout.addView(procedure_dateTime_layout,2 + linearLayout.indexOfChild(item_used));
+                        final DatePickerDialog.OnDateSetListener date_proc = new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                                myCalendar.set(Calendar.YEAR, i);
+                                myCalendar.set(Calendar.MONTH, i1);
+                                myCalendar.set(Calendar.DAY_OF_MONTH, i2);
+                                String myFormat = "yyyy/MM/dd";
+                                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+                                procedure_date.setText(sdf.format(myCalendar.getTime()));
+                            }
+                        };
+                        procedure_dateTime_layout.setEndIconOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                new DatePickerDialog(view.getContext(), date_proc, myCalendar
+                                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+                            }
+                        });
+
+                        TextInputLayout patient_id_layout = new TextInputLayout(rootView.getContext(), null,
+                                R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
+                        patient_id_layout.setHint("Enter patient ID");
+                        patient_id_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+                        patient_id =  new TextInputEditText(patient_id_layout.getContext());
+                        patient_id.setLayoutParams(new LinearLayout.LayoutParams(barcode.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+                        patient_id_layout.addView(patient_id);
+                        linearLayout.addView(patient_id_layout,3 + linearLayout.indexOfChild(item_used));
+
+                        TextInputLayout numbersUsed_layout = new TextInputLayout(rootView.getContext(), null,
+                                R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
+                        numbersUsed_layout.setHint("Enter numbers used");
+                        numbersUsed_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+                        numberUsed =  new TextInputEditText(numbersUsed_layout.getContext());
+                        numberUsed.setLayoutParams(new LinearLayout.LayoutParams(barcode.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+                        numbersUsed_layout.addView(numberUsed);
+                        linearLayout.addView(numbersUsed_layout,4 + linearLayout.indexOfChild(item_used));
+
+                    }else{
+                        linearLayout.removeViewAt(1 + linearLayout.indexOfChild(item_used));
+                        linearLayout.removeViewAt(1 + linearLayout.indexOfChild(item_used));
+                        linearLayout.removeViewAt(1 + linearLayout.indexOfChild(item_used));
+                        linearLayout.removeViewAt(1 + linearLayout.indexOfChild(item_used));
+                    }
+                }
+            });
+
+
+
+            // date picker for expiration date if entered manually
             final DatePickerDialog.OnDateSetListener date_exp = new DatePickerDialog.OnDateSetListener() {
                 @Override
                 public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
@@ -380,7 +484,16 @@ public class MainActivity extends AppCompatActivity {
                     expiration.setText(sdf.format(myCalendar.getTime()));
                 }
             };
+            expiration_textLayout.setEndIconOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new DatePickerDialog(view.getContext(), date_exp, myCalendar
+                            .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                            myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+                }
 
+            });
+/*
             // datepicker for Procedure date field
             final DatePickerDialog.OnDateSetListener date_proc = new DatePickerDialog.OnDateSetListener() {
                 @Override
@@ -403,26 +516,18 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
-
-            expiration.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    new DatePickerDialog(view.getContext(), date_exp, myCalendar
-                            .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                            myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-                }
-            });
-
+*/
             // disabling save button if required fields are empty
             TextWatcher textWatcher = new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    mSave.setEnabled(false);
 
                 }
 
                 @Override
                 public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                    for (EditText et  : new EditText[] {barcode,name,equipment_type,manufacturer,hospital_name,
+                    for (TextInputEditText et  : new TextInputEditText[] {barcode,name,equipment_type,company,hospital_name,
                         physical_location}) {
                             if(et.getText().toString().isEmpty()){
                                 mSave.setEnabled(false);
@@ -436,13 +541,22 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable editable) {
+                    for (TextInputEditText et  : new TextInputEditText[] {barcode,name,equipment_type,company,hospital_name,
+                            physical_location}) {
+                        if(et.getText().toString().isEmpty()){
+                            mSave.setEnabled(false);
+                            et.setError("Please enter " + et.getHint().toString().toLowerCase());
+                            return;
+                        }
+                    }
+                    mSave.setEnabled(true);
 
                 }
             };
             barcode.addTextChangedListener(textWatcher);
             name.addTextChangedListener(textWatcher);
             equipment_type.addTextChangedListener(textWatcher);
-            manufacturer.addTextChangedListener(textWatcher);
+            company.addTextChangedListener(textWatcher);
 
 
             mSave.setOnClickListener( new View.OnClickListener() {

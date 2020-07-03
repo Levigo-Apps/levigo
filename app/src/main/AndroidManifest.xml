@@ -15,7 +15,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/Theme.MaterialComponents.NoActionBar">
         <activity android:name="com.levigo.levigoapp.MainActivity" />
         <activity
             android:name=".LoginActivity"
@@ -30,6 +30,7 @@
         <activity android:name=".InventoryViewActivity">
 
         </activity>
+
 
     </application>
 
