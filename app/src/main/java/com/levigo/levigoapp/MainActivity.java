@@ -158,33 +158,6 @@ public class MainActivity extends AppCompatActivity {
             String contents = result.getContents();
             if(contents != null) {
                 startItemView(contents);
-//                Toast.makeText(this, "Success: Scanned " + result.getFormatName(), Toast.LENGTH_LONG).show();
-//
-//                RequestQueue queue = Volley.newRequestQueue(this);
-//
-//                String getInfo = null;
-//                try {
-//                    getInfo = UDI.URL + URLEncoder.encode(contents, "UTF-8");
-//                }
-//                catch(UnsupportedEncodingException e){
-//                    e.printStackTrace();
-//                }
-//                if(getInfo == null) return;
-//
-//                StringRequest stringRequest = new StringRequest(Request.Method.GET, getInfo,
-//                        new Response.Listener<String>() {
-//                            @Override
-//                            public void onResponse(String response) {
-//                                Log.d(TAG,response);
-//                                addItem(response);
-//                            }
-//                        }, new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                    }
-//                });
-//
-//                queue.add(stringRequest);
 
             }
             if(result.getBarcodeImagePath() != null) {

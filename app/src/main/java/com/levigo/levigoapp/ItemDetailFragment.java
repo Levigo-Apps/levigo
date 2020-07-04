@@ -6,8 +6,6 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +20,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -55,7 +52,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -74,36 +70,35 @@ public class ItemDetailFragment extends Fragment {
     // USER INPUT VALUES
     private TextInputEditText udiEditText;
     private TextInputEditText nameEditText;
-    private AutoCompleteTextView equipment_type;
+    private AutoCompleteTextView equipmentType;
     private TextInputEditText company;
     private TextInputEditText procedure_used;
     private TextInputEditText otherType_text;
     private TextInputEditText procedure_date;
     private TextInputEditText patient_id;
-    private TextInputEditText product_id;
+    private TextInputEditText productId;
     private TextInputEditText expiration;
     private TextInputEditText quantity;
     private TextInputEditText lotNumber;
-    private TextInputEditText hospital_name;
-    private TextInputEditText physical_location;
+    private TextInputEditText hospitalName;
+    private TextInputEditText physicalLocation;
     private TextInputEditText notes;
     private TextInputEditText numberUsed;
     private TextInputEditText currentDateTime;
-    private TextInputEditText number_added;
+    private TextInputEditText numberAdded;
     private TextInputLayout expiration_textLayout;
-    private TextInputLayout time_layout;
+    private TextInputLayout timeLayout;
 
 
-    private Button mSave;
+    private Button saveButton;
     private MaterialButton addPatient;
     private MaterialButton removePatient;
     private MaterialButton submit_otherType;
-    private SwitchMaterial item_used;
-    private ImageButton back_button;
-    private Button rescan_button;
+    private SwitchMaterial itemUsed;
+    private ImageButton backButton;
+    private Button rescanButton;
     private int patientidAdded  = 0;
 
-    // TODO: delete later
     private Button autoPopulateButton;
 
 
@@ -118,30 +113,28 @@ public class ItemDetailFragment extends Fragment {
 
         parent = getActivity();
 
-        // TODO: refactor, convert to camel case
         linearLayout = rootView.findViewById(R.id.linear_layout);
         udiEditText = (TextInputEditText) rootView.findViewById(R.id.detail_udi);
         nameEditText = (TextInputEditText)rootView.findViewById(R.id.detail_name);
-        equipment_type = (AutoCompleteTextView) rootView.findViewById(R.id.detail_type);
+        equipmentType = (AutoCompleteTextView) rootView.findViewById(R.id.detail_type);
         company = (TextInputEditText)rootView.findViewById(R.id.detail_company);
         expiration = (TextInputEditText)rootView.findViewById(R.id.detail_expiration_date);
-        hospital_name = (TextInputEditText)rootView.findViewById(R.id.detail_site_location);
-        physical_location = (TextInputEditText)rootView.findViewById(R.id.detail_physical_location);
+        hospitalName = (TextInputEditText)rootView.findViewById(R.id.detail_site_location);
+        physicalLocation = (TextInputEditText)rootView.findViewById(R.id.detail_physical_location);
         notes = (TextInputEditText)rootView.findViewById(R.id.detail_notes);
         lotNumber =  (TextInputEditText)rootView.findViewById(R.id.detail_lot_number);
-        number_added =  (TextInputEditText)rootView.findViewById(R.id.detail_number_added);
-        product_id = (TextInputEditText)rootView.findViewById(R.id.detail_di);
-        lotNumber = (TextInputEditText)rootView.findViewById(R.id.detail_lot_number);
+        numberAdded =  (TextInputEditText)rootView.findViewById(R.id.detail_number_added);
+        productId = (TextInputEditText)rootView.findViewById(R.id.detail_di);
         currentDateTime = (TextInputEditText)rootView.findViewById(R.id.detail_date_time);
         expiration_textLayout = (TextInputLayout) rootView.findViewById(R.id.expiration_date_string2);
-        time_layout = (TextInputLayout) rootView.findViewById(R.id.time_layout);
-        item_used = rootView.findViewById(R.id.detail_used_switch);
-        mSave = rootView.findViewById(R.id.detail_save_button);
-        back_button = rootView.findViewById(R.id.detail_back_button);
-        rescan_button = rootView.findViewById(R.id.detail_rescan_button);
+        timeLayout = (TextInputLayout) rootView.findViewById(R.id.time_layout);
+        itemUsed = rootView.findViewById(R.id.detail_used_switch);
+        saveButton = rootView.findViewById(R.id.detail_save_button);
+        backButton = rootView.findViewById(R.id.detail_back_button);
+        rescanButton = rootView.findViewById(R.id.detail_rescan_button);
         autoPopulateButton = rootView.findViewById(R.id.detail_autopop_button);
 
-        item_used.setChecked(false);
+        itemUsed.setChecked(false);
 
 
         // Dropdown menu for Type field
@@ -221,7 +214,7 @@ public class ItemDetailFragment extends Fragment {
         });
 
         //TimePicker dialog pops up when clicked on the icon
-        time_layout.setEndIconOnClickListener(new View.OnClickListener() {
+        timeLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Calendar mcurrentTime = Calendar.getInstance();
@@ -241,7 +234,7 @@ public class ItemDetailFragment extends Fragment {
         });
 
         // going back to the scanner view
-        rescan_button.setOnClickListener(new View.OnClickListener() {
+        rescanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
             IntentIntegrator integrator = new IntentIntegrator(getActivity());
@@ -255,7 +248,7 @@ public class ItemDetailFragment extends Fragment {
         });
 
         //going back to inventory view
-        back_button.setOnClickListener(new View.OnClickListener() {
+        backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
             if(parent != null)
@@ -266,7 +259,7 @@ public class ItemDetailFragment extends Fragment {
 
         // checking switch icon
 
-        item_used.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        itemUsed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if(b){
@@ -283,7 +276,7 @@ public class ItemDetailFragment extends Fragment {
                     multiUse.setId(View.generateViewId());
                     item_usable.addView(multiUse);
 
-                    linearLayout.addView(item_usable,1 + linearLayout.indexOfChild(item_used));
+                    linearLayout.addView(item_usable,1 + linearLayout.indexOfChild(itemUsed));
 
 
                     // Checks which buttons is chosen
@@ -316,7 +309,7 @@ public class ItemDetailFragment extends Fragment {
                                         patient_id =  new TextInputEditText(patient_id_layout.getContext());
                                         patient_id.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
                                         patient_id_layout.addView(patient_id);
-                                        linearLayout.addView(patient_id_layout,4 + linearLayout.indexOfChild(item_used));
+                                        linearLayout.addView(patient_id_layout,4 + linearLayout.indexOfChild(itemUsed));
                                     }
                                 });
 
@@ -325,20 +318,20 @@ public class ItemDetailFragment extends Fragment {
                                     @Override
                                     public void onClick(View view) {
                                         if(patientidAdded > 0){
-                                            linearLayout.removeViewAt(5 + linearLayout.indexOfChild(item_used));
+                                            linearLayout.removeViewAt(5 + linearLayout.indexOfChild(itemUsed));
                                             patientidAdded--;
                                         }
                                     }
                                 });
-                                linearLayout.addView(addPatient,5 + linearLayout.indexOfChild(item_used));
-                                linearLayout.addView(removePatient,6 + linearLayout.indexOfChild(item_used));
+                                linearLayout.addView(addPatient,5 + linearLayout.indexOfChild(itemUsed));
+                                linearLayout.addView(removePatient,6 + linearLayout.indexOfChild(itemUsed));
 
                                 // if users changes from reusable to single us removes all unnecessary fields.
                             }else{
                                 linearLayout.removeViewAt(linearLayout.indexOfChild(addPatient));
                                 linearLayout.removeViewAt(linearLayout.indexOfChild(removePatient));
                                 while(patientidAdded > 0) {
-                                    linearLayout.removeViewAt(5 + linearLayout.indexOfChild(item_used));
+                                    linearLayout.removeViewAt(5 + linearLayout.indexOfChild(itemUsed));
                                     patientidAdded--;
                                 }
 
@@ -354,7 +347,7 @@ public class ItemDetailFragment extends Fragment {
                     procedure_used =  new TextInputEditText(procedure_layout.getContext());
                     procedure_used.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
                     procedure_layout.addView(procedure_used);
-                    linearLayout.addView(procedure_layout,2 + linearLayout.indexOfChild(item_used));
+                    linearLayout.addView(procedure_layout,2 + linearLayout.indexOfChild(itemUsed));
 
                     TextInputLayout procedure_dateTime_layout = new TextInputLayout(rootView.getContext(),null,
                             R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
@@ -367,7 +360,7 @@ public class ItemDetailFragment extends Fragment {
                     procedure_dateTime_layout.setEndIconDrawable(R.drawable.calendar);
                     procedure_dateTime_layout.setEndIconTintList(ColorStateList.valueOf(ContextCompat
                             .getColor(rootView.getContext(),R.color.colorPrimary)));
-                    linearLayout.addView(procedure_dateTime_layout,3 + linearLayout.indexOfChild(item_used));
+                    linearLayout.addView(procedure_dateTime_layout,3 + linearLayout.indexOfChild(itemUsed));
                     final DatePickerDialog.OnDateSetListener date_proc = new DatePickerDialog.OnDateSetListener() {
                         @Override
                         public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
@@ -395,7 +388,7 @@ public class ItemDetailFragment extends Fragment {
                     patient_id =  new TextInputEditText(patient_id_layout.getContext());
                     patient_id.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
                     patient_id_layout.addView(patient_id);
-                    linearLayout.addView(patient_id_layout,4 + linearLayout.indexOfChild(item_used));
+                    linearLayout.addView(patient_id_layout,4 + linearLayout.indexOfChild(itemUsed));
 
                     TextInputLayout numbersUsed_layout = new TextInputLayout(rootView.getContext(), null,
                             R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
@@ -404,15 +397,15 @@ public class ItemDetailFragment extends Fragment {
                     numberUsed =  new TextInputEditText(numbersUsed_layout.getContext());
                     numberUsed.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
                     numbersUsed_layout.addView(numberUsed);
-                    linearLayout.addView(numbersUsed_layout,5 + linearLayout.indexOfChild(item_used));
+                    linearLayout.addView(numbersUsed_layout,5 + linearLayout.indexOfChild(itemUsed));
 
                     //programmatically removes four additional fields if users switches from reusable to single use
                 }else{
-                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(item_used));
-                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(item_used));
-                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(item_used));
-                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(item_used));
-                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(item_used));
+                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(itemUsed));
+                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(itemUsed));
+                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(itemUsed));
+                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(itemUsed));
+                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(itemUsed));
                 }
             }
         });
@@ -448,90 +441,6 @@ public class ItemDetailFragment extends Fragment {
 //                mSave.setEnabled(false);
 //
 //            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//                for (TextInputEditText et  : new TextInputEditText[] {barcode,name,equipment_type,company,hospital_name,
-//                        physical_location}) {
-//                    if(et.getText().toString().isEmpty()){
-//                        mSave.setEnabled(false);
-//                        et.setError("Please enter " + et.getHint().toString().toLowerCase());
-//                        return;
-//                    }
-//
-//                    String barcode_str = Objects.requireNonNull(barcode.getText()).toString();
-//                    for(int j = 0; j < barcode_str.length(); j++) {
-//                        if(!(Character.isDigit(barcode_str.charAt(j)) || Character.isLetter(barcode_str.charAt(j))
-//                                || barcode_str.charAt(j) == '(' || barcode_str.charAt(j) == ')')){
-//                            mSave.setEnabled(false);
-//                            // todo: cannot find symbol "et"
-//                            et.setError("Barcode entry does not match format. Please check");
-//                            return;
-//                        }
-//                    }
-//                    if(barcode_str.charAt(0) == '(' && Character.isDigit(barcode_str.charAt(1))
-//                            && Character.isDigit(barcode_str.charAt(2)) && barcode_str.charAt(3) == ')' &&
-//                            barcode_str.charAt(18) == '(' && Character.isDigit(barcode_str.charAt(19))
-//                            && Character.isDigit(barcode_str.charAt(20)) && barcode_str.charAt(21) == ')'){
-//                        for(int j = 4; j < 18; j++){
-//                            if(!(Character.isDigit(barcode_str.charAt(j)))) {
-//                                mSave.setEnabled(false);
-//                                et.setError("Barcode entry does not match format. Please check");
-//                                return;
-//                            }
-//                        }
-//                    } else {
-//                        mSave.setEnabled(false);
-//                        et.setError("Barcode entry does not match format. Please check");
-//                        return;
-//                    }
-//
-//                    product_id.setText(barcode_str.substring(0,18));
-//                    mSave.setEnabled(true);
-//                }
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable editable) {
-//                for (TextInputEditText et  : new TextInputEditText[] {barcode,name,equipment_type,company,hospital_name,
-//                        physical_location}) {
-//                    if(et.getText().toString().isEmpty()){
-//                        mSave.setEnabled(false);
-//                        et.setError("Please enter " + et.getHint().toString().toLowerCase());
-//                        return;
-//                    }
-//                }
-//                String barcode_str = Objects.requireNonNull(barcode.getText()).toString();
-//                for(int i = 0; i < barcode_str.length(); i++) {
-//                    if(!(Character.isDigit(barcode_str.charAt(i)) || Character.isLetter(barcode_str.charAt(i))
-//                            || barcode_str.charAt(i) == '(' || barcode_str.charAt(i) == ')')){
-//                        mSave.setEnabled(false);
-////                            et.setError("Barcode entry does not match format. Please check");
-//                        return;
-//                    }
-//                }
-//                if(barcode_str.charAt(0) == '(' && Character.isDigit(barcode_str.charAt(1))
-//                        && Character.isDigit(barcode_str.charAt(2)) && barcode_str.charAt(3) == ')' &&
-//                        barcode_str.charAt(18) == '(' && Character.isDigit(barcode_str.charAt(19))
-//                        && Character.isDigit(barcode_str.charAt(20)) && barcode_str.charAt(21) == ')'){
-//                    for(int j = 4; j < 18; j++){
-//                        if(!(Character.isDigit(barcode_str.charAt(j)))) {
-//                            mSave.setEnabled(false);
-////                                et.setError("Barcode entry does not match format. Please check");
-//                            return;
-//                        }
-//                    }
-//                } else {
-//                    mSave.setEnabled(false);
-////                        et.setError("Barcode entry does not match format. Please check");
-//                    return;
-//                }
-//
-//                product_id.setText(barcode_str.substring(0,18));
-//                mSave.setEnabled(true);
-//            }
-//        };
-
 
 //        barcode.addTextChangedListener(textWatcher);
 //        name.addTextChangedListener(textWatcher);
@@ -539,7 +448,7 @@ public class ItemDetailFragment extends Fragment {
 //        company.addTextChangedListener(textWatcher);
 
 
-        mSave.setOnClickListener( new View.OnClickListener() {
+        saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 saveData(rootView);
@@ -567,16 +476,16 @@ public class ItemDetailFragment extends Fragment {
         Log.d(TAG, "SAVING");
         String barcode_str = udiEditText.getText().toString();
         String name_str = nameEditText.getText().toString();
-        String equipment_type_str = equipment_type.getText().toString();
-        String manufacturer_str = equipment_type.getText().toString();
+        String equipment_type_str = equipmentType.getText().toString();
+        String manufacturer_str = equipmentType.getText().toString();
 //        String procedure_used_str = procedure_used.getText().toString();
 //        String procedure_date_str = procedure_date.getText().toString();
 //        String patient_id_str = patient_id.getText().toString();
         String expiration_str = expiration.getText().toString();
         String quantity_str = "2"; // temporarily
         String current_date_time = Calendar.getInstance().getTime().toString();
-        String hospital_name_str = hospital_name.getText().toString();
-        String physical_location_str = physical_location.getText().toString();
+        String hospital_name_str = hospitalName.getText().toString();
+        String physical_location_str = physicalLocation.getText().toString();
         String notes_str  = notes.getText().toString();
 
         in = new InventoryTemplate(barcode_str,name_str, equipment_type_str,
@@ -606,16 +515,19 @@ public class ItemDetailFragment extends Fragment {
 
 
     public void autoPopulate() {
-//        String barcode = "(01)00885672101114(17)180401(10)DP02149";
+//        String udi = "(01)00885672101114(17)180401(10)DP02149";
+//        String udi = "01008856721011141718040110DP02149";
+//        String udi = "01008844501987111722053110K1147572";   // no device found for di
+//        String udi = "01049873507728791719083110170906";
         String udi = udiEditText.getText().toString();
-        Log.d(TAG,udi);
+        Log.d(TAG, udi);
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(parent);
         String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
 
         url = url + udi;
-        Log.d(TAG, "URL: " + url);
+//        Log.d(TAG, "URL: " + url);
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -627,18 +539,17 @@ public class ItemDetailFragment extends Fragment {
                         responseJson = new JSONObject(response);
 
                         Log.d(TAG, "Response: " + response);
-//                                Log.d(TAG, responseJson.toString());
 
                         JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
                         JSONObject udi =  responseJson.getJSONObject("udi");
-//                                Log.d(TAG, "DEVICE INFO: " + deviceInfo);
-//                                String lotNumberText = responseJson.getJSONObject("udi").getString("lotNumber");
+
                         lotNumber.setText(udi.getString("lotNumber"));
                         company.setText(deviceInfo.getString("companyName"));
                         expiration.setText(udi.getString("expirationDate"));
-                        product_id.setText(udi.getString("di"));
-//                                name.setText(responseJson.getJSONObject("gudid").get);
-//                                Log.d(TAG, "uDI: " + udi);
+                        productId.setText(udi.getString("di"));
+//                        Log.d(TAG, deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
+                        nameEditText.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
