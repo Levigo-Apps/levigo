@@ -137,7 +137,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:hint="Enter Procedure"
+                android:hint="@string/enter_procedure_lbl"
                 app:boxBackgroundMode="outline">
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
@@ -149,7 +149,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/textinputlayout_proceduredatetime"
-                android:hint="Enter Procedure Date"
+                android:hint="@string/enter_procedure_date_lbl"
                 app:boxBackgroundMode="outline"
                 app:endIconMode="custom"
                 app:endIconDrawable="@drawable/calendar"
@@ -161,10 +161,13 @@
 
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
+
+
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/amountUsed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter Patient ID"
+                android:hint="@string/enter_amount_used_lbl"
                 app:boxBackgroundMode="outline">
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
@@ -172,10 +175,11 @@
 
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
+
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter Amount Used"
+                android:hint="@string/enter_patient_id_lbl"
                 app:boxBackgroundMode="outline">
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
@@ -197,7 +201,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/detail_number_added"
                 android:text=""
-                android:hint="Number Added"/>
+                android:hint="@string/number_added_label"/>
         </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -211,7 +215,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/detail_di"
                 android:text=""
-                android:hint="Device Identifier" />
+                android:hint="@string/device_identifier_lbl" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -224,7 +228,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/detail_lot_number"
                 android:text=""
-                android:hint="Lot Number" />
+                android:hint="@string/lot_number_label" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout

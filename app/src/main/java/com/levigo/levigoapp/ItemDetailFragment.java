@@ -289,7 +289,7 @@ public class ItemDetailFragment extends Fragment {
                             patient_id = new TextInputEditText(patient_id_layout.getContext());
                             patient_id.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
                             patient_id_layout.addView(patient_id);
-                            linearLayout.addView(patient_id_layout, 4 + linearLayout.indexOfChild(itemUsed));
+                            linearLayout.addView(patient_id_layout, 2 + linearLayout.indexOfChild(itemUsed));
                         }
                     });
 
@@ -298,20 +298,20 @@ public class ItemDetailFragment extends Fragment {
                         @Override
                         public void onClick(View view) {
                             if (patientidAdded > 0) {
-                                linearLayout.removeViewAt(5 + linearLayout.indexOfChild(itemUsed));
+                                linearLayout.removeViewAt(2 + linearLayout.indexOfChild(itemUsed));
                                 patientidAdded--;
                             }
                         }
                     });
-                    linearLayout.addView(addPatient, 5 + linearLayout.indexOfChild(itemUsed));
-                    linearLayout.addView(removePatient, 6 + linearLayout.indexOfChild(itemUsed));
+                    linearLayout.addView(addPatient, 2 + linearLayout.indexOfChild(itemUsed));
+                    linearLayout.addView(removePatient, 3 + linearLayout.indexOfChild(itemUsed));
 
                     // if users changes from reusable to single us removes all unnecessary fields.
                 } else {
                     linearLayout.removeViewAt(linearLayout.indexOfChild(addPatient));
                     linearLayout.removeViewAt(linearLayout.indexOfChild(removePatient));
                     while (patientidAdded > 0) {
-                        linearLayout.removeViewAt(5 + linearLayout.indexOfChild(itemUsed));
+                        linearLayout.removeViewAt(2 + linearLayout.indexOfChild(itemUsed));
                         patientidAdded--;
                     }
 

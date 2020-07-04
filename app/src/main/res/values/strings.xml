@@ -68,5 +68,12 @@
     <string name="option_b_label">Option b</string>
     <string name="exit_lbl">Exit to Inventory View</string>
     <string name="otherType_lbl">Enter equipment type</string>
+    <string name="enter_procedure_lbl">Enter Procedure</string>
+    <string name="enter_procedure_date_lbl">Enter Procedure Date</string>
+    <string name="enter_patient_id_lbl">Enter Patient ID</string>
+    <string name="enter_amount_used_lbl">Enter Amount Used</string>
+    <string name="number_added_label">Number Added</string>
+    <string name="device_identifier_lbl">Device Identifier</string>
+    <string name="lot_number_label">Lot Number</string>
 
 </resources>
