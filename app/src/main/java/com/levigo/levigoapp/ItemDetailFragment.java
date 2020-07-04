@@ -1,13 +1,20 @@
 package com.levigo.levigoapp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
@@ -15,6 +22,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,9 +51,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class ItemDetailFragment extends Fragment {
 
@@ -61,9 +74,10 @@ public class ItemDetailFragment extends Fragment {
     // USER INPUT VALUES
     private TextInputEditText udiEditText;
     private TextInputEditText nameEditText;
-    private TextInputEditText equipment_type;
+    private AutoCompleteTextView equipment_type;
     private TextInputEditText company;
     private TextInputEditText procedure_used;
+    private TextInputEditText otherType_text;
     private TextInputEditText procedure_date;
     private TextInputEditText patient_id;
     private TextInputEditText product_id;
@@ -81,8 +95,9 @@ public class ItemDetailFragment extends Fragment {
 
 
     private Button mSave;
-    MaterialButton addPatient;
-    MaterialButton removePatient;
+    private MaterialButton addPatient;
+    private MaterialButton removePatient;
+    private MaterialButton submit_otherType;
     private SwitchMaterial item_used;
     private ImageButton back_button;
     private Button rescan_button;
@@ -107,7 +122,7 @@ public class ItemDetailFragment extends Fragment {
         linearLayout = rootView.findViewById(R.id.linear_layout);
         udiEditText = (TextInputEditText) rootView.findViewById(R.id.detail_udi);
         nameEditText = (TextInputEditText)rootView.findViewById(R.id.detail_name);
-        equipment_type = (TextInputEditText)rootView.findViewById(R.id.detail_type);
+        equipment_type = (AutoCompleteTextView) rootView.findViewById(R.id.detail_type);
         company = (TextInputEditText)rootView.findViewById(R.id.detail_company);
         expiration = (TextInputEditText)rootView.findViewById(R.id.detail_expiration_date);
         hospital_name = (TextInputEditText)rootView.findViewById(R.id.detail_site_location);
@@ -129,6 +144,75 @@ public class ItemDetailFragment extends Fragment {
         item_used.setChecked(false);
 
 
+        // Dropdown menu for Type field
+        final ArrayList<String> TYPES = new ArrayList<>(Arrays.asList("Balloon", "Catheter", "Needle", "Dilator", "Drainage Bag",
+                "Biliary Stent", "Wire", "Imaging/US","Mask","Picc Line","Scalpel","Sheath","Snare Kit",
+                "Stent","Sterile Tray","Stopcock","Tube","Other"));
+        Collections.sort(TYPES);
+
+        final ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(
+                        rootView.getContext(),
+                        R.layout.dropdown_menu_popup_item,
+                        TYPES);
+
+        @SuppressLint("CutPasteId") final AutoCompleteTextView type_dropDown =
+                rootView.findViewById(R.id.detail_type);
+        type_dropDown.setAdapter(adapter);
+
+        type_dropDown.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String selected = (String) adapterView.getItemAtPosition(i);
+                final TextInputLayout other_type_layout;
+                if(selected.equals("Other")){
+                    other_type_layout = new TextInputLayout(rootView.getContext(), null,
+                            R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
+                    other_type_layout.setHint("Enter type");
+                    other_type_layout.setId(View.generateViewId());
+                    other_type_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+                    otherType_text =  new TextInputEditText(other_type_layout.getContext());
+                    otherType_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+                    other_type_layout.addView(otherType_text);
+                    linearLayout.addView(other_type_layout,1 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
+
+                    submit_otherType = new MaterialButton(rootView.getContext(),
+                            null, R.attr.materialButtonOutlinedStyle);
+                    submit_otherType.setText(R.string.otherType_lbl);
+                    submit_otherType.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
+                            ViewGroup.LayoutParams.WRAP_CONTENT));
+                    linearLayout.addView(submit_otherType,2 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
+
+                    submit_otherType.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Toast.makeText(rootView.getContext(), otherType_text.getText().toString(), Toast.LENGTH_SHORT).show();
+                            TYPES.add(otherType_text.getText().toString());
+                            System.out.println(Arrays.toString(TYPES.toArray()));
+                            ArrayAdapter<String> adapter_new =
+                                    new ArrayAdapter<>(
+                                            rootView.getContext(),
+                                            R.layout.dropdown_menu_popup_item,
+                                            TYPES);
+                            type_dropDown.setAdapter(adapter_new);
+
+                        }
+                    });
+
+
+                }else {
+                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
+                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
+                }
+
+
+
+
+            }
+        });
+
+
+
         autoPopulateButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
@@ -136,13 +220,23 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-        //setting current date and time when clicked icon
+        //TimePicker dialog pops up when clicked on the icon
         time_layout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            Date current = new Date();
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a",java.util.Locale.getDefault());
-            currentDateTime.setText(format.format(current));
+                Calendar mcurrentTime = Calendar.getInstance();
+                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+                int minute = mcurrentTime.get(Calendar.MINUTE);
+                TimePickerDialog mTimePicker;
+                mTimePicker = new TimePickerDialog(rootView.getContext(), new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                        currentDateTime.setText(String.format(Locale.US,"%d:%d: 00 %s", selectedHour,
+                                selectedMinute, TimeZone.getDefault().getID()));
+                    }
+                }, hour, minute,true);
+                mTimePicker.setTitle("Select Time");
+                mTimePicker.show();
             }
         });
 
