@@ -134,7 +134,7 @@
                 </RadioButton>
             </RadioGroup>
             <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:hint="@string/enter_procedure_lbl"
@@ -146,8 +146,9 @@
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
             <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:id="@+id/textinputlayout_proceduredatetime"
                 android:hint="@string/enter_procedure_date_lbl"
                 app:boxBackgroundMode="outline"
@@ -165,8 +166,9 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/amountUsed"
-                android:layout_width="match_parent"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:hint="@string/enter_amount_used_lbl"
                 app:boxBackgroundMode="outline">
                 <com.google.android.material.textfield.TextInputEditText
@@ -177,8 +179,9 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:hint="@string/enter_patient_id_lbl"
                 app:boxBackgroundMode="outline">
                 <com.google.android.material.textfield.TextInputEditText
@@ -187,7 +190,20 @@
 
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
-
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/button_addpatient"
+                android:visibility="gone"
+                android:text="Add Patient ID">
+            </com.google.android.material.button.MaterialButton>
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/button_removepatient"
+                android:visibility="gone"
+                android:text="Remove Patient ID">
+            </com.google.android.material.button.MaterialButton>
         </LinearLayout>
 
 

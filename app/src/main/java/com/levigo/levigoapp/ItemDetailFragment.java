@@ -131,6 +131,8 @@ public class ItemDetailFragment extends Fragment {
         saveButton = rootView.findViewById(R.id.detail_save_button);
         backButton = rootView.findViewById(R.id.detail_back_button);
         rescanButton = rootView.findViewById(R.id.detail_rescan_button);
+        addPatient = rootView.findViewById(R.id.button_addpatient);
+        removePatient = rootView.findViewById(R.id.button_removepatient);
         autoPopulateButton = rootView.findViewById(R.id.detail_autopop_button);
 
         itemUsed.setChecked(false);
@@ -191,13 +193,10 @@ public class ItemDetailFragment extends Fragment {
                         }
                     });
 
-
                 } else {
                     linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
                     linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
                 }
-
-
             }
         });
 
@@ -258,6 +257,33 @@ public class ItemDetailFragment extends Fragment {
         RadioButton multiUse = rootView.findViewById(R.id.radio_multiuse);
 
 
+        // TODO update to correct position, uniform style
+        // when clicked add one more additional field for Patient ID
+        addPatient.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                patientidAdded++;
+                TextInputLayout patient_id_layout = new TextInputLayout(rootView.getContext(), null,
+                        R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
+                patient_id_layout.setHint("Enter patient ID");
+                patient_id_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+                patient_id = new TextInputEditText(patient_id_layout.getContext());
+                patient_id.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+                patient_id_layout.addView(patient_id);
+                linearLayout.addView(patient_id_layout, 2 + linearLayout.indexOfChild(itemUsed));
+            }
+        });
+
+        // when clicked remove one added field "Patient ID"
+        removePatient.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (patientidAdded > 0) {
+                    linearLayout.removeViewAt(2 + linearLayout.indexOfChild(itemUsed));
+                    patientidAdded--;
+                }
+            }
+        });
 
         // Checks which buttons is chosen
         multiUse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -265,84 +291,39 @@ public class ItemDetailFragment extends Fragment {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 // if reusable button is chosen, gives an user option to add multiple patient IDs
                 if (b) {
-                    addPatient = new MaterialButton(rootView.getContext(),
-                            null, R.attr.materialButtonOutlinedStyle);
-                    addPatient.setText(R.string.addID_lbl);
-                    addPatient.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-                            ViewGroup.LayoutParams.WRAP_CONTENT));
+                    addPatient.setVisibility(View.VISIBLE);
+                    removePatient.setVisibility(View.VISIBLE);
+//                    addPatient = new MaterialButton(rootView.getContext(),
+//                            null, R.attr.materialButtonOutlinedStyle);
+//                    addPatient.setText(R.string.addID_lbl);
+//                    addPatient.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
+//                            ViewGroup.LayoutParams.WRAP_CONTENT));
+//
+//                    removePatient = new MaterialButton(rootView.getContext(),
+//                            null, R.attr.materialButtonOutlinedStyle);
+//                    removePatient.setText(R.string.removeID_lbl);
+//                    removePatient.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
+//                            ViewGroup.LayoutParams.WRAP_CONTENT));
 
-                    removePatient = new MaterialButton(rootView.getContext(),
-                            null, R.attr.materialButtonOutlinedStyle);
-                    removePatient.setText(R.string.removeID_lbl);
-                    removePatient.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-                            ViewGroup.LayoutParams.WRAP_CONTENT));
 
-                    // when clicked add one more additional field for Patient ID
-                    addPatient.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            patientidAdded++;
-                            TextInputLayout patient_id_layout = new TextInputLayout(rootView.getContext(), null,
-                                    R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
-                            patient_id_layout.setHint("Enter patient ID");
-                            patient_id_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-                            patient_id = new TextInputEditText(patient_id_layout.getContext());
-                            patient_id.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
-                            patient_id_layout.addView(patient_id);
-                            linearLayout.addView(patient_id_layout, 2 + linearLayout.indexOfChild(itemUsed));
-                        }
-                    });
-
-                    // when clicked remove one added field "Patient ID"
-                    removePatient.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if (patientidAdded > 0) {
-                                linearLayout.removeViewAt(2 + linearLayout.indexOfChild(itemUsed));
-                                patientidAdded--;
-                            }
-                        }
-                    });
-                    linearLayout.addView(addPatient, 2 + linearLayout.indexOfChild(itemUsed));
-                    linearLayout.addView(removePatient, 3 + linearLayout.indexOfChild(itemUsed));
+//                    linearLayout.addView(addPatient, 2 + linearLayout.indexOfChild(itemUsed));
+//                    linearLayout.addView(removePatient, 3 + linearLayout.indexOfChild(itemUsed));
 
                     // if users changes from reusable to single us removes all unnecessary fields.
                 } else {
-                    linearLayout.removeViewAt(linearLayout.indexOfChild(addPatient));
-                    linearLayout.removeViewAt(linearLayout.indexOfChild(removePatient));
-                    while (patientidAdded > 0) {
-                        linearLayout.removeViewAt(2 + linearLayout.indexOfChild(itemUsed));
-                        patientidAdded--;
-                    }
+                    addPatient.setVisibility(View.GONE);
+                    removePatient.setVisibility(View.GONE);
+//                    linearLayout.removeViewAt(linearLayout.indexOfChild(addPatient));
+//                    linearLayout.removeViewAt(linearLayout.indexOfChild(removePatient));
+//                    while (patientidAdded > 0) {
+//                        linearLayout.removeViewAt(2 + linearLayout.indexOfChild(itemUsed));
+//                        patientidAdded--;
+//                    }
 
                 }
             }
         });
 
-        // programmatically creates four additional fields if item is used
-//        TextInputLayout procedure_layout = new TextInputLayout(rootView.getContext(), null,
-//                R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
-//        procedure_layout.setHint("Enter procedure");
-//        procedure_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-//        procedure_used = new TextInputEditText(procedure_layout.getContext());
-//        procedure_used.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
-//        procedure_layout.addView(procedure_used);
-//        linearLayout.addView(procedure_layout, 2 + linearLayout.indexOfChild(itemUsed));
-//
-//        TextInputLayout procedure_dateTime_layout = new TextInputLayout(rootView.getContext(), null,
-//                R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
-//        procedure_dateTime_layout.setHint("Enter procedure date");
-//        procedure_dateTime_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-//        procedure_date = new TextInputEditText(procedure_dateTime_layout.getContext());
-//        procedure_date.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
-//        procedure_dateTime_layout.addView(procedure_date);
-//        procedure_dateTime_layout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
-//        procedure_dateTime_layout.setEndIconDrawable(R.drawable.calendar);
-//        procedure_dateTime_layout.setEndIconTintList(ColorStateList.valueOf(ContextCompat
-//                .getColor(rootView.getContext(), R.color.colorPrimary)));
-//        linearLayout.addView(procedure_dateTime_layout, 3 + linearLayout.indexOfChild(itemUsed));
-
-        //TODO not done
         TextInputLayout procedureDateTimeLayout = rootView.findViewById(R.id.textinputlayout_proceduredatetime);
         final TextInputEditText procedureDate = rootView.findViewById(R.id.edittext_procedure_date);
         final DatePickerDialog.OnDateSetListener date_proc = new DatePickerDialog.OnDateSetListener() {
@@ -365,26 +346,7 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-
-//        TextInputLayout patient_id_layout = new TextInputLayout(rootView.getContext(), null,
-//                R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
-//        patient_id_layout.setHint("Enter patient ID");
-//        patient_id_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-//        patient_id = new TextInputEditText(patient_id_layout.getContext());
-//        patient_id.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
-//        patient_id_layout.addView(patient_id);
-//        linearLayout.addView(patient_id_layout, 4 + linearLayout.indexOfChild(itemUsed));
-//
-//        TextInputLayout numbersUsed_layout = new TextInputLayout(rootView.getContext(), null,
-//                R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
-//        numbersUsed_layout.setHint("Enter numbers used");
-//        numbersUsed_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-//        numberUsed = new TextInputEditText(numbersUsed_layout.getContext());
-//        numberUsed.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
-//        numbersUsed_layout.addView(numberUsed);
-//        linearLayout.addView(numbersUsed_layout, 5 + linearLayout.indexOfChild(itemUsed));
-
-
+        // TODO make sure hidden fields at the time of saving are not saved
         itemUsed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -396,7 +358,6 @@ public class ItemDetailFragment extends Fragment {
                 }
             }
         });
-
 
         // date picker for expiration date if entered manually
         final DatePickerDialog.OnDateSetListener date_exp = new DatePickerDialog.OnDateSetListener() {
