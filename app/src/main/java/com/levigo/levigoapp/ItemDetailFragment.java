@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,12 +18,10 @@ import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
@@ -75,8 +72,8 @@ public class ItemDetailFragment extends Fragment {
     private AutoCompleteTextView equipmentType;
     private TextInputEditText company;
     private TextInputEditText procedure_used;
-    private AutoCompleteTextView otherType_text;
-    private AutoCompleteTextView otherPhysicalLoc_text;
+    private TextInputEditText otherType_text;
+    private TextInputEditText otherPhysicalLoc_text;
     private TextInputEditText otherSiteLoc_text;
     private TextInputEditText procedure_date;
     private TextInputEditText patient_id;
