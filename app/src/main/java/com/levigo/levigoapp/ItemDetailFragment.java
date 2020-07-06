@@ -285,7 +285,7 @@ public class ItemDetailFragment extends Fragment {
 
         @SuppressLint("CutPasteId") final AutoCompleteTextView siteloc_dropDown =
                 rootView.findViewById(R.id.detail_site_location);
-        type_dropDown.setAdapter(adapter2);
+        siteloc_dropDown.setAdapter(adapter2);
 
 
         //TimePicker dialog pops up when clicked on the icon
