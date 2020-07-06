@@ -512,7 +512,13 @@ public class ItemDetailFragment extends Fragment {
 //        String procedure_date_str = procedure_date.getText().toString();
 //        String patient_id_str = patient_id.getText().toString();
         String expiration_str = expiration.getText().toString();
-        String quantity_str = "2"; // temporarily
+        Integer quantity_int;
+        if(itemUsed.isChecked()){
+            quantity_int = Integer.parseInt(quantity.getText().toString()) - Integer.parseInt(numberUsed.getText().toString());
+        } else {
+            quantity_int = Integer.parseInt(quantity.getText().toString()) + Integer.parseInt(numberAdded.getText().toString());
+        }
+        String quantity_str = quantity_int.toString(); // temporarily
         String current_date_time = Calendar.getInstance().getTime().toString();
         String hospital_name_str = hospitalName.getText().toString();
         String physical_location_str = physicalLocation.getText().toString();
