@@ -84,8 +84,8 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText expiration;
     private TextInputEditText quantity;
     private TextInputEditText lotNumber;
-    private TextInputEditText hospitalName;
-    private TextInputEditText physicalLocation;
+    private AutoCompleteTextView hospitalName;
+    private AutoCompleteTextView physicalLocation;
     private TextInputEditText notes;
     private TextInputEditText numberUsed;
     private TextInputEditText currentDateTime;
@@ -126,8 +126,8 @@ public class ItemDetailFragment extends Fragment {
         equipmentType = (AutoCompleteTextView) rootView.findViewById(R.id.detail_type);
         company = (TextInputEditText) rootView.findViewById(R.id.detail_company);
         expiration = (TextInputEditText) rootView.findViewById(R.id.detail_expiration_date);
-        hospitalName = (TextInputEditText) rootView.findViewById(R.id.detail_site_location);
-        physicalLocation = (TextInputEditText) rootView.findViewById(R.id.detail_physical_location);
+        hospitalName = (AutoCompleteTextView) rootView.findViewById(R.id.detail_site_location);
+        physicalLocation = (AutoCompleteTextView) rootView.findViewById(R.id.detail_physical_location);
         notes = (TextInputEditText) rootView.findViewById(R.id.detail_notes);
         lotNumber = (TextInputEditText) rootView.findViewById(R.id.detail_lot_number);
         numberAdded = (TextInputEditText) rootView.findViewById(R.id.detail_number_added);
