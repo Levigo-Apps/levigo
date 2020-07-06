@@ -21,7 +21,9 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -29,12 +31,15 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -50,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView inventoryScroll ;
     private RecyclerView.Adapter iAdapter ;
     private RecyclerView.LayoutManager iLayoutManager ;
-    private List<String> names = new LinkedList<>();
+//    private List<String> names = new LinkedList<>();
+    private List<Map<String, Object>> entries = new LinkedList<>();
 
     private FloatingActionButton mAdd;
 
@@ -97,8 +103,28 @@ public class MainActivity extends AppCompatActivity {
     private void initInventory() {
         iLayoutManager = new LinearLayoutManager(this);
         inventoryScroll.setLayoutManager(iLayoutManager);
-        iAdapter = new InventoryViewAdapter(names);
+//        iAdapter = new InventoryViewAdapter(names, inventoryRef);
+        iAdapter = new InventoryViewAdapter(entries, inventoryRef);
+//        Log.d(TAG, "NAMES: " + names);
         inventoryScroll.setAdapter(iAdapter);
+
+        // TODO delete later
+//        Query q = levigoDb.collectionGroup("levigoapp-266c3");
+//        q.whereEqualTo("udi", "010100886333006052172204101011174028").
+//        Log.d(TAG, "Query: " + q);
+//        inventoryRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                if (task.isSuccessful()) {
+//                    for (QueryDocumentSnapshot document : task.getResult()) {
+//                        Log.d(TAG, document.getId() + " => " + document.getData());
+//                    }
+//                } else {
+//                    Log.d(TAG, "Error getting documents: ", task.getException());
+//                }
+//            }
+//        });
+
         inventoryRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) throws NullPointerException {
@@ -109,28 +135,34 @@ public class MainActivity extends AppCompatActivity {
 
                 assert queryDocumentSnapshots != null;
                 for(DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                    String udi = dc.getDocument().getString("udi");
+//                    String udi = dc.getDocument().getString("udi");
+                    Map<String, Object> entry = dc.getDocument().getData();
+                    Log.d(TAG, "Data entries: " + entry.toString());
                     switch (dc.getType()) {
                         case ADDED:
-                            Log.d(TAG, "add");
-                            names.add(udi);
+                            Log.d(TAG, "added");
+//                            Log.d(TAG, "added: " + udi);
+//                            names.add(udi);
+                            entries.add(entry);
                             break;
                         case REMOVED:
                             Log.d(TAG, "remove");
-                            for (int i = 0; i < names.size(); ++i) {
-                                if (names.get(i).equals(udi)) {
-                                    names.remove(i);
-                                    break;
-                                }
-                            }
+                            //TODO implement
+//                            for (int i = 0; i < names.size(); ++i) {
+//                                if (names.get(i).equals(udi)) {
+//                                    names.remove(i);
+//                                    break;
+//                                }
+//                            }
                             break;
                         case MODIFIED:
                             Log.d(TAG, "modify");
-                            for (int i = 0; i < names.size(); ++i) {
-                                if (names.get(i).equals(udi)) {
-                                    names.set(i, udi);
-                                }
-                            }
+                            //TODO implement
+//                            for (int i = 0; i < names.size(); ++i) {
+//                                if (names.get(i).equals(udi)) {
+//                                    names.set(i, udi);
+//                                }
+//                            }
                             break;
                     }
                 }

@@ -50,7 +50,6 @@
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/detail_udi"
-                android:text=""
                 android:hint="UDI/Barcode"
                 />
         </com.google.android.material.textfield.TextInputLayout>

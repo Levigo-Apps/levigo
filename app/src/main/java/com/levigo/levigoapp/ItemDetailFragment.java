@@ -112,6 +112,8 @@ public class ItemDetailFragment extends Fragment {
 
         parent = getActivity();
 
+        // TODO add "clear" option for some fields in xml
+
         linearLayout = rootView.findViewById(R.id.linear_layout);
         udiEditText = (TextInputEditText) rootView.findViewById(R.id.detail_udi);
         nameEditText = (TextInputEditText) rootView.findViewById(R.id.detail_name);
