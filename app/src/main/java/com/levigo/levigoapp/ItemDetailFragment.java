@@ -67,6 +67,8 @@ public class ItemDetailFragment extends Fragment {
 
     private Activity parent;
 
+    private NetworkActivity Sites = new NetworkActivity();
+
     // USER INPUT VALUES
     private TextInputEditText udiEditText;
     private TextInputEditText nameEditText;
@@ -74,6 +76,8 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText company;
     private TextInputEditText procedure_used;
     private TextInputEditText otherType_text;
+    private TextInputEditText otherPhysicalLoc_text;
+    private TextInputEditText otherSiteLoc_text;
     private TextInputEditText procedure_date;
     private TextInputEditText patient_id;
     private TextInputEditText productId;
@@ -94,6 +98,8 @@ public class ItemDetailFragment extends Fragment {
     private MaterialButton addPatient;
     private MaterialButton removePatient;
     private MaterialButton submit_otherType;
+    private MaterialButton submit_otherPhysicalLoc;
+    private MaterialButton submit_otherSiteLoc;
     private SwitchMaterial itemUsed;
     private ImageButton backButton;
     private Button rescanButton;
@@ -209,6 +215,81 @@ public class ItemDetailFragment extends Fragment {
                 autoPopulate();
             }
         });
+
+        // Dropdown menu for Physical Location field
+        final ArrayList<String> PHYSICALLOC = new ArrayList<>(Arrays.asList("Room", "Box", "Shelf", "Other"));
+        Collections.sort(PHYSICALLOC);
+
+        final ArrayAdapter<String> adapter1 =
+                new ArrayAdapter<>(
+                        rootView.getContext(),
+                        R.layout.dropdown_menu_popup_item,
+                        PHYSICALLOC);
+
+        @SuppressLint("CutPasteId") final AutoCompleteTextView physicalloc_dropDown =
+                rootView.findViewById(R.id.detail_physical_location);
+        physicalloc_dropDown.setAdapter(adapter1);
+
+        physicalloc_dropDown.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String selected = (String) adapterView.getItemAtPosition(i);
+                final TextInputLayout other_physicaloc_layout;
+                if (selected.equals("Other")) {
+                    other_physicaloc_layout = new TextInputLayout(rootView.getContext(), null,
+                            R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
+                    other_physicaloc_layout.setHint("Enter physical location");
+                    other_physicaloc_layout.setId(View.generateViewId());
+                    other_physicaloc_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+                    otherPhysicalLoc_text = new TextInputEditText(other_physicaloc_layout.getContext());
+                    otherPhysicalLoc_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+                    other_physicaloc_layout.addView(otherPhysicalLoc_text);
+                    linearLayout.addView(other_physicaloc_layout, 1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
+
+                    submit_otherPhysicalLoc = new MaterialButton(rootView.getContext(),
+                            null, R.attr.materialButtonOutlinedStyle);
+                    submit_otherPhysicalLoc.setText(R.string.otherType_lbl);
+                    submit_otherPhysicalLoc.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
+                            ViewGroup.LayoutParams.WRAP_CONTENT));
+                    linearLayout.addView(submit_otherPhysicalLoc, 2 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
+
+                    submit_otherPhysicalLoc.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Toast.makeText(rootView.getContext(), otherPhysicalLoc_text.getText().toString(), Toast.LENGTH_SHORT).show();
+                            PHYSICALLOC.add(otherPhysicalLoc_text.getText().toString());
+                            System.out.println(Arrays.toString(PHYSICALLOC.toArray()));
+                            ArrayAdapter<String> adapter_new =
+                                    new ArrayAdapter<>(
+                                            rootView.getContext(),
+                                            R.layout.dropdown_menu_popup_item,
+                                            PHYSICALLOC);
+                            physicalloc_dropDown.setAdapter(adapter_new);
+
+                        }
+                    });
+
+                } else {
+                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
+                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
+                }
+            }
+        });
+
+        // Dropdown menu for Site Location field
+        final ArrayList<String> SITELOC = Sites.SITES;
+        Collections.sort(SITELOC);
+
+        final ArrayAdapter<String> adapter2 =
+                new ArrayAdapter<>(
+                        rootView.getContext(),
+                        R.layout.dropdown_menu_popup_item,
+                        SITELOC);
+
+        @SuppressLint("CutPasteId") final AutoCompleteTextView siteloc_dropDown =
+                rootView.findViewById(R.id.detail_site_location);
+        type_dropDown.setAdapter(adapter2);
+
 
         //TimePicker dialog pops up when clicked on the icon
         timeLayout.setEndIconOnClickListener(new View.OnClickListener() {

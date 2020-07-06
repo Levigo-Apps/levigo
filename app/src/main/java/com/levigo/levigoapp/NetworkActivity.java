@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+
 import androidx.annotation.Nullable;
 
 import com.google.android.material.button.MaterialButton;
@@ -14,6 +15,7 @@ import com.google.android.material.button.MaterialButton;
 public class NetworkActivity extends Activity {
 
     private Button exitButton;
+    ArrayList<String> SITES = new ArrayList<>(Arrays.asList("Option a", "Option b"));
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

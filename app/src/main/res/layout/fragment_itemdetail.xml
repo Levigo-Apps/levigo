@@ -283,30 +283,41 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-            <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/siteLocationLayout"
+            >
+
+            <AutoCompleteTextView
+                android:id="@+id/detail_site_location"
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_site_location"
                 android:text=""
-                android:hint="@string/site_location_lbl"/>
+                android:hint="Site Location"
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
+
+
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-            <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/physicalLocationLayout"
+            >
+
+            <AutoCompleteTextView
+                android:id="@+id/detail_physical_location"
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_physical_location"
                 android:text=""
-                android:hint="@string/physical_location_label"/>
+                android:hint="Physical Location"
+                />
         </com.google.android.material.textfield.TextInputLayout>
+
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/time_layout"
