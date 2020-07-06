@@ -75,8 +75,8 @@ public class ItemDetailFragment extends Fragment {
     private AutoCompleteTextView equipmentType;
     private TextInputEditText company;
     private TextInputEditText procedure_used;
-    private TextInputEditText otherType_text;
-    private TextInputEditText otherPhysicalLoc_text;
+    private AutoCompleteTextView otherType_text;
+    private AutoCompleteTextView otherPhysicalLoc_text;
     private TextInputEditText otherSiteLoc_text;
     private TextInputEditText procedure_date;
     private TextInputEditText patient_id;
