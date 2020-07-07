@@ -101,6 +101,7 @@ public class ItemDetailFragment extends Fragment {
     private ImageButton backButton;
     private Button rescanButton;
     private int patientidAdded = 0;
+    private boolean chosen;
 
     private Button autoPopulateButton;
 
@@ -163,8 +164,11 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String selected = (String) adapterView.getItemAtPosition(i);
-                final TextInputLayout other_type_layout;
+
+
+                TextInputLayout other_type_layout = null;
                 if (selected.equals("Other")) {
+                    chosen = true;
                     other_type_layout = new TextInputLayout(rootView.getContext(), null,
                             R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
                     other_type_layout.setHint("Enter type");
@@ -198,7 +202,9 @@ public class ItemDetailFragment extends Fragment {
                         }
                     });
 
-                } else {
+
+                }else if(chosen && (!(selected.equals("Other")))) {
+                    chosen = false;
                     linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
                     linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
                 }
