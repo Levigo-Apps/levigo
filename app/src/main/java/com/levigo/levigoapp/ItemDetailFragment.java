@@ -558,7 +558,7 @@ public class ItemDetailFragment extends Fragment {
         String currentDateTime_str = currentDateTime.getText().toString();
         String notes_str = notes.getText().toString();
 
-       // di identifiers
+       // di identifiers, hardcoded KEY names need to be changed
         Map<String, Object> diDoc = new HashMap<>();
         diDoc.put("name",name_str);
         diDoc.put("equipment_type",type_str);
