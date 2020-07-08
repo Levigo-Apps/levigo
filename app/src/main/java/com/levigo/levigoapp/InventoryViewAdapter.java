@@ -1,5 +1,6 @@
 package com.levigo.levigoapp;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,25 +9,19 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-<<<<<<< Updated upstream
-=======
+
 import com.google.firebase.firestore.CollectionReference;
 
->>>>>>> Stashed changes
 import java.util.List;
+import java.util.Map;
 
 public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdapter.InventoryViewHolder> {
-    private List<String> iDataset;
+    private List<Map<String,Object>> iDataset;
+    private CollectionReference inventoryRef;
+    private static final String TAG = "ivadapter";
 
     public static class InventoryViewHolder extends RecyclerView.ViewHolder {
-<<<<<<< Updated upstream
         public TextView itemTitle;
-
-        public InventoryViewHolder(View view){
-            super(view);
-            itemTitle = view.findViewById(R.id.itemTitle);
-=======
-        // TODO add elements
         public TextView itemDI;
     //    public TextView itemExpirationDate;
         public TextView itemType;
@@ -40,16 +35,12 @@ public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdap
             itemType = view.findViewById(R.id.item_type);
             itemName = view.findViewById(R.id.item_name);
             itemQuantity = view.findViewById(R.id.item_quantity);
->>>>>>> Stashed changes
         }
     }
 
-    public InventoryViewAdapter(List<String> invNameDataSet) {
+    public InventoryViewAdapter(List<Map<String,Object>> invNameDataSet, CollectionReference inventoryRef) {
         iDataset = invNameDataSet;
-<<<<<<< Updated upstream
-=======
         this.inventoryRef = inventoryRef;
->>>>>>> Stashed changes
     }
 
     @NonNull
@@ -63,9 +54,8 @@ public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdap
 
     @Override
     public void onBindViewHolder(InventoryViewHolder holder, int position){
-<<<<<<< Updated upstream
-        holder.itemTitle.setText(iDataset.get(position));
-=======
+//        holder.itemTitle.setText(iDataset.get(position));
+
         Log.d(TAG, "DATASET: " + iDataset);
         // TODO better way of checking if key exists
         if (iDataset.get(position).containsKey("udi")) {
@@ -105,7 +95,6 @@ public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdap
 //                        }
 //                    }
 //                });
->>>>>>> Stashed changes
     }
 
     @Override
