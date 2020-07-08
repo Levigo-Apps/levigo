@@ -3,9 +3,6 @@ package com.levigo.levigoapp;
 public class InventoryTemplate {
 
     private String udi;
-    private String name;
-    private String equipment_type;
-    private String company;
     private boolean isUsed;
     private String radioButtonVal;
     private String procedure_used;
@@ -13,11 +10,9 @@ public class InventoryTemplate {
     private String amountUsed;
     private String patient_id;
     private String number_added;
-    private String di;
     private String lotNumber;
     private String expiration;
     private String quantity;
-    private String site_name;
     private String current_date_time;
     private String physical_location;
     private String notes;
@@ -26,26 +21,13 @@ public class InventoryTemplate {
         // empty Constructor
     }
 
-    public InventoryTemplate(String name,String equipment_type,String company,String di,String site_name){
-        this.name = name;
-        this.equipment_type = equipment_type;
-        this.company = company;
-        this.di = di;
-        this.site_name = site_name;
-    }
 
-    public InventoryTemplate(String udi, String name,
-                             String equipment_type,
-                             String company, boolean isUsed, String radioButtonVal, String procedure_used,
+    public InventoryTemplate(String udi, boolean isUsed, String radioButtonVal, String procedure_used,
                              String procedure_date, String amountUsed, String patient_id, String number_added,
-                             String di, String lotNumber, String expiration, String quantity,  String site_name,
-                             String current_date_time,  String physical_location,
-                             String notes) {
+                             String lotNumber, String expiration, String quantity, String current_date_time,
+                             String physical_location, String notes) {
 
         this.udi = udi;
-        this.name = name;
-        this.equipment_type = equipment_type;
-        this.company = company;
         this.isUsed = isUsed;
         this.radioButtonVal = radioButtonVal;
         this.procedure_used = procedure_used;
@@ -53,11 +35,9 @@ public class InventoryTemplate {
         this.amountUsed = amountUsed;
         this.patient_id = patient_id;
         this.number_added = number_added;
-        this.di = di;
         this.lotNumber = lotNumber;
         this.expiration = expiration;
         this.quantity = quantity;
-        this.site_name = site_name;
         this.current_date_time = current_date_time;
         this.physical_location = physical_location;
         this.notes = notes;
@@ -70,35 +50,6 @@ public class InventoryTemplate {
     }
     public void setUdi(String udi) {
         this.udi = udi;
-    }
-
-    public String getDi() {
-        return di;
-    }
-    public void setDi(String di) {
-        this.di = di;
-    }
-
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-
-    public String getEquipment_type() {
-        return equipment_type;
-    }
-    public void setEquipment_type(String equipment_type) {
-        this.equipment_type = equipment_type;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-    public void setCompany(String company) {
-        this.company = company;
     }
 
     public boolean getIsUsed(){ return isUsed;}
@@ -143,12 +94,7 @@ public class InventoryTemplate {
         this.quantity = quantity;
     }
 
-    public String getSite_name() {
-        return site_name;
-    }
-    public void setSite_name(String site_name) {
-        this.site_name = site_name;
-    }
+
 
     public String getCurrent_date_time() { return current_date_time; }
     public void setCurrent_date_time(String current_date_time) { this.current_date_time = current_date_time; }
