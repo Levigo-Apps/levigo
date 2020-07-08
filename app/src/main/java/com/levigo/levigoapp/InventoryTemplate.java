@@ -2,16 +2,22 @@ package com.levigo.levigoapp;
 
 public class InventoryTemplate {
 
-    private String barcode;
+    private String udi;
     private String name;
     private String equipment_type;
-    private String manufacturer;
+    private String company;
+    private boolean isUsed;
+    private String radioButtonVal;
     private String procedure_used;
     private String procedure_date;
+    private String amountUsed;
     private String patient_id;
+    private String number_added;
+    private String di;
+    private String lotNumber;
     private String expiration;
     private String quantity;
-    private String hospital_name;
+    private String site_name;
     private String current_date_time;
     private String physical_location;
     private String notes;
@@ -20,25 +26,38 @@ public class InventoryTemplate {
         // empty Constructor
     }
 
-    public InventoryTemplate(String barcode, String name,
-                             String equipment_type,
-                             String manufacturer,  String procedure_used,
-                             String procedure_date,
-                             String patient_id,  String expiration,
-                             String quantity,  String hospital_name,
-                             String current_date_time,  String physical_location,
-                              String notes) {
-
-        this.barcode = barcode;
+    public InventoryTemplate(String name,String equipment_type,String company,String di,String site_name){
         this.name = name;
         this.equipment_type = equipment_type;
-        this.manufacturer = manufacturer;
+        this.company = company;
+        this.di = di;
+        this.site_name = site_name;
+    }
+
+    public InventoryTemplate(String udi, String name,
+                             String equipment_type,
+                             String company, boolean isUsed, String radioButtonVal, String procedure_used,
+                             String procedure_date, String amountUsed, String patient_id, String number_added,
+                             String di, String lotNumber, String expiration, String quantity,  String site_name,
+                             String current_date_time,  String physical_location,
+                             String notes) {
+
+        this.udi = udi;
+        this.name = name;
+        this.equipment_type = equipment_type;
+        this.company = company;
+        this.isUsed = isUsed;
+        this.radioButtonVal = radioButtonVal;
         this.procedure_used = procedure_used;
         this.procedure_date = procedure_date;
+        this.amountUsed = amountUsed;
         this.patient_id = patient_id;
+        this.number_added = number_added;
+        this.di = di;
+        this.lotNumber = lotNumber;
         this.expiration = expiration;
         this.quantity = quantity;
-        this.hospital_name = hospital_name;
+        this.site_name = site_name;
         this.current_date_time = current_date_time;
         this.physical_location = physical_location;
         this.notes = notes;
@@ -46,11 +65,18 @@ public class InventoryTemplate {
 
 
 
-    public String getBarcode() {
-        return barcode;
+    public String getUdi() {
+        return udi;
     }
-    public void setBarcode(String barcode) {
-        this.barcode = barcode;
+    public void setUdi(String udi) {
+        this.udi = udi;
+    }
+
+    public String getDi() {
+        return di;
+    }
+    public void setDi(String di) {
+        this.di = di;
     }
 
     public String getName() {
@@ -60,6 +86,7 @@ public class InventoryTemplate {
         this.name = name;
     }
 
+
     public String getEquipment_type() {
         return equipment_type;
     }
@@ -67,12 +94,18 @@ public class InventoryTemplate {
         this.equipment_type = equipment_type;
     }
 
-    public String getManufacturer() {
-        return manufacturer;
+    public String getCompany() {
+        return company;
     }
-    public void setManufacturer(String manufacturer) {
-        this.manufacturer = manufacturer;
+    public void setCompany(String company) {
+        this.company = company;
     }
+
+    public boolean getIsUsed(){ return isUsed;}
+    public void setUsed(boolean isUsed){ this.isUsed = isUsed;}
+
+    public String getRadioButtonVal(){ return radioButtonVal;}
+    public void setRadioButtonVal(String radioButtonVal){ this.radioButtonVal = radioButtonVal;}
 
     public String getProcedure_used() {
         return procedure_used;
@@ -85,6 +118,9 @@ public class InventoryTemplate {
     public void setProcedure_date(String procedure_date) {
         this.procedure_date = procedure_date;
     }
+
+    public String getAmountUsed(){ return amountUsed;}
+    public void setAmountUsed(String amountUsed){ this.amountUsed = amountUsed;}
 
     public String getPatient_id() {
         return patient_id;
@@ -107,11 +143,11 @@ public class InventoryTemplate {
         this.quantity = quantity;
     }
 
-    public String getHospital_name() {
-        return hospital_name;
+    public String getSite_name() {
+        return site_name;
     }
-    public void setHospital_name(String hospital_name) {
-        this.hospital_name = hospital_name;
+    public void setSite_name(String site_name) {
+        this.site_name = site_name;
     }
 
     public String getCurrent_date_time() { return current_date_time; }
@@ -122,4 +158,10 @@ public class InventoryTemplate {
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+
+    public String getNumber_added() { return number_added;}
+    public void setNumber_added(String number_added){ this.number_added = number_added;}
+
+    public String getLotNumber() { return lotNumber;}
+    public void setLotNumber(String lotNumber) { this.lotNumber = lotNumber;}
 }

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/linear_networkView"
+        android:layout_width="376dp"
+        android:layout_height="533dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="20dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/top_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/topView_label"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/search_textView"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="290dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:hint="@string/search_label"
+            android:textColorHint="#ffffff"
+            app:boxStrokeColor="#4915E3">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+            android:layout_width="290dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:hint="@string/sort_label"
+            android:textColorHint="#ffffff"
+            app:boxStrokeColor="#4915E3">
+
+            <AutoCompleteTextView
+                android:id="@+id/sort_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/sort_by_label" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/all_sites_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/all_sites_label"
+            android:textColor="#ffffff"
+            android:textSize="18sp" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/optiona_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/option_a_label"
+            android:textColor="#ffffff"
+            android:textSize="18sp" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/optionb_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/option_b_label"
+            android:textColor="#ffffff"
+            android:textSize="18sp" />
+
+        <ImageButton
+            android:id="@+id/plus_button"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="end"
+            android:layout_marginTop="10dp"
+            android:background="@null"
+            android:src="@android:drawable/ic_menu_add"
+            android:tint="#ffffff"
+
+            />
+
+        <Button
+            android:id="@+id/exit_outlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/exit_lbl"
+            style="?attr/materialButtonOutlinedStyle"
+            />
+
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
