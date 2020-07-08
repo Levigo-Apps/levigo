@@ -45,6 +45,7 @@ import com.journeyapps.barcodescanner.CaptureActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -358,7 +359,7 @@ public class ItemDetailFragment extends Fragment {
         RadioButton multiUse = rootView.findViewById(R.id.radio_multiuse);
 
 
-        // TODO update to correct position, uniform style
+        // TODO update to uniform style
         // when clicked add one more additional field for Patient ID
         addPatient.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -366,12 +367,13 @@ public class ItemDetailFragment extends Fragment {
                 patientidAdded++;
                 TextInputLayout patient_id_layout = new TextInputLayout(rootView.getContext(), null,
                         R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
+//                patient_id_layout.setLayoutParams(new TextInputLayout.LayoutParams(320, ViewGroup.LayoutParams.WRAP_CONTENT));
                 patient_id_layout.setHint("Enter patient ID");
                 patient_id_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
                 patient_id = new TextInputEditText(patient_id_layout.getContext());
                 patient_id.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
                 patient_id_layout.addView(patient_id);
-                linearLayout.addView(patient_id_layout, 2 + linearLayout.indexOfChild(itemUsed));
+                itemUsedFields.addView(patient_id_layout,  itemUsedFields.indexOfChild(addPatient));
             }
         });
 
@@ -380,7 +382,8 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (patientidAdded > 0) {
-                    linearLayout.removeViewAt(2 + linearLayout.indexOfChild(itemUsed));
+//                    linearLayout.removeViewAt(2 + linearLayout.indexOfChild(itemUsed));
+                    itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addPatient) - 1);
                     patientidAdded--;
                 }
             }
@@ -394,33 +397,11 @@ public class ItemDetailFragment extends Fragment {
                 if (b) {
                     addPatient.setVisibility(View.VISIBLE);
                     removePatient.setVisibility(View.VISIBLE);
-//                    addPatient = new MaterialButton(rootView.getContext(),
-//                            null, R.attr.materialButtonOutlinedStyle);
-//                    addPatient.setText(R.string.addID_lbl);
-//                    addPatient.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-//                            ViewGroup.LayoutParams.WRAP_CONTENT));
-//
-//                    removePatient = new MaterialButton(rootView.getContext(),
-//                            null, R.attr.materialButtonOutlinedStyle);
-//                    removePatient.setText(R.string.removeID_lbl);
-//                    removePatient.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-//                            ViewGroup.LayoutParams.WRAP_CONTENT));
-
-
-//                    linearLayout.addView(addPatient, 2 + linearLayout.indexOfChild(itemUsed));
-//                    linearLayout.addView(removePatient, 3 + linearLayout.indexOfChild(itemUsed));
 
                     // if users changes from reusable to single us removes all unnecessary fields.
                 } else {
                     addPatient.setVisibility(View.GONE);
                     removePatient.setVisibility(View.GONE);
-//                    linearLayout.removeViewAt(linearLayout.indexOfChild(addPatient));
-//                    linearLayout.removeViewAt(linearLayout.indexOfChild(removePatient));
-//                    while (patientidAdded > 0) {
-//                        linearLayout.removeViewAt(2 + linearLayout.indexOfChild(itemUsed));
-//                        patientidAdded--;
-//                    }
-
                 }
             }
         });
