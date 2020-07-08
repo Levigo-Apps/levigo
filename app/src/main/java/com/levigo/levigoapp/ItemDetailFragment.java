@@ -18,6 +18,7 @@ import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -38,6 +39,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
@@ -49,7 +51,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class ItemDetailFragment extends Fragment {
@@ -58,7 +62,8 @@ public class ItemDetailFragment extends Fragment {
 
     // Firebase database
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    InventoryTemplate in;
+    InventoryTemplate diDocument;
+    InventoryTemplate udiDocument;
 
     private static final String TAG = ItemDetailFragment.class.getSimpleName();
 
@@ -75,12 +80,13 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText otherType_text;
     private TextInputEditText otherPhysicalLoc_text;
     private TextInputEditText otherSiteLoc_text;
-    private TextInputEditText procedure_date;
+    private TextInputEditText procedureDate;
     private TextInputEditText patient_id;
-    private TextInputEditText productId;
+    private TextInputEditText deviceIdentifier;
     private TextInputEditText expiration;
     private TextInputEditText quantity;
     private TextInputEditText lotNumber;
+    private TextInputEditText amountUsed;
     private AutoCompleteTextView hospitalName;
     private AutoCompleteTextView physicalLocation;
     private TextInputEditText notes;
@@ -98,10 +104,13 @@ public class ItemDetailFragment extends Fragment {
     private MaterialButton submit_otherPhysicalLoc;
     private MaterialButton submit_otherSiteLoc;
     private SwitchMaterial itemUsed;
+    private RadioGroup useRadioGroup;
+    private RadioButton radioButton;
     private ImageButton backButton;
     private Button rescanButton;
     private int patientidAdded = 0;
-    private boolean chosen;
+    private boolean chosenType;
+    private boolean chosenLocation;
 
     private Button autoPopulateButton;
 
@@ -129,7 +138,7 @@ public class ItemDetailFragment extends Fragment {
         notes = (TextInputEditText) rootView.findViewById(R.id.detail_notes);
         lotNumber = (TextInputEditText) rootView.findViewById(R.id.detail_lot_number);
         numberAdded = (TextInputEditText) rootView.findViewById(R.id.detail_number_added);
-        productId = (TextInputEditText) rootView.findViewById(R.id.detail_di);
+        deviceIdentifier = (TextInputEditText) rootView.findViewById(R.id.detail_di);
         currentDateTime = (TextInputEditText) rootView.findViewById(R.id.detail_date_time);
         expiration_textLayout = (TextInputLayout) rootView.findViewById(R.id.expiration_date_string2);
         timeLayout = (TextInputLayout) rootView.findViewById(R.id.time_layout);
@@ -140,6 +149,11 @@ public class ItemDetailFragment extends Fragment {
         addPatient = rootView.findViewById(R.id.button_addpatient);
         removePatient = rootView.findViewById(R.id.button_removepatient);
         autoPopulateButton = rootView.findViewById(R.id.detail_autopop_button);
+        useRadioGroup = rootView.findViewById(R.id.RadioGroup_id);
+        procedure_used = rootView.findViewById(R.id.edittext_procedure_used);
+        procedureDate = rootView.findViewById(R.id.edittext_procedure_date);
+        amountUsed = rootView.findViewById(R.id.amountUsed_id);
+        patient_id = rootView.findViewById(R.id.patientID_id);
 
         itemUsed.setChecked(false);
 
@@ -168,7 +182,7 @@ public class ItemDetailFragment extends Fragment {
 
                 TextInputLayout other_type_layout = null;
                 if (selected.equals("Other")) {
-                    chosen = true;
+                    chosenType = true;
                     other_type_layout = new TextInputLayout(rootView.getContext(), null,
                             R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
                     other_type_layout.setHint("Enter type");
@@ -203,8 +217,8 @@ public class ItemDetailFragment extends Fragment {
                     });
 
 
-                }else if(chosen && (!(selected.equals("Other")))) {
-                    chosen = false;
+                }else if(chosenType && (!(selected.equals("Other")))) {
+                    chosenType = false;
                     linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
                     linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
                 }
@@ -239,6 +253,7 @@ public class ItemDetailFragment extends Fragment {
                 String selected = (String) adapterView.getItemAtPosition(i);
                 final TextInputLayout other_physicaloc_layout;
                 if (selected.equals("Other")) {
+                    chosenLocation = true;
                     other_physicaloc_layout = new TextInputLayout(rootView.getContext(), null,
                             R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
                     other_physicaloc_layout.setHint("Enter physical location");
@@ -251,7 +266,7 @@ public class ItemDetailFragment extends Fragment {
 
                     submit_otherPhysicalLoc = new MaterialButton(rootView.getContext(),
                             null, R.attr.materialButtonOutlinedStyle);
-                    submit_otherPhysicalLoc.setText(R.string.otherType_lbl);
+                    submit_otherPhysicalLoc.setText(R.string.submitLocation_lbl);
                     submit_otherPhysicalLoc.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
                             ViewGroup.LayoutParams.WRAP_CONTENT));
                     linearLayout.addView(submit_otherPhysicalLoc, 2 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
@@ -268,13 +283,13 @@ public class ItemDetailFragment extends Fragment {
                                             R.layout.dropdown_menu_popup_item,
                                             PHYSICALLOC);
                             physicalloc_dropDown.setAdapter(adapter_new);
+                            if (chosenLocation) {
+                                linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
+                                linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
+                            }
 
                         }
                     });
-
-                } else {
-                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
-                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
                 }
             }
         });
@@ -411,7 +426,7 @@ public class ItemDetailFragment extends Fragment {
         });
 
         TextInputLayout procedureDateTimeLayout = rootView.findViewById(R.id.textinputlayout_proceduredatetime);
-        final TextInputEditText procedureDate = rootView.findViewById(R.id.edittext_procedure_date);
+        procedureDate = rootView.findViewById(R.id.edittext_procedure_date);
         final DatePickerDialog.OnDateSetListener date_proc = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
@@ -420,7 +435,8 @@ public class ItemDetailFragment extends Fragment {
                 myCalendar.set(Calendar.DAY_OF_MONTH, i2);
                 String myFormat = "yyyy/MM/dd";
                 SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                procedureDate.setText(sdf.format(myCalendar.getTime()));
+                procedureDate.setText(String.format("%s %s", sdf.format(myCalendar.getTime()),
+                        TimeZone.getDefault().getDisplayName(false,TimeZone.SHORT)));
             }
         };
         procedureDateTimeLayout.setEndIconOnClickListener(new View.OnClickListener() {
@@ -454,7 +470,8 @@ public class ItemDetailFragment extends Fragment {
                 myCalendar.set(Calendar.DAY_OF_MONTH, i2);
                 String myFormat = "yyyy/MM/dd";
                 SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                expiration.setText(sdf.format(myCalendar.getTime()));
+                expiration.setText(String.format("%s %s", sdf.format(myCalendar.getTime()),
+                        TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT)));
             }
         };
         expiration_textLayout.setEndIconOnClickListener(new View.OnClickListener() {
@@ -509,32 +526,63 @@ public class ItemDetailFragment extends Fragment {
         Log.d(TAG, "SAVING");
         String barcode_str = udiEditText.getText().toString();
         String name_str = nameEditText.getText().toString();
-        String equipment_type_str = equipmentType.getText().toString();
-        String manufacturer_str = equipmentType.getText().toString();
-//        String procedure_used_str = procedure_used.getText().toString();
-//        String procedure_date_str = procedure_date.getText().toString();
-//        String patient_id_str = patient_id.getText().toString();
+        String type_str = equipmentType.getText().toString();
+        String company_str = company.getText().toString();
+
+        // getting radiobutton value
+        boolean isUsed = itemUsed.isChecked();
+        int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
+        radioButton = (RadioButton) view.findViewById(radioButtonInt);
+        String radioButtonVal = radioButton.getText().toString();
+
+        //if used
+        String procedure_used_str = procedure_used.getText().toString();
+        String procedure_date_str = procedureDate.getText().toString();
+        String amount_used_str = amountUsed.getText().toString();
+        String patient_id_str = patient_id.getText().toString();
+
+        String number_added_str = numberAdded.getText().toString();
+        String di_str = deviceIdentifier.getText().toString();
+        String lotNumber_str = lotNumber.getText().toString();
         String expiration_str = expiration.getText().toString();
-        Integer quantity_int;
+
+        int quantity_int;
         if(itemUsed.isChecked()){
-            quantity_int = Integer.parseInt(quantity.getText().toString()) - Integer.parseInt(numberUsed.getText().toString());
+            //     quantity_int = Integer.parseInt(quantity.getText().toString()) - Integer.parseInt(numberUsed.getText().toString());
         } else {
-            quantity_int = Integer.parseInt(quantity.getText().toString()) + Integer.parseInt(numberAdded.getText().toString());
+            //        quantity_int = Integer.parseInt(quantity.getText().toString()) + Integer.parseInt(numberAdded.getText().toString());
         }
-        String quantity_str = quantity_int.toString(); // temporarily
-        String current_date_time = Calendar.getInstance().getTime().toString();
-        String hospital_name_str = hospitalName.getText().toString();
+        String quantity_str = "2"; // temporarily
+        String site_name_str = hospitalName.getText().toString();
         String physical_location_str = physicalLocation.getText().toString();
+        String currentDateTime_str = currentDateTime.getText().toString();
         String notes_str = notes.getText().toString();
 
-        in = new InventoryTemplate(barcode_str, name_str, equipment_type_str,
-                manufacturer_str, "", "", "", expiration_str,
-                quantity_str, hospital_name_str, current_date_time, physical_location_str, notes_str);
+       // di identifiers
+        Map<String, Object> diDoc = new HashMap<>();
+        diDoc.put("name",name_str);
+        diDoc.put("equipment_type",type_str);
+        diDoc.put("company",company_str);
+        diDoc.put("di",di_str);
+        diDoc.put("site_name",site_name_str);
+        DocumentReference diRef = db.collection("Networks").document("Network1")
+                .collection("Sites").document("Hospital 1").collection("Hospital 1 Departments")
+                .document("Department 1").collection("Department 1 dis").document(di_str);
+        diRef.set(diDoc);
 
-        DocumentReference equipRef = db.document("Inventory/" + barcode_str);
+        // udi identifiers
+        udiDocument = new InventoryTemplate(barcode_str, name_str, type_str,
+                company_str, isUsed,radioButtonVal,procedure_used_str, procedure_date_str, amount_used_str,patient_id_str,
+                number_added_str,di_str,lotNumber_str, expiration_str,
+                quantity_str, site_name_str, physical_location_str,currentDateTime_str, notes_str);
+
+        DocumentReference udiRef = db.collection("Networks").document("Network1")
+        .collection("Sites").document("Hospital 1").collection("Hospital 1 Departments")
+        .document("Department 1").collection("Department 1 dis").document(di_str)
+                .collection("UDIs").document(barcode_str);
 
         //saving data of InventoryTemplate to database
-        equipRef.set(in)
+        udiRef.set(udiDocument)
                 //in case of success
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -546,7 +594,7 @@ public class ItemDetailFragment extends Fragment {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getActivity(), "Error!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, e.toString());
                     }
                 });
@@ -585,7 +633,7 @@ public class ItemDetailFragment extends Fragment {
                             lotNumber.setText(udi.getString("lotNumber"));
                             company.setText(deviceInfo.getString("companyName"));
                             expiration.setText(udi.getString("expirationDate"));
-                            productId.setText(udi.getString("di"));
+                            deviceIdentifier.setText(udi.getString("di"));
 //                        Log.d(TAG, deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
                             nameEditText.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
 

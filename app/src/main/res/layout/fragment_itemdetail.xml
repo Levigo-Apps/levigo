@@ -117,20 +117,21 @@
 
 
             <RadioGroup
+                android:id="@+id/RadioGroup_id"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <RadioButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/SingleUse_lbl">
-                </RadioButton>
+                    android:text="@string/SingleUse_lbl"></RadioButton>
+
                 <RadioButton
+                    android:id="@+id/radio_multiuse"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/reusable_lbl"
-                    android:id="@+id/radio_multiuse">
-                </RadioButton>
+                    android:text="@string/reusable_lbl"></RadioButton>
             </RadioGroup>
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="320dp"
@@ -170,7 +171,9 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:hint="@string/enter_amount_used_lbl"
                 app:boxBackgroundMode="outline">
+
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/amountUsed_id"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
@@ -183,7 +186,9 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:hint="@string/enter_patient_id_lbl"
                 app:boxBackgroundMode="outline">
+
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/patientID_id"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
