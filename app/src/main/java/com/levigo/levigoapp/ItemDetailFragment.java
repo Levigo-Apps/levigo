@@ -58,6 +58,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class ItemDetailFragment extends Fragment {
@@ -175,6 +176,7 @@ public class ItemDetailFragment extends Fragment {
 
 
         itemUsed.setChecked(false);
+        addSizeButton = rootView.findViewById(R.id.button_addsize);
 
 
         // Dropdown menu for Type field
@@ -254,7 +256,7 @@ public class ItemDetailFragment extends Fragment {
         addSizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addEmptySizeOption(rootView);
+                addEmptySizeOption(view);
             }
         });
 
@@ -531,6 +533,8 @@ public class ItemDetailFragment extends Fragment {
     }
 
     private void addEmptySizeOption(View view) {
+        Log.d(TAG, "Adding empty size option!");
+        /*
 //        other_physicaloc_layout = new TextInputLayout(rootView.getContext(), null,
 //                R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
 //        other_physicaloc_layout.setHint("Enter physical location");
@@ -549,11 +553,24 @@ public class ItemDetailFragment extends Fragment {
         gridLayoutSize = view.findViewById(R.id.gridlayout_size);
 
         TextInputLayout sizeKeyLayout = new TextInputLayout(view.getContext(), null, R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
-        sizeKeyLayout.setHint("Key");
+//        sizeKeyLayout.setWeightSum(1);
         sizeKeyLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-        sizeKeyLayout.setLayoutParams(new TextInputLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
-        sizeKeyLayout.setWeightSum(1);
+//        TextInputLayout.LayoutParams param = new TextInputLayout.LayoutParams();
+//        param.width = TextInputLayout.LayoutParams.WRAP_CONTENT;
+        //        sizeKeyLayout.setLayoutParams(param);
+        sizeKeyLayout.setLayoutParams(new TextInputLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1));
+
+        TextInputEditText sizeKey = new TextInputEditText(view.getContext());
+//        sizeKey.setLayoutParams(new GridLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+        //TODO create resource
+        sizeKey.setHint("Key");
+        sizeKeyLayout.addView(sizeKey);
+//        sizeKeyLayout.setWeightSum(1);
+//        sizeKeyLayout.addView();
+        gridLayoutSize.addView(sizeKeyLayout, 0);
 //        sizeKeyLayout.column
+
+         */
     }
 
 
