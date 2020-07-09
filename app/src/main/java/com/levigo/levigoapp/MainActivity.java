@@ -108,23 +108,6 @@ public class MainActivity extends AppCompatActivity {
 //        Log.d(TAG, "NAMES: " + names);
         inventoryScroll.setAdapter(iAdapter);
 
-        // TODO delete later
-//        Query q = levigoDb.collectionGroup("levigoapp-266c3");
-//        q.whereEqualTo("udi", "010100886333006052172204101011174028").
-//        Log.d(TAG, "Query: " + q);
-//        inventoryRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    for (QueryDocumentSnapshot document : task.getResult()) {
-//                        Log.d(TAG, document.getId() + " => " + document.getData());
-//                    }
-//                } else {
-//                    Log.d(TAG, "Error getting documents: ", task.getException());
-//                }
-//            }
-//        });
-
         inventoryRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) throws NullPointerException {
@@ -262,7 +245,5 @@ public class MainActivity extends AppCompatActivity {
             return super.onOptionsItemSelected(item);
         }
     }
-
-
 
 }

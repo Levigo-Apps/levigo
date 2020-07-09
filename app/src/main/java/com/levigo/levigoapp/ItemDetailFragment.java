@@ -15,6 +15,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -39,13 +41,11 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,6 +56,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class ItemDetailFragment extends Fragment {
 
@@ -77,12 +79,12 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText nameEditText;
     private AutoCompleteTextView equipmentType;
     private TextInputEditText company;
-    private TextInputEditText procedure_used;
+    private TextInputEditText procedureUsed;
     private TextInputEditText otherType_text;
     private TextInputEditText otherPhysicalLoc_text;
     private TextInputEditText otherSiteLoc_text;
     private TextInputEditText procedureDate;
-    private TextInputEditText patient_id;
+    private TextInputEditText patientId;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText expiration;
     private TextInputEditText quantity;
@@ -94,8 +96,10 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText numberUsed;
     private TextInputEditText currentDateTime;
     private TextInputEditText numberAdded;
-    private TextInputLayout expiration_textLayout;
+    private TextInputLayout expirationTextLayout;
     private TextInputLayout timeLayout;
+
+    private GridLayout gridLayoutSize;
 
 
     private Button saveButton;
@@ -109,6 +113,7 @@ public class ItemDetailFragment extends Fragment {
     private RadioButton radioButton;
     private ImageButton backButton;
     private Button rescanButton;
+    private Button addSizeButton;
     private int patientidAdded = 0;
     private boolean chosenType;
     private boolean chosenLocation;
@@ -128,7 +133,7 @@ public class ItemDetailFragment extends Fragment {
 
         // TODO add "clear" option for some fields in xml
 
-        linearLayout = rootView.findViewById(R.id.linear_layout);
+        linearLayout = rootView.findViewById(R.id.itemdetail_linearlayout);
         udiEditText = (TextInputEditText) rootView.findViewById(R.id.detail_udi);
         nameEditText = (TextInputEditText) rootView.findViewById(R.id.detail_name);
         equipmentType = (AutoCompleteTextView) rootView.findViewById(R.id.detail_type);
@@ -141,7 +146,7 @@ public class ItemDetailFragment extends Fragment {
         numberAdded = (TextInputEditText) rootView.findViewById(R.id.detail_number_added);
         deviceIdentifier = (TextInputEditText) rootView.findViewById(R.id.detail_di);
         currentDateTime = (TextInputEditText) rootView.findViewById(R.id.detail_date_time);
-        expiration_textLayout = (TextInputLayout) rootView.findViewById(R.id.expiration_date_string2);
+        expirationTextLayout = (TextInputLayout) rootView.findViewById(R.id.expiration_date_string2);
         timeLayout = (TextInputLayout) rootView.findViewById(R.id.time_layout);
         itemUsed = rootView.findViewById(R.id.detail_used_switch);
         saveButton = rootView.findViewById(R.id.detail_save_button);
@@ -151,10 +156,12 @@ public class ItemDetailFragment extends Fragment {
         removePatient = rootView.findViewById(R.id.button_removepatient);
         autoPopulateButton = rootView.findViewById(R.id.detail_autopop_button);
         useRadioGroup = rootView.findViewById(R.id.RadioGroup_id);
-        procedure_used = rootView.findViewById(R.id.edittext_procedure_used);
+        procedureUsed = rootView.findViewById(R.id.edittext_procedure_used);
         procedureDate = rootView.findViewById(R.id.edittext_procedure_date);
         amountUsed = rootView.findViewById(R.id.amountUsed_id);
-        patient_id = rootView.findViewById(R.id.patientID_id);
+        patientId = rootView.findViewById(R.id.patientID_id);
+
+        addSizeButton = rootView.findViewById(R.id.button_addsize);
 
         itemUsed.setChecked(false);
 
@@ -190,7 +197,7 @@ public class ItemDetailFragment extends Fragment {
                     other_type_layout.setId(View.generateViewId());
                     other_type_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
                     otherType_text = new TextInputEditText(other_type_layout.getContext());
-                    otherType_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+                    otherType_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
                     other_type_layout.addView(otherType_text);
                     linearLayout.addView(other_type_layout, 1 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
 
@@ -198,7 +205,7 @@ public class ItemDetailFragment extends Fragment {
                             null, R.attr.materialButtonOutlinedStyle);
                     submit_otherType.setText(R.string.otherType_lbl);
                     submit_otherType.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-                            ViewGroup.LayoutParams.WRAP_CONTENT));
+                            WRAP_CONTENT));
                     linearLayout.addView(submit_otherType, 2 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
 
                     submit_otherType.setOnClickListener(new View.OnClickListener() {
@@ -234,6 +241,14 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
+
+        addSizeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addEmptySizeOption(rootView);
+            }
+        });
+
         // Dropdown menu for Physical Location field
         final ArrayList<String> PHYSICALLOC = new ArrayList<>(Arrays.asList("Room", "Box", "Shelf", "Other"));
         Collections.sort(PHYSICALLOC);
@@ -261,7 +276,7 @@ public class ItemDetailFragment extends Fragment {
                     other_physicaloc_layout.setId(View.generateViewId());
                     other_physicaloc_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
                     otherPhysicalLoc_text = new TextInputEditText(other_physicaloc_layout.getContext());
-                    otherPhysicalLoc_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+                    otherPhysicalLoc_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
                     other_physicaloc_layout.addView(otherPhysicalLoc_text);
                     linearLayout.addView(other_physicaloc_layout, 1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
 
@@ -269,7 +284,7 @@ public class ItemDetailFragment extends Fragment {
                             null, R.attr.materialButtonOutlinedStyle);
                     submit_otherPhysicalLoc.setText(R.string.submitLocation_lbl);
                     submit_otherPhysicalLoc.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-                            ViewGroup.LayoutParams.WRAP_CONTENT));
+                            WRAP_CONTENT));
                     linearLayout.addView(submit_otherPhysicalLoc, 2 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
 
                     submit_otherPhysicalLoc.setOnClickListener(new View.OnClickListener() {
@@ -370,9 +385,9 @@ public class ItemDetailFragment extends Fragment {
 //                patient_id_layout.setLayoutParams(new TextInputLayout.LayoutParams(320, ViewGroup.LayoutParams.WRAP_CONTENT));
                 patient_id_layout.setHint("Enter patient ID");
                 patient_id_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-                patient_id = new TextInputEditText(patient_id_layout.getContext());
-                patient_id.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
-                patient_id_layout.addView(patient_id);
+                patientId = new TextInputEditText(patient_id_layout.getContext());
+                patientId.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
+                patient_id_layout.addView(patientId);
                 itemUsedFields.addView(patient_id_layout,  itemUsedFields.indexOfChild(addPatient));
             }
         });
@@ -455,7 +470,7 @@ public class ItemDetailFragment extends Fragment {
                         TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT)));
             }
         };
-        expiration_textLayout.setEndIconOnClickListener(new View.OnClickListener() {
+        expirationTextLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new DatePickerDialog(view.getContext(), date_exp, myCalendar
@@ -494,6 +509,33 @@ public class ItemDetailFragment extends Fragment {
         return rootView;
     }
 
+    private void addEmptySizeOption(View view) {
+//        other_physicaloc_layout = new TextInputLayout(rootView.getContext(), null,
+//                R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
+//        other_physicaloc_layout.setHint("Enter physical location");
+//        other_physicaloc_layout.setId(View.generateViewId());
+//        other_physicaloc_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+//        otherPhysicalLoc_text = new TextInputEditText(other_physicaloc_layout.getContext());
+//        otherPhysicalLoc_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
+//        other_physicaloc_layout.addView(otherPhysicalLoc_text);
+//        linearLayout.addView(other_physicaloc_layout, 1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
+//
+
+//        EditText sizeKey = new EditText(this.getActivity());
+
+//        linearLayout = view.findViewById(R.id.itemdetail_linearlayout);
+//        linearLayout.addView(sizeKey);
+        gridLayoutSize = view.findViewById(R.id.gridlayout_size);
+
+        TextInputLayout sizeKeyLayout = new TextInputLayout(view.getContext(), null, R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
+        sizeKeyLayout.setHint("Key");
+        sizeKeyLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+        sizeKeyLayout.setLayoutParams(new TextInputLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
+        sizeKeyLayout.setWeightSum(1);
+//        sizeKeyLayout.column
+    }
+
+
     // method for saving data to firebase cloud firestore
     public void saveData(View view) {
 
@@ -517,10 +559,10 @@ public class ItemDetailFragment extends Fragment {
         String radioButtonVal = radioButton.getText().toString();
 
         //if used
-        String procedure_used_str = procedure_used.getText().toString();
+        String procedure_used_str = procedureUsed.getText().toString();
         String procedure_date_str = procedureDate.getText().toString();
         String amount_used_str = amountUsed.getText().toString();
-        String patient_id_str = patient_id.getText().toString();
+        String patient_id_str = patientId.getText().toString();
 
         String number_added_str = numberAdded.getText().toString();
         String di_str = deviceIdentifier.getText().toString();
@@ -583,10 +625,7 @@ public class ItemDetailFragment extends Fragment {
 
 
     public void autoPopulate() {
-//        String udi = "(01)00885672101114(17)180401(10)DP02149";
-//        String udi = "01008856721011141718040110DP02149";
-//        String udi = "01008844501987111722053110K1147572";   // no device found for di
-//        String udi = "01049873507728791719083110170906";
+
         String udi = udiEditText.getText().toString();
         Log.d(TAG, udi);
 
@@ -595,7 +634,6 @@ public class ItemDetailFragment extends Fragment {
         String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
 
         url = url + udi;
-//        Log.d(TAG, "URL: " + url);
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,

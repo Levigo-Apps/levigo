@@ -9,12 +9,12 @@
 
 
     <LinearLayout
-        android:id="@+id/linear_layout"
+        android:id="@+id/itemdetail_linearlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp">
+        android:layout_marginEnd="20dp"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/header_textView"
@@ -30,84 +30,82 @@
             android:id="@+id/subheader_textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/subheader_label"
             android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:text="@string/subheader_label"
             android:textColor="#ffffff"
-            android:textSize="20sp"
-            android:layout_marginBottom="5dp"/>
+            android:textSize="20sp" />
 
         <Button
             android:id="@+id/detail_autopop_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Autopopulate"/>
+            android:text="Autopopulate" />
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:layout_height="wrap_content">
+
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="320dp"
-                android:layout_height="wrap_content"
                 android:id="@+id/detail_udi"
-                android:hint="UDI/Barcode"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-            <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_name"
-                android:text=""
-                android:hint="@string/name_lbl"
-                />
+                android:hint="UDI/Barcode" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_name"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/name_lbl"
+                android:text="" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/typeInputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:id="@+id/typeInputLayout"
-            >
+            android:layout_marginTop="5dp">
 
             <AutoCompleteTextView
                 android:id="@+id/detail_type"
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                android:text=""
                 android:hint="@string/type_lbl"
-                />
+                android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:layout_marginTop="5dp">
+
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_company"
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_company"
-                android:text=""
-                android:hint="@string/company_lbl" />
+                android:hint="@string/company_lbl"
+                android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
-
         <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/detail_used_switch"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginTop="5dp"
             android:checked="true"
             android:text="@string/item_used_label"
-            android:textSize="17sp"
-            android:layout_marginTop="5dp"
-            android:id="@+id/detail_used_switch"/>
+            android:textSize="17sp" />
 
         <LinearLayout
             android:id="@+id/layout_itemused"
@@ -132,28 +130,31 @@
                     android:layout_height="wrap_content"
                     android:text="@string/reusable_lbl" />
             </RadioGroup>
+
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:hint="@string/enter_procedure_lbl"
                 app:boxBackgroundMode="outline">
+
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edittext_procedure_used"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/edittext_procedure_used">
-                </com.google.android.material.textfield.TextInputEditText>
+                    android:layout_height="wrap_content"></com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
+
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textinputlayout_proceduredatetime"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:id="@+id/textinputlayout_proceduredatetime"
                 android:hint="@string/enter_procedure_date_lbl"
                 app:boxBackgroundMode="outline"
-                app:endIconMode="custom"
                 app:endIconDrawable="@drawable/calendar"
+                app:endIconMode="custom"
                 app:endIconTint="@color/colorPrimary">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edittext_procedure_date"
                     android:layout_width="match_parent"
@@ -165,9 +166,9 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/amountUsed"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:hint="@string/enter_amount_used_lbl"
                 app:boxBackgroundMode="outline">
 
@@ -180,204 +181,245 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:hint="@string/enter_patient_id_lbl"
                 app:boxBackgroundMode="outline">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/patientID_id"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                </com.google.android.material.textfield.TextInputEditText>
+                    android:layout_height="wrap_content"></com.google.android.material.textfield.TextInputEditText>
 
             </com.google.android.material.textfield.TextInputLayout>
+
             <com.google.android.material.button.MaterialButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:id="@+id/button_addpatient"
-                android:visibility="gone"
-                android:text="Add Patient ID">
-            </com.google.android.material.button.MaterialButton>
-            <com.google.android.material.button.MaterialButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="Add Patient ID"
+                android:visibility="gone"></com.google.android.material.button.MaterialButton>
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_removepatient"
-                android:visibility="gone"
-                android:text="Remove Patient ID">
-            </com.google.android.material.button.MaterialButton>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Remove Patient ID"
+                android:visibility="gone"></com.google.android.material.button.MaterialButton>
         </LinearLayout>
 
 
         <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="320dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/detail_number_added"
-                android:text=""
-                android:hint="@string/number_added_label"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="320dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/detail_di"
-                android:text=""
-                android:hint="@string/device_identifier_lbl" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="320dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/detail_lot_number"
-                android:text=""
-                android:hint="@string/lot_number_label" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/expiration_date_string2"
-            android:layout_marginTop="5dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:endIconMode="custom"
-            app:endIconTint="@color/colorPrimary"
-            app:endIconDrawable="@drawable/calendar">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp">
+
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_number_added"
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_expiration_date"
-                android:hint="@string/expiration_date_lbl"
-                android:clickable="true"
-                android:focusable="true"
+                android:hint="@string/number_added_label"
+                android:text="" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_di"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/device_identifier_lbl"
                 android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_lot_number"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/lot_number_label"
+                android:text="" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/expiration_date_string2"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            app:endIconDrawable="@drawable/calendar"
+            app:endIconMode="custom"
+            app:endIconTint="@color/colorPrimary">
+
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_expiration_date"
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:hint="@string/expiration_date_lbl"
+                android:text="" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp">
+
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/detail_quantity"
-                android:hint="@string/quantity_lbl"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
                 android:clickable="false"
                 android:cursorVisible="false"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
-                android:text=""/>
+                android:hint="@string/quantity_lbl"
+                android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/siteLocationLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:id="@+id/siteLocationLayout"
-            >
+            android:layout_marginTop="5dp">
 
             <AutoCompleteTextView
                 android:id="@+id/detail_site_location"
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                android:text=""
                 android:hint="Site Location"
-                />
+                android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
-
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/physicalLocationLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:id="@+id/physicalLocationLayout"
-            >
+            android:layout_marginTop="5dp">
 
             <AutoCompleteTextView
                 android:id="@+id/detail_physical_location"
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                android:text=""
                 android:hint="Physical Location"
-                />
+                android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/time_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            app:endIconMode="custom"
             app:endIconDrawable="@drawable/clock"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            app:endIconMode="custom">
+
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_date_time"
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_date_time"
-                android:text=""
-                android:hint="Current Date and Time"
                 android:clickable="false"
                 android:cursorVisible="false"
                 android:focusable="false"
-                android:focusableInTouchMode="false"/>
+                android:focusableInTouchMode="false"
+                android:hint="Current Date and Time"
+                android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
+        <GridLayout
+            android:id="@+id/gridlayout_size"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Size Options">
-        </TextView>
+            android:columnCount="2">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="fill_horizontal|center_vertical"
+                android:layout_columnSpan="2"
+                android:text="Size Options" />
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_column="0">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Key"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="2"
+                android:layout_column="1">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Value"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/button_addsize"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="fill_horizontal|center_vertical"
+                android:layout_columnSpan="2"
+                android:text="Add Size Field" />
+        </GridLayout>
 
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:layout_marginTop="5dp">
+
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_notes"
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_notes"
-                android:text=""
-                android:hint="@string/notes_lbl"/>
+                android:hint="@string/notes_lbl"
+                android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
         <RelativeLayout
             android:layout_width="320dp"
             android:layout_height="match_parent">
+
             <Button
                 android:id="@+id/detail_rescan_button"
+                style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
                 android:layout_gravity="end"
                 android:layout_marginTop="5dp"
-                android:layout_alignParentEnd="true"
-                android:text="@string/rescan_items_lbl"
-                style="?attr/materialButtonOutlinedStyle"
-                />
+                android:text="@string/rescan_items_lbl" />
         </RelativeLayout>
 
         <RelativeLayout
