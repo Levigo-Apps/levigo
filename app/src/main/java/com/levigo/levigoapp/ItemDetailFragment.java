@@ -537,17 +537,7 @@ public class ItemDetailFragment extends Fragment {
     private void addEmptySizeOption(View view) {
         Log.d(TAG, "Adding empty size option!");
 
-//        other_physicaloc_layout = new TextInputLayout(rootView.getContext(), null,
-//                R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
-//        other_physicaloc_layout.setHint("Enter physical location");
-//        other_physicaloc_layout.setId(View.generateViewId());
-//        other_physicaloc_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-//        otherPhysicalLoc_text = new TextInputEditText(other_physicaloc_layout.getContext());
-//        otherPhysicalLoc_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
-//        other_physicaloc_layout.addView(otherPhysicalLoc_text);
-//        linearLayout.addView(other_physicaloc_layout, 1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
 
-//        gridLayoutSize = view.findViewById(R.id.gridlayout_size);
 
         TextInputLayout sizeKeyLayout = new TextInputLayout(view.getContext(), null, R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
 //        sizeKeyLayout.setWeightSum(1);
@@ -555,25 +545,27 @@ public class ItemDetailFragment extends Fragment {
 //        TextInputLayout.LayoutParams param = new TextInputLayout.LayoutParams();
 //        param.width = TextInputLayout.LayoutParams.WRAP_CONTENT;
         //        sizeKeyLayout.setLayoutParams(param);
-        sizeKeyLayout.setLayoutParams(new TextInputLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1));
+        sizeKeyLayout.setLayoutParams(new TextInputLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1));
 
         TextInputEditText sizeKey = new TextInputEditText(view.getContext());
-//        sizeKey.setLayoutParams(new GridLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+
+        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
         //TODO create resource
         sizeKey.setHint("Key");
         sizeKeyLayout.addView(sizeKey);
 
         TextInputLayout sizeValueLayout = new TextInputLayout(view.getContext(), null, R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
         sizeValueLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-        sizeValueLayout.setLayoutParams(new TextInputLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, 2));
+        sizeValueLayout.setLayoutParams(new TextInputLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 2));
 
         TextInputEditText sizeValue = new TextInputEditText(view.getContext());
+        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
         sizeValue.setHint("Value");
         sizeValueLayout.addView(sizeValue);
-        gridLayoutSize.addView(sizeKeyLayout, -1);
-        gridLayoutSize.addView(sizeValueLayout, -1);
-//        sizeKeyLayout.column
+//        gridLayoutSize.addView(sizeKeyLayout, -2);
+        gridLayoutSize.addView(sizeKeyLayout, new GridLayout.LayoutParams(GridLayout.spec(1), GridLayout.spec(0, 1)));
 
+        gridLayoutSize.addView(sizeValueLayout, new GridLayout.LayoutParams(GridLayout.spec(1), GridLayout.spec(1, 1)));
 
     }
 
