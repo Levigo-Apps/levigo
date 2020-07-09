@@ -177,6 +177,8 @@ public class ItemDetailFragment extends Fragment {
 
         itemUsed.setChecked(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
+        gridLayoutSize = rootView.findViewById(R.id.gridlayout_size);
+
 
 
         // Dropdown menu for Type field
@@ -534,7 +536,7 @@ public class ItemDetailFragment extends Fragment {
 
     private void addEmptySizeOption(View view) {
         Log.d(TAG, "Adding empty size option!");
-        /*
+
 //        other_physicaloc_layout = new TextInputLayout(rootView.getContext(), null,
 //                R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
 //        other_physicaloc_layout.setHint("Enter physical location");
@@ -544,13 +546,8 @@ public class ItemDetailFragment extends Fragment {
 //        otherPhysicalLoc_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
 //        other_physicaloc_layout.addView(otherPhysicalLoc_text);
 //        linearLayout.addView(other_physicaloc_layout, 1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
-//
 
-//        EditText sizeKey = new EditText(this.getActivity());
-
-//        linearLayout = view.findViewById(R.id.itemdetail_linearlayout);
-//        linearLayout.addView(sizeKey);
-        gridLayoutSize = view.findViewById(R.id.gridlayout_size);
+//        gridLayoutSize = view.findViewById(R.id.gridlayout_size);
 
         TextInputLayout sizeKeyLayout = new TextInputLayout(view.getContext(), null, R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
 //        sizeKeyLayout.setWeightSum(1);
@@ -565,12 +562,19 @@ public class ItemDetailFragment extends Fragment {
         //TODO create resource
         sizeKey.setHint("Key");
         sizeKeyLayout.addView(sizeKey);
-//        sizeKeyLayout.setWeightSum(1);
-//        sizeKeyLayout.addView();
-        gridLayoutSize.addView(sizeKeyLayout, 0);
+
+        TextInputLayout sizeValueLayout = new TextInputLayout(view.getContext(), null, R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
+        sizeValueLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+        sizeValueLayout.setLayoutParams(new TextInputLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, 2));
+
+        TextInputEditText sizeValue = new TextInputEditText(view.getContext());
+        sizeValue.setHint("Value");
+        sizeValueLayout.addView(sizeValue);
+        gridLayoutSize.addView(sizeKeyLayout, -1);
+        gridLayoutSize.addView(sizeValueLayout, -1);
 //        sizeKeyLayout.column
 
-         */
+
     }
 
 
