@@ -53,6 +53,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
@@ -69,9 +70,7 @@ public class ItemDetailFragment extends Fragment {
     InventoryTemplate udiDocument;
 
     private static final String TAG = ItemDetailFragment.class.getSimpleName();
-
     private Activity parent;
-
     private NetworkActivity Sites = new NetworkActivity();
 
     // USER INPUT VALUES
@@ -84,7 +83,8 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText otherPhysicalLoc_text;
     private TextInputEditText otherSiteLoc_text;
     private TextInputEditText procedureDate;
-    private TextInputEditText patientId;
+    private TextInputEditText patient_id;
+    private TextInputEditText patient_idDefault;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText expiration;
     private TextInputEditText quantity;
@@ -117,8 +117,17 @@ public class ItemDetailFragment extends Fragment {
     private int patientidAdded = 0;
     private boolean chosenType;
     private boolean chosenLocation;
-
+    private boolean chosenReusable;
     private Button autoPopulateButton;
+    private List<TextInputEditText> allPatientIds;
+
+
+    // firebase key labels
+    private final String NAME_KEY = "name";
+    private final String TYPE_KEY = "equipment_type";
+    private final String COMPANY_KEY = "company";
+    private final String DI_KEY = "di";
+    private final String SITE_KEY = "site_name";
 
 
     @Override
@@ -159,9 +168,11 @@ public class ItemDetailFragment extends Fragment {
         procedureUsed = rootView.findViewById(R.id.edittext_procedure_used);
         procedureDate = rootView.findViewById(R.id.edittext_procedure_date);
         amountUsed = rootView.findViewById(R.id.amountUsed_id);
-        patientId = rootView.findViewById(R.id.patientID_id);
 
-        addSizeButton = rootView.findViewById(R.id.button_addsize);
+        patient_idDefault = rootView.findViewById(R.id.patientID_id);
+        chosenReusable = false;
+
+
 
         itemUsed.setChecked(false);
 
@@ -186,8 +197,6 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String selected = (String) adapterView.getItemAtPosition(i);
-
-
                 TextInputLayout other_type_layout = null;
                 if (selected.equals("Other")) {
                     chosenType = true;
@@ -266,9 +275,9 @@ public class ItemDetailFragment extends Fragment {
         physicalloc_dropDown.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String selected = (String) adapterView.getItemAtPosition(i);
+                String selectedOther = (String) adapterView.getItemAtPosition(i);
                 final TextInputLayout other_physicaloc_layout;
-                if (selected.equals("Other")) {
+                if (selectedOther.equals("Other")) {
                     chosenLocation = true;
                     other_physicaloc_layout = new TextInputLayout(rootView.getContext(), null,
                             R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
@@ -299,13 +308,13 @@ public class ItemDetailFragment extends Fragment {
                                             R.layout.dropdown_menu_popup_item,
                                             PHYSICALLOC);
                             physicalloc_dropDown.setAdapter(adapter_new);
-                            if (chosenLocation) {
-                                linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
-                                linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
-                            }
 
                         }
                     });
+                }else if (chosenLocation && (!(selectedOther.equals("Other")))) {
+                    chosenLocation = false;
+                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
+                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
                 }
             }
         });
@@ -379,15 +388,18 @@ public class ItemDetailFragment extends Fragment {
         addPatient.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 patientidAdded++;
                 TextInputLayout patient_id_layout = new TextInputLayout(rootView.getContext(), null,
                         R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
 //                patient_id_layout.setLayoutParams(new TextInputLayout.LayoutParams(320, ViewGroup.LayoutParams.WRAP_CONTENT));
                 patient_id_layout.setHint("Enter patient ID");
                 patient_id_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-                patientId = new TextInputEditText(patient_id_layout.getContext());
-                patientId.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
-                patient_id_layout.addView(patientId);
+
+                patient_id = new TextInputEditText(patient_id_layout.getContext());
+                allPatientIds.add(patient_id);
+                patient_id.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+                patient_id_layout.addView(patient_id);
                 itemUsedFields.addView(patient_id_layout,  itemUsedFields.indexOfChild(addPatient));
             }
         });
@@ -397,7 +409,6 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (patientidAdded > 0) {
-//                    linearLayout.removeViewAt(2 + linearLayout.indexOfChild(itemUsed));
                     itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addPatient) - 1);
                     patientidAdded--;
                 }
@@ -412,11 +423,19 @@ public class ItemDetailFragment extends Fragment {
                 if (b) {
                     addPatient.setVisibility(View.VISIBLE);
                     removePatient.setVisibility(View.VISIBLE);
+                    allPatientIds = new ArrayList<TextInputEditText>();
+                    chosenReusable = true;
 
                     // if users changes from reusable to single us removes all unnecessary fields.
                 } else {
                     addPatient.setVisibility(View.GONE);
                     removePatient.setVisibility(View.GONE);
+                    chosenReusable = false;
+                    while(patientidAdded > 0){
+                        itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addPatient) - 1);
+                        patientidAdded--;
+                    }
+
                 }
             }
         });
@@ -497,7 +516,9 @@ public class ItemDetailFragment extends Fragment {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveData(rootView);
+                saveData(rootView, "networks", "network1","sites",
+                        "n1_hospital3","n1_h3_departments",
+                        "department1","n1_h1_d1 productids");
             }
         });
 
@@ -537,14 +558,9 @@ public class ItemDetailFragment extends Fragment {
 
 
     // method for saving data to firebase cloud firestore
-    public void saveData(View view) {
+    public void saveData(View view, String NETWORKS, String NETWORK, String SITES, String SITE,
+                         String DEPARTMENTS, String DEPARTMENT, String PRODUCTDIS) {
 
-        //assigning user input values to string parameters
-        // naming each document with barcode number of the equipment
-        /* each document needs (which will include an equipment) a document number. I am assigning
-        barcode number of the equipment to a document number. it is possible to have random id as
-        a document number as well
-         */
 
         Log.d(TAG, "SAVING");
         String barcode_str = udiEditText.getText().toString();
@@ -562,12 +578,14 @@ public class ItemDetailFragment extends Fragment {
         String procedure_used_str = procedureUsed.getText().toString();
         String procedure_date_str = procedureDate.getText().toString();
         String amount_used_str = amountUsed.getText().toString();
-        String patient_id_str = patientId.getText().toString();
+
+        String patient_id_str = patient_idDefault.getText().toString();
 
         String number_added_str = numberAdded.getText().toString();
         String di_str = deviceIdentifier.getText().toString();
         String lotNumber_str = lotNumber.getText().toString();
         String expiration_str = expiration.getText().toString();
+
 
         int quantity_int;
         if(itemUsed.isChecked()){
@@ -581,27 +599,40 @@ public class ItemDetailFragment extends Fragment {
         String currentDateTime_str = currentDateTime.getText().toString();
         String notes_str = notes.getText().toString();
 
-       // di identifiers, hardcoded KEY names need to be changed
+
+       // saving di-specific identifiers using HashMap
         Map<String, Object> diDoc = new HashMap<>();
-        diDoc.put("name",name_str);
-        diDoc.put("equipment_type",type_str);
-        diDoc.put("company",company_str);
-        diDoc.put("di",di_str);
-        diDoc.put("site_name",site_name_str);
-        DocumentReference diRef = db.collection("Networks").document("Network1")
-                .collection("Sites").document("Hospital 1").collection("Hospital 1 Departments")
-                .document("Department 1").collection("Department 1 dis").document(di_str);
-        diRef.set(diDoc);
+        diDoc.put(NAME_KEY,name_str);
+        diDoc.put(TYPE_KEY,type_str);
+        diDoc.put(COMPANY_KEY,company_str);
+        diDoc.put(DI_KEY,di_str);
+        diDoc.put(SITE_KEY,site_name_str);
+        DocumentReference diRef = db.collection(NETWORKS).document(NETWORK)
+                .collection(SITES).document(SITE).collection(DEPARTMENTS)
+                .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str);
+        diRef.set(diDoc)
+        .addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+            }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, e.toString());
+            }
+        });
 
-        // udi identifiers
-        udiDocument = new InventoryTemplate(barcode_str, name_str, type_str,
-                company_str, isUsed,radioButtonVal,procedure_used_str, procedure_date_str, amount_used_str,patient_id_str,
-                number_added_str,di_str,lotNumber_str, expiration_str,
-                quantity_str, site_name_str, physical_location_str,currentDateTime_str, notes_str);
+        // saving udi-specific identifiers using InventoryTemplate class to store multiple items at once
+        udiDocument = new InventoryTemplate(barcode_str,isUsed,radioButtonVal,procedure_used_str,
+                procedure_date_str, amount_used_str,patient_id_str, number_added_str,lotNumber_str,
+                expiration_str, quantity_str,currentDateTime_str,physical_location_str, notes_str);
 
-        DocumentReference udiRef = db.collection("Networks").document("Network1")
-        .collection("Sites").document("Hospital 1").collection("Hospital 1 Departments")
-        .document("Department 1").collection("Department 1 dis").document(di_str)
+        DocumentReference udiRef = db.collection(NETWORKS).document(NETWORK)
+        .collection(SITES).document(SITE).collection(DEPARTMENTS)
+        .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str)
                 .collection("UDIs").document(barcode_str);
 
         //saving data of InventoryTemplate to database
@@ -621,6 +652,29 @@ public class ItemDetailFragment extends Fragment {
                         Log.d(TAG, e.toString());
                     }
                 });
+
+
+        // HashMap for additional patient ids if chosen reusable
+        if(chosenReusable) {
+            Map<String, Object> patientIds = new HashMap<>();
+            for (int i = 0; i < allPatientIds.size(); i++) {
+                patientIds.put("patient_id_" + (i + 2), allPatientIds.get(i).getText().toString());
+            }
+            udiRef.update(patientIds)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, e.toString());
+                        }
+                    });
+        }
     }
 
 
