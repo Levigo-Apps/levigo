@@ -21,6 +21,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -33,6 +35,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.common.util.JsonUtils;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
@@ -63,11 +66,8 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class ItemDetailFragment extends Fragment {
 
-    LinearLayout linearLayout;
-
     // Firebase database
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    InventoryTemplate diDocument;
     InventoryTemplate udiDocument;
 
     private static final String TAG = ItemDetailFragment.class.getSimpleName();
@@ -89,18 +89,21 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText deviceIdentifier;
     private TextInputEditText expiration;
     private TextInputEditText quantity;
+    private TextInputEditText numberUsed;
     private TextInputEditText lotNumber;
     private TextInputEditText amountUsed;
     private AutoCompleteTextView hospitalName;
     private AutoCompleteTextView physicalLocation;
     private TextInputEditText notes;
-    private TextInputEditText numberUsed;
     private TextInputEditText currentDateTime;
     private TextInputEditText numberAdded;
     private TextInputLayout expirationTextLayout;
     private TextInputLayout timeLayout;
-
-    private GridLayout gridLayoutSize;
+    private TextInputLayout typeInputLayout;
+    private TextView specsTextView;
+    private ScrollView scrollView;
+    private LinearLayout itemUsedFields;
+    private LinearLayout linearLayout;
 
 
     private Button saveButton;
@@ -108,6 +111,7 @@ public class ItemDetailFragment extends Fragment {
     private MaterialButton removePatient;
     private MaterialButton submit_otherType;
     private MaterialButton submit_otherPhysicalLoc;
+    private MaterialButton removeSizeButton;
     private MaterialButton submit_otherSiteLoc;
     private SwitchMaterial itemUsed;
     private RadioGroup useRadioGroup;
@@ -115,12 +119,17 @@ public class ItemDetailFragment extends Fragment {
     private ImageButton backButton;
     private Button rescanButton;
     private Button addSizeButton;
+
     private int patientidAdded = 0;
+    private int emptySizeFieldCounter = 0;
     private boolean chosenType;
     private boolean chosenLocation;
     private boolean chosenReusable;
+    private boolean isAddSizeButtonClicked;
     private Button autoPopulateButton;
+    private RadioButton multiUse;
     private List<TextInputEditText> allPatientIds;
+    private ArrayList<String> TYPES;
 
 
     // firebase key labels
@@ -131,18 +140,17 @@ public class ItemDetailFragment extends Fragment {
     private final String SITE_KEY = "site_name";
 
 
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
         final View rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
         final Calendar myCalendar = Calendar.getInstance();
-
         parent = getActivity();
 
         // TODO add "clear" option for some fields in xml
-
         linearLayout = rootView.findViewById(R.id.itemdetail_linearlayout);
         udiEditText = (TextInputEditText) rootView.findViewById(R.id.detail_udi);
         nameEditText = (TextInputEditText) rootView.findViewById(R.id.detail_name);
@@ -169,20 +177,21 @@ public class ItemDetailFragment extends Fragment {
         procedureUsed = rootView.findViewById(R.id.edittext_procedure_used);
         procedureDate = rootView.findViewById(R.id.edittext_procedure_date);
         amountUsed = rootView.findViewById(R.id.amountUsed_id);
-
         patient_idDefault = rootView.findViewById(R.id.patientID_id);
         chosenReusable = false;
-
-
-
         itemUsed.setChecked(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
-        gridLayoutSize = rootView.findViewById(R.id.gridlayout_size);
-
+        scrollView = rootView.findViewById(R.id.scrollView);
+        itemUsedFields = rootView.findViewById(R.id.layout_itemused);
+        itemUsedFields.setVisibility(View.GONE);
+        multiUse = rootView.findViewById(R.id.radio_multiuse);
+        isAddSizeButtonClicked = true;
+        specsTextView = rootView.findViewById(R.id.detail_specs_textview);
+        typeInputLayout = rootView.findViewById(R.id.typeInputLayout);
 
 
         // Dropdown menu for Type field
-        final ArrayList<String> TYPES = new ArrayList<>(Arrays.asList("Balloon", "Catheter", "Needle", "Dilator", "Drainage Bag",
+        TYPES = new ArrayList<>(Arrays.asList("Balloon", "Catheter", "Needle", "Dilator", "Drainage Bag",
                 "Biliary Stent", "Wire", "Imaging/US", "Mask", "Picc Line", "Scalpel", "Sheath", "Snare Kit",
                 "Stent", "Sterile Tray", "Stopcock", "Tube", "Other"));
         Collections.sort(TYPES);
@@ -192,57 +201,14 @@ public class ItemDetailFragment extends Fragment {
                         rootView.getContext(),
                         R.layout.dropdown_menu_popup_item,
                         TYPES);
+        equipmentType.setAdapter(adapter);
 
-        @SuppressLint("CutPasteId") final AutoCompleteTextView type_dropDown =
-                rootView.findViewById(R.id.detail_type);
-        type_dropDown.setAdapter(adapter);
 
-        type_dropDown.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        equipmentType.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String selected = (String) adapterView.getItemAtPosition(i);
-                TextInputLayout other_type_layout = null;
-                if (selected.equals("Other")) {
-                    chosenType = true;
-                    other_type_layout = new TextInputLayout(rootView.getContext(), null,
-                            R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
-                    other_type_layout.setHint("Enter type");
-                    other_type_layout.setId(View.generateViewId());
-                    other_type_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-                    otherType_text = new TextInputEditText(other_type_layout.getContext());
-                    otherType_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
-                    other_type_layout.addView(otherType_text);
-                    linearLayout.addView(other_type_layout, 1 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
+                addTypeOptionField(adapterView,view,i,l);
 
-                    submit_otherType = new MaterialButton(rootView.getContext(),
-                            null, R.attr.materialButtonOutlinedStyle);
-                    submit_otherType.setText(R.string.otherType_lbl);
-                    submit_otherType.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-                            WRAP_CONTENT));
-                    linearLayout.addView(submit_otherType, 2 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
-
-                    submit_otherType.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Toast.makeText(rootView.getContext(), otherType_text.getText().toString(), Toast.LENGTH_SHORT).show();
-                            TYPES.add(otherType_text.getText().toString());
-                            System.out.println(Arrays.toString(TYPES.toArray()));
-                            ArrayAdapter<String> adapter_new =
-                                    new ArrayAdapter<>(
-                                            rootView.getContext(),
-                                            R.layout.dropdown_menu_popup_item,
-                                            TYPES);
-                            type_dropDown.setAdapter(adapter_new);
-
-                        }
-                    });
-
-
-                }else if(chosenType && (!(selected.equals("Other")))) {
-                    chosenType = false;
-                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
-                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.typeInputLayout)));
-                }
             }
         });
 
@@ -261,6 +227,7 @@ public class ItemDetailFragment extends Fragment {
                 addEmptySizeOption(view);
             }
         });
+
 
         // Dropdown menu for Physical Location field
         final ArrayList<String> PHYSICALLOC = new ArrayList<>(Arrays.asList("Room", "Box", "Shelf", "Other"));
@@ -368,7 +335,6 @@ public class ItemDetailFragment extends Fragment {
                 integrator.setBarcodeImageEnabled(true);
                 integrator.initiateScan();
                 parent.onBackPressed();
-
             }
         });
 
@@ -381,30 +347,10 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-        final LinearLayout itemUsedFields = rootView.findViewById(R.id.layout_itemused);
-        itemUsedFields.setVisibility(View.GONE);
-
-        RadioButton multiUse = rootView.findViewById(R.id.radio_multiuse);
-
-
-        // TODO update to uniform style
-        // when clicked add one more additional field for Patient ID
         addPatient.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                patientidAdded++;
-                TextInputLayout patient_id_layout = new TextInputLayout(rootView.getContext(), null,
-                        R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
-//                patient_id_layout.setLayoutParams(new TextInputLayout.LayoutParams(320, ViewGroup.LayoutParams.WRAP_CONTENT));
-                patient_id_layout.setHint("Enter patient ID");
-                patient_id_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-
-                patient_id = new TextInputEditText(patient_id_layout.getContext());
-                allPatientIds.add(patient_id);
-                patient_id.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
-                patient_id_layout.addView(patient_id);
-                itemUsedFields.addView(patient_id_layout,  itemUsedFields.indexOfChild(addPatient));
+                addPatientIdField(view);
             }
         });
 
@@ -493,6 +439,7 @@ public class ItemDetailFragment extends Fragment {
                         TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT)));
             }
         };
+
         expirationTextLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -500,23 +447,9 @@ public class ItemDetailFragment extends Fragment {
                         .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                         myCalendar.get(Calendar.DAY_OF_MONTH)).show();
             }
-
         });
 
-        // disabling save button if required fields are empty
-//        TextWatcher textWatcher = new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//                mSave.setEnabled(false);
-//
-//            }
-
-//        barcode.addTextChangedListener(textWatcher);
-//        name.addTextChangedListener(textWatcher);
-//        equipment_type.addTextChangedListener(textWatcher);
-//        company.addTextChangedListener(textWatcher);
-
-
+        // saves data into database
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -528,47 +461,148 @@ public class ItemDetailFragment extends Fragment {
 
         String barcode = getArguments().getString("barcode");
         udiEditText.setText(barcode);
-
         autoPopulate();
-
         return rootView;
     }
 
+    // TODO update to uniform style
+    // when clicked add one more additional field for Patient ID
+    private void addPatientIdField(View view){
+        patientidAdded++;
+        TextInputLayout patient_id_layout =(TextInputLayout) this.getLayoutInflater().inflate(R.layout.activity_itemdetail_materialcomponent,
+                null,false);
+        patient_id_layout.setHint("Enter patient ID");
+        patient_id_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+
+        patient_id = new TextInputEditText(patient_id_layout.getContext());
+        allPatientIds.add(patient_id);
+        patient_id.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+        patient_id_layout.addView(patient_id);
+        itemUsedFields.addView(patient_id_layout,  itemUsedFields.indexOfChild(addPatient));
+    }
+
+    // adds new row of size text views if users clicks on a button
+    int rowIndex = 1;
     private void addEmptySizeOption(View view) {
+
         Log.d(TAG, "Adding empty size option!");
+        emptySizeFieldCounter++;
+        GridLayout gridLayoutSize = new GridLayout(view.getContext());
+        GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
+        paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        paramSizeKey.width = WRAP_CONTENT;
+        paramSizeKey.rowSpec = GridLayout.spec(rowIndex);
+        paramSizeKey.columnSpec = GridLayout.spec(0);
+
+        GridLayout.LayoutParams paramSizeValue = new GridLayout.LayoutParams();
+        paramSizeValue.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        paramSizeValue.width = WRAP_CONTENT;
+        paramSizeValue.rowSpec = GridLayout.spec(rowIndex);
+        paramSizeValue.columnSpec = GridLayout.spec(1);
+
+        TextInputLayout sizeKeyLayout = (TextInputLayout) this.getLayoutInflater().inflate(R.layout.activity_itemdetail_materialcomponent,
+                null,false);
+        sizeKeyLayout.setLayoutParams(paramSizeKey);
+        sizeKeyLayout.setHint("Key");
+        sizeKeyLayout.setPadding(0,0,0,20);
+        TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
+
+        TextInputLayout sizeValueLayout = (TextInputLayout) this.getLayoutInflater().inflate(R.layout.activity_itemdetail_materialcomponent,
+                null,false);
+        sizeValueLayout.setLayoutParams(paramSizeValue);
+        sizeValueLayout.setHint("Value");
+        sizeValueLayout.setPadding(10,0,0,20);
+        TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
 
 
-
-        TextInputLayout sizeKeyLayout = new TextInputLayout(view.getContext(), null, R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
-//        sizeKeyLayout.setWeightSum(1);
-        sizeKeyLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-//        TextInputLayout.LayoutParams param = new TextInputLayout.LayoutParams();
-//        param.width = TextInputLayout.LayoutParams.WRAP_CONTENT;
-        //        sizeKeyLayout.setLayoutParams(param);
-        sizeKeyLayout.setLayoutParams(new TextInputLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1));
-
-        TextInputEditText sizeKey = new TextInputEditText(view.getContext());
-
-        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-        //TODO create resource
-        sizeKey.setHint("Key");
+        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(300, WRAP_CONTENT));
         sizeKeyLayout.addView(sizeKey);
-
-        TextInputLayout sizeValueLayout = new TextInputLayout(view.getContext(), null, R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
-        sizeValueLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-        sizeValueLayout.setLayoutParams(new TextInputLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 2));
-
-        TextInputEditText sizeValue = new TextInputEditText(view.getContext());
-        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-        sizeValue.setHint("Value");
+        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(550, WRAP_CONTENT));
         sizeValueLayout.addView(sizeValue);
-//        gridLayoutSize.addView(sizeKeyLayout, -2);
-        gridLayoutSize.addView(sizeKeyLayout, new GridLayout.LayoutParams(GridLayout.spec(1), GridLayout.spec(0, 1)));
 
-        gridLayoutSize.addView(sizeValueLayout, new GridLayout.LayoutParams(GridLayout.spec(1), GridLayout.spec(1, 1)));
+        gridLayoutSize.addView(sizeKeyLayout);
+        gridLayoutSize.addView(sizeValueLayout);
+
+        linearLayout.addView(gridLayoutSize, 1 + linearLayout.indexOfChild(specsTextView));
+        rowIndex++;
+        if(isAddSizeButtonClicked) {
+            removeSizeButton = new MaterialButton(view.getContext(),
+                    null, R.attr.materialButtonOutlinedStyle);
+            removeSizeButton.setText("Remove size field");
+            removeSizeButton.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
+                    WRAP_CONTENT));
+            linearLayout.addView(removeSizeButton, 1 + linearLayout.indexOfChild(addSizeButton));
+        }
+
+        removeSizeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                removeEmptySizeOption(view);
+
+            }
+        });
+        isAddSizeButtonClicked = false;
+
+    }
+    //removes one row of size text entry
+    private void removeEmptySizeOption(View view){
+        if(emptySizeFieldCounter > 0){
+            linearLayout.removeViewAt(linearLayout.indexOfChild(specsTextView) + 1);
+            emptySizeFieldCounter--;
+
+        }
+        if(emptySizeFieldCounter == 0){
+            linearLayout.removeViewAt(linearLayout.indexOfChild(removeSizeButton));
+            isAddSizeButtonClicked = true;
+        }
+
 
     }
 
+    // adds new text field if users choose "other" for type
+    private void addTypeOptionField (AdapterView < ? > adapterView, View view,int i, long l){
+        String selected = (String) adapterView.getItemAtPosition(i);
+        TextInputLayout other_type_layout = null;
+        if (selected.equals("Other")) {
+            chosenType = true;
+            other_type_layout = (TextInputLayout) this.getLayoutInflater().inflate(R.layout.activity_itemdetail_materialcomponent,
+                    null, false);
+            other_type_layout.setHint("Enter type");
+            other_type_layout.setId(View.generateViewId());
+            other_type_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+            otherType_text = new TextInputEditText(other_type_layout.getContext());
+            otherType_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
+            other_type_layout.addView(otherType_text);
+            linearLayout.addView(other_type_layout, 1 + linearLayout.indexOfChild(typeInputLayout));
+
+            submit_otherType = new MaterialButton(view.getContext(),
+                    null, R.attr.materialButtonOutlinedStyle);
+            submit_otherType.setText(R.string.otherType_lbl);
+            submit_otherType.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
+                    WRAP_CONTENT));
+            linearLayout.addView(submit_otherType, 2 + linearLayout.indexOfChild(typeInputLayout));
+
+            submit_otherType.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(view.getContext(), otherType_text.getText().toString(), Toast.LENGTH_SHORT).show();
+                    TYPES.add(otherType_text.getText().toString());
+                    System.out.println(Arrays.toString(TYPES.toArray()));
+                    ArrayAdapter<String> adapter_new =
+                            new ArrayAdapter<>(
+                                    view.getContext(),
+                                    R.layout.dropdown_menu_popup_item,
+                                    TYPES);
+                    equipmentType.setAdapter(adapter_new);
+
+                }
+            });
+        } else if (chosenType && (!(selected.equals("Other")))) {
+            chosenType = false;
+            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeInputLayout));
+            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeInputLayout));
+        }
+    }
 
     // method for saving data to firebase cloud firestore
     public void saveData(View view, String NETWORKS, String NETWORK, String SITES, String SITE,
