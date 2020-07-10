@@ -25,11 +25,9 @@ public class InventoryTemplate {
         // empty Constructor
     }
 
-    public InventoryTemplate(String udi, String name,
-                             String equipment_type,
-                             String company, boolean isUsed, String radioButtonVal, String procedure_used,
-                             String procedure_date, String amountUsed, String patient_id, String number_added, String medicalSpeciality,
-                             String di, String deviceDescription, String lotNumber, String referenceNumber, String expiration, String quantity,  String site_name,
+    public InventoryTemplate(String udi, boolean isUsed, String radioButtonVal, String procedure_used,
+                             String procedure_date, String amountUsed, String patient_id, String number_added,
+                             String lotNumber, String expiration, String quantity,
                              String current_date_time,  String physical_location,
                              String notes) {
 
@@ -72,27 +70,6 @@ public class InventoryTemplate {
     public String getDeviceDescription() {return deviceDescription;}
     public void setDeviceDescription(String deviceDescription) { this.deviceDescription = deviceDescription; }
 
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-
-    public String getEquipment_type() {
-        return equipment_type;
-    }
-    public void setEquipment_type(String equipment_type) {
-        this.equipment_type = equipment_type;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-    public void setCompany(String company) {
-        this.company = company;
-    }
 
     public boolean getIsUsed(){ return isUsed;}
     public void setUsed(boolean isUsed){ this.isUsed = isUsed;}

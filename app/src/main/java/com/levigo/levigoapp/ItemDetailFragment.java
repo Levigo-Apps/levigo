@@ -685,28 +685,10 @@ public class ItemDetailFragment extends Fragment {
         // saving udi-specific identifiers using InventoryTemplate class to store multiple items at once
 
         //Appears to be an outdated, conflicting constructor
-//        udiDocument = new InventoryTemplate(barcode_str,isUsed,radioButtonVal,procedure_used_str,
-//                procedure_date_str, amount_used_str,patient_id_str, number_added_str,lotNumber_str,
-//                expiration_str, quantity_str,currentDateTime_str,physical_location_str, notes_str);
+       udiDocument = new InventoryTemplate(barcode_str,isUsed,radioButtonVal,procedure_used_str,
+                procedure_date_str, amount_used_str,patient_id_str, number_added_str,lotNumber_str,
+                expiration_str, quantity_str,currentDateTime_str,physical_location_str, notes_str);
 
-        DocumentReference udiRef = db.collection(NETWORKS).document(NETWORK)
-        .collection(SITES).document(SITE).collection(DEPARTMENTS)
-        .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str);
-        diDoc.put("name",name_str);
-        diDoc.put("equipment_type",type_str);
-        diDoc.put("company",company_str);
-        diDoc.put("di",di_str);
-        diDoc.put("site_name",site_name_str);
-        DocumentReference diRef = db.collection("Networks").document("Network1")
-                .collection("Sites").document("Hospital 1").collection("Hospital 1 Departments")
-                .document("Department 1").collection("Department 1 dis").document(di_str);
-        diRef.set(diDoc);
-
-        // udi identifiers
-        udiDocument = new InventoryTemplate(barcode_str, name_str, type_str,
-                company_str, isUsed,radioButtonVal,procedure_used_str, procedure_date_str, amount_used_str,patient_id_str,
-                number_added_str, medical_speciality_str, di_str, description_str, lotNumber_str, referenceNumber_str, expiration_str,
-                quantity_str, site_name_str, physical_location_str,currentDateTime_str, notes_str);
 
         DocumentReference udiRef = db.collection("Networks").document("Network1")
         .collection("Sites").document("Hospital 1").collection("Hospital 1 Departments")
