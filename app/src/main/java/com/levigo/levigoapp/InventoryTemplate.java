@@ -13,8 +13,11 @@ public class InventoryTemplate {
     private String amountUsed;
     private String patient_id;
     private String number_added;
+    private String medicalSpeciality;
     private String di;
+    private String deviceDescription;
     private String lotNumber;
+    private String referenceNumber;
     private String expiration;
     private String quantity;
     private String site_name;
@@ -37,8 +40,8 @@ public class InventoryTemplate {
     public InventoryTemplate(String udi, String name,
                              String equipment_type,
                              String company, boolean isUsed, String radioButtonVal, String procedure_used,
-                             String procedure_date, String amountUsed, String patient_id, String number_added,
-                             String di, String lotNumber, String expiration, String quantity,  String site_name,
+                             String procedure_date, String amountUsed, String patient_id, String number_added, String medicalSpeciality,
+                             String di, String deviceDescription, String lotNumber, String referenceNumber, String expiration, String quantity,  String site_name,
                              String current_date_time,  String physical_location,
                              String notes) {
 
@@ -53,8 +56,11 @@ public class InventoryTemplate {
         this.amountUsed = amountUsed;
         this.patient_id = patient_id;
         this.number_added = number_added;
+        this.medicalSpeciality = medicalSpeciality;
         this.di = di;
+        this.deviceDescription = deviceDescription;
         this.lotNumber = lotNumber;
+        this.referenceNumber = referenceNumber;
         this.expiration = expiration;
         this.quantity = quantity;
         this.site_name = site_name;
@@ -78,6 +84,9 @@ public class InventoryTemplate {
     public void setDi(String di) {
         this.di = di;
     }
+
+    public String getDeviceDescription() {return deviceDescription;}
+    public void setDeviceDescription(String deviceDescription) { this.deviceDescription = deviceDescription; }
 
     public String getName() {
         return name;
@@ -162,6 +171,12 @@ public class InventoryTemplate {
     public String getNumber_added() { return number_added;}
     public void setNumber_added(String number_added){ this.number_added = number_added;}
 
+    public String getMedicalSpeciality() { return medicalSpeciality;}
+    public void setMedicalSpeciality(String medicalSpeciality){this.medicalSpeciality = medicalSpeciality;}
+
     public String getLotNumber() { return lotNumber;}
     public void setLotNumber(String lotNumber) { this.lotNumber = lotNumber;}
+
+    public String getReferenceNumber() { return referenceNumber;}
+    public void setReferenceNumber(String referenceNumber) { this.lotNumber = lotNumber;}
 }

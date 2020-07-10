@@ -99,15 +99,14 @@
         </com.google.android.material.textfield.TextInputLayout>
 
 
-
         <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/detail_used_switch"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginTop="5dp"
             android:checked="true"
             android:text="@string/item_used_label"
-            android:textSize="17sp"
-            android:layout_marginTop="5dp"
-            android:id="@+id/detail_used_switch"/>
+            android:textSize="17sp" />
 
         <LinearLayout
             android:id="@+id/layout_itemused"
@@ -223,6 +222,18 @@
                 android:hint="@string/number_added_label"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/detail_medical_speciality"
+                android:text=""
+                android:hint="Medical Speciality"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -245,9 +256,35 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
+                android:id="@+id/detail_description"
+                android:text=""
+                android:hint="Device Description" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
                 android:id="@+id/detail_lot_number"
                 android:text=""
                 android:hint="@string/lot_number_label" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/detail_reference_number"
+                android:text=""
+                android:hint="Reference Number" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout

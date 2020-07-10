@@ -84,9 +84,11 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText procedureDate;
     private TextInputEditText patient_id;
     private TextInputEditText deviceIdentifier;
+    private TextInputEditText deviceDescription;
     private TextInputEditText expiration;
     private TextInputEditText quantity;
     private TextInputEditText lotNumber;
+    private TextInputEditText referenceNumber;
     private TextInputEditText amountUsed;
     private AutoCompleteTextView hospitalName;
     private AutoCompleteTextView physicalLocation;
@@ -94,6 +96,7 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText numberUsed;
     private TextInputEditText currentDateTime;
     private TextInputEditText numberAdded;
+    private TextInputEditText medicalSpeciality;
     private TextInputLayout expiration_textLayout;
     private TextInputLayout timeLayout;
 
@@ -138,8 +141,11 @@ public class ItemDetailFragment extends Fragment {
         physicalLocation = (AutoCompleteTextView) rootView.findViewById(R.id.detail_physical_location);
         notes = (TextInputEditText) rootView.findViewById(R.id.detail_notes);
         lotNumber = (TextInputEditText) rootView.findViewById(R.id.detail_lot_number);
+        referenceNumber = (TextInputEditText) rootView.findViewById(R.id.detail_reference_number);
         numberAdded = (TextInputEditText) rootView.findViewById(R.id.detail_number_added);
+        medicalSpeciality = (TextInputEditText) rootView.findViewById(R.id.detail_medical_speciality);
         deviceIdentifier = (TextInputEditText) rootView.findViewById(R.id.detail_di);
+        deviceDescription = (TextInputEditText) rootView.findViewById(R.id.detail_description);
         currentDateTime = (TextInputEditText) rootView.findViewById(R.id.detail_date_time);
         expiration_textLayout = (TextInputLayout) rootView.findViewById(R.id.expiration_date_string2);
         timeLayout = (TextInputLayout) rootView.findViewById(R.id.time_layout);
@@ -523,8 +529,11 @@ public class ItemDetailFragment extends Fragment {
         String patient_id_str = patient_id.getText().toString();
 
         String number_added_str = numberAdded.getText().toString();
+        String medical_speciality_str = medicalSpeciality.getText().toString();
         String di_str = deviceIdentifier.getText().toString();
+        String description_str = deviceDescription.getText().toString();
         String lotNumber_str = lotNumber.getText().toString();
+        String referenceNumber_str = referenceNumber.getText().toString();
         String expiration_str = expiration.getText().toString();
 
         int quantity_int;
@@ -554,7 +563,7 @@ public class ItemDetailFragment extends Fragment {
         // udi identifiers
         udiDocument = new InventoryTemplate(barcode_str, name_str, type_str,
                 company_str, isUsed,radioButtonVal,procedure_used_str, procedure_date_str, amount_used_str,patient_id_str,
-                number_added_str,di_str,lotNumber_str, expiration_str,
+                number_added_str, medical_speciality_str, di_str, description_str, lotNumber_str, referenceNumber_str, expiration_str,
                 quantity_str, site_name_str, physical_location_str,currentDateTime_str, notes_str);
 
         DocumentReference udiRef = db.collection("Networks").document("Network1")
