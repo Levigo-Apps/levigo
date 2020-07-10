@@ -314,7 +314,8 @@
             android:layout_marginTop="5dp"
             app:endIconDrawable="@drawable/calendar"
             app:endIconMode="custom"
-            app:endIconTint="@color/colorPrimary">
+            app:endIconTint="@color/colorPrimary"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/detail_expiration_date"
