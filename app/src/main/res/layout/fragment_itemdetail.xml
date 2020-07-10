@@ -238,6 +238,18 @@
                 android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/detail_medical_speciality"
+                android:text=""
+                android:hint="Medical Speciality"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -260,6 +272,21 @@
             android:layout_marginTop="5dp">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/detail_description"
+                android:text=""
+                android:hint="Device Description" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
                 android:id="@+id/detail_lot_number"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -272,6 +299,20 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/detail_reference_number"
+                android:text=""
+                android:hint="Reference Number" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/expiration_date_string2"
             android:layout_marginTop="5dp"
             app:endIconDrawable="@drawable/calendar"
             app:endIconMode="custom"
