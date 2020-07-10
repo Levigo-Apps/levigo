@@ -10,9 +10,6 @@ public class InventoryTemplate {
     private String amountUsed;
     private String patient_id;
     private String number_added;
-    private String medicalSpeciality;
-    private String di;
-    private String deviceDescription;
     private String lotNumber;
     private String referenceNumber;
     private String expiration;
@@ -28,7 +25,7 @@ public class InventoryTemplate {
     public InventoryTemplate(String udi, boolean isUsed, String radioButtonVal, String procedure_used,
                              String procedure_date, String amountUsed, String patient_id, String number_added,
                              String lotNumber, String expiration, String quantity,
-                             String current_date_time,  String physical_location,
+                             String current_date_time,  String physical_location, String referenceNumber,
                              String notes) {
 
         this.udi = udi;
@@ -39,15 +36,13 @@ public class InventoryTemplate {
         this.amountUsed = amountUsed;
         this.patient_id = patient_id;
         this.number_added = number_added;
-        this.medicalSpeciality = medicalSpeciality;
-        this.di = di;
-        this.deviceDescription = deviceDescription;
         this.lotNumber = lotNumber;
         this.referenceNumber = referenceNumber;
         this.expiration = expiration;
         this.quantity = quantity;
         this.current_date_time = current_date_time;
         this.physical_location = physical_location;
+        this.referenceNumber = referenceNumber;
         this.notes = notes;
     }
 
@@ -59,17 +54,6 @@ public class InventoryTemplate {
     public void setUdi(String udi) {
         this.udi = udi;
     }
-
-    public String getDi() {
-        return di;
-    }
-    public void setDi(String di) {
-        this.di = di;
-    }
-
-    public String getDeviceDescription() {return deviceDescription;}
-    public void setDeviceDescription(String deviceDescription) { this.deviceDescription = deviceDescription; }
-
 
     public boolean getIsUsed(){ return isUsed;}
     public void setUsed(boolean isUsed){ this.isUsed = isUsed;}
@@ -113,8 +97,6 @@ public class InventoryTemplate {
         this.quantity = quantity;
     }
 
-
-
     public String getCurrent_date_time() { return current_date_time; }
     public void setCurrent_date_time(String current_date_time) { this.current_date_time = current_date_time; }
 
@@ -127,8 +109,6 @@ public class InventoryTemplate {
     public String getNumber_added() { return number_added;}
     public void setNumber_added(String number_added){ this.number_added = number_added;}
 
-    public String getMedicalSpeciality() { return medicalSpeciality;}
-    public void setMedicalSpeciality(String medicalSpeciality){this.medicalSpeciality = medicalSpeciality;}
 
     public String getLotNumber() { return lotNumber;}
     public void setLotNumber(String lotNumber) { this.lotNumber = lotNumber;}

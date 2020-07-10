@@ -142,6 +142,9 @@ public class ItemDetailFragment extends Fragment {
     private final String COMPANY_KEY = "company";
     private final String DI_KEY = "di";
     private final String SITE_KEY = "site_name";
+    private final String SPECIALTY_KEY = "medical_specialty";
+    private final String DESCRIPTION_KEY = "device_description";
+
 
 
 
@@ -632,9 +635,7 @@ public class ItemDetailFragment extends Fragment {
         String procedure_used_str = procedureUsed.getText().toString();
         String procedure_date_str = procedureDate.getText().toString();
         String amount_used_str = amountUsed.getText().toString();
-
         String patient_id_str = patient_idDefault.getText().toString();
-
         String number_added_str = numberAdded.getText().toString();
         String medical_speciality_str = medicalSpeciality.getText().toString();
         String di_str = deviceIdentifier.getText().toString();
@@ -664,6 +665,8 @@ public class ItemDetailFragment extends Fragment {
         diDoc.put(COMPANY_KEY,company_str);
         diDoc.put(DI_KEY,di_str);
         diDoc.put(SITE_KEY,site_name_str);
+        diDoc.put(DESCRIPTION_KEY,description_str);
+        diDoc.put(SPECIALTY_KEY,medical_speciality_str);
         DocumentReference diRef = db.collection(NETWORKS).document(NETWORK)
                 .collection(SITES).document(SITE).collection(DEPARTMENTS)
                 .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str);
@@ -683,16 +686,14 @@ public class ItemDetailFragment extends Fragment {
         });
 
         // saving udi-specific identifiers using InventoryTemplate class to store multiple items at once
-
-        //Appears to be an outdated, conflicting constructor
        udiDocument = new InventoryTemplate(barcode_str,isUsed,radioButtonVal,procedure_used_str,
                 procedure_date_str, amount_used_str,patient_id_str, number_added_str,lotNumber_str,
-                expiration_str, quantity_str,currentDateTime_str,physical_location_str, notes_str);
+                expiration_str, quantity_str,currentDateTime_str,physical_location_str,referenceNumber_str, notes_str);
 
 
-        DocumentReference udiRef = db.collection("Networks").document("Network1")
-        .collection("Sites").document("Hospital 1").collection("Hospital 1 Departments")
-        .document("Department 1").collection("Department 1 dis").document(di_str)
+        DocumentReference udiRef = db.collection(NETWORKS).document(NETWORK)
+        .collection(SITES).document(SITE).collection(DEPARTMENTS)
+        .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str)
                 .collection("UDIs").document(barcode_str);
 
         //saving data of InventoryTemplate to database
