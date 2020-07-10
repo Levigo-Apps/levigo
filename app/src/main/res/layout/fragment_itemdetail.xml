@@ -245,7 +245,7 @@
             android:layout_marginTop="5dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="320dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/detail_medical_speciality"
                 android:text=""
@@ -273,7 +273,7 @@
             android:layout_marginTop="5dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="320dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/detail_description"
                 android:text=""
@@ -286,7 +286,7 @@
             android:layout_marginTop="5dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="320dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/detail_lot_number"
                 android:hint="@string/lot_number_label"
@@ -300,7 +300,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             tools:ignore="DuplicateIds">
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="320dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/detail_reference_number"
                 android:text=""
