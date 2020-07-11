@@ -108,6 +108,13 @@ public class MainActivity extends AppCompatActivity {
 //        Log.d(TAG, "NAMES: " + names);
         inventoryScroll.setAdapter(iAdapter);
 
+        Query alphabetical = inventoryRef.orderBy("name");
+        Query expiration = inventoryRef.orderBy("expiration");
+        Query dateAdded = inventoryRef.orderBy("current_date_time");
+        Query quantity = inventoryRef.orderBy("quantity");
+        Query reverse = inventoryRef.orderBy("name", Query.Direction.DESCENDING);
+
+
         inventoryRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) throws NullPointerException {
