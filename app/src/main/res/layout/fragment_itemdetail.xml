@@ -316,7 +316,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/expiration_date_string2"
+            android:id="@+id/expiration_date_string"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -384,9 +384,28 @@
                 android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/in_date_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            app:endIconDrawable="@drawable/calendar"
+            app:endIconMode="custom"
+            app:endIconTint="@color/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_in_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:hint="Date In"
+                android:text="" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/time_layout"
+            android:id="@+id/in_time_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -395,14 +414,14 @@
             app:endIconMode="custom">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/detail_date_time"
+                android:id="@+id/detail_in_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clickable="false"
                 android:cursorVisible="false"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
-                android:hint="Current Date and Time"
+                android:hint="Time In"
                 android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
