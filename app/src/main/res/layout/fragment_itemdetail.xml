@@ -141,7 +141,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/enter_procedure_lbl"
-                app:boxBackgroundMode="outline">
+                app:boxBackgroundMode="outline"
+                android:layout_marginTop="5dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edittext_procedure_used"
@@ -160,7 +161,8 @@
                 app:boxBackgroundMode="outline"
                 app:endIconDrawable="@drawable/calendar"
                 app:endIconMode="custom"
-                app:endIconTint="@color/colorPrimary">
+                app:endIconTint="@color/colorPrimary"
+                android:layout_marginTop="5dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edittext_procedure_date"
@@ -177,7 +179,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/enter_amount_used_lbl"
-                app:boxBackgroundMode="outline">
+                app:boxBackgroundMode="outline"
+                android:layout_marginTop="5dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/amountUsed_id"
@@ -192,7 +195,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/enter_patient_id_lbl"
-                app:boxBackgroundMode="outline">
+                app:boxBackgroundMode="outline"
+                android:layout_marginTop="5dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/patientID_id"

@@ -133,6 +133,7 @@ public class ItemDetailFragment extends Fragment {
     private Button autoPopulateButton;
     private RadioButton multiUse;
     private List<TextInputEditText> allPatientIds;
+    private List<TextInputEditText> allSizeOptions;
     private ArrayList<String> TYPES;
 
 
@@ -198,6 +199,7 @@ public class ItemDetailFragment extends Fragment {
         isAddSizeButtonClicked = true;
         specsTextView = rootView.findViewById(R.id.detail_specs_textview);
         typeInputLayout = rootView.findViewById(R.id.typeInputLayout);
+        allSizeOptions = new ArrayList<TextInputEditText>();
 
 
         // Dropdown menu for Type field
@@ -481,7 +483,8 @@ public class ItemDetailFragment extends Fragment {
         patientidAdded++;
         TextInputLayout patient_id_layout =(TextInputLayout) this.getLayoutInflater().inflate(R.layout.activity_itemdetail_materialcomponent,
                 null,false);
-        patient_id_layout.setHint("Enter patient ID");
+        patient_id_layout.setHint("patient ID");
+        patient_id_layout.setPadding(0,10,0,0);
         patient_id_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
 
         patient_id = new TextInputEditText(patient_id_layout.getContext());
@@ -503,25 +506,27 @@ public class ItemDetailFragment extends Fragment {
         paramSizeKey.width = WRAP_CONTENT;
         paramSizeKey.rowSpec = GridLayout.spec(rowIndex);
         paramSizeKey.columnSpec = GridLayout.spec(0);
+        paramSizeKey.setMargins(0,0,0,20);
+
 
         GridLayout.LayoutParams paramSizeValue = new GridLayout.LayoutParams();
         paramSizeValue.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         paramSizeValue.width = WRAP_CONTENT;
         paramSizeValue.rowSpec = GridLayout.spec(rowIndex);
         paramSizeValue.columnSpec = GridLayout.spec(1);
+        paramSizeValue.setMargins(10,0,0,20);
 
-        TextInputLayout sizeKeyLayout = (TextInputLayout) this.getLayoutInflater().inflate(R.layout.activity_itemdetail_materialcomponent,
-                null,false);
+
+        TextInputLayout sizeKeyLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
         sizeKeyLayout.setLayoutParams(paramSizeKey);
         sizeKeyLayout.setHint("Key");
-        sizeKeyLayout.setPadding(0,0,0,20);
         TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
 
-        TextInputLayout sizeValueLayout = (TextInputLayout) this.getLayoutInflater().inflate(R.layout.activity_itemdetail_materialcomponent,
-                null,false);
+        TextInputLayout sizeValueLayout = (TextInputLayout)View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
         sizeValueLayout.setLayoutParams(paramSizeValue);
         sizeValueLayout.setHint("Value");
-        sizeValueLayout.setPadding(10,0,0,20);
         TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
 
 
@@ -529,9 +534,12 @@ public class ItemDetailFragment extends Fragment {
         sizeKeyLayout.addView(sizeKey);
         sizeValue.setLayoutParams(new LinearLayout.LayoutParams(550, WRAP_CONTENT));
         sizeValueLayout.addView(sizeValue);
-
         gridLayoutSize.addView(sizeKeyLayout);
         gridLayoutSize.addView(sizeValueLayout);
+
+        allSizeOptions.add(sizeKey);
+        allSizeOptions.add(sizeValue);
+        System.out.println(allSizeOptions.size());
 
         linearLayout.addView(gridLayoutSize, 1 + linearLayout.indexOfChild(specsTextView));
         rowIndex++;
@@ -566,6 +574,9 @@ public class ItemDetailFragment extends Fragment {
             isAddSizeButtonClicked = true;
         }
 
+        allSizeOptions.remove(allSizeOptions.size() - 1);
+        allSizeOptions.remove(allSizeOptions.size() - 1);
+        System.out.println(allSizeOptions.size());
 
     }
 
@@ -722,6 +733,29 @@ public class ItemDetailFragment extends Fragment {
                 patientIds.put("patient_id_" + (i + 2), allPatientIds.get(i).getText().toString());
             }
             udiRef.update(patientIds)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, e.toString());
+                        }
+                    });
+        }
+
+        if(allSizeOptions.size() > 0){
+            int i = 0;
+            Map<String, Object> sizeOptions = new HashMap<>();
+            while(i < allSizeOptions.size()){
+                sizeOptions.put(allSizeOptions.get(i++).getText().toString().trim(),
+                        allSizeOptions.get(i++).getText().toString().trim());
+            }
+            diRef.update(sizeOptions)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
