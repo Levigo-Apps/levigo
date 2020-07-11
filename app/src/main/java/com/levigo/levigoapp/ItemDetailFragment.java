@@ -15,7 +15,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -27,7 +26,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
@@ -36,23 +34,18 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.common.util.JsonUtils;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -61,21 +54,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class ItemDetailFragment extends Fragment {
 
     // Firebase database
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    DocumentReference typeRef = db.collection("networks").document("types");
-    DocumentReference siteRef = db.collection("networks").document("sites");
     InventoryTemplate udiDocument;
 
     private static final String TAG = ItemDetailFragment.class.getSimpleName();
@@ -89,7 +80,6 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText company;
     private TextInputEditText procedureUsed;
     private TextInputEditText otherType_text;
-    private TextInputEditText otherSite_text;
     private TextInputEditText otherPhysicalLoc_text;
     private TextInputEditText otherSiteLoc_text;
     private TextInputEditText procedureDate;
@@ -106,13 +96,14 @@ public class ItemDetailFragment extends Fragment {
     private AutoCompleteTextView hospitalName;
     private AutoCompleteTextView physicalLocation;
     private TextInputEditText notes;
-    private TextInputEditText currentDateTime;
+    private TextInputEditText dateIn;
+    private TextInputEditText timeIn;
     private TextInputEditText numberAdded;
     private TextInputLayout expirationTextLayout;
-    private TextInputLayout siteLocationLayout;
+    private TextInputLayout dateInLayout;
     private TextInputEditText medicalSpeciality;
-    private TextInputLayout expiration_textLayout;
-    private TextInputLayout timeLayout;
+//    private TextInputLayout expiration_textLayout;
+    private TextInputLayout timeInLayout;
     private TextInputLayout typeInputLayout;
     private TextView specsTextView;
     private ScrollView scrollView;
@@ -124,7 +115,6 @@ public class ItemDetailFragment extends Fragment {
     private MaterialButton addPatient;
     private MaterialButton removePatient;
     private MaterialButton submit_otherType;
-    private MaterialButton submitOtherType;
     private MaterialButton submit_otherPhysicalLoc;
     private MaterialButton removeSizeButton;
     private MaterialButton submit_otherSiteLoc;
@@ -137,19 +127,15 @@ public class ItemDetailFragment extends Fragment {
 
     private int patientidAdded = 0;
     private int emptySizeFieldCounter = 0;
-    private int typeCounter;
-    private int siteCounter;
     private boolean chosenType;
     private boolean chosenLocation;
     private boolean chosenReusable;
     private boolean isAddSizeButtonClicked;
-    private boolean chosenSite;
     private Button autoPopulateButton;
     private RadioButton multiUse;
     private List<TextInputEditText> allPatientIds;
     private List<TextInputEditText> allSizeOptions;
     private ArrayList<String> TYPES;
-    private  ArrayList<String> SITELOC;
 
 
     // firebase key labels
@@ -162,9 +148,6 @@ public class ItemDetailFragment extends Fragment {
     private final String DESCRIPTION_KEY = "device_description";
 
 
-
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -175,23 +158,33 @@ public class ItemDetailFragment extends Fragment {
 
         // TODO add "clear" option for some fields in xml
         linearLayout = rootView.findViewById(R.id.itemdetail_linearlayout);
-        udiEditText = (TextInputEditText) rootView.findViewById(R.id.detail_udi);
-        nameEditText = (TextInputEditText) rootView.findViewById(R.id.detail_name);
-        equipmentType = (AutoCompleteTextView) rootView.findViewById(R.id.detail_type);
-        company = (TextInputEditText) rootView.findViewById(R.id.detail_company);
-        expiration = (TextInputEditText) rootView.findViewById(R.id.detail_expiration_date);
-        hospitalName = (AutoCompleteTextView) rootView.findViewById(R.id.detail_site_location);
-        physicalLocation = (AutoCompleteTextView) rootView.findViewById(R.id.detail_physical_location);
-        notes = (TextInputEditText) rootView.findViewById(R.id.detail_notes);
-        lotNumber = (TextInputEditText) rootView.findViewById(R.id.detail_lot_number);
-        referenceNumber = (TextInputEditText) rootView.findViewById(R.id.detail_reference_number);
-        numberAdded = (TextInputEditText) rootView.findViewById(R.id.detail_number_added);
-        medicalSpeciality = (TextInputEditText) rootView.findViewById(R.id.detail_medical_speciality);
-        deviceIdentifier = (TextInputEditText) rootView.findViewById(R.id.detail_di);
-        deviceDescription = (TextInputEditText) rootView.findViewById(R.id.detail_description);
-        currentDateTime = (TextInputEditText) rootView.findViewById(R.id.detail_date_time);
-        expirationTextLayout = (TextInputLayout) rootView.findViewById(R.id.expiration_date_string2);
-        timeLayout = (TextInputLayout) rootView.findViewById(R.id.time_layout);
+
+        udiEditText = rootView.findViewById(R.id.detail_udi);
+        nameEditText = rootView.findViewById(R.id.detail_name);
+        equipmentType = rootView.findViewById(R.id.detail_type);
+        company = rootView.findViewById(R.id.detail_company);
+        expiration = rootView.findViewById(R.id.detail_expiration_date);
+        hospitalName = rootView.findViewById(R.id.detail_site_location);
+        physicalLocation = rootView.findViewById(R.id.detail_physical_location);
+        notes = rootView.findViewById(R.id.detail_notes);
+        lotNumber = rootView.findViewById(R.id.detail_lot_number);
+        referenceNumber = rootView.findViewById(R.id.detail_reference_number);
+        numberAdded = rootView.findViewById(R.id.detail_number_added);
+        medicalSpeciality = rootView.findViewById(R.id.detail_medical_speciality);
+        deviceIdentifier = rootView.findViewById(R.id.detail_di);
+        deviceDescription = rootView.findViewById(R.id.detail_description);
+
+        dateIn = rootView.findViewById(R.id.detail_in_date);
+//        dateIn.setText(myCalendar.get(Calendar.YEAR) + "-" + (myCalendar.get(Calendar.MONTH) + 1) + "-" + myCalendar.get(Calendar.DATE));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        dateIn.setText(dateFormat.format(new Date()));
+
+
+        timeIn = rootView.findViewById(R.id.detail_in_time);
+        expirationTextLayout = rootView.findViewById(R.id.expiration_date_string);
+        dateInLayout = rootView.findViewById(R.id.in_date_layout);
+
+        timeInLayout = rootView.findViewById(R.id.in_time_layout);
         itemUsed = rootView.findViewById(R.id.detail_used_switch);
         saveButton = rootView.findViewById(R.id.detail_save_button);
         backButton = rootView.findViewById(R.id.detail_back_button);
@@ -205,7 +198,6 @@ public class ItemDetailFragment extends Fragment {
         amountUsed = rootView.findViewById(R.id.amountUsed_id);
         patient_idDefault = rootView.findViewById(R.id.patientID_id);
         chosenReusable = false;
-        chosenSite = false;
         itemUsed.setChecked(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
         scrollView = rootView.findViewById(R.id.scrollView);
@@ -215,40 +207,25 @@ public class ItemDetailFragment extends Fragment {
         isAddSizeButtonClicked = true;
         specsTextView = rootView.findViewById(R.id.detail_specs_textview);
         typeInputLayout = rootView.findViewById(R.id.typeInputLayout);
-        siteLocationLayout = rootView.findViewById(R.id.siteLocationLayout);
         allSizeOptions = new ArrayList<TextInputEditText>();
-        TYPES = new ArrayList<>();
-        SITELOC = new ArrayList<>();
 
 
-        typeRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-                if (documentSnapshot != null && documentSnapshot.exists()) {
-                    Map<String, Object> typeObj = documentSnapshot.getData();
-                    typeCounter = typeObj.size();
-                    for(Object value : typeObj.values()) {
-                        if(!TYPES.contains(value.toString())) {
-                            TYPES.add(value.toString());
-                        }
-                        Collections.sort(TYPES);
-                    }
-                } else {
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
-        // adapter for dropdown list for Types
-        final ArrayAdapter<String> adapterType =
+
+
+        // Dropdown menu for Type field
+        TYPES = new ArrayList<>(Arrays.asList("Balloon", "Catheter", "Needle", "Dilator", "Drainage Bag",
+                "Biliary Stent", "Wire", "Imaging/US", "Mask", "Picc Line", "Scalpel", "Sheath", "Snare Kit",
+                "Stent", "Sterile Tray", "Stopcock", "Tube", "Other"));
+        Collections.sort(TYPES);
+
+        final ArrayAdapter<String> adapter =
                 new ArrayAdapter<>(
                         rootView.getContext(),
                         R.layout.dropdown_menu_popup_item,
                         TYPES);
-        equipmentType.setAdapter(adapterType);
+        equipmentType.setAdapter(adapter);
+
+
         equipmentType.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -256,45 +233,6 @@ public class ItemDetailFragment extends Fragment {
 
             }
         });
-
-        siteRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-                if (documentSnapshot != null && documentSnapshot.exists()) {
-                    Map<String, Object> typeObj = documentSnapshot.getData();
-                    siteCounter = typeObj.size();
-                    for(Object value : typeObj.values()) {
-                        if(!SITELOC.contains(value.toString())) {
-                            SITELOC.add(value.toString());
-                        }
-                        Collections.sort(SITELOC);
-                    }
-                } else {
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
-
-        // Dropdown menu for Site Location field
-        final ArrayAdapter<String> adapterSite =
-                new ArrayAdapter<>(
-                        rootView.getContext(),
-                        R.layout.dropdown_menu_popup_item,
-                        SITELOC);
-        hospitalName.setAdapter(adapterSite);
-        hospitalName.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                addNewSite(adapterView,view,i,l);
-            }
-        });
-
-
-
 
 
         autoPopulateButton.setOnClickListener(new View.OnClickListener() {
@@ -374,9 +312,23 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
+        // Dropdown menu for Site Location field
+        final ArrayList<String> SITELOC = Sites.SITES;
+        Collections.sort(SITELOC);
+
+        final ArrayAdapter<String> adapter2 =
+                new ArrayAdapter<>(
+                        rootView.getContext(),
+                        R.layout.dropdown_menu_popup_item,
+                        SITELOC);
+
+        @SuppressLint("CutPasteId") final AutoCompleteTextView siteloc_dropDown =
+                rootView.findViewById(R.id.detail_site_location);
+        siteloc_dropDown.setAdapter(adapter2);
+
 
         //TimePicker dialog pops up when clicked on the icon
-        timeLayout.setEndIconOnClickListener(new View.OnClickListener() {
+        timeInLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Calendar mcurrentTime = Calendar.getInstance();
@@ -386,7 +338,7 @@ public class ItemDetailFragment extends Fragment {
                 mTimePicker = new TimePickerDialog(rootView.getContext(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                        currentDateTime.setText(String.format(Locale.US, "%d:%d: 00 %s", selectedHour,
+                        timeIn.setText(String.format(Locale.US, "%d:%d: 00 %s", selectedHour,
                                 selectedMinute, TimeZone.getDefault().getID()));
                     }
                 }, hour, minute, true);
@@ -519,6 +471,29 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
+        // date picker for date in if entered manually
+        final DatePickerDialog.OnDateSetListener dateInListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                myCalendar.set(Calendar.YEAR, i);
+                myCalendar.set(Calendar.MONTH, i1);
+                myCalendar.set(Calendar.DAY_OF_MONTH, i2);
+                String myFormat = "yyyy/MM/dd";
+                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+                dateIn.setText(String.format("%s %s", sdf.format(myCalendar.getTime()),
+                        TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT)));
+            }
+        };
+
+        dateInLayout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new DatePickerDialog(view.getContext(), dateInListener, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+            }
+        });
+
         // saves data into database
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -639,7 +614,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
     // adds new text field if users choose "other" for type
-    private void addTypeOptionField (final AdapterView < ? > adapterView, View view, int i, long l){
+    private void addTypeOptionField (AdapterView < ? > adapterView, View view,int i, long l){
         String selected = (String) adapterView.getItemAtPosition(i);
         TextInputLayout other_type_layout = null;
         if (selected.equals("Other")) {
@@ -665,22 +640,14 @@ public class ItemDetailFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     Toast.makeText(view.getContext(), otherType_text.getText().toString(), Toast.LENGTH_SHORT).show();
-                    Map<String, Object> newType = new HashMap<>();
-                    newType.put("type_" + typeCounter, otherType_text.getText().toString());
-                    typeRef.update(newType)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                    Log.d(TAG, e.toString());
-                                }
-                            });
+                    TYPES.add(otherType_text.getText().toString());
+                    System.out.println(Arrays.toString(TYPES.toArray()));
+                    ArrayAdapter<String> adapter_new =
+                            new ArrayAdapter<>(
+                                    view.getContext(),
+                                    R.layout.dropdown_menu_popup_item,
+                                    TYPES);
+                    equipmentType.setAdapter(adapter_new);
 
                 }
             });
@@ -688,57 +655,6 @@ public class ItemDetailFragment extends Fragment {
             chosenType = false;
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeInputLayout));
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeInputLayout));
-        }
-    }
-
-    private void addNewSite(final AdapterView < ? > adapterView, View view, int i, long l){
-        String selected = (String) adapterView.getItemAtPosition(i);
-        TextInputLayout other_site_layout = null;
-        if (selected.equals("Other")) {
-            chosenSite = true;
-            other_site_layout = (TextInputLayout) this.getLayoutInflater().inflate(R.layout.activity_itemdetail_materialcomponent,
-                    null, false);
-            other_site_layout.setHint("Enter site");
-            other_site_layout.setId(View.generateViewId());
-            other_site_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-            otherSite_text = new TextInputEditText(other_site_layout.getContext());
-            otherSite_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
-            other_site_layout.addView(otherSite_text);
-            linearLayout.addView(other_site_layout, 1 + linearLayout.indexOfChild(siteLocationLayout));
-
-            submitOtherType = new MaterialButton(view.getContext(),
-                    null, R.attr.materialButtonOutlinedStyle);
-            submitOtherType.setText(R.string.submitSite_lbl);
-            submitOtherType.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-                    WRAP_CONTENT));
-            linearLayout.addView(submitOtherType, 2 + linearLayout.indexOfChild(siteLocationLayout));
-
-            submitOtherType.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(view.getContext(), otherSite_text.getText().toString(), Toast.LENGTH_SHORT).show();
-                    Map<String, Object> newType = new HashMap<>();
-                    newType.put("site_" + siteCounter, otherSite_text.getText().toString());
-                    siteRef.update(newType)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                    Log.d(TAG, e.toString());
-                                }
-                            });
-                }
-            });
-        } else if (chosenSite && (!(selected.equals("Other")))) {
-            chosenSite = false;
-            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(siteLocationLayout));
-            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(siteLocationLayout));
         }
     }
 
@@ -756,7 +672,7 @@ public class ItemDetailFragment extends Fragment {
         // getting radiobutton value
         boolean isUsed = itemUsed.isChecked();
         int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
-        radioButton = (RadioButton) view.findViewById(radioButtonInt);
+        radioButton = view.findViewById(radioButtonInt);
         String radioButtonVal = radioButton.getText().toString();
 
         //if used
@@ -774,6 +690,8 @@ public class ItemDetailFragment extends Fragment {
 
 
         int quantity_int;
+
+        // TODO remove??
         if(itemUsed.isChecked()){
             //     quantity_int = Integer.parseInt(quantity.getText().toString()) - Integer.parseInt(numberUsed.getText().toString());
         } else {
@@ -782,7 +700,7 @@ public class ItemDetailFragment extends Fragment {
         String quantity_str = "2"; // temporarily
         String site_name_str = hospitalName.getText().toString();
         String physical_location_str = physicalLocation.getText().toString();
-        String currentDateTime_str = currentDateTime.getText().toString();
+        String currentDateTime_str = timeIn.getText().toString();
         String notes_str = notes.getText().toString();
 
 
@@ -889,6 +807,7 @@ public class ItemDetailFragment extends Fragment {
         }
     }
 
+
     public void autoPopulate() {
 
         String udi = udiEditText.getText().toString();
@@ -913,13 +832,24 @@ public class ItemDetailFragment extends Fragment {
 
                             JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
                             JSONObject udi = responseJson.getJSONObject("udi");
+                            JSONArray productCodes = responseJson.getJSONArray("productCodes");
+                            String medicalSpecialties = "";
+                            for (int i = 0; i < productCodes.length(); i++){
+                                medicalSpecialties += productCodes.getJSONObject(i).getString("medicalSpecialty");
+                                medicalSpecialties += "; ";
+//                                Log.d(TAG, "MEDICAL SPECIALTY: " + medicalSpecialties);
+                            }
+                            medicalSpecialties = medicalSpecialties.substring(0, medicalSpecialties.length() - 2);
 
                             lotNumber.setText(udi.getString("lotNumber"));
                             company.setText(deviceInfo.getString("companyName"));
                             expiration.setText(udi.getString("expirationDate"));
+
                             deviceIdentifier.setText(udi.getString("di"));
-//                        Log.d(TAG, deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
                             nameEditText.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
+                            deviceDescription.setText(deviceInfo.getString("deviceDescription"));
+                            referenceNumber.setText(deviceInfo.getString("catalogNumber"));
+                            medicalSpeciality.setText(medicalSpecialties);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -928,7 +858,6 @@ public class ItemDetailFragment extends Fragment {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-//                textView.setText("That didn't work!");
                 Log.d(TAG, "Error in parsing barcode");
             }
         });

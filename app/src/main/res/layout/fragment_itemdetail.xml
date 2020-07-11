@@ -5,9 +5,9 @@
     android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="center"
     android:background="#000000"
-    android:elevation="2dp"
-    android:layout_gravity="center">
+    android:elevation="2dp">
 
 
     <LinearLayout
@@ -40,12 +40,6 @@
             android:textColor="#ffffff"
             android:textSize="20sp" />
 
-        <Button
-            android:id="@+id/detail_autopop_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="?attr/materialButtonOutlinedStyle"
-            android:text="Autopopulate" />
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -58,6 +52,13 @@
                 android:layout_height="wrap_content"
                 android:hint="UDI/Barcode" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/detail_autopop_button"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Autopopulate" />
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -140,9 +141,9 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
                 android:hint="@string/enter_procedure_lbl"
-                app:boxBackgroundMode="outline"
-                android:layout_marginTop="5dp">
+                app:boxBackgroundMode="outline">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edittext_procedure_used"
@@ -157,12 +158,12 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
                 android:hint="@string/enter_procedure_date_lbl"
                 app:boxBackgroundMode="outline"
                 app:endIconDrawable="@drawable/calendar"
                 app:endIconMode="custom"
-                app:endIconTint="@color/colorPrimary"
-                android:layout_marginTop="5dp">
+                app:endIconTint="@color/colorPrimary">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edittext_procedure_date"
@@ -178,9 +179,9 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
                 android:hint="@string/enter_amount_used_lbl"
-                app:boxBackgroundMode="outline"
-                android:layout_marginTop="5dp">
+                app:boxBackgroundMode="outline">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/amountUsed_id"
@@ -194,9 +195,9 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
                 android:hint="@string/enter_patient_id_lbl"
-                app:boxBackgroundMode="outline"
-                android:layout_marginTop="5dp">
+                app:boxBackgroundMode="outline">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/patientID_id"
@@ -209,9 +210,9 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_addpatient"
+                style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="?attr/materialButtonOutlinedStyle"
                 android:text="Add Patient ID"
                 android:visibility="gone">
 
@@ -219,10 +220,10 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_removepatient"
+                style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Remove Patient ID"
-                style="?attr/materialButtonOutlinedStyle"
                 android:visibility="gone">
 
             </com.google.android.material.button.MaterialButton>
@@ -244,16 +245,17 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:layout_marginTop="5dp">
+
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_medical_speciality"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_medical_speciality"
-                android:text=""
-                android:hint="Medical Speciality"/>
+                android:hint="Medical Speciality"
+                android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -277,49 +279,51 @@
             android:layout_marginTop="5dp">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_description"
-                android:text=""
-                android:hint="Device Description" />
+                android:hint="Device Description"
+                android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:layout_marginTop="5dp">
+
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_lot_number"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_lot_number"
                 android:hint="@string/lot_number_label"
                 android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             tools:ignore="DuplicateIds">
+
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_reference_number"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_reference_number"
-                android:text=""
-                android:hint="Reference Number" />
+                android:hint="Reference Number"
+                android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/expiration_date_string"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/expiration_date_string2"
             android:layout_marginTop="5dp"
             app:endIconDrawable="@drawable/calendar"
             app:endIconMode="custom"
-            app:endIconTint="@color/colorPrimary"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            app:endIconTint="@color/colorPrimary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/detail_expiration_date"
@@ -380,9 +384,28 @@
                 android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/in_date_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            app:endIconDrawable="@drawable/calendar"
+            app:endIconMode="custom"
+            app:endIconTint="@color/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_in_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:hint="Date In"
+                android:text="" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/time_layout"
+            android:id="@+id/in_time_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -391,14 +414,14 @@
             app:endIconMode="custom">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/detail_date_time"
+                android:id="@+id/detail_in_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clickable="false"
                 android:cursorVisible="false"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
-                android:hint="Current Date and Time"
+                android:hint="Time In"
                 android:text="" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -414,12 +437,11 @@
 
         <Button
             android:id="@+id/button_addsize"
-            android:layout_width="match_parent"
             style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_columnSpan="2"
             android:text="Add Size Field" />
-
 
 
         <com.google.android.material.textfield.TextInputLayout
