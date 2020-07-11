@@ -76,5 +76,6 @@
     <string name="device_identifier_lbl">Device Identifier</string>
     <string name="lot_number_label">Lot Number</string>
     <string name="submitLocation_lbl">Submit physical location</string>
+    <string name="submitSite_lbl">Submit site</string>
 
 </resources>
