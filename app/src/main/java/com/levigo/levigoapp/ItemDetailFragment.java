@@ -26,6 +26,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
@@ -41,7 +42,10 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
@@ -67,6 +71,8 @@ public class ItemDetailFragment extends Fragment {
 
     // Firebase database
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    DocumentReference typeRef = db.collection("networks").document("types");
+    DocumentReference siteRef = db.collection("networks").document("sites");
     InventoryTemplate udiDocument;
 
     private static final String TAG = ItemDetailFragment.class.getSimpleName();
@@ -81,7 +87,7 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText procedureUsed;
     private TextInputEditText otherType_text;
     private TextInputEditText otherPhysicalLoc_text;
-    private TextInputEditText otherSiteLoc_text;
+    private TextInputEditText otherSite_text;
     private TextInputEditText procedureDate;
     private TextInputEditText patient_id;
     private TextInputEditText patient_idDefault;
@@ -101,8 +107,8 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText numberAdded;
     private TextInputLayout expirationTextLayout;
     private TextInputLayout dateInLayout;
+    private TextInputLayout siteLocationLayout;
     private TextInputEditText medicalSpeciality;
-//    private TextInputLayout expiration_textLayout;
     private TextInputLayout timeInLayout;
     private TextInputLayout typeInputLayout;
     private TextView specsTextView;
@@ -115,9 +121,9 @@ public class ItemDetailFragment extends Fragment {
     private MaterialButton addPatient;
     private MaterialButton removePatient;
     private MaterialButton submit_otherType;
+    private MaterialButton submitOtherSite;
     private MaterialButton submit_otherPhysicalLoc;
     private MaterialButton removeSizeButton;
-    private MaterialButton submit_otherSiteLoc;
     private SwitchMaterial itemUsed;
     private RadioGroup useRadioGroup;
     private RadioButton radioButton;
@@ -127,15 +133,19 @@ public class ItemDetailFragment extends Fragment {
 
     private int patientidAdded = 0;
     private int emptySizeFieldCounter = 0;
+    private int typeCounter;
+    private int siteCounter;
     private boolean chosenType;
     private boolean chosenLocation;
     private boolean chosenReusable;
     private boolean isAddSizeButtonClicked;
+    private boolean chosenSite;
     private Button autoPopulateButton;
     private RadioButton multiUse;
     private List<TextInputEditText> allPatientIds;
     private List<TextInputEditText> allSizeOptions;
     private ArrayList<String> TYPES;
+    private  ArrayList<String> SITELOC;
 
 
     // firebase key labels
@@ -158,7 +168,6 @@ public class ItemDetailFragment extends Fragment {
 
         // TODO add "clear" option for some fields in xml
         linearLayout = rootView.findViewById(R.id.itemdetail_linearlayout);
-
         udiEditText = rootView.findViewById(R.id.detail_udi);
         nameEditText = rootView.findViewById(R.id.detail_name);
         equipmentType = rootView.findViewById(R.id.detail_type);
@@ -173,17 +182,12 @@ public class ItemDetailFragment extends Fragment {
         medicalSpeciality = rootView.findViewById(R.id.detail_medical_speciality);
         deviceIdentifier = rootView.findViewById(R.id.detail_di);
         deviceDescription = rootView.findViewById(R.id.detail_description);
-
         dateIn = rootView.findViewById(R.id.detail_in_date);
-//        dateIn.setText(myCalendar.get(Calendar.YEAR) + "-" + (myCalendar.get(Calendar.MONTH) + 1) + "-" + myCalendar.get(Calendar.DATE));
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
         dateIn.setText(dateFormat.format(new Date()));
-
-
         timeIn = rootView.findViewById(R.id.detail_in_time);
         expirationTextLayout = rootView.findViewById(R.id.expiration_date_string);
         dateInLayout = rootView.findViewById(R.id.in_date_layout);
-
         timeInLayout = rootView.findViewById(R.id.in_time_layout);
         itemUsed = rootView.findViewById(R.id.detail_used_switch);
         saveButton = rootView.findViewById(R.id.detail_save_button);
@@ -198,6 +202,8 @@ public class ItemDetailFragment extends Fragment {
         amountUsed = rootView.findViewById(R.id.amountUsed_id);
         patient_idDefault = rootView.findViewById(R.id.patientID_id);
         chosenReusable = false;
+        chosenType = false;
+        chosenSite = false;
         itemUsed.setChecked(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
         scrollView = rootView.findViewById(R.id.scrollView);
@@ -207,23 +213,44 @@ public class ItemDetailFragment extends Fragment {
         isAddSizeButtonClicked = true;
         specsTextView = rootView.findViewById(R.id.detail_specs_textview);
         typeInputLayout = rootView.findViewById(R.id.typeInputLayout);
+        siteLocationLayout = rootView.findViewById(R.id.siteLocationLayout);
         allSizeOptions = new ArrayList<TextInputEditText>();
+        TYPES = new ArrayList<>();
+        SITELOC = new ArrayList<>();
 
 
 
 
         // Dropdown menu for Type field
-        TYPES = new ArrayList<>(Arrays.asList("Balloon", "Catheter", "Needle", "Dilator", "Drainage Bag",
-                "Biliary Stent", "Wire", "Imaging/US", "Mask", "Picc Line", "Scalpel", "Sheath", "Snare Kit",
-                "Stent", "Sterile Tray", "Stopcock", "Tube", "Other"));
-        Collections.sort(TYPES);
-
-        final ArrayAdapter<String> adapter =
+        // real time type update
+        typeRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    Map<String, Object> typeObj = documentSnapshot.getData();
+                    typeCounter = typeObj.size();
+                    for(Object value : typeObj.values()) {
+                        if(!TYPES.contains(value.toString())) {
+                            TYPES.add(value.toString());
+                        }
+                        Collections.sort(TYPES);
+                    }
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+        // adapter for dropdown list for Types
+        final ArrayAdapter<String> adapterType =
                 new ArrayAdapter<>(
                         rootView.getContext(),
                         R.layout.dropdown_menu_popup_item,
                         TYPES);
-        equipmentType.setAdapter(adapter);
+        equipmentType.setAdapter(adapterType);
 
 
         equipmentType.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -231,6 +258,42 @@ public class ItemDetailFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 addTypeOptionField(adapterView,view,i,l);
 
+            }
+        });
+        // real time site update
+        siteRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    Map<String, Object> typeObj = documentSnapshot.getData();
+                    siteCounter = typeObj.size();
+                    for(Object value : typeObj.values()) {
+                        if(!SITELOC.contains(value.toString())) {
+                            SITELOC.add(value.toString());
+                        }
+                        Collections.sort(SITELOC);
+                    }
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+
+        // Dropdown menu for Site Location field
+        final ArrayAdapter<String> adapterSite =
+                new ArrayAdapter<>(
+                        rootView.getContext(),
+                        R.layout.dropdown_menu_popup_item,
+                        SITELOC);
+        hospitalName.setAdapter(adapterSite);
+        hospitalName.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                addNewSite(adapterView,view,i,l);
             }
         });
 
@@ -241,8 +304,6 @@ public class ItemDetailFragment extends Fragment {
                 autoPopulate();
             }
         });
-
-
         addSizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -252,6 +313,7 @@ public class ItemDetailFragment extends Fragment {
 
 
         // Dropdown menu for Physical Location field
+        // TODO save to database ( in method)
         final ArrayList<String> PHYSICALLOC = new ArrayList<>(Arrays.asList("Room", "Box", "Shelf", "Other"));
         Collections.sort(PHYSICALLOC);
 
@@ -312,19 +374,6 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-        // Dropdown menu for Site Location field
-        final ArrayList<String> SITELOC = Sites.SITES;
-        Collections.sort(SITELOC);
-
-        final ArrayAdapter<String> adapter2 =
-                new ArrayAdapter<>(
-                        rootView.getContext(),
-                        R.layout.dropdown_menu_popup_item,
-                        SITELOC);
-
-        @SuppressLint("CutPasteId") final AutoCompleteTextView siteloc_dropDown =
-                rootView.findViewById(R.id.detail_site_location);
-        siteloc_dropDown.setAdapter(adapter2);
 
 
         //TimePicker dialog pops up when clicked on the icon
@@ -614,7 +663,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
     // adds new text field if users choose "other" for type
-    private void addTypeOptionField (AdapterView < ? > adapterView, View view,int i, long l){
+    private void addTypeOptionField (final AdapterView < ? > adapterView, View view,int i, long l){
         String selected = (String) adapterView.getItemAtPosition(i);
         TextInputLayout other_type_layout = null;
         if (selected.equals("Other")) {
@@ -640,14 +689,22 @@ public class ItemDetailFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     Toast.makeText(view.getContext(), otherType_text.getText().toString(), Toast.LENGTH_SHORT).show();
-                    TYPES.add(otherType_text.getText().toString());
-                    System.out.println(Arrays.toString(TYPES.toArray()));
-                    ArrayAdapter<String> adapter_new =
-                            new ArrayAdapter<>(
-                                    view.getContext(),
-                                    R.layout.dropdown_menu_popup_item,
-                                    TYPES);
-                    equipmentType.setAdapter(adapter_new);
+                    Map<String, Object> newType = new HashMap<>();
+                    newType.put("type_" + typeCounter, otherType_text.getText().toString());
+                    typeRef.update(newType)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
+                                    Log.d(TAG, e.toString());
+                                }
+                            });
 
                 }
             });
@@ -655,6 +712,57 @@ public class ItemDetailFragment extends Fragment {
             chosenType = false;
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeInputLayout));
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeInputLayout));
+        }
+    }
+
+    private void addNewSite(final AdapterView < ? > adapterView, View view, int i, long l){
+        String selected = (String) adapterView.getItemAtPosition(i);
+        TextInputLayout other_site_layout = null;
+        if (selected.equals("Other")) {
+            chosenSite = true;
+            other_site_layout = (TextInputLayout) this.getLayoutInflater().inflate(R.layout.activity_itemdetail_materialcomponent,
+                    null, false);
+            other_site_layout.setHint("Enter site");
+            other_site_layout.setId(View.generateViewId());
+            other_site_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+            otherSite_text = new TextInputEditText(other_site_layout.getContext());
+            otherSite_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
+            other_site_layout.addView(otherSite_text);
+            linearLayout.addView(other_site_layout, 1 + linearLayout.indexOfChild(siteLocationLayout));
+
+            submitOtherSite = new MaterialButton(view.getContext(),
+                    null, R.attr.materialButtonOutlinedStyle);
+            submitOtherSite.setText(R.string.submitSite_lbl);
+            submitOtherSite.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
+                    WRAP_CONTENT));
+            linearLayout.addView(submitOtherSite, 2 + linearLayout.indexOfChild(siteLocationLayout));
+
+            submitOtherSite.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(view.getContext(), otherSite_text.getText().toString(), Toast.LENGTH_SHORT).show();
+                    Map<String, Object> newType = new HashMap<>();
+                    newType.put("site_" + siteCounter, otherSite_text.getText().toString());
+                    siteRef.update(newType)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
+                                    Log.d(TAG, e.toString());
+                                }
+                            });
+                }
+            });
+        } else if (chosenSite && (!(selected.equals("Other")))) {
+            chosenSite = false;
+            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(siteLocationLayout));
+            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(siteLocationLayout));
         }
     }
 
