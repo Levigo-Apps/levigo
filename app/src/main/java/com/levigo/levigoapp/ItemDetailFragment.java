@@ -544,6 +544,7 @@ public class ItemDetailFragment extends Fragment {
         });
 
         // saves data into database
+        //TODO determine hospital based on user
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -781,7 +782,12 @@ public class ItemDetailFragment extends Fragment {
         boolean isUsed = itemUsed.isChecked();
         int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
         radioButton = view.findViewById(radioButtonInt);
-        String radioButtonVal = radioButton.getText().toString();
+        String singleOrMultiUse;
+        try {
+            singleOrMultiUse = radioButton.getText().toString();
+        } catch (NullPointerException e){
+            singleOrMultiUse = "";
+        }
 
         //if used
         String procedure_used_str = procedureUsed.getText().toString();
@@ -840,7 +846,7 @@ public class ItemDetailFragment extends Fragment {
         });
 
         // saving udi-specific identifiers using InventoryTemplate class to store multiple items at once
-       udiDocument = new InventoryTemplate(barcode_str,isUsed,radioButtonVal,procedure_used_str,
+       udiDocument = new InventoryTemplate(barcode_str,isUsed,singleOrMultiUse,procedure_used_str,
                 procedure_date_str, amount_used_str,patient_id_str, number_added_str,lotNumber_str,
                 expiration_str, quantity_str,currentDateTime_str,physical_location_str,referenceNumber_str, notes_str);
 
