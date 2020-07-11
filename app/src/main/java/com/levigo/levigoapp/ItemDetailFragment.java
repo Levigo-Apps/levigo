@@ -44,9 +44,11 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.JsonObject;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -797,6 +799,14 @@ public class ItemDetailFragment extends Fragment {
 
                             JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
                             JSONObject udi = responseJson.getJSONObject("udi");
+                            JSONArray productCodes = responseJson.getJSONArray("productCodes");
+                            String medicalSpecialties = "";
+                            for (int i = 0; i < productCodes.length(); i++){
+                                medicalSpecialties += productCodes.getJSONObject(i).getString("medicalSpecialty");
+                                medicalSpecialties += "; ";
+                                Log.d(TAG, "MEDICAL SPECIALTY: " + medicalSpecialties);
+                            }
+                            medicalSpecialties = medicalSpecialties.substring(0, medicalSpecialties.length() - 2);
 
                             lotNumber.setText(udi.getString("lotNumber"));
                             company.setText(deviceInfo.getString("companyName"));
@@ -804,6 +814,9 @@ public class ItemDetailFragment extends Fragment {
                             deviceIdentifier.setText(udi.getString("di"));
 //                        Log.d(TAG, deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
                             nameEditText.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
+                            deviceDescription.setText(deviceInfo.getString("deviceDescription"));
+                            referenceNumber.setText(deviceInfo.getString("catalogNumber"));
+                            medicalSpeciality.setText(medicalSpecialties);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
