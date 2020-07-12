@@ -49,8 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
-    private CollectionReference inventoryRef = levigoDb.collection("Inventory");
-
+    private CollectionReference inventoryRef = levigoDb.collection("networks/network1/sites/n1_hospital1/n1_h1_departments/department1/n1_h1_d1_productids");
 
     private RecyclerView inventoryScroll ;
     private RecyclerView.Adapter iAdapter ;
@@ -108,11 +107,11 @@ public class MainActivity extends AppCompatActivity {
 //        Log.d(TAG, "NAMES: " + names);
         inventoryScroll.setAdapter(iAdapter);
 
-        Query alphabetical = inventoryRef.orderBy("name");
-        Query expiration = inventoryRef.orderBy("expiration");
-        Query dateAdded = inventoryRef.orderBy("current_date_time");
-        Query quantity = inventoryRef.orderBy("quantity");
-        Query reverse = inventoryRef.orderBy("name", Query.Direction.DESCENDING);
+//        Query alphabetical = inventoryRef.orderBy("name");
+//        Query expiration = inventoryRef.orderBy("expiration");
+//        Query dateAdded = inventoryRef.orderBy("current_date_time");
+//        Query quantity = inventoryRef.orderBy("quantity");
+//        Query reverse = inventoryRef.orderBy("name", Query.Direction.DESCENDING);
 
 
         inventoryRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -125,37 +124,37 @@ public class MainActivity extends AppCompatActivity {
 
                 assert queryDocumentSnapshots != null;
                 for(DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-//                    String udi = dc.getDocument().getString("udi");
                     Map<String, Object> entry = dc.getDocument().getData();
                     Log.d(TAG, "Data entries: " + entry.toString());
                     switch (dc.getType()) {
                         case ADDED:
                             Log.d(TAG, "added");
-//                            Log.d(TAG, "added: " + udi);
-//                            names.add(udi);
                             entries.add(entry);
                             break;
                         case REMOVED:
                             Log.d(TAG, "remove");
                             //TODO implement
-//                            for (int i = 0; i < names.size(); ++i) {
-//                                if (names.get(i).equals(udi)) {
-//                                    names.remove(i);
-//                                    break;
-//                                }
-//                            }
+                            for(int i = 0; i < entries.size(); ++i) {
+                                if(entries.get(i).get("di").equals(entry.get("di"))) {
+                                    Log.d(TAG, "remove2");
+                                    entries.remove(i);
+                                    break;
+                                }
+                            }
                             break;
                         case MODIFIED:
                             Log.d(TAG, "modify");
-                            //TODO implement
-//                            for (int i = 0; i < names.size(); ++i) {
-//                                if (names.get(i).equals(udi)) {
-//                                    names.set(i, udi);
-//                                }
-//                            }
+                            for(int i = 0; i < entries.size(); ++i) {
+                                if(entries.get(i).get("di").equals(entry.get("di"))) {
+                                    Log.d(TAG, "modify2");
+                                    entries.set(i,entry);
+                                    break;
+                                }
+                            }
                             break;
                     }
                 }
+                Log.d(TAG, "notify");
                 iAdapter.notifyDataSetChanged();
             }
         });

@@ -23,10 +23,10 @@ public class InventoryTemplate {
     }
 
     public InventoryTemplate(String udi, boolean isUsed, String radioButtonVal, String procedure_used,
-                             String procedure_date, String amountUsed, String patient_id, String number_added,
-                             String lotNumber, String expiration, String quantity,
-                             String current_date_time,  String physical_location, String referenceNumber,
-                             String notes) {
+    String procedure_date, String amountUsed, String patient_id, String number_added,
+    String lotNumber, String expiration, String quantity,
+    String current_date_time,  String physical_location, String referenceNumber,
+    String notes) {
 
         this.udi = udi;
         this.isUsed = isUsed;

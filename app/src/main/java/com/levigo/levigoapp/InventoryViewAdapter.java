@@ -58,9 +58,10 @@ public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdap
 
         Log.d(TAG, "DATASET: " + iDataset);
         // TODO better way of checking if key exists
-        if (iDataset.get(position).containsKey("udi")) {
-            Log.d(TAG, "ITEM DI: " + iDataset.get(position).get("udi").toString());
-            holder.itemDI.setText(iDataset.get(position).get("udi").toString());
+        if (iDataset.get(position).containsKey("di")) {
+            Log.d(TAG, "ITEM DI: " + iDataset.get(position).get("di").toString());
+            String di = "DI: " + iDataset.get(position).get("di").toString();
+            holder.itemDI.setText(di);
         }
         if (iDataset.get(position).containsKey("equipment_type")) {
             Log.d(TAG, "ITEM TYPE: " + iDataset.get(position).get("equipment_type").toString());
@@ -68,7 +69,8 @@ public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdap
         }
         if (iDataset.get(position).containsKey("quantity")) {
             Log.d(TAG, "ITEM QUANTITY: " + iDataset.get(position).get("quantity").toString());
-            holder.itemQuantity.setText(iDataset.get(position).get("quantity").toString());
+            String qty = "QTY: " + iDataset.get(position).get("quantity").toString();
+            holder.itemQuantity.setText(qty);
         }
         if (iDataset.get(position).containsKey("name")) {
             Log.d(TAG, "ITEM NAME: " + iDataset.get(position).get("name").toString());

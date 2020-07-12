@@ -7,46 +7,60 @@
     android:background="@drawable/inventoryitemlayout">
 
         <TextView
-            android:id="@+id/item_name"
-            android:layout_width="wrap_content"
+            android:id="@+id/item_type"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:text="NAME"
-            android:textSize="20sp"
+            android:text="Type of Equipment"
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimary"
+            android:textSize="15sp"
+            android:background="@color/colorAccent"
+            android:ellipsize="end"
+            android:lines="1"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+
+        <TextView
+            android:id="@+id/item_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:layout_marginStart="4dp"
+            android:text="Name of Equipment"
+            android:textStyle="bold"
+            android:textColor="@color/colorText"
+            android:textSize="20sp"
+            android:ellipsize="end"
+            android:textAlignment="textStart"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/item_quantity"
+            app:layout_constraintTop_toBottomOf="@id/item_type" />
 
         <TextView
             android:id="@+id/item_di"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:layout_marginStart="20dp"
-            android:text="DI"
+            android:layout_marginStart="4dp"
+            android:text="DI: 0123456789"
+            android:textColor="@color/colorText"
             android:textSize="16sp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/item_name"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/item_name"/>
 
         <TextView
             android:id="@+id/item_quantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:text="QTY"
-            android:textSize="30sp"
+            android:text="QTY: 999"
+            android:textStyle="bold"
+            android:textColor="@color/colorText"
+            android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-
-        <TextView
-            android:id="@+id/item_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="TYPE"
-            android:textSize="15sp"
-            app:layout_constraintTop_toBottomOf="@+id/item_name"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/item_type"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

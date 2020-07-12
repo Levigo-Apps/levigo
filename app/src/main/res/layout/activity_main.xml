@@ -6,13 +6,16 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".MainActivity"
+    android:background="@color/colorBackground"
     android:id="@+id/activity_main">
 
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:title="@string/app_name"
+        app:title="Hospital Clinic Name"
+        app:titleTextColor="@color/colorText"
         android:id="@+id/main_toolbar"
+        app:subtitleTextColor="@color/colorText"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:layout_constraintTop_toTopOf="parent"/>
