@@ -79,13 +79,15 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
+            android:layout_marginTop="5dp"
+            >
 
             <AutoCompleteTextView
                 android:id="@+id/detail_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/type_lbl"
+                android:completionThreshold="1"
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -365,6 +367,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/site_location_label"
+                android:completionThreshold="1"
                  />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -381,6 +384,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/physical_location_lbl"
+                android:completionThreshold="1"
                  />
         </com.google.android.material.textfield.TextInputLayout>
 

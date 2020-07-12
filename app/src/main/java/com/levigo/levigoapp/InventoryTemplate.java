@@ -4,11 +4,6 @@ public class InventoryTemplate {
 
     private String udi;
     private boolean isUsed;
-    private String radioButtonVal;
-    private String procedure_used;
-    private String procedure_date;
-    private String amountUsed;
-    private String patient_id;
     private String number_added;
     private String lotNumber;
     private String referenceNumber;
@@ -22,19 +17,13 @@ public class InventoryTemplate {
         // empty Constructor
     }
 
-    public InventoryTemplate(String udi, boolean isUsed, String radioButtonVal, String procedure_used,
-    String procedure_date, String amountUsed, String patient_id, String number_added,
+    public InventoryTemplate(String udi, boolean isUsed, String number_added,
     String lotNumber, String expiration, String quantity,
     String current_date_time,  String physical_location, String referenceNumber,
     String notes) {
 
         this.udi = udi;
         this.isUsed = isUsed;
-        this.radioButtonVal = radioButtonVal;
-        this.procedure_used = procedure_used;
-        this.procedure_date = procedure_date;
-        this.amountUsed = amountUsed;
-        this.patient_id = patient_id;
         this.number_added = number_added;
         this.lotNumber = lotNumber;
         this.referenceNumber = referenceNumber;
@@ -58,30 +47,6 @@ public class InventoryTemplate {
     public boolean getIsUsed(){ return isUsed;}
     public void setUsed(boolean isUsed){ this.isUsed = isUsed;}
 
-    public String getRadioButtonVal(){ return radioButtonVal;}
-    public void setRadioButtonVal(String radioButtonVal){ this.radioButtonVal = radioButtonVal;}
-
-    public String getProcedure_used() {
-        return procedure_used;
-    }
-    public void setProcedure_used(String procedure_used) {
-        this.procedure_used = procedure_used;
-    }
-
-    public String getProcedure_date() { return procedure_date; }
-    public void setProcedure_date(String procedure_date) {
-        this.procedure_date = procedure_date;
-    }
-
-    public String getAmountUsed(){ return amountUsed;}
-    public void setAmountUsed(String amountUsed){ this.amountUsed = amountUsed;}
-
-    public String getPatient_id() {
-        return patient_id;
-    }
-    public void setPatient_id(String patient_id) {
-        this.patient_id = patient_id;
-    }
 
     public String getExpiration() {
         return expiration;

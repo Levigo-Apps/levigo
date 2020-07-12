@@ -80,6 +80,7 @@ public class ItemDetailFragment extends Fragment {
     DocumentReference physLocRef = db.collection("networks").document("network1")
             .collection("sites").document("n1_hospital3")
             .collection("physical_locations").document("locations");
+    private DocumentReference udiRef;
 
     InventoryTemplate udiDocument;
 
@@ -150,6 +151,7 @@ public class ItemDetailFragment extends Fragment {
     private boolean chosenReusable;
     private boolean isAddSizeButtonClicked;
     private boolean chosenSite;
+    private boolean dropDownSelected;
     private Button autoPopulateButton;
     private RadioButton multiUse;
     private List<TextInputEditText> allPatientIds;
@@ -167,7 +169,7 @@ public class ItemDetailFragment extends Fragment {
     private final String SITE_KEY = "site_name";
     private final String SPECIALTY_KEY = "medical_specialty";
     private final String DESCRIPTION_KEY = "device_description";
-
+    private final String USAGE_KEY = "usage";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -216,6 +218,7 @@ public class ItemDetailFragment extends Fragment {
         chosenType = false;
         chosenSite = false;
         chosenLocation= false;
+        dropDownSelected = false;
         itemUsed.setChecked(false);
         saveButton.setEnabled(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
@@ -234,6 +237,8 @@ public class ItemDetailFragment extends Fragment {
         PHYSICALLOC = new ArrayList<>();
 
 
+
+
         final TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
@@ -247,8 +252,9 @@ public class ItemDetailFragment extends Fragment {
                     if(editText.getText().toString().trim().isEmpty()){
                         saveButton.setEnabled(false);
                         return;
+                    }if(dropDownSelected) {
+                        saveButton.setEnabled(true);
                     }
-                    saveButton.setEnabled(true);
                 }
             }
         };
@@ -265,6 +271,31 @@ public class ItemDetailFragment extends Fragment {
         timeIn.addTextChangedListener(textWatcher);
 
 
+        final TextWatcher textWatcherDropDown = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                saveButton.setEnabled(false);
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            @Override
+            public void afterTextChanged(Editable editable) {
+                for(AutoCompleteTextView editText : new AutoCompleteTextView[]{ equipmentType,
+                hospitalName,physicalLocation}){
+                    if(editText.getText().toString().trim().isEmpty()){
+                        System.out.println("text is:" + editText.getText().toString());
+                        saveButton.setEnabled(false);
+                        return;
+                    }
+                    dropDownSelected = true;
+                    saveButton.setEnabled(true);
+                }
+            }
+        };
+
+        equipmentType.addTextChangedListener(textWatcherDropDown);
+        hospitalName.addTextChangedListener(textWatcherDropDown);
+        physicalLocation.addTextChangedListener(textWatcherDropDown);
 
 
 
@@ -303,6 +334,14 @@ public class ItemDetailFragment extends Fragment {
         equipmentType.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String selected = (String) adapterView.getItemAtPosition(i);
+                if(selected.isEmpty()){
+                    saveButton.setEnabled(false);
+                }else{
+                    saveButton.setEnabled(true);
+                }
+
+
                 addTypeOptionField(adapterView,view,i,l);
 
             }
@@ -528,7 +567,6 @@ public class ItemDetailFragment extends Fragment {
                             }
                         }
                     };
-
                     procedureUsed.addTextChangedListener(textWatcher);
                     procedureDate.addTextChangedListener(textWatcher);
                     amountUsed.addTextChangedListener(textWatcher);
@@ -881,6 +919,36 @@ public class ItemDetailFragment extends Fragment {
         String name_str = nameEditText.getText().toString();
         String type_str = equipmentType.getText().toString();
         String company_str = company.getText().toString();
+        String medical_speciality_str = medicalSpeciality.getText().toString();
+        String di_str = deviceIdentifier.getText().toString();
+        String description_str = deviceDescription.getText().toString();
+        String lotNumber_str = lotNumber.getText().toString();
+        String referenceNumber_str = referenceNumber.getText().toString();
+        String expiration_str = expiration.getText().toString();
+        String number_added_str = numberAdded.getText().toString();
+        int quantity_int;
+        // TODO remove??
+        if(itemUsed.isChecked()){
+            //     quantity_int = Integer.parseInt(quantity.getText().toString()) - Integer.parseInt(numberUsed.getText().toString());
+        } else {
+            //        quantity_int = Integer.parseInt(quantity.getText().toString()) + Integer.parseInt(numberAdded.getText().toString());
+        }
+        String quantity_str = "2"; // temporarily
+        String site_name_str = "";
+        if(chosenSite){
+            site_name_str = otherSite_text.getText().toString();
+        }else{
+            site_name_str = hospitalName.getText().toString();
+        }
+        String physical_location_str = "";
+        if(chosenLocation){
+            physical_location_str = otherPhysicalLoc_text.getText().toString().trim();
+        }else{
+            physical_location_str = physicalLocation.getText().toString().trim();
+        }
+        String currentDateTime_str = timeIn.getText().toString();
+        String notes_str = notes.getText().toString();
+
 
         // getting radiobutton value
         boolean isUsed = itemUsed.isChecked();
@@ -893,34 +961,6 @@ public class ItemDetailFragment extends Fragment {
             singleOrMultiUse = "";
         }
 
-        //if used
-        String procedure_used_str = procedureUsed.getText().toString();
-        String procedure_date_str = procedureDate.getText().toString();
-        String amount_used_str = amountUsed.getText().toString();
-        String patient_id_str = patient_idDefault.getText().toString();
-        String number_added_str = numberAdded.getText().toString();
-        String medical_speciality_str = medicalSpeciality.getText().toString();
-        String di_str = deviceIdentifier.getText().toString();
-        String description_str = deviceDescription.getText().toString();
-        String lotNumber_str = lotNumber.getText().toString();
-        String referenceNumber_str = referenceNumber.getText().toString();
-        String expiration_str = expiration.getText().toString();
-
-
-        int quantity_int;
-
-        // TODO remove??
-        if(itemUsed.isChecked()){
-            //     quantity_int = Integer.parseInt(quantity.getText().toString()) - Integer.parseInt(numberUsed.getText().toString());
-        } else {
-            //        quantity_int = Integer.parseInt(quantity.getText().toString()) + Integer.parseInt(numberAdded.getText().toString());
-        }
-        String quantity_str = "2"; // temporarily
-        String site_name_str = hospitalName.getText().toString();
-        String physical_location_str = physicalLocation.getText().toString();
-        String currentDateTime_str = timeIn.getText().toString();
-        String notes_str = notes.getText().toString();
-
 
        // saving di-specific identifiers using HashMap
         Map<String, Object> diDoc = new HashMap<>();
@@ -931,6 +971,7 @@ public class ItemDetailFragment extends Fragment {
         diDoc.put(SITE_KEY,site_name_str);
         diDoc.put(DESCRIPTION_KEY,description_str);
         diDoc.put(SPECIALTY_KEY,medical_speciality_str);
+        diDoc.put(USAGE_KEY,singleOrMultiUse);
         DocumentReference diRef = db.collection(NETWORKS).document(NETWORK)
                 .collection(SITES).document(SITE).collection(DEPARTMENTS)
                 .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str);
@@ -950,12 +991,10 @@ public class ItemDetailFragment extends Fragment {
         });
 
         // saving udi-specific identifiers using InventoryTemplate class to store multiple items at once
-       udiDocument = new InventoryTemplate(barcode_str,isUsed,singleOrMultiUse,procedure_used_str,
-                procedure_date_str, amount_used_str,patient_id_str, number_added_str,lotNumber_str,
+       udiDocument = new InventoryTemplate(barcode_str,isUsed, number_added_str,lotNumber_str,
                 expiration_str, quantity_str,currentDateTime_str,physical_location_str,referenceNumber_str, notes_str);
 
-
-        DocumentReference udiRef = db.collection(NETWORKS).document(NETWORK)
+        udiRef = db.collection(NETWORKS).document(NETWORK)
         .collection(SITES).document(SITE).collection(DEPARTMENTS)
         .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str)
                 .collection("UDIs").document(barcode_str);
@@ -977,6 +1016,42 @@ public class ItemDetailFragment extends Fragment {
                         Log.d(TAG, e.toString());
                     }
                 });
+
+        //if item is used
+        if(itemUsed.isChecked()){
+
+            String procedure_used_str = procedureUsed.getText().toString();
+            String procedure_date_str = procedureDate.getText().toString();
+            String amount_used_str = amountUsed.getText().toString();
+            String patient_id_str = patient_idDefault.getText().toString();
+
+
+
+            Map<String, Object> ifUsedFields = new HashMap<>();
+            ifUsedFields.put("procedure_used",procedure_used_str);
+            ifUsedFields.put("procedure_date",procedure_date_str);
+            ifUsedFields.put("amount_used",amount_used_str);
+            ifUsedFields.put("patient_id",patient_id_str);
+
+            udiRef.update(ifUsedFields)
+                    //in case of success
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    // in case of failure
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, e.toString());
+                        }
+                    });
+
+
+        }
 
 
         // HashMap for additional patient ids if chosen reusable
@@ -1026,7 +1101,8 @@ public class ItemDetailFragment extends Fragment {
     }
 
 
-    public void autoPopulate() {
+
+        public void autoPopulate() {
 
         String udi = udiEditText.getText().toString();
         Log.d(TAG, udi);
