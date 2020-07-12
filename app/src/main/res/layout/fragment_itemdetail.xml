@@ -50,7 +50,7 @@
                 android:id="@+id/detail_udi"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="UDI/Barcode" />
+                android:hint="@string/udi_barcode_lbl" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
@@ -58,7 +58,7 @@
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Autopopulate" />
+            android:text="@string/autopopulate_lbl" />
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -71,7 +71,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/name_lbl"
-                android:text="" />
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -86,7 +86,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/type_lbl"
-                android:text="" />
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -100,7 +100,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/company_lbl"
-                android:text="" />
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -213,7 +213,7 @@
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Add Patient ID"
+                android:text="@string/add_patient_id_lbl"
                 android:visibility="gone">
 
             </com.google.android.material.button.MaterialButton>
@@ -223,7 +223,7 @@
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Remove Patient ID"
+                android:text="@string/remove_patient_id_lbl"
                 android:visibility="gone">
 
             </com.google.android.material.button.MaterialButton>
@@ -241,7 +241,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/number_added_label"
-                android:text="" />
+               />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -254,8 +254,8 @@
                 android:id="@+id/detail_medical_speciality"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Medical Speciality"
-                android:text="" />
+                android:hint="@string/medical_speciality_lbl"
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -269,7 +269,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/device_identifier_lbl"
-                android:text="" />
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -282,8 +282,8 @@
                 android:id="@+id/detail_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Device Description"
-                android:text="" />
+                android:hint="@string/device_description_lbl"
+                 />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -297,7 +297,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/lot_number_label"
-                android:text="" />
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -311,8 +311,8 @@
                 android:id="@+id/detail_reference_number"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Reference Number"
-                android:text="" />
+                android:hint="@string/reference_number_lbl"
+                 />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -332,7 +332,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:hint="@string/expiration_date_lbl"
-                android:text="" />
+                 />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -350,7 +350,7 @@
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:hint="@string/quantity_lbl"
-                android:text="" />
+                 />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -364,8 +364,8 @@
                 android:id="@+id/detail_site_location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Site Location"
-                android:text="" />
+                android:hint="@string/site_location_label"
+                 />
         </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -380,8 +380,8 @@
                 android:id="@+id/detail_physical_location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Physical Location"
-                android:text="" />
+                android:hint="@string/physical_location_lbl"
+                 />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -400,8 +400,8 @@
                 android:layout_height="wrap_content"
                 android:clickable="true"
                 android:focusable="true"
-                android:hint="Date In"
-                android:text="" />
+                android:hint="@string/date_in_lbl"
+                 />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -421,18 +421,17 @@
                 android:cursorVisible="false"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
-                android:hint="Time In"
-                android:text="" />
+                android:hint="@string/time_in_lbl"
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:id="@+id/detail_specs_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_columnSpan="2"
             android:layout_gravity="fill_horizontal|center_vertical"
-            android:gravity="center"
-            android:text="Specifications"
+            android:gravity="start"
+            android:text="@string/specifications_label"
             android:textSize="18sp" />
 
         <Button
@@ -440,8 +439,7 @@
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_columnSpan="2"
-            android:text="Add Size Field" />
+            android:text="@string/add_size_field_lbl" />
 
 
         <com.google.android.material.textfield.TextInputLayout
@@ -454,8 +452,7 @@
                 android:id="@+id/detail_notes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/notes_lbl"
-                android:text="" />
+                android:hint="@string/notes_lbl" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -484,7 +481,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:backgroundTint="@color/colorPrimaryDark"
-                android:contentDescription="back_button"
+                android:contentDescription="@string/back_button_lbl"
                 app:srcCompat="@android:drawable/ic_menu_revert" />
 
             <Button
@@ -495,7 +492,6 @@
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="5dp"
                 android:text="@string/save_changes_lbl" />
-
 
         </RelativeLayout>
     </LinearLayout>

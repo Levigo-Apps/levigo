@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +17,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -214,6 +217,7 @@ public class ItemDetailFragment extends Fragment {
         chosenSite = false;
         chosenLocation= false;
         itemUsed.setChecked(false);
+        saveButton.setEnabled(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
         scrollView = rootView.findViewById(R.id.scrollView);
         itemUsedFields = rootView.findViewById(R.id.layout_itemused);
@@ -224,10 +228,42 @@ public class ItemDetailFragment extends Fragment {
         typeInputLayout = rootView.findViewById(R.id.typeInputLayout);
         siteLocationLayout = rootView.findViewById(R.id.siteLocationLayout);
         physLocationLayout = rootView.findViewById(R.id.physicalLocationLayout);
-        allSizeOptions = new ArrayList<TextInputEditText>();
+        allSizeOptions = new ArrayList<>();
         TYPES = new ArrayList<>();
         SITELOC = new ArrayList<>();
         PHYSICALLOC = new ArrayList<>();
+
+
+        final TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            @Override
+            public void afterTextChanged(Editable editable) {
+                for(TextInputEditText editText : new TextInputEditText[] { udiEditText,nameEditText,
+                        company, expiration,lotNumber,referenceNumber,numberAdded, deviceIdentifier,
+                        dateIn,timeIn}){
+                    if(editText.getText().toString().trim().isEmpty()){
+                        saveButton.setEnabled(false);
+                        return;
+                    }
+                    saveButton.setEnabled(true);
+                }
+            }
+        };
+
+        udiEditText.addTextChangedListener(textWatcher);
+        nameEditText.addTextChangedListener(textWatcher);
+        company.addTextChangedListener(textWatcher);
+        expiration.addTextChangedListener(textWatcher);
+        lotNumber.addTextChangedListener(textWatcher);
+        referenceNumber.addTextChangedListener(textWatcher);
+        numberAdded.addTextChangedListener(textWatcher);
+        deviceIdentifier.addTextChangedListener(textWatcher);
+        dateIn.addTextChangedListener(textWatcher);
+        timeIn.addTextChangedListener(textWatcher);
+
 
 
 
@@ -309,22 +345,8 @@ public class ItemDetailFragment extends Fragment {
         });
 
 
-        autoPopulateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                autoPopulate();
-            }
-        });
-        addSizeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addEmptySizeOption(view);
-            }
-        });
-
 
         // Dropdown menu for Physical Location field
-        // TODO save to database ( in method)
         physLocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
@@ -360,6 +382,19 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
+        autoPopulateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                autoPopulate();
+            }
+        });
+        addSizeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addEmptySizeOption(view);
+            }
+        });
+
 
 
         //TimePicker dialog pops up when clicked on the icon
@@ -373,8 +408,7 @@ public class ItemDetailFragment extends Fragment {
                 mTimePicker = new TimePickerDialog(rootView.getContext(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                        timeIn.setText(String.format(Locale.US, "%d:%d: 00 %s", selectedHour,
-                                selectedMinute, TimeZone.getDefault().getID()));
+                        timeIn.setText(String.format(Locale.US,"%d:%d:00", selectedHour, selectedMinute));
                     }
                 }, hour, minute, true);
                 mTimePicker.setTitle("Select Time");
@@ -475,10 +509,41 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
+                    saveButton.setEnabled(false);
                     itemUsedFields.setVisibility(View.VISIBLE);
+                    TextWatcher textWatcher = new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+                        @Override
+                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+                        @Override
+                        public void afterTextChanged(Editable editable) {
+                            for (TextInputEditText editText : new TextInputEditText[]{procedureUsed,
+                                    procedureDate, amountUsed, patient_idDefault}) {
+                                if (editText.getText().toString().trim().isEmpty()) {
+                                    saveButton.setEnabled(false);
+                                    return;
+                                }
+                                saveButton.setEnabled(true);
+                            }
+                        }
+                    };
+
+                    procedureUsed.addTextChangedListener(textWatcher);
+                    procedureDate.addTextChangedListener(textWatcher);
+                    amountUsed.addTextChangedListener(textWatcher);
+                    patient_idDefault.addTextChangedListener(textWatcher);
 
                 } else {
+                    // enable saveButton
+                    saveButton.setEnabled(true);
+
+                    // drop textwatchers for some fields
                     itemUsedFields.setVisibility(View.GONE);
+                    procedureUsed.removeTextChangedListener(textWatcher);
+                    procedureDate.removeTextChangedListener(textWatcher);
+                    amountUsed.removeTextChangedListener(textWatcher);
+                    patient_idDefault.removeTextChangedListener(textWatcher);
                 }
             }
         });
@@ -534,6 +599,7 @@ public class ItemDetailFragment extends Fragment {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //   b.setEnabled(!s1.trim().isEmpty() && !s2.trim().isEmpty());
                 saveData(rootView, "networks", "network1","sites",
                         "n1_hospital3","n1_h3_departments",
                         "department1","n1_h1_d1 productids");

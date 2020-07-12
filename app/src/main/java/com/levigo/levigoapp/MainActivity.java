@@ -63,23 +63,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         inventoryScroll = findViewById(R.id.inventoryScroll);
         mAdd = findViewById(R.id.main_add);
-
         inventoryScroll.setHasFixedSize(true);
-
         mAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startScanner();
             }
         });
-
-
         Toolbar mToolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(mToolbar);
-
         getPermissions();
         initInventory();
     }

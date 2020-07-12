@@ -18,7 +18,6 @@
     <string name="title_activity_tabbed_scanning">Add Inventory</string>
     <string name="physical_location_label">Physical Location</string>
     <string name="hospital_name_label">Hospital Name</string>
-    <string name="physical_location_lbl">Physical Location</string>
     <string name="hospital_lbl">Hospital</string>
     <string name="notes_lbl">Notes</string>
     <string name="additional_remarks_lbl">Additional Remarks</string>
@@ -77,5 +76,19 @@
     <string name="lot_number_label">Lot Number</string>
     <string name="submitLocation_lbl">Submit physical location</string>
     <string name="submitSite_lbl">Submit site</string>
+    <string name="specifications_label">Specifications</string>
+    <string name="udi_barcode_lbl">UDI/Barcode</string>
+    <string name="time_in_lbl">Time In</string>
+    <string name="date_in_lbl">Date In</string>
+    <string name="autopopulate_lbl">Autopopulate</string>
+    <string name="add_patient_id_lbl">Add Patient ID</string>
+    <string name="physical_location_lbl">Physical Location</string>
+    <string name="add_size_field_lbl">Add Size Field</string>
+    <string name="site_location_label">Site Location</string>
+    <string name="reference_number_lbl">Reference Number</string>
+    <string name="medical_speciality_lbl">Medical Speciality</string>
+    <string name="remove_patient_id_lbl">Remove Patient ID</string>
+    <string name="device_description_lbl">Device Description</string>
+    <string name="back_button_lbl">back_button</string>
 
 </resources>
