@@ -72,7 +72,12 @@ public class ItemDetailFragment extends Fragment {
     // Firebase database
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     DocumentReference typeRef = db.collection("networks").document("types");
-    DocumentReference siteRef = db.collection("networks").document("sites");
+    DocumentReference siteRef = db.collection("networks").document("network1")
+            .collection("sites").document("site_options");
+    DocumentReference physLocRef = db.collection("networks").document("network1")
+            .collection("sites").document("n1_hospital3")
+            .collection("physical_locations").document("locations");
+
     InventoryTemplate udiDocument;
 
     private static final String TAG = ItemDetailFragment.class.getSimpleName();
@@ -108,6 +113,7 @@ public class ItemDetailFragment extends Fragment {
     private TextInputLayout expirationTextLayout;
     private TextInputLayout dateInLayout;
     private TextInputLayout siteLocationLayout;
+    private TextInputLayout physLocationLayout;
     private TextInputEditText medicalSpeciality;
     private TextInputLayout timeInLayout;
     private TextInputLayout typeInputLayout;
@@ -135,6 +141,7 @@ public class ItemDetailFragment extends Fragment {
     private int emptySizeFieldCounter = 0;
     private int typeCounter;
     private int siteCounter;
+    private int locCounter;
     private boolean chosenType;
     private boolean chosenLocation;
     private boolean chosenReusable;
@@ -145,7 +152,8 @@ public class ItemDetailFragment extends Fragment {
     private List<TextInputEditText> allPatientIds;
     private List<TextInputEditText> allSizeOptions;
     private ArrayList<String> TYPES;
-    private  ArrayList<String> SITELOC;
+    private ArrayList<String> SITELOC;
+    private ArrayList<String> PHYSICALLOC;
 
 
     // firebase key labels
@@ -204,6 +212,7 @@ public class ItemDetailFragment extends Fragment {
         chosenReusable = false;
         chosenType = false;
         chosenSite = false;
+        chosenLocation= false;
         itemUsed.setChecked(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
         scrollView = rootView.findViewById(R.id.scrollView);
@@ -214,9 +223,11 @@ public class ItemDetailFragment extends Fragment {
         specsTextView = rootView.findViewById(R.id.detail_specs_textview);
         typeInputLayout = rootView.findViewById(R.id.typeInputLayout);
         siteLocationLayout = rootView.findViewById(R.id.siteLocationLayout);
+        physLocationLayout = rootView.findViewById(R.id.physicalLocationLayout);
         allSizeOptions = new ArrayList<TextInputEditText>();
         TYPES = new ArrayList<>();
         SITELOC = new ArrayList<>();
+        PHYSICALLOC = new ArrayList<>();
 
 
 
@@ -314,63 +325,38 @@ public class ItemDetailFragment extends Fragment {
 
         // Dropdown menu for Physical Location field
         // TODO save to database ( in method)
-        final ArrayList<String> PHYSICALLOC = new ArrayList<>(Arrays.asList("Room", "Box", "Shelf", "Other"));
-        Collections.sort(PHYSICALLOC);
+        physLocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    Map<String, Object> typeObj = documentSnapshot.getData();
+                    locCounter = typeObj.size();
+                    for(Object value : typeObj.values()) {
+                        if(!PHYSICALLOC.contains(value.toString())) {
+                            PHYSICALLOC.add(value.toString());
+                        }
+                        Collections.sort(PHYSICALLOC);
+                    }
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
 
-        final ArrayAdapter<String> adapter1 =
+        final ArrayAdapter<String> adapterLoc =
                 new ArrayAdapter<>(
                         rootView.getContext(),
                         R.layout.dropdown_menu_popup_item,
                         PHYSICALLOC);
-
-        @SuppressLint("CutPasteId") final AutoCompleteTextView physicalloc_dropDown =
-                rootView.findViewById(R.id.detail_physical_location);
-        physicalloc_dropDown.setAdapter(adapter1);
-
-        physicalloc_dropDown.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        physicalLocation.setAdapter(adapterLoc);
+        physicalLocation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String selectedOther = (String) adapterView.getItemAtPosition(i);
-                final TextInputLayout other_physicaloc_layout;
-                if (selectedOther.equals("Other")) {
-                    chosenLocation = true;
-                    other_physicaloc_layout = new TextInputLayout(rootView.getContext(), null,
-                            R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
-                    other_physicaloc_layout.setHint("Enter physical location");
-                    other_physicaloc_layout.setId(View.generateViewId());
-                    other_physicaloc_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-                    otherPhysicalLoc_text = new TextInputEditText(other_physicaloc_layout.getContext());
-                    otherPhysicalLoc_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
-                    other_physicaloc_layout.addView(otherPhysicalLoc_text);
-                    linearLayout.addView(other_physicaloc_layout, 1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
-
-                    submit_otherPhysicalLoc = new MaterialButton(rootView.getContext(),
-                            null, R.attr.materialButtonOutlinedStyle);
-                    submit_otherPhysicalLoc.setText(R.string.submitLocation_lbl);
-                    submit_otherPhysicalLoc.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-                            WRAP_CONTENT));
-                    linearLayout.addView(submit_otherPhysicalLoc, 2 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
-
-                    submit_otherPhysicalLoc.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Toast.makeText(rootView.getContext(), otherPhysicalLoc_text.getText().toString(), Toast.LENGTH_SHORT).show();
-                            PHYSICALLOC.add(otherPhysicalLoc_text.getText().toString());
-                            System.out.println(Arrays.toString(PHYSICALLOC.toArray()));
-                            ArrayAdapter<String> adapter_new =
-                                    new ArrayAdapter<>(
-                                            rootView.getContext(),
-                                            R.layout.dropdown_menu_popup_item,
-                                            PHYSICALLOC);
-                            physicalloc_dropDown.setAdapter(adapter_new);
-
-                        }
-                    });
-                }else if (chosenLocation && (!(selectedOther.equals("Other")))) {
-                    chosenLocation = false;
-                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
-                    linearLayout.removeViewAt(1 + linearLayout.indexOfChild(rootView.findViewById(R.id.physicalLocationLayout)));
-                }
+                addNewLoc(adapterView,view,i,l);
             }
         });
 
@@ -766,6 +752,58 @@ public class ItemDetailFragment extends Fragment {
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(siteLocationLayout));
         }
     }
+
+    private void addNewLoc(final AdapterView<?> adapterView, View view, int i, long l){
+        String selectedLoc = (String) adapterView.getItemAtPosition(i);
+        final TextInputLayout other_physicaloc_layout;
+        if (selectedLoc.equals("Other")) {
+            chosenLocation = true;
+            other_physicaloc_layout = (TextInputLayout) this.getLayoutInflater().inflate(R.layout.activity_itemdetail_materialcomponent,
+                    null, false);
+            other_physicaloc_layout.setHint("Enter physical location");
+            other_physicaloc_layout.setId(View.generateViewId());
+            other_physicaloc_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+            otherPhysicalLoc_text = new TextInputEditText(other_physicaloc_layout.getContext());
+            otherPhysicalLoc_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
+            other_physicaloc_layout.addView(otherPhysicalLoc_text);
+            linearLayout.addView(other_physicaloc_layout, 1 + linearLayout.indexOfChild(physLocationLayout));
+
+            submit_otherPhysicalLoc = new MaterialButton(view.getContext(),
+                    null, R.attr.materialButtonOutlinedStyle);
+            submit_otherPhysicalLoc.setText(R.string.submitLocation_lbl);
+            submit_otherPhysicalLoc.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
+                    WRAP_CONTENT));
+            linearLayout.addView(submit_otherPhysicalLoc, 2 + linearLayout.indexOfChild(physLocationLayout));
+
+            submit_otherPhysicalLoc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(view.getContext(), otherPhysicalLoc_text.getText().toString(), Toast.LENGTH_SHORT).show();
+                    Map<String, Object> newType = new HashMap<>();
+                    newType.put("loc_" + locCounter, otherPhysicalLoc_text.getText().toString());
+                    physLocRef.update(newType)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
+                                    Log.d(TAG, e.toString());
+                                }
+                            });
+                }
+            });
+        }else if (chosenLocation && (!(selectedLoc.equals("Other")))) {
+            chosenLocation = false;
+            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(physLocationLayout));
+            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(physLocationLayout));
+        }
+    }
+
 
     // method for saving data to firebase cloud firestore
     public void saveData(View view, String NETWORKS, String NETWORK, String SITES, String SITE,

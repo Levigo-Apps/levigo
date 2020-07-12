@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
-    private CollectionReference inventoryRef = levigoDb.collection("networks/network1/sites/n1_hospital1/n1_h1_departments/department1/n1_h1_d1_productids");
+    private CollectionReference inventoryRef = levigoDb.collection("networks/network1/sites/n1_hospital3/n1_h3_departments/department1/n1_h1_d1 productids");
 
     private RecyclerView inventoryScroll ;
     private RecyclerView.Adapter iAdapter ;
