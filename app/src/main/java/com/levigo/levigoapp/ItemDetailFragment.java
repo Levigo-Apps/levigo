@@ -750,6 +750,7 @@ public class ItemDetailFragment extends Fragment {
         allSizeOptions.add(sizeValue);
         linearLayout.addView(gridLayoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
         rowIndex++;
+        System.out.println("row index is " + rowIndex);
         if (isAddSizeButtonClicked) {
             removeSizeButton = new MaterialButton(view.getContext(),
                     null, R.attr.materialButtonOutlinedStyle);
@@ -762,7 +763,7 @@ public class ItemDetailFragment extends Fragment {
         removeSizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                rowLoc--;
+
                 removeEmptySizeOption(view);
 
             }
@@ -770,12 +771,12 @@ public class ItemDetailFragment extends Fragment {
         isAddSizeButtonClicked = false;
 
     }
-
     //removes one row of size text entry
     private void removeEmptySizeOption(View view) {
         if (emptySizeFieldCounter > 0) {
-            linearLayout.removeViewAt(linearLayout.indexOfChild(specsTextView) + 1);
+            linearLayout.removeViewAt(linearLayout.indexOfChild(specsTextView) + --rowLoc);
             emptySizeFieldCounter--;
+            System.out.println("row loc is :" + rowLoc);
 
         }
         if (emptySizeFieldCounter == 0) {
@@ -788,6 +789,54 @@ public class ItemDetailFragment extends Fragment {
         System.out.println(allSizeOptions.size());
 
     }
+    private void addItemSpecs(String key,String value, View view){
+        Log.d(TAG, "Adding item specs!");
+        GridLayout gridLayoutSize = new GridLayout(view.getContext());
+        GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
+        paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        paramSizeKey.width = WRAP_CONTENT;
+        paramSizeKey.rowSpec = GridLayout.spec(rowIndex);
+        paramSizeKey.columnSpec = GridLayout.spec(0);
+        paramSizeKey.setMargins(0, 0, 0, 20);
+
+
+        GridLayout.LayoutParams paramSizeValue = new GridLayout.LayoutParams();
+        paramSizeValue.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        paramSizeValue.width = WRAP_CONTENT;
+        paramSizeValue.rowSpec = GridLayout.spec(rowIndex);
+        paramSizeValue.columnSpec = GridLayout.spec(1);
+        paramSizeValue.setMargins(10, 0, 0, 20);
+
+
+        TextInputLayout sizeKeyLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        sizeKeyLayout.setLayoutParams(paramSizeKey);
+        sizeKeyLayout.setHint("Key");
+        TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
+        sizeKey.setText(key);
+
+        TextInputLayout sizeValueLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        sizeValueLayout.setLayoutParams(paramSizeValue);
+        sizeValueLayout.setHint("Value");
+        TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
+        sizeValue.setText(value);
+
+
+        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
+        sizeKeyLayout.addView(sizeKey);
+        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
+        sizeValueLayout.addView(sizeValue);
+        gridLayoutSize.addView(sizeKeyLayout);
+        gridLayoutSize.addView(sizeValueLayout);
+
+
+        allSizeOptions.add(sizeKey);
+        allSizeOptions.add(sizeValue);
+        linearLayout.addView(gridLayoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
+        rowIndex++;
+    }
+
 
     // adds new text field if users choose "other" for type
     private void addTypeOptionField(final AdapterView<?> adapterView, View view, int i, long l) {
@@ -841,6 +890,8 @@ public class ItemDetailFragment extends Fragment {
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeInputLayout));
         }
     }
+
+
 
     private void addNewSite(final AdapterView<?> adapterView, View view, int i, long l) {
         String selected = (String) adapterView.getItemAtPosition(i);
@@ -1241,56 +1292,6 @@ public class ItemDetailFragment extends Fragment {
         queue.add(stringRequest);
 
     }
-
-    private void addItemSpecs(String key,String value, View view){
-        Log.d(TAG, "Adding item specs!");
-        GridLayout gridLayoutSize = new GridLayout(view.getContext());
-        GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
-        paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        paramSizeKey.width = WRAP_CONTENT;
-        paramSizeKey.rowSpec = GridLayout.spec(rowIndex);
-        paramSizeKey.columnSpec = GridLayout.spec(0);
-        paramSizeKey.setMargins(0, 0, 0, 20);
-
-
-        GridLayout.LayoutParams paramSizeValue = new GridLayout.LayoutParams();
-        paramSizeValue.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        paramSizeValue.width = WRAP_CONTENT;
-        paramSizeValue.rowSpec = GridLayout.spec(rowIndex);
-        paramSizeValue.columnSpec = GridLayout.spec(1);
-        paramSizeValue.setMargins(10, 0, 0, 20);
-
-
-        TextInputLayout sizeKeyLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        sizeKeyLayout.setLayoutParams(paramSizeKey);
-        sizeKeyLayout.setHint("Key");
-        TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
-        sizeKey.setText(key);
-
-        TextInputLayout sizeValueLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        sizeValueLayout.setLayoutParams(paramSizeValue);
-        sizeValueLayout.setHint("Value");
-        TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
-        sizeValue.setText(value);
-
-
-        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
-        sizeKeyLayout.addView(sizeKey);
-        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
-        sizeValueLayout.addView(sizeValue);
-        gridLayoutSize.addView(sizeKeyLayout);
-        gridLayoutSize.addView(sizeValueLayout);
-
-
-        allSizeOptions.add(sizeKey);
-        allSizeOptions.add(sizeValue);
-        linearLayout.addView(gridLayoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
-        rowIndex++;
-
-    }
-
 
 
     private void autoPopulateFromDatabase(JSONObject udi, DocumentReference siteDocRef) {
