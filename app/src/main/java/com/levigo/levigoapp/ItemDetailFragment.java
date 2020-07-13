@@ -116,6 +116,7 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText numberAdded;
     private TextInputLayout siteLocationLayout;
     private TextInputLayout physLocationLayout;
+    private TextInputLayout diLayout;
     private TextInputEditText medicalSpeciality;
     private TextInputLayout typeInputLayout;
     private TextView specsTextView;
@@ -210,6 +211,7 @@ public class ItemDetailFragment extends Fragment {
         procedureDate = rootView.findViewById(R.id.edittext_procedure_date);
         amountUsed = rootView.findViewById(R.id.amountUsed_id);
         patient_idDefault = rootView.findViewById(R.id.patientID_id);
+        diLayout = rootView.findViewById(R.id.TextInputLayout_di);
         chosenReusable = false;
         chosenType = false;
         chosenSite = false;
@@ -232,6 +234,14 @@ public class ItemDetailFragment extends Fragment {
         PHYSICALLOC = new ArrayList<>();
 
 
+
+        // icon listener to search di in database to autopopulate di-specific fields
+        diLayout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                autoPopulateFromDatabase(view,deviceIdentifier.getText().toString().trim());
+            }
+        });
 
 
         final TextWatcher textWatcher = new TextWatcher() {
@@ -1202,6 +1212,41 @@ public class ItemDetailFragment extends Fragment {
                 }
             });
 
+        }
+
+        private void autoPopulateFromDatabase(final View view, String di){
+
+            DocumentReference diDocRef = db.collection("networks").document("network1")
+                    .collection("sites").document("n1_hospital3")
+                    .collection("n1_h3_departments").document("department1")
+                    .collection("n1_h1_d1 productids").document(di);
+
+            diDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            quantity.setText("0");
+                            company.setText(document.getString("company"));
+                            deviceDescription.setText(document.getString("device_description"));
+                            equipmentType.setText(document.getString("equipment_type"));
+                            medicalSpeciality.setText(document.getString("medical_specialty"));
+                            nameEditText.setText(document.getString("name"));
+                            hospitalName.setText(document.getString("site_name"));
+                            hospitalName.setText(document.getString("usage"));
+                        } else {
+                            Toast.makeText(view.getContext(), "Equipment has not found", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Document does not exist!");
+                        }
+                    } else {
+                        Toast.makeText(view.getContext(), "Equipment has not found", Toast.LENGTH_SHORT).show();
+                        itemQuantity = "0";
+                        quantity.setText("0");
+                        Log.d(TAG, "Failed with: ", task.getException());
+                    }
+                }
+            });
 
 
         }

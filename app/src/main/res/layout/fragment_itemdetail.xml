@@ -64,6 +64,28 @@
             android:text="@string/autopopulate_lbl" />
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/TextInputLayout_di"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            app:endIconDrawable="@drawable/search"
+            app:endIconMode="custom"
+            app:endIconTint="@color/colorPrimary"
+            app:helperText="* Required"
+            app:helperTextEnabled="true"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_di"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:hint="@string/device_identifier_lbl" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -289,22 +311,7 @@
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            app:helperTextEnabled="true"
-            app:helperText="* Required"
-            app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/detail_di"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/device_identifier_lbl"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
