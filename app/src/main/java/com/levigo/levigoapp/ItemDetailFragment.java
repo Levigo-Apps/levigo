@@ -679,7 +679,7 @@ public class ItemDetailFragment extends Fragment {
         assert getArguments() != null;
         String barcode = getArguments().getString("barcode");
         udiEditText.setText(barcode);
-        //TODO bug: attempts to autopop if open scanner -> close without scanning -> open fragment
+        //TODO bug: attempts to autopop when launching fragment with or without scan
         Log.d(TAG, "AUTOPOPULATING NOW, barcode: " + barcode);
         autoPopulate(siteDocRef);
         return rootView;
@@ -1184,6 +1184,37 @@ public class ItemDetailFragment extends Fragment {
                             referenceNumber.setText(deviceInfo.getString("catalogNumber"));
                             medicalSpeciality.setText(medicalSpecialties);
                             numberAdded.setText(deviceInfo.getString("deviceCount"));
+
+                            JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
+
+                            for (int i = 0; i < deviceSizeArray.length(); ++i){
+                                String k;
+                                String v;
+                                JSONObject currentSizeObject = deviceSizeArray.getJSONObject(i);
+                                k = currentSizeObject.getString("sizeType");
+                                Log.d(TAG, "KEY: " + k);
+                                if (k.equals("Device Size Text, specify")){
+                                    String customSizeText = currentSizeObject.getString("sizeText");
+                                    k = customSizeText.split("[0-9]+")[0];
+
+                                    // needs remember the cutoff to retrieve the rest of the string
+                                    int cutoff = k.length();
+                                    // take off trailing whitespace
+                                    k = k.substring(0, k.length() - 1);
+
+                                    v = customSizeText.substring(cutoff);
+                                    Log.d(TAG, "Custom Key: " + k);
+                                    Log.d(TAG, "Custom Value: " + v);
+
+                                } else {
+                                    v = currentSizeObject.getJSONObject("size").getString("value")
+                                            + " "
+                                            + currentSizeObject.getJSONObject("size").getString("unit");
+                                    Log.d(TAG, "Value: " + v);
+                                }
+                                // TODO Davit can you overload the create size options field to create two fields with values filled in?
+                            }
+
 
 //                            int currentQuantity;
 //                            DocumentReference diTemp = siteDocRef.collection("n1_h3_departments").document("department1")
