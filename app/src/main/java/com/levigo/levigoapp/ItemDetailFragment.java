@@ -3,6 +3,7 @@ package com.levigo.levigoapp;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.text.Editable;
@@ -21,6 +22,7 @@ import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
@@ -28,6 +30,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -121,6 +124,8 @@ public class ItemDetailFragment extends Fragment {
     private TextInputLayout siteLocationLayout;
     private TextInputLayout physLocationLayout;
     private TextInputLayout diLayout;
+    private TextInputLayout numberAddedLayout;
+    private TextInputLayout  amountUsedLayout;
     private TextInputEditText medicalSpeciality;
     private TextInputLayout typeInputLayout;
     private TextView specsTextView;
@@ -226,10 +231,12 @@ public class ItemDetailFragment extends Fragment {
         procedureUsed = rootView.findViewById(R.id.edittext_procedure_used);
         procedureDate = rootView.findViewById(R.id.edittext_procedure_date);
         amountUsed = rootView.findViewById(R.id.amountUsed_id);
+        amountUsedLayout = rootView.findViewById(R.id.amountUsed);
         patient_idDefault = rootView.findViewById(R.id.patientID_id);
         diLayout = rootView.findViewById(R.id.TextInputLayout_di);
         singleUseButton = rootView.findViewById(R.id.RadioButton_single);
         multiUse = rootView.findViewById(R.id.radio_multiuse);
+        numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
         chosenReusable = false;
         chosenType = false;
         chosenSite = false;
@@ -249,6 +256,38 @@ public class ItemDetailFragment extends Fragment {
         TYPES = new ArrayList<>();
         SITELOC = new ArrayList<>();
         PHYSICALLOC = new ArrayList<>();
+
+        // NumberPicker Dialog for NumberAdded field
+        numberAdded.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showNumberPicker(rootView,numberAdded);
+            }
+        });
+        // NumberPicker Dialog for AmountUsed field
+        amountUsed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showNumberPicker(rootView,amountUsed);
+
+            }
+        });
+
+        // incrementing number by 1 when clicked on the end icon
+        numberAddedLayout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                incrementNumberAdded(rootView);
+            }
+        });
+        // incrementing number by 1 when clicked on the end icon
+        amountUsedLayout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                incrementNumberUsed(rootView);
+            }
+        });
+
 
 
         // icon listener to search di in database to autopopulate di-specific fields
@@ -681,6 +720,60 @@ public class ItemDetailFragment extends Fragment {
         String barcode = getArguments().getString("barcode");
         udiEditText.setText(barcode);
         return rootView;
+    }
+
+    private void incrementNumberUsed(View view){
+        int newNumber = 0;
+        try {
+            newNumber = Integer.parseInt(Objects.requireNonNull(amountUsed.getText()).toString());
+        }catch (NumberFormatException e){
+            newNumber = 0;
+        }finally {
+            amountUsed.setText(String.valueOf(++newNumber));
+        }
+    }
+
+    private void incrementNumberAdded(View view){
+        int newNumber = 0;
+        try {
+            newNumber = Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
+        }catch (NumberFormatException e){
+            newNumber = 0;
+        }finally {
+            numberAdded.setText(String.valueOf(++newNumber));
+        }
+    }
+
+
+    private void showNumberPicker(View view, final TextInputEditText editTextAdded){
+
+        final Dialog d = new Dialog(view.getContext());
+        d.setTitle("NumberPicker");
+        d.setContentView(R.layout.dialog);
+        Button b1 = (Button) d.findViewById(R.id.button1);
+        Button b2 = (Button) d.findViewById(R.id.button2);
+        final NumberPicker np = (NumberPicker) d.findViewById(R.id.numberPicker1);
+        np.setMaxValue(1000); // max value 100
+        np.setMinValue(0);   // min value 0
+
+        np.setWrapSelectorWheel(true);
+        b1.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                editTextAdded.setText(String.valueOf(np.getValue())); //set the value to textview
+                d.dismiss();
+            }
+        });
+        b2.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                d.dismiss(); // dismiss the dialog
+            }
+        });
+        d.show();
+
     }
 
     // TODO update to uniform style

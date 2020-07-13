@@ -91,5 +91,7 @@
     <string name="device_description_lbl">Device Description</string>
     <string name="back_button_lbl">back_button</string>
     <string name="removeSize_label">Remove size field</string>
+    <string name="setButton_label">Set</string>
+    <string name="cancelButton_label">Cancel</string>
 
 </resources>
