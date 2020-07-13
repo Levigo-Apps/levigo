@@ -38,8 +38,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
@@ -80,7 +82,6 @@ public class ItemDetailFragment extends Fragment {
     DocumentReference physLocRef = db.collection("networks").document("network1")
             .collection("sites").document("n1_hospital3")
             .collection("physical_locations").document("locations");
-    private DocumentReference udiRef;
 
     InventoryTemplate udiDocument;
 
@@ -104,7 +105,6 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText deviceDescription;
     private TextInputEditText expiration;
     private TextInputEditText quantity;
-    private TextInputEditText numberUsed;
     private TextInputEditText lotNumber;
     private TextInputEditText referenceNumber;
     private TextInputEditText amountUsed;
@@ -170,6 +170,7 @@ public class ItemDetailFragment extends Fragment {
     private final String SPECIALTY_KEY = "medical_specialty";
     private final String DESCRIPTION_KEY = "device_description";
     private final String USAGE_KEY = "usage";
+    private String itemQuantity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -195,6 +196,7 @@ public class ItemDetailFragment extends Fragment {
         medicalSpeciality = rootView.findViewById(R.id.detail_medical_speciality);
         deviceIdentifier = rootView.findViewById(R.id.detail_di);
         deviceDescription = rootView.findViewById(R.id.detail_description);
+        quantity = rootView.findViewById(R.id.detail_quantity);
         dateIn = rootView.findViewById(R.id.detail_in_date);
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
         dateIn.setText(dateFormat.format(new Date()));
@@ -705,15 +707,15 @@ public class ItemDetailFragment extends Fragment {
 
         sizeKey.setLayoutParams(new LinearLayout.LayoutParams(300, WRAP_CONTENT));
         sizeKeyLayout.addView(sizeKey);
-        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(550, WRAP_CONTENT));
+        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(560, WRAP_CONTENT));
         sizeValueLayout.addView(sizeValue);
         gridLayoutSize.addView(sizeKeyLayout);
         gridLayoutSize.addView(sizeValueLayout);
 
+
+
         allSizeOptions.add(sizeKey);
         allSizeOptions.add(sizeValue);
-        System.out.println(allSizeOptions.size());
-
         linearLayout.addView(gridLayoutSize, 1 + linearLayout.indexOfChild(specsTextView));
         rowIndex++;
         if(isAddSizeButtonClicked) {
@@ -927,13 +929,12 @@ public class ItemDetailFragment extends Fragment {
         String expiration_str = expiration.getText().toString();
         String number_added_str = numberAdded.getText().toString();
         int quantity_int;
-        // TODO remove??
         if(itemUsed.isChecked()){
-            //     quantity_int = Integer.parseInt(quantity.getText().toString()) - Integer.parseInt(numberUsed.getText().toString());
+                    quantity_int = Integer.parseInt(itemQuantity) - Integer.parseInt(amountUsed.getText().toString());
         } else {
-            //        quantity_int = Integer.parseInt(quantity.getText().toString()) + Integer.parseInt(numberAdded.getText().toString());
+                    quantity_int = Integer.parseInt(itemQuantity) + Integer.parseInt(numberAdded.getText().toString());
         }
-        String quantity_str = "2"; // temporarily
+        String quantity_str = String.valueOf(quantity_int);
         String site_name_str = "";
         if(chosenSite){
             site_name_str = otherSite_text.getText().toString();
@@ -954,11 +955,9 @@ public class ItemDetailFragment extends Fragment {
         boolean isUsed = itemUsed.isChecked();
         int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
         radioButton = view.findViewById(radioButtonInt);
-        String singleOrMultiUse;
-        try {
+        String singleOrMultiUse = "";
+        if(radioButton.isChecked()){
             singleOrMultiUse = radioButton.getText().toString();
-        } catch (NullPointerException e){
-            singleOrMultiUse = "";
         }
 
 
@@ -971,7 +970,9 @@ public class ItemDetailFragment extends Fragment {
         diDoc.put(SITE_KEY,site_name_str);
         diDoc.put(DESCRIPTION_KEY,description_str);
         diDoc.put(SPECIALTY_KEY,medical_speciality_str);
-        diDoc.put(USAGE_KEY,singleOrMultiUse);
+        if(radioButton.isChecked()) {
+            diDoc.put(USAGE_KEY, singleOrMultiUse);
+        }
         DocumentReference diRef = db.collection(NETWORKS).document(NETWORK)
                 .collection(SITES).document(SITE).collection(DEPARTMENTS)
                 .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str);
@@ -994,9 +995,9 @@ public class ItemDetailFragment extends Fragment {
        udiDocument = new InventoryTemplate(barcode_str,isUsed, number_added_str,lotNumber_str,
                 expiration_str, quantity_str,currentDateTime_str,physical_location_str,referenceNumber_str, notes_str);
 
-        udiRef = db.collection(NETWORKS).document(NETWORK)
-        .collection(SITES).document(SITE).collection(DEPARTMENTS)
-        .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str)
+        DocumentReference udiRef = db.collection(NETWORKS).document(NETWORK)
+                .collection(SITES).document(SITE).collection(DEPARTMENTS)
+                .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str)
                 .collection("UDIs").document(barcode_str);
 
         //saving data of InventoryTemplate to database
@@ -1104,12 +1105,14 @@ public class ItemDetailFragment extends Fragment {
 
         public void autoPopulate() {
 
+
         String udi = udiEditText.getText().toString();
         Log.d(TAG, udi);
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(parent);
         String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
+          //  final String[] di = {""};
 
         url = url + udi;
 
@@ -1139,11 +1142,14 @@ public class ItemDetailFragment extends Fragment {
                             company.setText(deviceInfo.getString("companyName"));
                             expiration.setText(udi.getString("expirationDate"));
 
+                             ;
                             deviceIdentifier.setText(udi.getString("di"));
                             nameEditText.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
                             deviceDescription.setText(deviceInfo.getString("deviceDescription"));
                             referenceNumber.setText(deviceInfo.getString("catalogNumber"));
                             medicalSpeciality.setText(medicalSpecialties);
+
+                            autoPopulateFromDatabase(udi);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -1158,6 +1164,43 @@ public class ItemDetailFragment extends Fragment {
 
 // Add the request to the RequestQueue.
         queue.add(stringRequest);
-    }
+
+        }
+
+        public void autoPopulateFromDatabase(JSONObject udi){
+            DocumentReference udiDocRef = null;
+            try {
+                udiDocRef = db.collection("networks").document("network1")
+                        .collection("sites").document("n1_hospital3")
+                        .collection("n1_h3_departments").document("department1")
+                        .collection("n1_h1_d1 productids").document(udi.getString("di"))
+                        .collection("UDIs").document(udi.getString("udi"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            itemQuantity = document.getString("quantity");
+                            quantity.setText(document.getString("quantity"));
+                        } else {
+                            itemQuantity = "0";
+                            Log.d(TAG, "Document does not exist!");
+                            quantity.setText("0");
+                        }
+                    } else {
+                        itemQuantity = "0";
+                        quantity.setText("0");
+                        Log.d(TAG, "Failed with: ", task.getException());
+                    }
+                }
+            });
+
+
+
+        }
 
 }

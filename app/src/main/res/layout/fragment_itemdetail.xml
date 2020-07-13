@@ -44,7 +44,10 @@
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/detail_udi"
@@ -64,7 +67,10 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
+            android:layout_marginTop="5dp"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/detail_name"
@@ -80,6 +86,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption"
             >
 
             <AutoCompleteTextView
@@ -95,7 +104,10 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
+            android:layout_marginTop="5dp"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/detail_company"
@@ -125,7 +137,8 @@
                 android:id="@+id/RadioGroup_id"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                >
 
                 <RadioButton
                     android:layout_width="wrap_content"
@@ -145,7 +158,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:hint="@string/enter_procedure_lbl"
-                app:boxBackgroundMode="outline">
+                app:boxBackgroundMode="outline"
+                app:helperTextEnabled="true"
+                app:helperText="* Required"
+                app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edittext_procedure_used"
@@ -165,7 +181,10 @@
                 app:boxBackgroundMode="outline"
                 app:endIconDrawable="@drawable/calendar"
                 app:endIconMode="custom"
-                app:endIconTint="@color/colorPrimary">
+                app:endIconTint="@color/colorPrimary"
+                app:helperTextEnabled="true"
+                app:helperText="* Required"
+                app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edittext_procedure_date"
@@ -183,7 +202,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:hint="@string/enter_amount_used_lbl"
-                app:boxBackgroundMode="outline">
+                app:boxBackgroundMode="outline"
+                app:helperTextEnabled="true"
+                app:helperText="* Required"
+                app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/amountUsed_id"
@@ -199,7 +221,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:hint="@string/enter_patient_id_lbl"
-                app:boxBackgroundMode="outline">
+                app:boxBackgroundMode="outline"
+                app:helperTextEnabled="true"
+                app:helperText="* Required"
+                app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/patientID_id"
@@ -236,13 +261,17 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
+            android:layout_marginTop="5dp"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/detail_number_added"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/number_added_label"
+
                />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -264,7 +293,10 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
+            android:layout_marginTop="5dp"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/detail_di"
@@ -292,7 +324,10 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
+            android:layout_marginTop="5dp"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/detail_lot_number"
@@ -307,7 +342,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            tools:ignore="DuplicateIds">
+            tools:ignore="DuplicateIds"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/detail_reference_number"
@@ -325,7 +363,10 @@
             android:layout_marginTop="5dp"
             app:endIconDrawable="@drawable/calendar"
             app:endIconMode="custom"
-            app:endIconTint="@color/colorPrimary">
+            app:endIconTint="@color/colorPrimary"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/detail_expiration_date"
@@ -341,7 +382,8 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
+            android:layout_marginTop="5dp"
+            >
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/detail_quantity"
@@ -360,7 +402,10 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
+            android:layout_marginTop="5dp"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
             <AutoCompleteTextView
                 android:id="@+id/detail_site_location"
@@ -377,7 +422,10 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
+            android:layout_marginTop="5dp"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
             <AutoCompleteTextView
                 android:id="@+id/detail_physical_location"
@@ -396,7 +444,10 @@
             android:layout_marginTop="5dp"
             app:endIconDrawable="@drawable/calendar"
             app:endIconMode="custom"
-            app:endIconTint="@color/colorPrimary">
+            app:endIconTint="@color/colorPrimary"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/detail_in_date"
@@ -415,7 +466,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             app:endIconDrawable="@drawable/clock"
-            app:endIconMode="custom">
+            app:endIconMode="custom"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/detail_in_time"
