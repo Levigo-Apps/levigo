@@ -679,9 +679,6 @@ public class ItemDetailFragment extends Fragment {
         assert getArguments() != null;
         String barcode = getArguments().getString("barcode");
         udiEditText.setText(barcode);
-        //TODO bug: attempts to autopop when launching fragment with or without scan
-        Log.d(TAG, "AUTOPOPULATING NOW, barcode: " + barcode);
-        autoPopulate(siteDocRef);
         return rootView;
     }
 
