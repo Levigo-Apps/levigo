@@ -84,6 +84,10 @@ public class ItemDetailFragment extends Fragment {
             .collection("sites").document("n1_hospital3")
             .collection("physical_locations").document("locations");
 
+    DocumentReference siteDocRef = db.collection("networks").document("network1")
+            .collection("sites").document("n1_hospital3");
+
+
     InventoryTemplate udiDocument;
 
     private static final String TAG = ItemDetailFragment.class.getSimpleName();
@@ -179,7 +183,6 @@ public class ItemDetailFragment extends Fragment {
     private final String UDI_KEY = "udi";
 
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -230,7 +233,7 @@ public class ItemDetailFragment extends Fragment {
         chosenReusable = false;
         chosenType = false;
         chosenSite = false;
-        chosenLocation= false;
+        chosenLocation = false;
         checkRadioButton = false;
         itemUsed.setChecked(false);
         saveButton.setEnabled(false);
@@ -248,27 +251,30 @@ public class ItemDetailFragment extends Fragment {
         PHYSICALLOC = new ArrayList<>();
 
 
-
         // icon listener to search di in database to autopopulate di-specific fields
         diLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                autoPopulateFromDatabase(view,deviceIdentifier.getText().toString().trim());
+                autoPopulateFromDatabase(view, deviceIdentifier.getText().toString().trim());
             }
         });
 
 
         final TextWatcher textWatcher = new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
             @Override
             public void afterTextChanged(Editable editable) {
-                for(TextInputEditText editText : new TextInputEditText[] { udiEditText,nameEditText,
-                        company, expiration,lotNumber,referenceNumber,numberAdded, deviceIdentifier,
-                        dateIn,timeIn}){
-                    if(Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()){
+                for (TextInputEditText editText : new TextInputEditText[]{udiEditText, nameEditText,
+                        company, expiration, lotNumber, referenceNumber, numberAdded, deviceIdentifier,
+                        dateIn, timeIn}) {
+                    if (Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()) {
                         saveButton.setEnabled(false);
                         return;
                     }
@@ -295,13 +301,16 @@ public class ItemDetailFragment extends Fragment {
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 saveButton.setEnabled(false);
             }
+
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
             @Override
             public void afterTextChanged(Editable editable) {
-                for(AutoCompleteTextView editText : new AutoCompleteTextView[]{ equipmentType,
-                hospitalName,physicalLocation}){
-                    if(editText.getText().toString().trim().isEmpty()){
+                for (AutoCompleteTextView editText : new AutoCompleteTextView[]{equipmentType,
+                        hospitalName, physicalLocation}) {
+                    if (editText.getText().toString().trim().isEmpty()) {
                         saveButton.setEnabled(false);
                         return;
                     }
@@ -312,7 +321,6 @@ public class ItemDetailFragment extends Fragment {
         equipmentType.addTextChangedListener(textWatcherDropDown);
         hospitalName.addTextChangedListener(textWatcherDropDown);
         physicalLocation.addTextChangedListener(textWatcherDropDown);
-
 
 
         // Dropdown menu for Type field
@@ -327,8 +335,8 @@ public class ItemDetailFragment extends Fragment {
                 if (documentSnapshot != null && documentSnapshot.exists()) {
                     Map<String, Object> typeObj = documentSnapshot.getData();
                     typeCounter = typeObj.size();
-                    for(Object value : typeObj.values()) {
-                        if(!TYPES.contains(value.toString())) {
+                    for (Object value : typeObj.values()) {
+                        if (!TYPES.contains(value.toString())) {
                             TYPES.add(value.toString());
                         }
                         Collections.sort(TYPES);
@@ -350,7 +358,7 @@ public class ItemDetailFragment extends Fragment {
         equipmentType.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                addTypeOptionField(adapterView,view,i,l);
+                addTypeOptionField(adapterView, view, i, l);
 
             }
         });
@@ -366,8 +374,8 @@ public class ItemDetailFragment extends Fragment {
                     Map<String, Object> typeObj = documentSnapshot.getData();
                     assert typeObj != null;
                     siteCounter = typeObj.size();
-                    for(Object value : typeObj.values()) {
-                        if(!SITELOC.contains(value.toString())) {
+                    for (Object value : typeObj.values()) {
+                        if (!SITELOC.contains(value.toString())) {
                             SITELOC.add(value.toString());
                         }
                         Collections.sort(SITELOC);
@@ -388,10 +396,9 @@ public class ItemDetailFragment extends Fragment {
         hospitalName.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                addNewSite(adapterView,view,i,l);
+                addNewSite(adapterView, view, i, l);
             }
         });
-
 
 
         // Dropdown menu for Physical Location field
@@ -406,8 +413,8 @@ public class ItemDetailFragment extends Fragment {
                     Map<String, Object> typeObj = documentSnapshot.getData();
                     assert typeObj != null;
                     locCounter = typeObj.size();
-                    for(Object value : typeObj.values()) {
-                        if(!PHYSICALLOC.contains(value.toString())) {
+                    for (Object value : typeObj.values()) {
+                        if (!PHYSICALLOC.contains(value.toString())) {
                             PHYSICALLOC.add(value.toString());
                         }
                         Collections.sort(PHYSICALLOC);
@@ -427,14 +434,14 @@ public class ItemDetailFragment extends Fragment {
         physicalLocation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                addNewLoc(adapterView,view,i,l);
+                addNewLoc(adapterView, view, i, l);
             }
         });
 
         autoPopulateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                autoPopulate();
+                autoPopulate(siteDocRef);
             }
         });
         addSizeButton.setOnClickListener(new View.OnClickListener() {
@@ -443,7 +450,6 @@ public class ItemDetailFragment extends Fragment {
                 addEmptySizeOption(view);
             }
         });
-
 
 
         //TimePicker dialog pops up when clicked on the icon
@@ -457,7 +463,7 @@ public class ItemDetailFragment extends Fragment {
                 mTimePicker = new TimePickerDialog(rootView.getContext(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                        timeIn.setText(String.format(Locale.US,"%d:%d:00", selectedHour, selectedMinute));
+                        timeIn.setText(String.format(Locale.US, "%d:%d:00", selectedHour, selectedMinute));
                     }
                 }, hour, minute, true);
                 mTimePicker.setTitle("Select Time");
@@ -521,7 +527,7 @@ public class ItemDetailFragment extends Fragment {
                     addPatient.setVisibility(View.GONE);
                     removePatient.setVisibility(View.GONE);
                     chosenReusable = false;
-                    while(patientidAdded > 0){
+                    while (patientidAdded > 0) {
                         itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addPatient) - 1);
                         patientidAdded--;
                     }
@@ -563,9 +569,13 @@ public class ItemDetailFragment extends Fragment {
 
                     TextWatcher textWatcher = new TextWatcher() {
                         @Override
-                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                        }
+
                         @Override
-                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                        }
+
                         @Override
                         public void afterTextChanged(Editable editable) {
                             for (TextInputEditText editText : new TextInputEditText[]{procedureUsed,
@@ -590,7 +600,7 @@ public class ItemDetailFragment extends Fragment {
                             View radioButton = useRadioGroup.findViewById(i);
                             int index = radioGroup.indexOfChild(radioButton);
                             System.out.println("index is" + index);
-                            if(index >= 0){
+                            if (index >= 0) {
                                 saveButton.setEnabled(true);
                             }
                         }
@@ -660,39 +670,42 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //hardcoded
-                saveData(rootView, "networks", "network1","sites",
-                        "n1_hospital3","n1_h3_departments",
-                        "department1","n1_h1_d1 productids");
+                saveData(rootView, "networks", "network1", "sites",
+                        "n1_hospital3", "n1_h3_departments",
+                        "department1", "n1_h1_d1 productids");
             }
         });
 
         assert getArguments() != null;
         String barcode = getArguments().getString("barcode");
         udiEditText.setText(barcode);
-        autoPopulate();
+        //TODO bug: attempts to autopop if open scanner -> close without scanning -> open fragment
+        Log.d(TAG, "AUTOPOPULATING NOW, barcode: " + barcode);
+        autoPopulate(siteDocRef);
         return rootView;
     }
 
     // TODO update to uniform style
     // when clicked adds one more additional field for Patient ID
-    private void addPatientIdField(View view){
+    private void addPatientIdField(View view) {
         patientidAdded++;
-        TextInputLayout patient_id_layout =(TextInputLayout) View.inflate(view.getContext(),
+        TextInputLayout patient_id_layout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
         patient_id_layout.setHint("patient ID");
-        patient_id_layout.setPadding(0,10,0,0);
+        patient_id_layout.setPadding(0, 10, 0, 0);
         patient_id_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
 
         TextInputEditText patient_id = new TextInputEditText(patient_id_layout.getContext());
         allPatientIds.add(patient_id);
         patient_id.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
         patient_id_layout.addView(patient_id);
-        itemUsedFields.addView(patient_id_layout,  itemUsedFields.indexOfChild(addPatient));
+        itemUsedFields.addView(patient_id_layout, itemUsedFields.indexOfChild(addPatient));
     }
 
     // adds new row of size text views if users clicks on a button
     int rowIndex = 1;
     int rowLoc = 1;
+
     private void addEmptySizeOption(View view) {
 
         Log.d(TAG, "Adding empty size option!");
@@ -703,7 +716,7 @@ public class ItemDetailFragment extends Fragment {
         paramSizeKey.width = WRAP_CONTENT;
         paramSizeKey.rowSpec = GridLayout.spec(rowIndex);
         paramSizeKey.columnSpec = GridLayout.spec(0);
-        paramSizeKey.setMargins(0,0,0,20);
+        paramSizeKey.setMargins(0, 0, 0, 20);
 
 
         GridLayout.LayoutParams paramSizeValue = new GridLayout.LayoutParams();
@@ -711,7 +724,7 @@ public class ItemDetailFragment extends Fragment {
         paramSizeValue.width = WRAP_CONTENT;
         paramSizeValue.rowSpec = GridLayout.spec(rowIndex);
         paramSizeValue.columnSpec = GridLayout.spec(1);
-        paramSizeValue.setMargins(10,0,0,20);
+        paramSizeValue.setMargins(10, 0, 0, 20);
 
 
         TextInputLayout sizeKeyLayout = (TextInputLayout) View.inflate(view.getContext(),
@@ -720,7 +733,7 @@ public class ItemDetailFragment extends Fragment {
         sizeKeyLayout.setHint("Key");
         TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
 
-        TextInputLayout sizeValueLayout = (TextInputLayout)View.inflate(view.getContext(),
+        TextInputLayout sizeValueLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
         sizeValueLayout.setLayoutParams(paramSizeValue);
         sizeValueLayout.setHint("Value");
@@ -735,12 +748,11 @@ public class ItemDetailFragment extends Fragment {
         gridLayoutSize.addView(sizeValueLayout);
 
 
-
         allSizeOptions.add(sizeKey);
         allSizeOptions.add(sizeValue);
         linearLayout.addView(gridLayoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
         rowIndex++;
-        if(isAddSizeButtonClicked) {
+        if (isAddSizeButtonClicked) {
             removeSizeButton = new MaterialButton(view.getContext(),
                     null, R.attr.materialButtonOutlinedStyle);
             removeSizeButton.setText(R.string.removeSize_label);
@@ -760,14 +772,15 @@ public class ItemDetailFragment extends Fragment {
         isAddSizeButtonClicked = false;
 
     }
+
     //removes one row of size text entry
-    private void removeEmptySizeOption(View view){
-        if(emptySizeFieldCounter > 0){
+    private void removeEmptySizeOption(View view) {
+        if (emptySizeFieldCounter > 0) {
             linearLayout.removeViewAt(linearLayout.indexOfChild(specsTextView) + 1);
             emptySizeFieldCounter--;
 
         }
-        if(emptySizeFieldCounter == 0){
+        if (emptySizeFieldCounter == 0) {
             linearLayout.removeViewAt(linearLayout.indexOfChild(removeSizeButton));
             isAddSizeButtonClicked = true;
         }
@@ -779,7 +792,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
     // adds new text field if users choose "other" for type
-    private void addTypeOptionField (final AdapterView < ? > adapterView, View view,int i, long l){
+    private void addTypeOptionField(final AdapterView<?> adapterView, View view, int i, long l) {
         String selected = (String) adapterView.getItemAtPosition(i);
         TextInputLayout other_type_layout = null;
         if (selected.equals("Other")) {
@@ -831,7 +844,7 @@ public class ItemDetailFragment extends Fragment {
         }
     }
 
-    private void addNewSite(final AdapterView < ? > adapterView, View view, int i, long l){
+    private void addNewSite(final AdapterView<?> adapterView, View view, int i, long l) {
         String selected = (String) adapterView.getItemAtPosition(i);
         TextInputLayout other_site_layout = null;
         if (selected.equals("Other")) {
@@ -882,7 +895,7 @@ public class ItemDetailFragment extends Fragment {
         }
     }
 
-    private void addNewLoc(final AdapterView<?> adapterView, View view, int i, long l){
+    private void addNewLoc(final AdapterView<?> adapterView, View view, int i, long l) {
         String selectedLoc = (String) adapterView.getItemAtPosition(i);
         final TextInputLayout other_physicaloc_layout;
         if (selectedLoc.equals("Other")) {
@@ -926,7 +939,7 @@ public class ItemDetailFragment extends Fragment {
                             });
                 }
             });
-        }else if (chosenLocation && (!(selectedLoc.equals("Other")))) {
+        } else if (chosenLocation && (!(selectedLoc.equals("Other")))) {
             chosenLocation = false;
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(physLocationLayout));
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(physLocationLayout));
@@ -953,24 +966,24 @@ public class ItemDetailFragment extends Fragment {
         String number_added_str = Objects.requireNonNull(numberAdded.getText()).toString();
         String currentDate_str = dateIn.getText().toString();
         int quantity_int;
-        if(itemUsed.isChecked()){
-                    quantity_int = Integer.parseInt(itemQuantity) -
-                            Integer.parseInt(Objects.requireNonNull(amountUsed.getText()).toString());
+        if (itemUsed.isChecked()) {
+            quantity_int = Integer.parseInt(itemQuantity) -
+                    Integer.parseInt(Objects.requireNonNull(amountUsed.getText()).toString());
         } else {
-                    quantity_int = Integer.parseInt(itemQuantity) +
-                            Integer.parseInt(numberAdded.getText().toString());
+            quantity_int = Integer.parseInt(itemQuantity) +
+                    Integer.parseInt(numberAdded.getText().toString());
         }
         String quantity_str = String.valueOf(quantity_int);
         String site_name_str = "";
-        if(chosenSite){
+        if (chosenSite) {
             site_name_str = Objects.requireNonNull(otherSite_text.getText()).toString();
-        }else{
+        } else {
             site_name_str = hospitalName.getText().toString();
         }
         String physical_location_str = "";
-        if(chosenLocation){
+        if (chosenLocation) {
             physical_location_str = Objects.requireNonNull(otherPhysicalLoc_text.getText()).toString().trim();
-        }else{
+        } else {
             physical_location_str = physicalLocation.getText().toString().trim();
         }
         String currentTime_str = Objects.requireNonNull(timeIn.getText()).toString();
@@ -982,44 +995,44 @@ public class ItemDetailFragment extends Fragment {
         int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
         RadioButton radioButton = view.findViewById(radioButtonInt);
         String singleOrMultiUse = "";
-        if(itemUsed.isChecked()){
+        if (itemUsed.isChecked()) {
             singleOrMultiUse = radioButton.getText().toString();
         }
 
 
-       // saving di-specific identifiers using HashMap
+        // saving di-specific identifiers using HashMap
         Map<String, Object> diDoc = new HashMap<>();
-        diDoc.put(NAME_KEY,name_str);
-        diDoc.put(TYPE_KEY,type_str);
-        diDoc.put(COMPANY_KEY,company_str);
-        diDoc.put(DI_KEY,di_str);
-        diDoc.put(SITE_KEY,site_name_str);
-        diDoc.put(DESCRIPTION_KEY,description_str);
-        diDoc.put(SPECIALTY_KEY,medical_speciality_str);
+        diDoc.put(NAME_KEY, name_str);
+        diDoc.put(TYPE_KEY, type_str);
+        diDoc.put(COMPANY_KEY, company_str);
+        diDoc.put(DI_KEY, di_str);
+        diDoc.put(SITE_KEY, site_name_str);
+        diDoc.put(DESCRIPTION_KEY, description_str);
+        diDoc.put(SPECIALTY_KEY, medical_speciality_str);
         diDoc.put(USAGE_KEY, singleOrMultiUse);
 
         DocumentReference diRef = db.collection(NETWORKS).document(NETWORK)
                 .collection(SITES).document(SITE).collection(DEPARTMENTS)
                 .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str);
         diRef.set(diDoc)
-        .addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
-            }
-        })
-        .addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, e.toString());
-            }
-        });
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, e.toString());
+                    }
+                });
 
         // saving udi-specific identifiers using InventoryTemplate class to store multiple items at once
-       udiDocument = new InventoryTemplate(barcode_str,is_used, number_added_str,lotNumber_str,
-                expiration_str, quantity_str,currentTime_str,physical_location_str,referenceNumber_str,
-               notes_str,currentDate_str);
+        udiDocument = new InventoryTemplate(barcode_str, is_used, number_added_str, lotNumber_str,
+                expiration_str, quantity_str, currentTime_str, physical_location_str, referenceNumber_str,
+                notes_str, currentDate_str);
 
         DocumentReference udiRef = db.collection(NETWORKS).document(NETWORK)
                 .collection(SITES).document(SITE).collection(DEPARTMENTS)
@@ -1045,7 +1058,7 @@ public class ItemDetailFragment extends Fragment {
                 });
 
         //if item is used
-        if(itemUsed.isChecked()){
+        if (itemUsed.isChecked()) {
 
             String procedure_used_str = Objects.requireNonNull(procedureUsed.getText()).toString();
             String procedure_date_str = Objects.requireNonNull(procedureDate.getText()).toString();
@@ -1053,12 +1066,11 @@ public class ItemDetailFragment extends Fragment {
             String patient_id_str = Objects.requireNonNull(patient_idDefault.getText()).toString();
 
 
-
             Map<String, Object> ifUsedFields = new HashMap<>();
-            ifUsedFields.put(PROCEDURE_KEY,procedure_used_str);
-            ifUsedFields.put(PROCEDUREDATE_KEY,procedure_date_str);
-            ifUsedFields.put(AMOUNTUSED_KEY,amount_used_str);
-            ifUsedFields.put(PATIENTID_KEY,patient_id_str);
+            ifUsedFields.put(PROCEDURE_KEY, procedure_used_str);
+            ifUsedFields.put(PROCEDUREDATE_KEY, procedure_date_str);
+            ifUsedFields.put(AMOUNTUSED_KEY, amount_used_str);
+            ifUsedFields.put(PATIENTID_KEY, patient_id_str);
 
             udiRef.update(ifUsedFields)
                     //in case of success
@@ -1082,7 +1094,7 @@ public class ItemDetailFragment extends Fragment {
 
 
         // HashMap for additional patient ids if chosen reusable
-        if(chosenReusable) {
+        if (chosenReusable) {
             Map<String, Object> patientIds = new HashMap<>();
             for (int i = 0; i < allPatientIds.size(); i++) {
                 patientIds.put(PATIENTID_KEY + "_" + (i + 2), allPatientIds.get(i).getText().toString());
@@ -1103,10 +1115,10 @@ public class ItemDetailFragment extends Fragment {
                     });
         }
 
-        if(allSizeOptions.size() > 0){
+        if (allSizeOptions.size() > 0) {
             int i = 0;
             Map<String, Object> sizeOptions = new HashMap<>();
-            while(i < allSizeOptions.size()){
+            while (i < allSizeOptions.size()) {
                 sizeOptions.put(allSizeOptions.get(i++).getText().toString().trim(),
                         allSizeOptions.get(i++).getText().toString().trim());
             }
@@ -1128,8 +1140,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
 
-
-        public void autoPopulate() {
+    public void autoPopulate(final DocumentReference siteDocRef) {
 
 
         String udi = udiEditText.getText().toString();
@@ -1138,7 +1149,7 @@ public class ItemDetailFragment extends Fragment {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(parent);
         String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
-          //  final String[] di = {""};
+        //  final String[] di = {""};
 
         url = url + udi;
 
@@ -1151,16 +1162,15 @@ public class ItemDetailFragment extends Fragment {
                         try {
                             responseJson = new JSONObject(response);
 
-                            Log.d(TAG, "Response: " + response);
+                            Log.d(TAG, "RESPONSE: " + response);
 
                             JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
                             JSONObject udi = responseJson.getJSONObject("udi");
                             JSONArray productCodes = responseJson.getJSONArray("productCodes");
                             String medicalSpecialties = "";
-                            for (int i = 0; i < productCodes.length(); i++){
+                            for (int i = 0; i < productCodes.length(); i++) {
                                 medicalSpecialties += productCodes.getJSONObject(i).getString("medicalSpecialty");
                                 medicalSpecialties += "; ";
-//                                Log.d(TAG, "MEDICAL SPECIALTY: " + medicalSpecialties);
                             }
                             medicalSpecialties = medicalSpecialties.substring(0, medicalSpecialties.length() - 2);
 
@@ -1168,18 +1178,22 @@ public class ItemDetailFragment extends Fragment {
                             company.setText(deviceInfo.getString("companyName"));
                             expiration.setText(udi.getString("expirationDate"));
 
-                             ;
                             deviceIdentifier.setText(udi.getString("di"));
                             nameEditText.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
                             deviceDescription.setText(deviceInfo.getString("deviceDescription"));
                             referenceNumber.setText(deviceInfo.getString("catalogNumber"));
                             medicalSpeciality.setText(medicalSpecialties);
+                            numberAdded.setText(deviceInfo.getString("deviceCount"));
+
+//                            int currentQuantity;
+//                            DocumentReference diTemp = siteDocRef.collection("n1_h3_departments").document("department1")
+//                                    .collection("n1_h1_d1 productids").document(udi.getString("di"));
 
 
                             /* right now, the function takes udi to autopopulate quantity field
                              from database; we could add any other fields that is possible to be
                             populated from database */
-                            autoPopulateFromDatabase(udi);
+                            autoPopulateFromDatabase(udi, siteDocRef);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -1195,75 +1209,77 @@ public class ItemDetailFragment extends Fragment {
 // Add the request to the RequestQueue.
         queue.add(stringRequest);
 
-        }
+    }
 
-        public void autoPopulateFromDatabase(JSONObject udi){
-            DocumentReference udiDocRef = null;
-            try {
-                udiDocRef = db.collection("networks").document("network1")
-                        .collection("sites").document("n1_hospital3")
-                        .collection("n1_h3_departments").document("department1")
-                        .collection("n1_h1_d1 productids").document(udi.getString("di"))
-                        .collection("UDIs").document(udi.getString("udi"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            itemQuantity = document.getString(QUANTITY_KEY);
-                            quantity.setText(document.getString(QUANTITY_KEY));
-                        } else {
-                            itemQuantity = "0";
-                            Log.d(TAG, "Document does not exist!");
-                        }
+    public void autoPopulateFromDatabase(JSONObject udi, DocumentReference siteDocRef) {
+        DocumentReference udiDocRef = null;
+        try {
+//            udiDocRef = db.collection("networks").document("network1")
+//                    .collection("sites").document("n1_hospital3")
+            udiDocRef = siteDocRef
+                    .collection("n1_h3_departments").document("department1")
+                    .collection("n1_h1_d1 productids").document(udi.getString("di"))
+                    .collection("UDIs").document(udi.getString("udi"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        itemQuantity = document.getString(QUANTITY_KEY);
+
                     } else {
                         itemQuantity = "0";
-                        Log.d(TAG, "Failed with: ", task.getException());
+                        Log.d(TAG, "Document does not exist!");
                     }
+                    quantity.setText(document.getString(QUANTITY_KEY));
+                } else {
+                    itemQuantity = "0";
+                    Log.d(TAG, "Failed with: ", task.getException());
                 }
-            });
+            }
+        });
 
-        }
+    }
 
-        private void autoPopulateFromDatabase(final View view, String di){
+    private void autoPopulateFromDatabase(final View view, String di) {
 
-            DocumentReference diDocRef = db.collection("networks").document("network1")
-                    .collection("sites").document("n1_hospital3")
-                    .collection("n1_h3_departments").document("department1")
-                    .collection("n1_h1_d1 productids").document(di);
+        DocumentReference diDocRef = db.collection("networks").document("network1")
+                .collection("sites").document("n1_hospital3")
+                .collection("n1_h3_departments").document("department1")
+                .collection("n1_h1_d1 productids").document(di);
 
-            diDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            quantity.setText("0");
-                            company.setText(document.getString(COMPANY_KEY));
-                            deviceDescription.setText(document.getString(DESCRIPTION_KEY));
-                            equipmentType.setText(document.getString(TYPE_KEY));
-                            medicalSpeciality.setText(document.getString(SPECIALTY_KEY));
-                            nameEditText.setText(document.getString(NAME_KEY));
-                            hospitalName.setText(document.getString(SITE_KEY));
-                            hospitalName.setText(document.getString(SINGLEORMULTI_KEY));
-                        } else {
-                            Toast.makeText(view.getContext(), "Equipment has not found", Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, "Document does not exist!");
-                        }
+        diDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        quantity.setText("0");
+                        company.setText(document.getString(COMPANY_KEY));
+                        deviceDescription.setText(document.getString(DESCRIPTION_KEY));
+                        equipmentType.setText(document.getString(TYPE_KEY));
+                        medicalSpeciality.setText(document.getString(SPECIALTY_KEY));
+                        nameEditText.setText(document.getString(NAME_KEY));
+                        hospitalName.setText(document.getString(SITE_KEY));
+                        hospitalName.setText(document.getString(SINGLEORMULTI_KEY));
                     } else {
                         Toast.makeText(view.getContext(), "Equipment has not found", Toast.LENGTH_SHORT).show();
-                        itemQuantity = "0";
-                        quantity.setText("0");
-                        Log.d(TAG, "Failed with: ", task.getException());
+                        Log.d(TAG, "Document does not exist!");
                     }
+                } else {
+                    Toast.makeText(view.getContext(), "Equipment has not found", Toast.LENGTH_SHORT).show();
+                    itemQuantity = "0";
+                    quantity.setText("0");
+                    Log.d(TAG, "Failed with: ", task.getException());
                 }
-            });
+            }
+        });
 
 
-        }
+    }
 
 }
