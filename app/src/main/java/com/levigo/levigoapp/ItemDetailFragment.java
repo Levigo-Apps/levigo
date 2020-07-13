@@ -441,7 +441,7 @@ public class ItemDetailFragment extends Fragment {
         autoPopulateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                autoPopulate(siteDocRef);
+                autoPopulate(siteDocRef,rootView);
             }
         });
         addSizeButton.setOnClickListener(new View.OnClickListener() {
@@ -584,8 +584,11 @@ public class ItemDetailFragment extends Fragment {
                                     saveButton.setEnabled(false);
                                     return;
                                 }
-
                             }
+                            if(checkRadioButton){
+                                saveButton.setEnabled(true);
+                            }
+
                         }
                     };
 
@@ -599,9 +602,8 @@ public class ItemDetailFragment extends Fragment {
                         public void onCheckedChanged(RadioGroup radioGroup, int i) {
                             View radioButton = useRadioGroup.findViewById(i);
                             int index = radioGroup.indexOfChild(radioButton);
-                            System.out.println("index is" + index);
                             if (index >= 0) {
-                                saveButton.setEnabled(true);
+                                checkRadioButton = true;
                             }
                         }
                     });
@@ -609,7 +611,6 @@ public class ItemDetailFragment extends Fragment {
                 } else {
                     // enable saveButton
                     saveButton.setEnabled(true);
-
                     // drop textwatchers for some fields
                     itemUsedFields.setVisibility(View.GONE);
                     procedureUsed.removeTextChangedListener(textWatcher);
@@ -737,9 +738,9 @@ public class ItemDetailFragment extends Fragment {
         TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
 
 
-        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(300, WRAP_CONTENT));
+        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
         sizeKeyLayout.addView(sizeKey);
-        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(560, WRAP_CONTENT));
+        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
         sizeValueLayout.addView(sizeValue);
         gridLayoutSize.addView(sizeKeyLayout);
         gridLayoutSize.addView(sizeValueLayout);
@@ -1137,7 +1138,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
 
-    public void autoPopulate(final DocumentReference siteDocRef) {
+    private void autoPopulate(final DocumentReference siteDocRef, final View view) {
 
 
         String udi = udiEditText.getText().toString();
@@ -1189,7 +1190,7 @@ public class ItemDetailFragment extends Fragment {
                                 String v;
                                 JSONObject currentSizeObject = deviceSizeArray.getJSONObject(i);
                                 k = currentSizeObject.getString("sizeType");
-                                Log.d(TAG, "KEY: " + k);
+                                Log.d(TAG, "KEYS: " + k);
                                 if (k.equals("Device Size Text, specify")){
                                     String customSizeText = currentSizeObject.getString("sizeText");
                                     // Key is usually substring before first number (e.g. "Co-Axial Introducer Needle: 17ga x 14.9cm")
@@ -1198,7 +1199,7 @@ public class ItemDetailFragment extends Fragment {
                                     // needs remember the cutoff to retrieve the rest of the string
                                     int cutoff = k.length();
                                     // take off trailing whitespace
-                                    k = k.substring(0, k.length() - 1);
+                                    k = k.substring(0, k.length() - 2);
 
                                     // Value is assumed to be the substring starting with the number
                                     v = customSizeText.substring(cutoff);
@@ -1211,12 +1212,13 @@ public class ItemDetailFragment extends Fragment {
                                             + currentSizeObject.getJSONObject("size").getString("unit");
                                     Log.d(TAG, "Value: " + v);
                                 }
+                                addItemSpecs(k,v,view);
                                 // TODO Davit can you overload the create size options field to create two fields with values filled in?
                             }
 
-//                            int currentQuantity;
-//                            DocumentReference diTemp = siteDocRef.collection("n1_h3_departments").document("department1")
-//                                    .collection("n1_h1_d1 productids").document(udi.getString("di"));
+                            int currentQuantity;
+                            DocumentReference diTemp = siteDocRef.collection("n1_h3_departments").document("department1")
+                                    .collection("n1_h1_d1 productids").document(udi.getString("di"));
 
 
                             /* right now, the function takes udi to autopopulate quantity field
@@ -1240,11 +1242,61 @@ public class ItemDetailFragment extends Fragment {
 
     }
 
-    public void autoPopulateFromDatabase(JSONObject udi, DocumentReference siteDocRef) {
+    private void addItemSpecs(String key,String value, View view){
+        Log.d(TAG, "Adding item specs!");
+        GridLayout gridLayoutSize = new GridLayout(view.getContext());
+        GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
+        paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        paramSizeKey.width = WRAP_CONTENT;
+        paramSizeKey.rowSpec = GridLayout.spec(rowIndex);
+        paramSizeKey.columnSpec = GridLayout.spec(0);
+        paramSizeKey.setMargins(0, 0, 0, 20);
+
+
+        GridLayout.LayoutParams paramSizeValue = new GridLayout.LayoutParams();
+        paramSizeValue.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        paramSizeValue.width = WRAP_CONTENT;
+        paramSizeValue.rowSpec = GridLayout.spec(rowIndex);
+        paramSizeValue.columnSpec = GridLayout.spec(1);
+        paramSizeValue.setMargins(10, 0, 0, 20);
+
+
+        TextInputLayout sizeKeyLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        sizeKeyLayout.setLayoutParams(paramSizeKey);
+        sizeKeyLayout.setHint("Key");
+        TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
+        sizeKey.setText(key);
+
+        TextInputLayout sizeValueLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        sizeValueLayout.setLayoutParams(paramSizeValue);
+        sizeValueLayout.setHint("Value");
+        TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
+        sizeValue.setText(value);
+
+
+        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
+        sizeKeyLayout.addView(sizeKey);
+        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
+        sizeValueLayout.addView(sizeValue);
+        gridLayoutSize.addView(sizeKeyLayout);
+        gridLayoutSize.addView(sizeValueLayout);
+
+
+        allSizeOptions.add(sizeKey);
+        allSizeOptions.add(sizeValue);
+        linearLayout.addView(gridLayoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
+        rowIndex++;
+
+    }
+
+
+
+    private void autoPopulateFromDatabase(JSONObject udi, DocumentReference siteDocRef) {
         DocumentReference udiDocRef = null;
         try {
-//            udiDocRef = db.collection("networks").document("network1")
-//                    .collection("sites").document("n1_hospital3")
+
             udiDocRef = siteDocRef
                     .collection("n1_h3_departments").document("department1")
                     .collection("n1_h1_d1 productids").document(udi.getString("di"))
