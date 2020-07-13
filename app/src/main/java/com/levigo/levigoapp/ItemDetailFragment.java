@@ -689,17 +689,17 @@ public class ItemDetailFragment extends Fragment {
     // when clicked adds one more additional field for Patient ID
     private void addPatientIdField(View view) {
         patientidAdded++;
-        TextInputLayout patient_id_layout = (TextInputLayout) View.inflate(view.getContext(),
+        TextInputLayout patientIdLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
-        patient_id_layout.setHint("patient ID");
-        patient_id_layout.setPadding(0, 10, 0, 0);
-        patient_id_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+        patientIdLayout.setHint("patient ID");
+        patientIdLayout.setPadding(0, 10, 0, 0);
+        patientIdLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
 
-        TextInputEditText patient_id = new TextInputEditText(patient_id_layout.getContext());
-        allPatientIds.add(patient_id);
-        patient_id.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
-        patient_id_layout.addView(patient_id);
-        itemUsedFields.addView(patient_id_layout, itemUsedFields.indexOfChild(addPatient));
+        TextInputEditText patientId = new TextInputEditText(patientIdLayout.getContext());
+        allPatientIds.add(patientId);
+        patientId.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+        patientIdLayout.addView(patientId);
+        itemUsedFields.addView(patientIdLayout, itemUsedFields.indexOfChild(addPatient));
     }
 
     // adds new row of size text views if users clicks on a button
@@ -1195,6 +1195,7 @@ public class ItemDetailFragment extends Fragment {
                                 Log.d(TAG, "KEY: " + k);
                                 if (k.equals("Device Size Text, specify")){
                                     String customSizeText = currentSizeObject.getString("sizeText");
+                                    // Key is usually substring before first number (e.g. "Co-Axial Introducer Needle: 17ga x 14.9cm")
                                     k = customSizeText.split("[0-9]+")[0];
 
                                     // needs remember the cutoff to retrieve the rest of the string
@@ -1202,6 +1203,7 @@ public class ItemDetailFragment extends Fragment {
                                     // take off trailing whitespace
                                     k = k.substring(0, k.length() - 1);
 
+                                    // Value is assumed to be the substring starting with the number
                                     v = customSizeText.substring(cutoff);
                                     Log.d(TAG, "Custom Key: " + k);
                                     Log.d(TAG, "Custom Value: " + v);
@@ -1214,7 +1216,6 @@ public class ItemDetailFragment extends Fragment {
                                 }
                                 // TODO Davit can you overload the create size options field to create two fields with values filled in?
                             }
-
 
 //                            int currentQuantity;
 //                            DocumentReference diTemp = siteDocRef.collection("n1_h3_departments").document("department1")
