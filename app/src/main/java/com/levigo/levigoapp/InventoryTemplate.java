@@ -3,36 +3,37 @@ package com.levigo.levigoapp;
 public class InventoryTemplate {
 
     private String udi;
-    private boolean isUsed;
+    private boolean is_used;
     private String number_added;
-    private String lotNumber;
-    private String referenceNumber;
+    private String lot_number;
+    private String reference_number;
     private String expiration;
     private String quantity;
-    private String current_date_time;
+    private String current_time;
     private String physical_location;
     private String notes;
+    private String current_date;
 
     public InventoryTemplate(){
         // empty Constructor
     }
 
-    public InventoryTemplate(String udi, boolean isUsed, String number_added,
-    String lotNumber, String expiration, String quantity,
-    String current_date_time,  String physical_location, String referenceNumber,
-    String notes) {
+    public InventoryTemplate(String udi, boolean is_used, String number_added,
+    String lot_number, String expiration, String quantity,
+    String current_time,  String physical_location, String reference_number,
+    String notes,String current_date) {
 
         this.udi = udi;
-        this.isUsed = isUsed;
+        this.is_used = is_used;
         this.number_added = number_added;
-        this.lotNumber = lotNumber;
-        this.referenceNumber = referenceNumber;
+        this.lot_number = lot_number;
         this.expiration = expiration;
         this.quantity = quantity;
-        this.current_date_time = current_date_time;
+        this.current_time = current_time;
         this.physical_location = physical_location;
-        this.referenceNumber = referenceNumber;
+        this.reference_number = reference_number;
         this.notes = notes;
+        this.current_date = current_date;
     }
 
 
@@ -44,9 +45,8 @@ public class InventoryTemplate {
         this.udi = udi;
     }
 
-    public boolean getIsUsed(){ return isUsed;}
-    public void setUsed(boolean isUsed){ this.isUsed = isUsed;}
-
+    public boolean getIsUsed(){ return is_used;}
+    public void setUsed(boolean is_used){ this.is_used = is_used;}
 
     public String getExpiration() {
         return expiration;
@@ -62,8 +62,8 @@ public class InventoryTemplate {
         this.quantity = quantity;
     }
 
-    public String getCurrent_date_time() { return current_date_time; }
-    public void setCurrent_date_time(String current_date_time) { this.current_date_time = current_date_time; }
+    public String getCurrent_date_time() { return current_time; }
+    public void setCurrent_date_time(String current_date_time) { this.current_time = current_date_time; }
 
     public String getPhysical_location() { return physical_location; }
     public void setPhysical_location(String physical_location) { this.physical_location = physical_location; }
@@ -75,9 +75,12 @@ public class InventoryTemplate {
     public void setNumber_added(String number_added){ this.number_added = number_added;}
 
 
-    public String getLotNumber() { return lotNumber;}
-    public void setLotNumber(String lotNumber) { this.lotNumber = lotNumber;}
+    public String getLotNumber() { return lot_number;}
+    public void setLotNumber(String lot_number) { this.lot_number = lot_number;}
 
-    public String getReferenceNumber() { return referenceNumber;}
-    public void setReferenceNumber(String referenceNumber) { this.lotNumber = lotNumber;}
+    public String getReferenceNumber() { return reference_number;}
+    public void setReferenceNumber(String reference_number) { this.reference_number = reference_number;}
+
+    public String getCurrent_date() { return current_date;}
+    public void setCurrent_date(String current_date){ this.current_date = current_date;}
 }

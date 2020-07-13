@@ -130,6 +130,8 @@ public class ItemDetailFragment extends Fragment {
     private MaterialButton removeSizeButton;
     private SwitchMaterial itemUsed;
     private RadioGroup useRadioGroup;
+    private RadioButton singleUseButton;
+    private RadioButton multiUse;
     private Button addSizeButton;
 
     private String itemQuantity;
@@ -143,7 +145,7 @@ public class ItemDetailFragment extends Fragment {
     private boolean chosenReusable;
     private boolean isAddSizeButtonClicked;
     private boolean chosenSite;
-    private boolean dropDownSelected;
+    private boolean checkRadioButton;
     private Button autoPopulateButton;
     private List<TextInputEditText> allPatientIds;
     private List<TextInputEditText> allSizeOptions;
@@ -152,7 +154,7 @@ public class ItemDetailFragment extends Fragment {
     private ArrayList<String> PHYSICALLOC;
 
 
-    // firebase key labels
+    // firebase key labels to avoid hard-coded paths
     private final String NAME_KEY = "name";
     private final String TYPE_KEY = "equipment_type";
     private final String COMPANY_KEY = "company";
@@ -165,6 +167,17 @@ public class ItemDetailFragment extends Fragment {
     private final String PROCEDUREDATE_KEY = "procedure_date";
     private final String AMOUNTUSED_KEY = "amount_used";
     private final String PATIENTID_KEY = "patient_id";
+    private final String TIME_KEY = "current_time";
+    private final String DATE_KEY = "current_date";
+    private final String EXPIRATION_KEY = "expiration";
+    private final String ISUSED_KEY = "is_used";
+    private final String LOT_KEY = "lot_number";
+    private final String NOTE_KEY = "notes";
+    private final String QUANTITY_KEY = "quantity";
+    private final String SINGLEORMULTI_KEY = "single_multi";
+    private final String REFERENCE_KEY = "reference_number";
+    private final String UDI_KEY = "udi";
+
 
 
     @Override
@@ -212,17 +225,18 @@ public class ItemDetailFragment extends Fragment {
         amountUsed = rootView.findViewById(R.id.amountUsed_id);
         patient_idDefault = rootView.findViewById(R.id.patientID_id);
         diLayout = rootView.findViewById(R.id.TextInputLayout_di);
+        singleUseButton = rootView.findViewById(R.id.RadioButton_single);
+        multiUse = rootView.findViewById(R.id.radio_multiuse);
         chosenReusable = false;
         chosenType = false;
         chosenSite = false;
         chosenLocation= false;
-        dropDownSelected = false;
+        checkRadioButton = false;
         itemUsed.setChecked(false);
         saveButton.setEnabled(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
         itemUsedFields = rootView.findViewById(R.id.layout_itemused);
         itemUsedFields.setVisibility(View.GONE);
-        RadioButton multiUse = rootView.findViewById(R.id.radio_multiuse);
         isAddSizeButtonClicked = true;
         specsTextView = rootView.findViewById(R.id.detail_specs_textview);
         typeInputLayout = rootView.findViewById(R.id.typeInputLayout);
@@ -257,9 +271,9 @@ public class ItemDetailFragment extends Fragment {
                     if(Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()){
                         saveButton.setEnabled(false);
                         return;
-                    }if(dropDownSelected) {
-                        saveButton.setEnabled(true);
                     }
+                    saveButton.setEnabled(true);
+
                 }
             }
         };
@@ -288,12 +302,9 @@ public class ItemDetailFragment extends Fragment {
                 for(AutoCompleteTextView editText : new AutoCompleteTextView[]{ equipmentType,
                 hospitalName,physicalLocation}){
                     if(editText.getText().toString().trim().isEmpty()){
-                        System.out.println("text is:" + editText.getText().toString());
                         saveButton.setEnabled(false);
                         return;
                     }
-                    dropDownSelected = true;
-                    saveButton.setEnabled(true);
                 }
             }
         };
@@ -339,13 +350,6 @@ public class ItemDetailFragment extends Fragment {
         equipmentType.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String selected = (String) adapterView.getItemAtPosition(i);
-                if(selected.isEmpty()){
-                    saveButton.setEnabled(false);
-                }else{
-                    saveButton.setEnabled(true);
-                }
-
                 addTypeOptionField(adapterView,view,i,l);
 
             }
@@ -536,8 +540,7 @@ public class ItemDetailFragment extends Fragment {
                 myCalendar.set(Calendar.DAY_OF_MONTH, i2);
                 String myFormat = "yyyy/MM/dd";
                 SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                procedureDate.setText(String.format("%s %s", sdf.format(myCalendar.getTime()),
-                        TimeZone.getDefault().getDisplayName(false,TimeZone.SHORT)));
+                procedureDate.setText(String.format("%s", sdf.format(myCalendar.getTime())));
             }
         };
         procedureDateTimeLayout.setEndIconOnClickListener(new View.OnClickListener() {
@@ -556,6 +559,8 @@ public class ItemDetailFragment extends Fragment {
                 if (b) {
                     saveButton.setEnabled(false);
                     itemUsedFields.setVisibility(View.VISIBLE);
+
+
                     TextWatcher textWatcher = new TextWatcher() {
                         @Override
                         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
@@ -569,14 +574,27 @@ public class ItemDetailFragment extends Fragment {
                                     saveButton.setEnabled(false);
                                     return;
                                 }
-                                saveButton.setEnabled(true);
+
                             }
                         }
                     };
+
                     procedureUsed.addTextChangedListener(textWatcher);
                     procedureDate.addTextChangedListener(textWatcher);
                     amountUsed.addTextChangedListener(textWatcher);
                     patient_idDefault.addTextChangedListener(textWatcher);
+
+                    useRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                            View radioButton = useRadioGroup.findViewById(i);
+                            int index = radioGroup.indexOfChild(radioButton);
+                            System.out.println("index is" + index);
+                            if(index >= 0){
+                                saveButton.setEnabled(true);
+                            }
+                        }
+                    });
 
                 } else {
                     // enable saveButton
@@ -601,8 +619,7 @@ public class ItemDetailFragment extends Fragment {
                 myCalendar.set(Calendar.DAY_OF_MONTH, i2);
                 String myFormat = "yyyy/MM/dd";
                 SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                expiration.setText(String.format("%s %s", sdf.format(myCalendar.getTime()),
-                        TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT)));
+                expiration.setText(String.format("%s", sdf.format(myCalendar.getTime())));
             }
         };
 
@@ -624,8 +641,7 @@ public class ItemDetailFragment extends Fragment {
                 myCalendar.set(Calendar.DAY_OF_MONTH, i2);
                 String myFormat = "yyyy/MM/dd";
                 SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                dateIn.setText(String.format("%s %s", sdf.format(myCalendar.getTime()),
-                        TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT)));
+                dateIn.setText(String.format("%s", sdf.format(myCalendar.getTime())));
             }
         };
 
@@ -935,6 +951,7 @@ public class ItemDetailFragment extends Fragment {
         String referenceNumber_str = Objects.requireNonNull(referenceNumber.getText()).toString();
         String expiration_str = Objects.requireNonNull(expiration.getText()).toString();
         String number_added_str = Objects.requireNonNull(numberAdded.getText()).toString();
+        String currentDate_str = dateIn.getText().toString();
         int quantity_int;
         if(itemUsed.isChecked()){
                     quantity_int = Integer.parseInt(itemQuantity) -
@@ -956,16 +973,16 @@ public class ItemDetailFragment extends Fragment {
         }else{
             physical_location_str = physicalLocation.getText().toString().trim();
         }
-        String currentDateTime_str = Objects.requireNonNull(timeIn.getText()).toString();
+        String currentTime_str = Objects.requireNonNull(timeIn.getText()).toString();
         String notes_str = Objects.requireNonNull(notes.getText()).toString();
 
 
         // getting radiobutton value
-        boolean isUsed = itemUsed.isChecked();
+        boolean is_used = itemUsed.isChecked();
         int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
         RadioButton radioButton = view.findViewById(radioButtonInt);
         String singleOrMultiUse = "";
-        if(radioButton.isChecked()){
+        if(itemUsed.isChecked()){
             singleOrMultiUse = radioButton.getText().toString();
         }
 
@@ -979,9 +996,8 @@ public class ItemDetailFragment extends Fragment {
         diDoc.put(SITE_KEY,site_name_str);
         diDoc.put(DESCRIPTION_KEY,description_str);
         diDoc.put(SPECIALTY_KEY,medical_speciality_str);
-        if(radioButton.isChecked()) {
-            diDoc.put(USAGE_KEY, singleOrMultiUse);
-        }
+        diDoc.put(USAGE_KEY, singleOrMultiUse);
+
         DocumentReference diRef = db.collection(NETWORKS).document(NETWORK)
                 .collection(SITES).document(SITE).collection(DEPARTMENTS)
                 .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str);
@@ -1001,8 +1017,9 @@ public class ItemDetailFragment extends Fragment {
         });
 
         // saving udi-specific identifiers using InventoryTemplate class to store multiple items at once
-       udiDocument = new InventoryTemplate(barcode_str,isUsed, number_added_str,lotNumber_str,
-                expiration_str, quantity_str,currentDateTime_str,physical_location_str,referenceNumber_str, notes_str);
+       udiDocument = new InventoryTemplate(barcode_str,is_used, number_added_str,lotNumber_str,
+                expiration_str, quantity_str,currentTime_str,physical_location_str,referenceNumber_str,
+               notes_str,currentDate_str);
 
         DocumentReference udiRef = db.collection(NETWORKS).document(NETWORK)
                 .collection(SITES).document(SITE).collection(DEPARTMENTS)
@@ -1068,7 +1085,7 @@ public class ItemDetailFragment extends Fragment {
         if(chosenReusable) {
             Map<String, Object> patientIds = new HashMap<>();
             for (int i = 0; i < allPatientIds.size(); i++) {
-                patientIds.put("patient_id_" + (i + 2), allPatientIds.get(i).getText().toString());
+                patientIds.put(PATIENTID_KEY + "_" + (i + 2), allPatientIds.get(i).getText().toString());
             }
             udiRef.update(patientIds)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -1161,8 +1178,8 @@ public class ItemDetailFragment extends Fragment {
 
                             /* right now, the function takes udi to autopopulate quantity field
                              from database; we could add any other fields that is possible to be
-                            populated from database
-                            autoPopulateFromDatabase(udi); */
+                            populated from database */
+                            autoPopulateFromDatabase(udi);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -1197,16 +1214,14 @@ public class ItemDetailFragment extends Fragment {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
-                            itemQuantity = document.getString("quantity");
-                            quantity.setText(document.getString("quantity"));
+                            itemQuantity = document.getString(QUANTITY_KEY);
+                            quantity.setText(document.getString(QUANTITY_KEY));
                         } else {
                             itemQuantity = "0";
                             Log.d(TAG, "Document does not exist!");
-                            quantity.setText("0");
                         }
                     } else {
                         itemQuantity = "0";
-                        quantity.setText("0");
                         Log.d(TAG, "Failed with: ", task.getException());
                     }
                 }
@@ -1228,13 +1243,13 @@ public class ItemDetailFragment extends Fragment {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
                             quantity.setText("0");
-                            company.setText(document.getString("company"));
-                            deviceDescription.setText(document.getString("device_description"));
-                            equipmentType.setText(document.getString("equipment_type"));
-                            medicalSpeciality.setText(document.getString("medical_specialty"));
-                            nameEditText.setText(document.getString("name"));
-                            hospitalName.setText(document.getString("site_name"));
-                            hospitalName.setText(document.getString("usage"));
+                            company.setText(document.getString(COMPANY_KEY));
+                            deviceDescription.setText(document.getString(DESCRIPTION_KEY));
+                            equipmentType.setText(document.getString(TYPE_KEY));
+                            medicalSpeciality.setText(document.getString(SPECIALTY_KEY));
+                            nameEditText.setText(document.getString(NAME_KEY));
+                            hospitalName.setText(document.getString(SITE_KEY));
+                            hospitalName.setText(document.getString(SINGLEORMULTI_KEY));
                         } else {
                             Toast.makeText(view.getContext(), "Equipment has not found", Toast.LENGTH_SHORT).show();
                             Log.d(TAG, "Document does not exist!");
