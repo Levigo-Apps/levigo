@@ -68,6 +68,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TimeZone;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -99,7 +100,6 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText otherPhysicalLoc_text;
     private TextInputEditText otherSite_text;
     private TextInputEditText procedureDate;
-    private TextInputEditText patient_id;
     private TextInputEditText patient_idDefault;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText deviceDescription;
@@ -114,15 +114,11 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText dateIn;
     private TextInputEditText timeIn;
     private TextInputEditText numberAdded;
-    private TextInputLayout expirationTextLayout;
-    private TextInputLayout dateInLayout;
     private TextInputLayout siteLocationLayout;
     private TextInputLayout physLocationLayout;
     private TextInputEditText medicalSpeciality;
-    private TextInputLayout timeInLayout;
     private TextInputLayout typeInputLayout;
     private TextView specsTextView;
-    private ScrollView scrollView;
     private LinearLayout itemUsedFields;
     private LinearLayout linearLayout;
 
@@ -130,17 +126,12 @@ public class ItemDetailFragment extends Fragment {
     private Button saveButton;
     private MaterialButton addPatient;
     private MaterialButton removePatient;
-    private MaterialButton submit_otherType;
-    private MaterialButton submitOtherSite;
-    private MaterialButton submit_otherPhysicalLoc;
     private MaterialButton removeSizeButton;
     private SwitchMaterial itemUsed;
     private RadioGroup useRadioGroup;
-    private RadioButton radioButton;
-    private ImageButton backButton;
-    private Button rescanButton;
     private Button addSizeButton;
 
+    private String itemQuantity;
     private int patientidAdded = 0;
     private int emptySizeFieldCounter = 0;
     private int typeCounter;
@@ -153,7 +144,6 @@ public class ItemDetailFragment extends Fragment {
     private boolean chosenSite;
     private boolean dropDownSelected;
     private Button autoPopulateButton;
-    private RadioButton multiUse;
     private List<TextInputEditText> allPatientIds;
     private List<TextInputEditText> allSizeOptions;
     private ArrayList<String> TYPES;
@@ -170,7 +160,11 @@ public class ItemDetailFragment extends Fragment {
     private final String SPECIALTY_KEY = "medical_specialty";
     private final String DESCRIPTION_KEY = "device_description";
     private final String USAGE_KEY = "usage";
-    private String itemQuantity;
+    private final String PROCEDURE_KEY = "procedure_used";
+    private final String PROCEDUREDATE_KEY = "procedure_date";
+    private final String AMOUNTUSED_KEY = "amount_used";
+    private final String PATIENTID_KEY = "patient_id";
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -201,13 +195,13 @@ public class ItemDetailFragment extends Fragment {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
         dateIn.setText(dateFormat.format(new Date()));
         timeIn = rootView.findViewById(R.id.detail_in_time);
-        expirationTextLayout = rootView.findViewById(R.id.expiration_date_string);
-        dateInLayout = rootView.findViewById(R.id.in_date_layout);
-        timeInLayout = rootView.findViewById(R.id.in_time_layout);
+        TextInputLayout expirationTextLayout = rootView.findViewById(R.id.expiration_date_string);
+        TextInputLayout dateInLayout = rootView.findViewById(R.id.in_date_layout);
+        TextInputLayout timeInLayout = rootView.findViewById(R.id.in_time_layout);
         itemUsed = rootView.findViewById(R.id.detail_used_switch);
         saveButton = rootView.findViewById(R.id.detail_save_button);
-        backButton = rootView.findViewById(R.id.detail_back_button);
-        rescanButton = rootView.findViewById(R.id.detail_rescan_button);
+        ImageButton backButton = rootView.findViewById(R.id.detail_back_button);
+        Button rescanButton = rootView.findViewById(R.id.detail_rescan_button);
         addPatient = rootView.findViewById(R.id.button_addpatient);
         removePatient = rootView.findViewById(R.id.button_removepatient);
         autoPopulateButton = rootView.findViewById(R.id.detail_autopop_button);
@@ -224,10 +218,9 @@ public class ItemDetailFragment extends Fragment {
         itemUsed.setChecked(false);
         saveButton.setEnabled(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
-        scrollView = rootView.findViewById(R.id.scrollView);
         itemUsedFields = rootView.findViewById(R.id.layout_itemused);
         itemUsedFields.setVisibility(View.GONE);
-        multiUse = rootView.findViewById(R.id.radio_multiuse);
+        RadioButton multiUse = rootView.findViewById(R.id.radio_multiuse);
         isAddSizeButtonClicked = true;
         specsTextView = rootView.findViewById(R.id.detail_specs_textview);
         typeInputLayout = rootView.findViewById(R.id.typeInputLayout);
@@ -251,7 +244,7 @@ public class ItemDetailFragment extends Fragment {
                 for(TextInputEditText editText : new TextInputEditText[] { udiEditText,nameEditText,
                         company, expiration,lotNumber,referenceNumber,numberAdded, deviceIdentifier,
                         dateIn,timeIn}){
-                    if(editText.getText().toString().trim().isEmpty()){
+                    if(Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()){
                         saveButton.setEnabled(false);
                         return;
                     }if(dropDownSelected) {
@@ -343,7 +336,6 @@ public class ItemDetailFragment extends Fragment {
                     saveButton.setEnabled(true);
                 }
 
-
                 addTypeOptionField(adapterView,view,i,l);
 
             }
@@ -358,6 +350,7 @@ public class ItemDetailFragment extends Fragment {
                 }
                 if (documentSnapshot != null && documentSnapshot.exists()) {
                     Map<String, Object> typeObj = documentSnapshot.getData();
+                    assert typeObj != null;
                     siteCounter = typeObj.size();
                     for(Object value : typeObj.values()) {
                         if(!SITELOC.contains(value.toString())) {
@@ -397,6 +390,7 @@ public class ItemDetailFragment extends Fragment {
                 }
                 if (documentSnapshot != null && documentSnapshot.exists()) {
                     Map<String, Object> typeObj = documentSnapshot.getData();
+                    assert typeObj != null;
                     locCounter = typeObj.size();
                     for(Object value : typeObj.values()) {
                         if(!PHYSICALLOC.contains(value.toString())) {
@@ -561,7 +555,7 @@ public class ItemDetailFragment extends Fragment {
                         public void afterTextChanged(Editable editable) {
                             for (TextInputEditText editText : new TextInputEditText[]{procedureUsed,
                                     procedureDate, amountUsed, patient_idDefault}) {
-                                if (editText.getText().toString().trim().isEmpty()) {
+                                if (Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()) {
                                     saveButton.setEnabled(false);
                                     return;
                                 }
@@ -639,13 +633,14 @@ public class ItemDetailFragment extends Fragment {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //   b.setEnabled(!s1.trim().isEmpty() && !s2.trim().isEmpty());
+                //hardcoded
                 saveData(rootView, "networks", "network1","sites",
                         "n1_hospital3","n1_h3_departments",
                         "department1","n1_h1_d1 productids");
             }
         });
 
+        assert getArguments() != null;
         String barcode = getArguments().getString("barcode");
         udiEditText.setText(barcode);
         autoPopulate();
@@ -653,16 +648,16 @@ public class ItemDetailFragment extends Fragment {
     }
 
     // TODO update to uniform style
-    // when clicked add one more additional field for Patient ID
+    // when clicked adds one more additional field for Patient ID
     private void addPatientIdField(View view){
         patientidAdded++;
-        TextInputLayout patient_id_layout =(TextInputLayout) this.getLayoutInflater().inflate(R.layout.activity_itemdetail_materialcomponent,
-                null,false);
+        TextInputLayout patient_id_layout =(TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
         patient_id_layout.setHint("patient ID");
         patient_id_layout.setPadding(0,10,0,0);
         patient_id_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
 
-        patient_id = new TextInputEditText(patient_id_layout.getContext());
+        TextInputEditText patient_id = new TextInputEditText(patient_id_layout.getContext());
         allPatientIds.add(patient_id);
         patient_id.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
         patient_id_layout.addView(patient_id);
@@ -671,6 +666,7 @@ public class ItemDetailFragment extends Fragment {
 
     // adds new row of size text views if users clicks on a button
     int rowIndex = 1;
+    int rowLoc = 1;
     private void addEmptySizeOption(View view) {
 
         Log.d(TAG, "Adding empty size option!");
@@ -716,12 +712,12 @@ public class ItemDetailFragment extends Fragment {
 
         allSizeOptions.add(sizeKey);
         allSizeOptions.add(sizeValue);
-        linearLayout.addView(gridLayoutSize, 1 + linearLayout.indexOfChild(specsTextView));
+        linearLayout.addView(gridLayoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
         rowIndex++;
         if(isAddSizeButtonClicked) {
             removeSizeButton = new MaterialButton(view.getContext(),
                     null, R.attr.materialButtonOutlinedStyle);
-            removeSizeButton.setText("Remove size field");
+            removeSizeButton.setText(R.string.removeSize_label);
             removeSizeButton.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
                     WRAP_CONTENT));
             linearLayout.addView(removeSizeButton, 1 + linearLayout.indexOfChild(addSizeButton));
@@ -730,6 +726,7 @@ public class ItemDetailFragment extends Fragment {
         removeSizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                rowLoc--;
                 removeEmptySizeOption(view);
 
             }
@@ -761,8 +758,8 @@ public class ItemDetailFragment extends Fragment {
         TextInputLayout other_type_layout = null;
         if (selected.equals("Other")) {
             chosenType = true;
-            other_type_layout = (TextInputLayout) this.getLayoutInflater().inflate(R.layout.activity_itemdetail_materialcomponent,
-                    null, false);
+            other_type_layout = (TextInputLayout) View.inflate(view.getContext(),
+                    R.layout.activity_itemdetail_materialcomponent, null);
             other_type_layout.setHint("Enter type");
             other_type_layout.setId(View.generateViewId());
             other_type_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
@@ -771,7 +768,7 @@ public class ItemDetailFragment extends Fragment {
             other_type_layout.addView(otherType_text);
             linearLayout.addView(other_type_layout, 1 + linearLayout.indexOfChild(typeInputLayout));
 
-            submit_otherType = new MaterialButton(view.getContext(),
+            MaterialButton submit_otherType = new MaterialButton(view.getContext(),
                     null, R.attr.materialButtonOutlinedStyle);
             submit_otherType.setText(R.string.otherType_lbl);
             submit_otherType.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
@@ -813,8 +810,8 @@ public class ItemDetailFragment extends Fragment {
         TextInputLayout other_site_layout = null;
         if (selected.equals("Other")) {
             chosenSite = true;
-            other_site_layout = (TextInputLayout) this.getLayoutInflater().inflate(R.layout.activity_itemdetail_materialcomponent,
-                    null, false);
+            other_site_layout = (TextInputLayout) View.inflate(view.getContext(),
+                    R.layout.activity_itemdetail_materialcomponent, null);
             other_site_layout.setHint("Enter site");
             other_site_layout.setId(View.generateViewId());
             other_site_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
@@ -823,7 +820,7 @@ public class ItemDetailFragment extends Fragment {
             other_site_layout.addView(otherSite_text);
             linearLayout.addView(other_site_layout, 1 + linearLayout.indexOfChild(siteLocationLayout));
 
-            submitOtherSite = new MaterialButton(view.getContext(),
+            MaterialButton submitOtherSite = new MaterialButton(view.getContext(),
                     null, R.attr.materialButtonOutlinedStyle);
             submitOtherSite.setText(R.string.submitSite_lbl);
             submitOtherSite.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
@@ -864,8 +861,8 @@ public class ItemDetailFragment extends Fragment {
         final TextInputLayout other_physicaloc_layout;
         if (selectedLoc.equals("Other")) {
             chosenLocation = true;
-            other_physicaloc_layout = (TextInputLayout) this.getLayoutInflater().inflate(R.layout.activity_itemdetail_materialcomponent,
-                    null, false);
+            other_physicaloc_layout = (TextInputLayout) View.inflate(view.getContext(),
+                    R.layout.activity_itemdetail_materialcomponent, null);
             other_physicaloc_layout.setHint("Enter physical location");
             other_physicaloc_layout.setId(View.generateViewId());
             other_physicaloc_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
@@ -874,7 +871,7 @@ public class ItemDetailFragment extends Fragment {
             other_physicaloc_layout.addView(otherPhysicalLoc_text);
             linearLayout.addView(other_physicaloc_layout, 1 + linearLayout.indexOfChild(physLocationLayout));
 
-            submit_otherPhysicalLoc = new MaterialButton(view.getContext(),
+            MaterialButton submit_otherPhysicalLoc = new MaterialButton(view.getContext(),
                     null, R.attr.materialButtonOutlinedStyle);
             submit_otherPhysicalLoc.setText(R.string.submitLocation_lbl);
             submit_otherPhysicalLoc.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
@@ -917,44 +914,46 @@ public class ItemDetailFragment extends Fragment {
 
 
         Log.d(TAG, "SAVING");
-        String barcode_str = udiEditText.getText().toString();
-        String name_str = nameEditText.getText().toString();
+        String barcode_str = Objects.requireNonNull(udiEditText.getText()).toString();
+        String name_str = Objects.requireNonNull(nameEditText.getText()).toString();
         String type_str = equipmentType.getText().toString();
-        String company_str = company.getText().toString();
-        String medical_speciality_str = medicalSpeciality.getText().toString();
-        String di_str = deviceIdentifier.getText().toString();
-        String description_str = deviceDescription.getText().toString();
-        String lotNumber_str = lotNumber.getText().toString();
-        String referenceNumber_str = referenceNumber.getText().toString();
-        String expiration_str = expiration.getText().toString();
-        String number_added_str = numberAdded.getText().toString();
+        String company_str = Objects.requireNonNull(company.getText()).toString();
+        String medical_speciality_str = Objects.requireNonNull(medicalSpeciality.getText()).toString();
+        String di_str = Objects.requireNonNull(deviceIdentifier.getText()).toString();
+        String description_str = Objects.requireNonNull(deviceDescription.getText()).toString();
+        String lotNumber_str = Objects.requireNonNull(lotNumber.getText()).toString();
+        String referenceNumber_str = Objects.requireNonNull(referenceNumber.getText()).toString();
+        String expiration_str = Objects.requireNonNull(expiration.getText()).toString();
+        String number_added_str = Objects.requireNonNull(numberAdded.getText()).toString();
         int quantity_int;
         if(itemUsed.isChecked()){
-                    quantity_int = Integer.parseInt(itemQuantity) - Integer.parseInt(amountUsed.getText().toString());
+                    quantity_int = Integer.parseInt(itemQuantity) -
+                            Integer.parseInt(Objects.requireNonNull(amountUsed.getText()).toString());
         } else {
-                    quantity_int = Integer.parseInt(itemQuantity) + Integer.parseInt(numberAdded.getText().toString());
+                    quantity_int = Integer.parseInt(itemQuantity) +
+                            Integer.parseInt(numberAdded.getText().toString());
         }
         String quantity_str = String.valueOf(quantity_int);
         String site_name_str = "";
         if(chosenSite){
-            site_name_str = otherSite_text.getText().toString();
+            site_name_str = Objects.requireNonNull(otherSite_text.getText()).toString();
         }else{
             site_name_str = hospitalName.getText().toString();
         }
         String physical_location_str = "";
         if(chosenLocation){
-            physical_location_str = otherPhysicalLoc_text.getText().toString().trim();
+            physical_location_str = Objects.requireNonNull(otherPhysicalLoc_text.getText()).toString().trim();
         }else{
             physical_location_str = physicalLocation.getText().toString().trim();
         }
-        String currentDateTime_str = timeIn.getText().toString();
-        String notes_str = notes.getText().toString();
+        String currentDateTime_str = Objects.requireNonNull(timeIn.getText()).toString();
+        String notes_str = Objects.requireNonNull(notes.getText()).toString();
 
 
         // getting radiobutton value
         boolean isUsed = itemUsed.isChecked();
         int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
-        radioButton = view.findViewById(radioButtonInt);
+        RadioButton radioButton = view.findViewById(radioButtonInt);
         String singleOrMultiUse = "";
         if(radioButton.isChecked()){
             singleOrMultiUse = radioButton.getText().toString();
@@ -1021,18 +1020,18 @@ public class ItemDetailFragment extends Fragment {
         //if item is used
         if(itemUsed.isChecked()){
 
-            String procedure_used_str = procedureUsed.getText().toString();
-            String procedure_date_str = procedureDate.getText().toString();
-            String amount_used_str = amountUsed.getText().toString();
-            String patient_id_str = patient_idDefault.getText().toString();
+            String procedure_used_str = Objects.requireNonNull(procedureUsed.getText()).toString();
+            String procedure_date_str = Objects.requireNonNull(procedureDate.getText()).toString();
+            String amount_used_str = Objects.requireNonNull(amountUsed.getText()).toString();
+            String patient_id_str = Objects.requireNonNull(patient_idDefault.getText()).toString();
 
 
 
             Map<String, Object> ifUsedFields = new HashMap<>();
-            ifUsedFields.put("procedure_used",procedure_used_str);
-            ifUsedFields.put("procedure_date",procedure_date_str);
-            ifUsedFields.put("amount_used",amount_used_str);
-            ifUsedFields.put("patient_id",patient_id_str);
+            ifUsedFields.put(PROCEDURE_KEY,procedure_used_str);
+            ifUsedFields.put(PROCEDUREDATE_KEY,procedure_date_str);
+            ifUsedFields.put(AMOUNTUSED_KEY,amount_used_str);
+            ifUsedFields.put(PATIENTID_KEY,patient_id_str);
 
             udiRef.update(ifUsedFields)
                     //in case of success
@@ -1149,7 +1148,11 @@ public class ItemDetailFragment extends Fragment {
                             referenceNumber.setText(deviceInfo.getString("catalogNumber"));
                             medicalSpeciality.setText(medicalSpecialties);
 
-                            autoPopulateFromDatabase(udi);
+
+                            /* right now, the function takes udi to autopopulate quantity field
+                             from database; we could add any other fields that is possible to be
+                            populated from database
+                            autoPopulateFromDatabase(udi); */
 
                         } catch (JSONException e) {
                             e.printStackTrace();

@@ -90,5 +90,6 @@
     <string name="remove_patient_id_lbl">Remove Patient ID</string>
     <string name="device_description_lbl">Device Description</string>
     <string name="back_button_lbl">back_button</string>
+    <string name="removeSize_label">Remove size field</string>
 
 </resources>
