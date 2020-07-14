@@ -3,6 +3,7 @@ package com.levigo.levigoapp;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.text.Editable;
@@ -21,6 +22,7 @@ import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
@@ -28,6 +30,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -121,6 +124,8 @@ public class ItemDetailFragment extends Fragment {
     private TextInputLayout siteLocationLayout;
     private TextInputLayout physLocationLayout;
     private TextInputLayout diLayout;
+    private TextInputLayout numberAddedLayout;
+    private TextInputLayout  amountUsedLayout;
     private TextInputEditText medicalSpeciality;
     private TextInputLayout typeInputLayout;
     private TextView specsTextView;
@@ -226,10 +231,12 @@ public class ItemDetailFragment extends Fragment {
         procedureUsed = rootView.findViewById(R.id.edittext_procedure_used);
         procedureDate = rootView.findViewById(R.id.edittext_procedure_date);
         amountUsed = rootView.findViewById(R.id.amountUsed_id);
+        amountUsedLayout = rootView.findViewById(R.id.amountUsed);
         patient_idDefault = rootView.findViewById(R.id.patientID_id);
         diLayout = rootView.findViewById(R.id.TextInputLayout_di);
         singleUseButton = rootView.findViewById(R.id.RadioButton_single);
         multiUse = rootView.findViewById(R.id.radio_multiuse);
+        numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
         chosenReusable = false;
         chosenType = false;
         chosenSite = false;
@@ -249,6 +256,38 @@ public class ItemDetailFragment extends Fragment {
         TYPES = new ArrayList<>();
         SITELOC = new ArrayList<>();
         PHYSICALLOC = new ArrayList<>();
+
+        // NumberPicker Dialog for NumberAdded field
+        numberAdded.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showNumberPicker(rootView,numberAdded);
+            }
+        });
+        // NumberPicker Dialog for AmountUsed field
+        amountUsed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showNumberPicker(rootView,amountUsed);
+
+            }
+        });
+
+        // incrementing number by 1 when clicked on the end icon
+        numberAddedLayout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                incrementNumberAdded(rootView);
+            }
+        });
+        // incrementing number by 1 when clicked on the end icon
+        amountUsedLayout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                incrementNumberUsed(rootView);
+            }
+        });
+
 
 
         // icon listener to search di in database to autopopulate di-specific fields
@@ -683,6 +722,60 @@ public class ItemDetailFragment extends Fragment {
         return rootView;
     }
 
+    private void incrementNumberUsed(View view){
+        int newNumber = 0;
+        try {
+            newNumber = Integer.parseInt(Objects.requireNonNull(amountUsed.getText()).toString());
+        }catch (NumberFormatException e){
+            newNumber = 0;
+        }finally {
+            amountUsed.setText(String.valueOf(++newNumber));
+        }
+    }
+
+    private void incrementNumberAdded(View view){
+        int newNumber = 0;
+        try {
+            newNumber = Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
+        }catch (NumberFormatException e){
+            newNumber = 0;
+        }finally {
+            numberAdded.setText(String.valueOf(++newNumber));
+        }
+    }
+
+
+    private void showNumberPicker(View view, final TextInputEditText editTextAdded){
+
+        final Dialog d = new Dialog(view.getContext());
+        d.setTitle("NumberPicker");
+        d.setContentView(R.layout.dialog);
+        Button b1 = (Button) d.findViewById(R.id.button1);
+        Button b2 = (Button) d.findViewById(R.id.button2);
+        final NumberPicker np = (NumberPicker) d.findViewById(R.id.numberPicker1);
+        np.setMaxValue(1000); // max value 100
+        np.setMinValue(0);   // min value 0
+
+        np.setWrapSelectorWheel(true);
+        b1.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                editTextAdded.setText(String.valueOf(np.getValue())); //set the value to textview
+                d.dismiss();
+            }
+        });
+        b2.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                d.dismiss(); // dismiss the dialog
+            }
+        });
+        d.show();
+
+    }
+
     // TODO update to uniform style
     // when clicked adds one more additional field for Patient ID
     private void addPatientIdField(View view) {
@@ -750,6 +843,7 @@ public class ItemDetailFragment extends Fragment {
         allSizeOptions.add(sizeValue);
         linearLayout.addView(gridLayoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
         rowIndex++;
+        System.out.println("row index is " + rowIndex);
         if (isAddSizeButtonClicked) {
             removeSizeButton = new MaterialButton(view.getContext(),
                     null, R.attr.materialButtonOutlinedStyle);
@@ -762,7 +856,7 @@ public class ItemDetailFragment extends Fragment {
         removeSizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                rowLoc--;
+
                 removeEmptySizeOption(view);
 
             }
@@ -770,12 +864,12 @@ public class ItemDetailFragment extends Fragment {
         isAddSizeButtonClicked = false;
 
     }
-
     //removes one row of size text entry
     private void removeEmptySizeOption(View view) {
         if (emptySizeFieldCounter > 0) {
-            linearLayout.removeViewAt(linearLayout.indexOfChild(specsTextView) + 1);
+            linearLayout.removeViewAt(linearLayout.indexOfChild(specsTextView) + --rowLoc);
             emptySizeFieldCounter--;
+            System.out.println("row loc is :" + rowLoc);
 
         }
         if (emptySizeFieldCounter == 0) {
@@ -788,6 +882,54 @@ public class ItemDetailFragment extends Fragment {
         System.out.println(allSizeOptions.size());
 
     }
+    private void addItemSpecs(String key,String value, View view){
+        Log.d(TAG, "Adding item specs!");
+        GridLayout gridLayoutSize = new GridLayout(view.getContext());
+        GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
+        paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        paramSizeKey.width = WRAP_CONTENT;
+        paramSizeKey.rowSpec = GridLayout.spec(rowIndex);
+        paramSizeKey.columnSpec = GridLayout.spec(0);
+        paramSizeKey.setMargins(0, 0, 0, 20);
+
+
+        GridLayout.LayoutParams paramSizeValue = new GridLayout.LayoutParams();
+        paramSizeValue.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        paramSizeValue.width = WRAP_CONTENT;
+        paramSizeValue.rowSpec = GridLayout.spec(rowIndex);
+        paramSizeValue.columnSpec = GridLayout.spec(1);
+        paramSizeValue.setMargins(10, 0, 0, 20);
+
+
+        TextInputLayout sizeKeyLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        sizeKeyLayout.setLayoutParams(paramSizeKey);
+        sizeKeyLayout.setHint("Key");
+        TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
+        sizeKey.setText(key);
+
+        TextInputLayout sizeValueLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        sizeValueLayout.setLayoutParams(paramSizeValue);
+        sizeValueLayout.setHint("Value");
+        TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
+        sizeValue.setText(value);
+
+
+        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
+        sizeKeyLayout.addView(sizeKey);
+        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
+        sizeValueLayout.addView(sizeValue);
+        gridLayoutSize.addView(sizeKeyLayout);
+        gridLayoutSize.addView(sizeValueLayout);
+
+
+        allSizeOptions.add(sizeKey);
+        allSizeOptions.add(sizeValue);
+        linearLayout.addView(gridLayoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
+        rowIndex++;
+    }
+
 
     // adds new text field if users choose "other" for type
     private void addTypeOptionField(final AdapterView<?> adapterView, View view, int i, long l) {
@@ -841,6 +983,8 @@ public class ItemDetailFragment extends Fragment {
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeInputLayout));
         }
     }
+
+
 
     private void addNewSite(final AdapterView<?> adapterView, View view, int i, long l) {
         String selected = (String) adapterView.getItemAtPosition(i);
@@ -1242,56 +1386,6 @@ public class ItemDetailFragment extends Fragment {
         queue.add(stringRequest);
 
     }
-
-    private void addItemSpecs(String key,String value, View view){
-        Log.d(TAG, "Adding item specs!");
-        GridLayout gridLayoutSize = new GridLayout(view.getContext());
-        GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
-        paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        paramSizeKey.width = WRAP_CONTENT;
-        paramSizeKey.rowSpec = GridLayout.spec(rowIndex);
-        paramSizeKey.columnSpec = GridLayout.spec(0);
-        paramSizeKey.setMargins(0, 0, 0, 20);
-
-
-        GridLayout.LayoutParams paramSizeValue = new GridLayout.LayoutParams();
-        paramSizeValue.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        paramSizeValue.width = WRAP_CONTENT;
-        paramSizeValue.rowSpec = GridLayout.spec(rowIndex);
-        paramSizeValue.columnSpec = GridLayout.spec(1);
-        paramSizeValue.setMargins(10, 0, 0, 20);
-
-
-        TextInputLayout sizeKeyLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        sizeKeyLayout.setLayoutParams(paramSizeKey);
-        sizeKeyLayout.setHint("Key");
-        TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
-        sizeKey.setText(key);
-
-        TextInputLayout sizeValueLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        sizeValueLayout.setLayoutParams(paramSizeValue);
-        sizeValueLayout.setHint("Value");
-        TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
-        sizeValue.setText(value);
-
-
-        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
-        sizeKeyLayout.addView(sizeKey);
-        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
-        sizeValueLayout.addView(sizeValue);
-        gridLayoutSize.addView(sizeKeyLayout);
-        gridLayoutSize.addView(sizeValueLayout);
-
-
-        allSizeOptions.add(sizeKey);
-        allSizeOptions.add(sizeValue);
-        linearLayout.addView(gridLayoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
-        rowIndex++;
-
-    }
-
 
 
     private void autoPopulateFromDatabase(JSONObject udi, DocumentReference siteDocRef) {
