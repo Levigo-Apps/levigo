@@ -1086,8 +1086,6 @@ public class ItemDetailFragment extends Fragment {
                             Log.d(TAG, e.toString());
                         }
                     });
-
-
         }
 
 
@@ -1199,7 +1197,11 @@ public class ItemDetailFragment extends Fragment {
                                     // needs remember the cutoff to retrieve the rest of the string
                                     int cutoff = k.length();
                                     // take off trailing whitespace
-                                    k = k.substring(0, k.length() - 2);
+                                    try {
+                                        k = k.substring(0, k.length() - 2);
+                                    } catch (StringIndexOutOfBoundsException e){ // if sizeText starts with number
+                                        k = "Size";
+                                    }
 
                                     // Value is assumed to be the substring starting with the number
                                     v = customSizeText.substring(cutoff);
@@ -1213,7 +1215,6 @@ public class ItemDetailFragment extends Fragment {
                                     Log.d(TAG, "Value: " + v);
                                 }
                                 addItemSpecs(k,v,view);
-                                // TODO Davit can you overload the create size options field to create two fields with values filled in?
                             }
 
                             int currentQuantity;

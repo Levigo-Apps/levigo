@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView inventoryScroll ;
     private RecyclerView.Adapter iAdapter ;
     private RecyclerView.LayoutManager iLayoutManager ;
-//    private List<String> names = new LinkedList<>();
     private List<Map<String, Object>> entries = new LinkedList<>();
 
     private FloatingActionButton mAdd;
@@ -96,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
     private void initInventory() {
         iLayoutManager = new LinearLayoutManager(this);
         inventoryScroll.setLayoutManager(iLayoutManager);
-//        iAdapter = new InventoryViewAdapter(names, inventoryRef);
+
         iAdapter = new InventoryViewAdapter(entries, inventoryRef);
         inventoryScroll.setAdapter(iAdapter);
 
