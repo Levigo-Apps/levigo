@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginHorizontal="10dp"
     android:background="@drawable/inventoryitemlayout">
 
         <TextView
@@ -13,26 +14,30 @@
             android:padding="8dp"
             android:text="Type of Equipment"
             android:textStyle="bold"
-            android:textColor="@color/colorPrimary"
-            android:textSize="15sp"
-            android:background="@color/colorAccent"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:background="@color/colorPrimary"
             android:ellipsize="end"
             android:lines="1"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
-
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@android:color/white"
+            app:layout_constraintTop_toBottomOf="@id/item_type"/>
 
         <TextView
             android:id="@+id/item_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:layout_marginStart="4dp"
+            android:layout_marginStart="12dp"
             android:text="Name of Equipment"
+            android:padding="4dp"
             android:textStyle="bold"
-            android:textColor="@color/colorText"
-            android:textSize="20sp"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
             android:ellipsize="end"
             android:textAlignment="textStart"
             app:layout_constraintStart_toStartOf="parent"
@@ -43,11 +48,11 @@
             android:id="@+id/item_di"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:layout_marginStart="4dp"
+            android:padding="4dp"
+            android:layout_marginStart="12dp"
             android:text="DI: 0123456789"
-            android:textColor="@color/colorText"
-            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/item_name"/>
 
@@ -56,11 +61,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:text="QTY: 999"
+            android:text="999 Units"
             android:textStyle="bold"
-            android:textColor="@color/colorText"
-            android:textSize="20sp"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/item_type"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

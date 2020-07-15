@@ -69,7 +69,8 @@ public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdap
         }
         if (iDataset.get(position).containsKey("quantity")) {
             Log.d(TAG, "ITEM QUANTITY: " + iDataset.get(position).get("quantity").toString());
-            String qty = "QTY: " + iDataset.get(position).get("quantity").toString();
+            //TODO plural of unit
+            String qty = iDataset.get(position).get("quantity").toString() + " Units";
             holder.itemQuantity.setText(qty);
         }
         if (iDataset.get(position).containsKey("name")) {
