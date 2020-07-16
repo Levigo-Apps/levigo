@@ -93,5 +93,6 @@
     <string name="removeSize_label">Remove size field</string>
     <string name="setButton_label">Set</string>
     <string name="cancelButton_label">Cancel</string>
+    <string name="type_of_equipment">Type of Equipment</string>
 
 </resources>

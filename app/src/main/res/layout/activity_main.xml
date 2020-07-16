@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".MainActivity"
     android:background="@color/colorBackground"
     android:id="@+id/activity_main">
@@ -44,23 +48,14 @@
 <!--        app:layout_constraintTop_toBottomOf="@id/imageView"-->
 <!--        app:layout_constraintEnd_toEndOf="parent"-->
 <!--        app:layout_constraintStart_toStartOf="parent" />-->
-    <androidx.recyclerview.widget.RecyclerView
+    <ExpandableListView
         android:id="@+id/inventoryScroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        android:orientation="vertical"
-        android:layout_below="@id/main_toolbar"/>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/main_add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:elevation="0dp"
-        app:elevation="0dp"
-        app:srcCompat="@android:drawable/ic_input_add"/>
+        android:layout_marginTop="70sp"
+        android:layout_marginBottom="35sp"
+        android:divider="@android:color/white"
+        android:dividerHeight="2dp"
+        android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft" />
 
 </RelativeLayout>
