@@ -1,7 +1,0 @@
-// This is a list of valid barcodes that we can use to test our app. Please feel free to add
-
-(01)00885672101114(17)180401(10)DP02149
-
-01008856721011141718040110DP02149
-
-01049873507728791719083110170906

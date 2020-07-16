@@ -28,6 +28,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".SignUpActivity"></activity>
+
         <activity android:name=".NetworkActivity"
             android:theme="@style/Theme.MaterialComponents.NoActionBar">
 

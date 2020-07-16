@@ -1,5 +1,6 @@
 package com.levigo.levigoapp;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,7 +29,7 @@ import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private static final String TAG = "LoginActivity";
+    private static final String TAG = LoginActivity.class.getSimpleName();//"LoginActivity";
     private static final int RC_SIGN_IN = 1;
 
     private boolean clear, signout;
@@ -72,15 +73,21 @@ public class LoginActivity extends AppCompatActivity {
         mRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String  email = mEmail.getText().toString(),
-                        password = mPassword.getText().toString();
-                List<AuthUI.IdpConfig> providers = Arrays.asList(new AuthUI.IdpConfig.EmailBuilder().build());
-                startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().setAvailableProviders(providers).build(), RC_SIGN_IN);
+
+                startActivity(new Intent(getApplicationContext(), SignUpActivity.class));
+//                final String  email = mEmail.getText().toString(),
+//                        password = mPassword.getText().toString();
+//                List<AuthUI.IdpConfig> providers = Arrays.asList(new AuthUI.IdpConfig.EmailBuilder().build());
+//                startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().setAvailableProviders(providers).build(), RC_SIGN_IN);
+//
+//                Log.d(TAG, "about to match");
 //                if(Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-//                    signUp(email, password);   create a sign up activity
+//                    Log.d(TAG, "here");
+//                    signUp(email, password);   //create a sign up activity
 //
 //                }
 //                else {
+//                    Log.d(TAG, "there");
 //                    mEmail.setError("Please enter a valid email address.");
 //                }
             }
