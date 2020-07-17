@@ -34,28 +34,20 @@
                 android:background="@android:color/transparent"
                 app:title="Hospital Clinic Name"
                 app:navigationIcon="@android:drawable/ic_menu_sort_by_size" />
-<!--            <androidx.appcompat.widget.Toolbar-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                app:title="Hospital Clinic Name"-->
-<!--                app:titleTextColor="@color/colorText"-->
-<!--                android:id="@+id/main_toolbar"-->
-<!--                app:subtitleTextColor="@color/colorText"-->
-<!--                android:theme="@style/ThemeOverlay.AppCompat.ActionBar"-->
-<!--                android:popupTheme="@style/ThemeOverlay.AppCompat.Light"-->
-<!--                app:layout_constraintTop_toTopOf="parent"/>-->
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/inventory_scroll"
+        android:id="@+id/main_categories"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical"
         android:orientation="vertical"
+        android:background="@color/colorBackground"
+        android:nestedScrollingEnabled="true"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"/>
 
 <!--    <ExpandableListView-->
-<!--        android:id="@+id/inventoryScroll"-->
+<!--        android:id="@+id/inventory_scroll"-->
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="match_parent"-->
 <!--        android:layout_marginTop="70sp"-->
