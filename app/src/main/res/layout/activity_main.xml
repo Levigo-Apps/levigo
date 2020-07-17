@@ -54,6 +54,15 @@
         android:orientation="vertical"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"/>
 
+<!--    <ExpandableListView-->
+<!--        android:id="@+id/inventoryScroll"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_marginTop="70sp"-->
+<!--        android:layout_marginBottom="35sp"-->
+<!--        android:divider="@android:color/white"-->
+<!--        android:dividerHeight="2dp"-->
+<!--        android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft" />-->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/main_add"
         android:layout_width="wrap_content"
