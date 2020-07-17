@@ -3,30 +3,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginHorizontal="10dp"
-    android:background="@drawable/inventoryitemlayout">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-        <TextView
-            android:id="@+id/item_type"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="Type of Equipment"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:background="@color/colorPrimary"
-            android:ellipsize="end"
-            android:lines="1"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@android:color/white"
-            app:layout_constraintTop_toBottomOf="@id/item_type"/>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/dis_type"
+        android:padding="8dp"
+        android:background="@drawable/inventoryitemlayout"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
             android:id="@+id/dis_name"
@@ -34,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:text="Name of Equipment"
-            android:padding="4dp"
+            android:paddingHorizontal="4dp"
             android:textStyle="bold"
             android:textColor="@android:color/black"
             android:textSize="16sp"
@@ -42,13 +30,13 @@
             android:textAlignment="textStart"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/dis_quantity"
-            app:layout_constraintTop_toBottomOf="@id/item_type" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/dis_di"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="4dp"
+            android:paddingStart="4dp"
             android:layout_marginStart="12dp"
             android:text="DI: 0123456789"
             android:textColor="@android:color/black"
@@ -60,17 +48,24 @@
             android:id="@+id/dis_quantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="999 Units"
+            android:padding="4dp"
+            android:text="0 Units"
             android:textStyle="bold"
             android:textColor="@android:color/black"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/item_type"/>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@android:color/white"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/dis_udis"
+        android:layout_marginVertical="1dp"
+        android:orientation="vertical"
+        android:nestedScrollingEnabled="false"
+        app:layout_constraintTop_toBottomOf="@id/dis_type"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

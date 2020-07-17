@@ -9,7 +9,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,9 +20,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -31,15 +27,18 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -54,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView inventoryScroll ;
     private RecyclerView.Adapter iAdapter ;
     private RecyclerView.LayoutManager iLayoutManager ;
-    private List<Map<String, Object>> entries = new LinkedList<>();
+    private Map<String, Object> entries = new HashMap<>();
 
     private FloatingActionButton mAdd;
 
@@ -62,7 +61,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        inventoryScroll = findViewById(R.id.inventoryScroll);
+//        inventoryScroll = findViewById(R.id.inventory_scroll);
+        inventoryScroll = findViewById(R.id.main_categories);
         mAdd = findViewById(R.id.main_add);
         inventoryScroll.setHasFixedSize(true);
         mAdd.setOnClickListener(new View.OnClickListener() {
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         iLayoutManager = new LinearLayoutManager(this);
         inventoryScroll.setLayoutManager(iLayoutManager);
 
-        iAdapter = new InventoryViewAdapter(entries, inventoryRef);
+        iAdapter = new InventoryViewAdapter(MainActivity.this, entries);
         inventoryScroll.setAdapter(iAdapter);
 
 
@@ -111,38 +111,79 @@ public class MainActivity extends AppCompatActivity {
 
                 assert queryDocumentSnapshots != null;
                 for(DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                    Map<String, Object> entry = dc.getDocument().getData();
-                    Log.d(TAG, "Data entries: " + entry.toString());
-                    switch (dc.getType()) {
-                        case ADDED:
-                            Log.d(TAG, "added");
-                            entries.add(entry);
-                            break;
-                        case REMOVED:
-                            Log.d(TAG, "remove");
-                            //TODO implement
-                            for(int i = 0; i < entries.size(); ++i) {
-                                if(entries.get(i).get("di").equals(entry.get("di"))) {
-                                    Log.d(TAG, "remove2");
-                                    entries.remove(i);
-                                    break;
-                                }
+                    final Map<String, Object> di = dc.getDocument().getData();
+                    final String type = di.get("equipment_type").toString();
+                    final String diString = di.get("di").toString();
+                    Log.d(TAG, "Data di: " + di.toString());
+                    Log.d(TAG, "UDIs: " + dc.getDocument().getReference().collection("UDIs"));
+                    //TODO: add cases
+                    dc.getDocument().getReference().collection("UDIs").addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                            if (e != null) {
+                                System.err.println("Listen failed: " + e);
+                                return;
                             }
-                            break;
-                        case MODIFIED:
-                            Log.d(TAG, "modify");
-                            for(int i = 0; i < entries.size(); ++i) {
-                                if(entries.get(i).get("di").equals(entry.get("di"))) {
-                                    Log.d(TAG, "modify2");
-                                    entries.set(i,entry);
-                                    break;
-                                }
+                            assert queryDocumentSnapshots != null;
+                            List<Map<String,Object>> udis = new LinkedList<>();
+                            for(DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+//                                switch(dc.getType()) {
+//                                    case ADDED:
+                                udis.add(dc.getDocument().getData());
+//                                }
                             }
-                            break;
-                    }
+                            Map<String, Object> entry = new HashMap<>();
+                            entry.put("di",di);
+                            entry.put("udis",udis);
+                            if(!entries.containsKey("Category1")) {
+                                entries.put("Category1", new HashMap<>());
+                            }
+                            Map<String,Object> types = (HashMap<String, Object>) entries.get("Category1");
+                            assert types != null;
+                            if(!types.containsKey(type)) {
+                                types.put(type, new HashMap<>());
+                            }
+                            Map<String,Object> dis = (HashMap<String, Object>) types.get(type);
+                            assert dis != null;
+                            if(!dis.containsKey(diString)) {
+                                dis.put(diString, new HashMap<>());
+                            }
+                            Map<String,Object> productid = (HashMap<String, Object>) dis.get(diString);
+                            assert productid != null;
+                            productid.put("di",di);
+                            productid.put("udis",udis);
+                            Log.d(TAG, "ENTRIES: " + entries);
+                            iAdapter.notifyDataSetChanged();
+                        }
+                    });
+//                    switch(dc.getType()) {
+//                        case ADDED:
+//                            Log.d(TAG, "added");
+//                            entries.add(entry);
+//                            break;
+//                        case REMOVED:
+//                            Log.d(TAG, "remove");
+//                            for(int i = 0; i < entries.size(); ++i) {
+//                                if(entries.get(i).get("di").equals(entry.get("di"))) {
+//                                    Log.d(TAG, "remove2");
+//                                    entries.remove(i);
+//                                    break;
+//                                }
+//                            }
+//                            break;
+//                        case MODIFIED:
+//                            Log.d(TAG, "modify");
+//                            for(int i = 0; i < entries.size(); ++i) {
+//                                if(entries.get(i).get("di").equals(entry.get("di"))) {
+//                                    Log.d(TAG, "modify2");
+//                                    entries.set(i,entry);
+//                                    break;
+//                                }
+//                            }
+//                            break;
+//                    }
                 }
-                Log.d(TAG, "notify");
-                iAdapter.notifyDataSetChanged();
+//                iAdapter.notifyDataSetChanged();
             }
         });
     }
