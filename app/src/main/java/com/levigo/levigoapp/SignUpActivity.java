@@ -63,7 +63,7 @@ public class SignUpActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(s.toString().trim().length()==0){
+                if (s.toString().trim().length() == 0) {
                     submitInvitationCode.setEnabled(false);
                 } else {
                     submitInvitationCode.setEnabled(true);
@@ -103,6 +103,37 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
+
+//        ImwdlM5c1FoqpDwbsRSU
         // TODO disable signup when email or password empty
+        TextWatcher watcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int
+                    count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before,
+                                      int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String e = emailField.getText().toString();
+                String p = passwordField.getText().toString();
+                String cp = confirmPasswordField.getText().toString();
+//                Log.d(TAG, e + "|" + p + "|" + cp);
+
+                if (e.length() == 0 || p.length() == 0 | cp.length()==0){
+                    signUpButton.setEnabled(false);
+                } else {
+                    signUpButton.setEnabled(true);
+                }
+                //TODO if password != confirmPassword, disable and display message
+            }
+        };
+        emailField.addTextChangedListener(watcher);
+        passwordField.addTextChangedListener(watcher);
+        confirmPasswordField.addTextChangedListener(watcher);
     }
 }
