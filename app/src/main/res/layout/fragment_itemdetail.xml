@@ -16,8 +16,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="20dp"
-
-
         android:orientation="vertical">
 
         <TextView
@@ -139,6 +137,26 @@
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <RadioGroup
+            android:id="@+id/RadioGroup_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+
+            <RadioButton
+                android:id="@+id/RadioButton_single"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/SingleUse_lbl" />
+
+            <RadioButton
+                android:id="@+id/radio_multiuse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/reusable_lbl" />
+        </RadioGroup>
+
 
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/detail_used_switch"
@@ -149,129 +167,22 @@
             android:text="@string/item_used_label"
             android:textSize="17sp" />
 
+
         <LinearLayout
             android:id="@+id/layout_itemused"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <RadioGroup
-                android:id="@+id/RadioGroup_id"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
 
-                <RadioButton
-                    android:id="@+id/RadioButton_single"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/SingleUse_lbl" />
-
-                <RadioButton
-                    android:id="@+id/radio_multiuse"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/reusable_lbl" />
-            </RadioGroup>
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:hint="@string/enter_procedure_lbl"
-                app:boxBackgroundMode="outline"
-                app:helperTextEnabled="true"
-                app:helperText="* Required"
-                app:helperTextTextAppearance="?attr/textAppearanceCaption">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edittext_procedure_used"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                </com.google.android.material.textfield.TextInputEditText>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textinputlayout_proceduredatetime"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:hint="@string/enter_procedure_date_lbl"
-                app:boxBackgroundMode="outline"
-                app:endIconDrawable="@drawable/calendar"
-                app:endIconMode="custom"
-                app:endIconTint="@color/colorPrimary"
-                app:helperTextEnabled="true"
-                app:helperText="* Required"
-                app:helperTextTextAppearance="?attr/textAppearanceCaption">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edittext_procedure_date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                </com.google.android.material.textfield.TextInputEditText>
-            </com.google.android.material.textfield.TextInputLayout>
-
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/amountUsed"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:hint="@string/enter_amount_used_lbl"
-                app:boxBackgroundMode="outline"
-                app:helperTextEnabled="true"
-                app:helperText="* Required"
-                app:helperTextTextAppearance="?attr/textAppearanceCaption"
-                app:endIconDrawable="@drawable/plusone"
-                app:endIconMode="custom"
-                app:endIconTint="@color/colorPrimary"
-                android:clickable="true"
-                tools:ignore="KeyboardInaccessibleWidget">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/amountUsed_id"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="false">
-
-                </com.google.android.material.textfield.TextInputEditText>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:hint="@string/enter_patient_id_lbl"
-                app:boxBackgroundMode="outline"
-                app:helperTextEnabled="true"
-                app:helperText="* Required"
-                app:helperTextTextAppearance="?attr/textAppearanceCaption">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/patientID_id"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                </com.google.android.material.textfield.TextInputEditText>
-
-            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_addpatient"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/add_patient_id_lbl"
-                android:visibility="gone">
+                android:text="@string/add_procedure_info_lbl"
+                >
 
             </com.google.android.material.button.MaterialButton>
 
@@ -280,8 +191,8 @@
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/remove_patient_id_lbl"
-                android:visibility="gone">
+                android:text="@string/remove_procedure_info_lbl"
+                >
 
             </com.google.android.material.button.MaterialButton>
         </LinearLayout>

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -95,6 +96,7 @@ public class ItemDetailFragment extends Fragment {
 
     private static final String TAG = ItemDetailFragment.class.getSimpleName();
     private Activity parent;
+    private Calendar myCalendar;
     private NetworkActivity Sites = new NetworkActivity();
 
     // USER INPUT VALUES
@@ -102,19 +104,15 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText nameEditText;
     private AutoCompleteTextView equipmentType;
     private TextInputEditText company;
-    private TextInputEditText procedureUsed;
     private TextInputEditText otherType_text;
     private TextInputEditText otherPhysicalLoc_text;
     private TextInputEditText otherSite_text;
-    private TextInputEditText procedureDate;
-    private TextInputEditText patient_idDefault;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText deviceDescription;
     private TextInputEditText expiration;
     private TextInputEditText quantity;
     private TextInputEditText lotNumber;
     private TextInputEditText referenceNumber;
-    private TextInputEditText amountUsed;
     private AutoCompleteTextView hospitalName;
     private AutoCompleteTextView physicalLocation;
     private TextInputEditText notes;
@@ -125,17 +123,23 @@ public class ItemDetailFragment extends Fragment {
     private TextInputLayout physLocationLayout;
     private TextInputLayout diLayout;
     private TextInputLayout numberAddedLayout;
-    private TextInputLayout  amountUsedLayout;
     private TextInputEditText medicalSpeciality;
     private TextInputLayout typeInputLayout;
     private TextView specsTextView;
     private LinearLayout itemUsedFields;
     private LinearLayout linearLayout;
-
+    private TextInputLayout procedureDateLayout;
+    private TextInputLayout procedureNameLayout;
+    private TextInputLayout accessionNumberLayout;
+    private TextInputLayout numberUsedLayout;
+    private TextInputEditText procedureDateEditText;
+    private TextInputEditText procedureNameEditText;
+    private TextInputEditText numberUsedEditText;
+    private TextInputEditText accessionNumberEditText;
 
     private Button saveButton;
-    private MaterialButton addPatient;
-    private MaterialButton removePatient;
+    private MaterialButton addProcedure;
+    private MaterialButton removeProcedure;
     private MaterialButton removeSizeButton;
     private SwitchMaterial itemUsed;
     private RadioGroup useRadioGroup;
@@ -144,7 +148,7 @@ public class ItemDetailFragment extends Fragment {
     private Button addSizeButton;
 
     private String itemQuantity;
-    private int patientidAdded = 0;
+    private int procedureFieldAdded = 0;
     private int emptySizeFieldCounter = 0;
     private int typeCounter;
     private int siteCounter;
@@ -154,13 +158,16 @@ public class ItemDetailFragment extends Fragment {
     private boolean chosenReusable;
     private boolean isAddSizeButtonClicked;
     private boolean chosenSite;
-    private boolean checkRadioButton;
+    private boolean checkEditTexts;
+    private boolean checkAutocompleteTexts;
     private Button autoPopulateButton;
-    private List<TextInputEditText> allPatientIds;
     private List<TextInputEditText> allSizeOptions;
     private ArrayList<String> TYPES;
     private ArrayList<String> SITELOC;
     private ArrayList<String> PHYSICALLOC;
+    private Map<String, Object> procedureInfoMap;
+    private TextWatcher procedureTextWatcher;
+    private TextWatcher textWatcher;
 
 
     // firebase key labels to avoid hard-coded paths
@@ -175,7 +182,7 @@ public class ItemDetailFragment extends Fragment {
     private final String PROCEDURE_KEY = "procedure_used";
     private final String PROCEDUREDATE_KEY = "procedure_date";
     private final String AMOUNTUSED_KEY = "amount_used";
-    private final String PATIENTID_KEY = "patient_id";
+    private final String ACCESION_KEY = "accesion_number";
     private final String TIME_KEY = "current_time";
     private final String DATE_KEY = "current_date";
     private final String EXPIRATION_KEY = "expiration";
@@ -193,7 +200,7 @@ public class ItemDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
-        final Calendar myCalendar = Calendar.getInstance();
+        myCalendar = Calendar.getInstance();
         parent = getActivity();
 
         // TODO add "clear" option for some fields in xml
@@ -224,15 +231,10 @@ public class ItemDetailFragment extends Fragment {
         saveButton = rootView.findViewById(R.id.detail_save_button);
         ImageButton backButton = rootView.findViewById(R.id.detail_back_button);
         Button rescanButton = rootView.findViewById(R.id.detail_rescan_button);
-        addPatient = rootView.findViewById(R.id.button_addpatient);
-        removePatient = rootView.findViewById(R.id.button_removepatient);
+        addProcedure = rootView.findViewById(R.id.button_addpatient);
+        removeProcedure = rootView.findViewById(R.id.button_removepatient);
         autoPopulateButton = rootView.findViewById(R.id.detail_autopop_button);
         useRadioGroup = rootView.findViewById(R.id.RadioGroup_id);
-        procedureUsed = rootView.findViewById(R.id.edittext_procedure_used);
-        procedureDate = rootView.findViewById(R.id.edittext_procedure_date);
-        amountUsed = rootView.findViewById(R.id.amountUsed_id);
-        amountUsedLayout = rootView.findViewById(R.id.amountUsed);
-        patient_idDefault = rootView.findViewById(R.id.patientID_id);
         diLayout = rootView.findViewById(R.id.TextInputLayout_di);
         singleUseButton = rootView.findViewById(R.id.RadioButton_single);
         multiUse = rootView.findViewById(R.id.radio_multiuse);
@@ -241,7 +243,8 @@ public class ItemDetailFragment extends Fragment {
         chosenType = false;
         chosenSite = false;
         chosenLocation = false;
-        checkRadioButton = false;
+        checkAutocompleteTexts = false;
+        checkEditTexts = false;
         itemUsed.setChecked(false);
         saveButton.setEnabled(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
@@ -256,6 +259,7 @@ public class ItemDetailFragment extends Fragment {
         TYPES = new ArrayList<>();
         SITELOC = new ArrayList<>();
         PHYSICALLOC = new ArrayList<>();
+        procedureInfoMap = new HashMap<>();
 
         // NumberPicker Dialog for NumberAdded field
         numberAdded.setOnClickListener(new View.OnClickListener() {
@@ -264,14 +268,7 @@ public class ItemDetailFragment extends Fragment {
                 showNumberPicker(rootView,numberAdded);
             }
         });
-        // NumberPicker Dialog for AmountUsed field
-        amountUsed.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showNumberPicker(rootView,amountUsed);
 
-            }
-        });
 
         // incrementing number by 1 when clicked on the end icon
         numberAddedLayout.setEndIconOnClickListener(new View.OnClickListener() {
@@ -280,14 +277,25 @@ public class ItemDetailFragment extends Fragment {
                 incrementNumberAdded(rootView);
             }
         });
-        // incrementing number by 1 when clicked on the end icon
-        amountUsedLayout.setEndIconOnClickListener(new View.OnClickListener() {
+
+
+        singleUseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View view) {
-                incrementNumberUsed(rootView);
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if((b && checkAutocompleteTexts) && checkEditTexts){
+                    saveButton.setEnabled(true);
+                }
             }
         });
 
+        multiUse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if((b && checkAutocompleteTexts) && checkEditTexts){
+                    saveButton.setEnabled(true);
+                }
+            }
+        });
 
 
         // icon listener to search di in database to autopopulate di-specific fields
@@ -299,7 +307,7 @@ public class ItemDetailFragment extends Fragment {
         });
 
 
-        final TextWatcher textWatcher = new TextWatcher() {
+        textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
@@ -317,9 +325,10 @@ public class ItemDetailFragment extends Fragment {
                         saveButton.setEnabled(false);
                         return;
                     }
-                    saveButton.setEnabled(true);
+
 
                 }
+                checkEditTexts = true;
             }
         };
 
@@ -338,7 +347,6 @@ public class ItemDetailFragment extends Fragment {
         final TextWatcher textWatcherDropDown = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                saveButton.setEnabled(false);
             }
 
             @Override
@@ -354,6 +362,7 @@ public class ItemDetailFragment extends Fragment {
                         return;
                     }
                 }
+                checkAutocompleteTexts = true;
             }
         };
 
@@ -532,133 +541,65 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-        addPatient.setOnClickListener(new View.OnClickListener() {
+        addProcedure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addPatientIdField(view);
+                removeProcedure.setEnabled(true);
+                addProcedureField(view);
+                addTextWatcher(view);
+                setIconsAndDialogs(view);
             }
         });
 
         // when clicked remove one added field "Patient ID"
-        removePatient.setOnClickListener(new View.OnClickListener() {
+        removeProcedure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (patientidAdded > 0) {
-                    itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addPatient) - 1);
-                    patientidAdded--;
+                if (procedureFieldAdded > 0) {
+                    procedureNameEditText.removeTextChangedListener(procedureTextWatcher);
+                    procedureDateEditText.removeTextChangedListener(procedureTextWatcher);
+                    numberUsedEditText.removeTextChangedListener(procedureTextWatcher);
+                    accessionNumberEditText.removeTextChangedListener(procedureTextWatcher);
+                    itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addProcedure) - 1);
+                    --procedureFieldAdded;
+                }if(procedureFieldAdded == 0){
+                    removeProcedure.setEnabled(false);
                 }
             }
         });
 
-        // Checks which buttons is chosen
-        multiUse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+
+
+        itemUsed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                // if reusable button is chosen, gives an user option to add multiple patient IDs
                 if (b) {
-                    addPatient.setVisibility(View.VISIBLE);
-                    removePatient.setVisibility(View.VISIBLE);
-                    allPatientIds = new ArrayList<TextInputEditText>();
-                    chosenReusable = true;
+                    saveButton.setEnabled(false);
+                    numberAdded.removeTextChangedListener(textWatcher);
+                    itemUsedFields.setVisibility(View.VISIBLE);
+                    numberAddedLayout.setVisibility(View.GONE);
+                    removeProcedure.setEnabled(false);
 
-                    // if users changes from reusable to single us removes all unnecessary fields.
                 } else {
-                    addPatient.setVisibility(View.GONE);
-                    removePatient.setVisibility(View.GONE);
-                    chosenReusable = false;
-                    while (patientidAdded > 0) {
-                        itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addPatient) - 1);
-                        patientidAdded--;
+                    // enable saveButton
+                    saveButton.setEnabled(true);
+                    numberAddedLayout.setVisibility(View.VISIBLE);
+                    numberAdded.addTextChangedListener(textWatcher);
+                    itemUsedFields.setVisibility(View.GONE);
+                    while (procedureFieldAdded > 0) {
+                        procedureNameEditText.removeTextChangedListener(procedureTextWatcher);
+                        procedureDateEditText.removeTextChangedListener(procedureTextWatcher);
+                        numberUsedEditText.removeTextChangedListener(procedureTextWatcher);
+                        accessionNumberEditText.removeTextChangedListener(procedureTextWatcher);
+                        itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addProcedure) - 1);
+                        --procedureFieldAdded;
                     }
 
                 }
             }
         });
 
-        TextInputLayout procedureDateTimeLayout = rootView.findViewById(R.id.textinputlayout_proceduredatetime);
-        procedureDate = rootView.findViewById(R.id.edittext_procedure_date);
-        final DatePickerDialog.OnDateSetListener date_proc = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-                myCalendar.set(Calendar.YEAR, i);
-                myCalendar.set(Calendar.MONTH, i1);
-                myCalendar.set(Calendar.DAY_OF_MONTH, i2);
-                String myFormat = "yyyy/MM/dd";
-                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                procedureDate.setText(String.format("%s", sdf.format(myCalendar.getTime())));
-            }
-        };
-        procedureDateTimeLayout.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new DatePickerDialog(view.getContext(), date_proc, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        });
-
-        // TODO make sure hidden fields at the time of saving are not saved
-        itemUsed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    saveButton.setEnabled(false);
-                    itemUsedFields.setVisibility(View.VISIBLE);
-
-
-                    TextWatcher textWatcher = new TextWatcher() {
-                        @Override
-                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                        }
-
-                        @Override
-                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                        }
-
-                        @Override
-                        public void afterTextChanged(Editable editable) {
-                            for (TextInputEditText editText : new TextInputEditText[]{procedureUsed,
-                                    procedureDate, amountUsed, patient_idDefault}) {
-                                if (Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()) {
-                                    saveButton.setEnabled(false);
-                                    return;
-                                }
-                            }
-                            if(checkRadioButton){
-                                saveButton.setEnabled(true);
-                            }
-
-                        }
-                    };
-
-                    procedureUsed.addTextChangedListener(textWatcher);
-                    procedureDate.addTextChangedListener(textWatcher);
-                    amountUsed.addTextChangedListener(textWatcher);
-                    patient_idDefault.addTextChangedListener(textWatcher);
-
-                    useRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                            View radioButton = useRadioGroup.findViewById(i);
-                            int index = radioGroup.indexOfChild(radioButton);
-                            if (index >= 0) {
-                                checkRadioButton = true;
-                            }
-                        }
-                    });
-
-                } else {
-                    // enable saveButton
-                    saveButton.setEnabled(true);
-                    // drop textwatchers for some fields
-                    itemUsedFields.setVisibility(View.GONE);
-                    procedureUsed.removeTextChangedListener(textWatcher);
-                    procedureDate.removeTextChangedListener(textWatcher);
-                    amountUsed.removeTextChangedListener(textWatcher);
-                    patient_idDefault.removeTextChangedListener(textWatcher);
-                }
-            }
-        });
 
         // date picker for expiration date if entered manually
         final DatePickerDialog.OnDateSetListener date_exp = new DatePickerDialog.OnDateSetListener() {
@@ -722,14 +663,84 @@ public class ItemDetailFragment extends Fragment {
         return rootView;
     }
 
+
+    private void setIconsAndDialogs(View view){
+        final DatePickerDialog.OnDateSetListener date_proc = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                myCalendar.set(Calendar.YEAR, i);
+                myCalendar.set(Calendar.MONTH, i1);
+                myCalendar.set(Calendar.DAY_OF_MONTH, i2);
+                String myFormat = "yyyy/MM/dd";
+                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+                procedureDateEditText.setText(String.format("%s", sdf.format(myCalendar.getTime())));
+            }
+        };
+        // NumberPicker Dialog for AmountUsed field
+        numberUsedEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showNumberPicker(view,numberUsedEditText);
+
+            }
+        });
+
+         // incrementing number by 1 when clicked on the end icon
+        numberUsedLayout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                incrementNumberUsed(view);
+            }
+        });
+
+         procedureDateLayout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new DatePickerDialog(view.getContext(), date_proc, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+            }
+        });
+
+
+    }
+
+    private void addTextWatcher(View view){
+        procedureTextWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                for (TextInputEditText editText : new TextInputEditText[]{procedureNameEditText,
+                        procedureDateEditText, numberUsedEditText, accessionNumberEditText}) {
+                    if (Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()) {
+                        saveButton.setEnabled(false);
+                        return;
+                    }
+                }
+
+            }
+        };
+        procedureNameEditText.addTextChangedListener(procedureTextWatcher);
+        procedureDateEditText.addTextChangedListener(procedureTextWatcher);
+        numberUsedEditText.addTextChangedListener(procedureTextWatcher);
+        accessionNumberEditText.addTextChangedListener(procedureTextWatcher);
+    }
+
     private void incrementNumberUsed(View view){
         int newNumber = 0;
         try {
-            newNumber = Integer.parseInt(Objects.requireNonNull(amountUsed.getText()).toString());
+            newNumber = Integer.parseInt(Objects.requireNonNull(numberUsedEditText.getText()).toString());
         }catch (NumberFormatException e){
             newNumber = 0;
         }finally {
-            amountUsed.setText(String.valueOf(++newNumber));
+            numberUsedEditText.setText(String.valueOf(++newNumber));
         }
     }
 
@@ -778,25 +789,92 @@ public class ItemDetailFragment extends Fragment {
 
     // TODO update to uniform style
     // when clicked adds one more additional field for Patient ID
-    private void addPatientIdField(View view) {
-        patientidAdded++;
-        TextInputLayout patientIdLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        patientIdLayout.setHint("patient ID");
-        patientIdLayout.setPadding(0, 10, 0, 0);
-        patientIdLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+    private void addProcedureField(View view) {
+        procedureFieldAdded++;
 
-        TextInputEditText patientId = new TextInputEditText(patientIdLayout.getContext());
-        allPatientIds.add(patientId);
-        patientId.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
-        patientIdLayout.addView(patientId);
-        itemUsedFields.addView(patientIdLayout, itemUsedFields.indexOfChild(addPatient));
+        LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
+        procedureInfoLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        procedureInfoLayout.setOrientation(LinearLayout.VERTICAL);
+
+        TextView procedureNumber = new TextView(view.getContext());
+        procedureNumber.setText(String.format(Locale.US,"Procedure #%d Description", procedureFieldAdded));
+
+
+        procedureNameLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureNameLayout.setHint("Enter Procedure");
+        procedureNameLayout.setPadding(0, 10, 0, 0);
+        procedureNameLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+
+        procedureDateLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureDateLayout.setHint("Enter Procedure Date");
+        procedureDateLayout.setEndIconTintList(ColorStateList.valueOf(getResources().
+                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
+        procedureDateLayout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
+        procedureDateLayout.setEndIconDrawable(R.drawable.calendar);
+        procedureDateLayout.setPadding(0, 10, 0, 0);
+        procedureDateLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+
+        accessionNumberLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        accessionNumberLayout.setEndIconTintList(ColorStateList.valueOf(getResources().
+                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
+        accessionNumberLayout.setHint("Enter Accession Number");
+        accessionNumberLayout.setPadding(0, 10, 0, 10);
+        accessionNumberLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+
+        numberUsedLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        numberUsedLayout.setHint("Enter Number of Items Used");
+        numberUsedLayout.setPadding(0, 10, 0, 0);
+        numberUsedLayout.setClickable(true);
+        numberUsedLayout.setFocusable(false);
+        numberUsedLayout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
+        numberUsedLayout.setEndIconDrawable(R.drawable.plusone);
+        numberUsedLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+
+        procedureNameEditText = new TextInputEditText(procedureNameLayout.getContext());
+        procedureNameEditText.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+        procedureDateEditText = new TextInputEditText(procedureNameLayout.getContext());
+        procedureDateEditText.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        numberUsedEditText = new TextInputEditText(procedureNameLayout.getContext());
+        numberUsedEditText.setClickable(true);
+        numberUsedEditText.setFocusable(false);
+        numberUsedEditText.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        accessionNumberEditText= new TextInputEditText(procedureNameLayout.getContext());
+        accessionNumberEditText.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+
+
+        // saving string to HashMap to save it to database
+        procedureInfoMap.put(PROCEDURE_KEY+ "_" +procedureNumber,procedureNameEditText);
+        procedureInfoMap.put(PROCEDUREDATE_KEY+ "_" +procedureNumber,procedureDateEditText);
+        procedureInfoMap.put(AMOUNTUSED_KEY+ "_" +procedureNumber,numberUsedEditText);
+        procedureInfoMap.put(ACCESION_KEY+ "_" +procedureNumber,accessionNumberEditText);
+
+
+        procedureNameLayout.addView(procedureNameEditText);
+        procedureDateLayout.addView(procedureDateEditText);
+        numberUsedLayout.addView(numberUsedEditText);
+        accessionNumberLayout.addView(accessionNumberEditText);
+
+        procedureInfoLayout.addView(procedureNumber,0);
+        procedureInfoLayout.addView(procedureNameLayout,1);
+        procedureInfoLayout.addView(procedureDateLayout,2);
+        procedureInfoLayout.addView(numberUsedLayout,3);
+        procedureInfoLayout.addView(accessionNumberLayout,4);
+
+        itemUsedFields.addView(procedureInfoLayout, itemUsedFields.indexOfChild(addProcedure));
     }
+
+
 
     // adds new row of size text views if users clicks on a button
     int rowIndex = 1;
     int rowLoc = 1;
-
     private void addEmptySizeOption(View view) {
 
         Log.d(TAG, "Adding empty size option!");
@@ -1105,13 +1183,14 @@ public class ItemDetailFragment extends Fragment {
         String lotNumber_str = Objects.requireNonNull(lotNumber.getText()).toString();
         String referenceNumber_str = Objects.requireNonNull(referenceNumber.getText()).toString();
         String expiration_str = Objects.requireNonNull(expiration.getText()).toString();
-        String number_added_str = Objects.requireNonNull(numberAdded.getText()).toString();
         String currentDate_str = dateIn.getText().toString();
         int quantity_int;
+        String number_added_str = "0";
         if (itemUsed.isChecked()) {
             quantity_int = Integer.parseInt(itemQuantity) -
-                    Integer.parseInt(Objects.requireNonNull(amountUsed.getText()).toString());
+                    Integer.parseInt(Objects.requireNonNull(numberUsedEditText.getText()).toString());
         } else {
+            number_added_str = Objects.requireNonNull(numberAdded.getText()).toString();
             quantity_int = Integer.parseInt(itemQuantity) +
                     Integer.parseInt(numberAdded.getText().toString());
         }
@@ -1198,23 +1277,11 @@ public class ItemDetailFragment extends Fragment {
                         Log.d(TAG, e.toString());
                     }
                 });
-
+/*
         //if item is used
         if (itemUsed.isChecked()) {
 
-            String procedure_used_str = Objects.requireNonNull(procedureUsed.getText()).toString();
-            String procedure_date_str = Objects.requireNonNull(procedureDate.getText()).toString();
-            String amount_used_str = Objects.requireNonNull(amountUsed.getText()).toString();
-            String patient_id_str = Objects.requireNonNull(patient_idDefault.getText()).toString();
-
-
-            Map<String, Object> ifUsedFields = new HashMap<>();
-            ifUsedFields.put(PROCEDURE_KEY, procedure_used_str);
-            ifUsedFields.put(PROCEDUREDATE_KEY, procedure_date_str);
-            ifUsedFields.put(AMOUNTUSED_KEY, amount_used_str);
-            ifUsedFields.put(PATIENTID_KEY, patient_id_str);
-
-            udiRef.update(ifUsedFields)
+            udiRef.update(procedureInfoMap)
                     //in case of success
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -1232,28 +1299,10 @@ public class ItemDetailFragment extends Fragment {
                     });
         }
 
+ */
 
-        // HashMap for additional patient ids if chosen reusable
-        if (chosenReusable) {
-            Map<String, Object> patientIds = new HashMap<>();
-            for (int i = 0; i < allPatientIds.size(); i++) {
-                patientIds.put(PATIENTID_KEY + "_" + (i + 2), allPatientIds.get(i).getText().toString());
-            }
-            udiRef.update(patientIds)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, e.toString());
-                        }
-                    });
-        }
+
+
 
         if (allSizeOptions.size() > 0) {
             int i = 0;
