@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +27,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
     private CollectionReference invitationCodesRef = levigoDb.collection("invitation_codes");
+    private CollectionReference networksRef = levigoDb.collection("networks");
 
     private LinearLayout emailPasswordLayout;
     private Button submitInvitationCode;
@@ -35,11 +37,16 @@ public class SignUpActivity extends AppCompatActivity {
     private TextInputEditText passwordField;
     private TextInputEditText confirmPasswordField;
     private Button signUpButton;
+    private TextView networkNameTextView;
+    private TextView siteNameTextView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+
+        networkNameTextView = findViewById(R.id.signup_network_name);
+        siteNameTextView = findViewById(R.id.signup_site_name);
 
         emailPasswordLayout = findViewById(R.id.signup_email_password_layout);
         emailField = findViewById(R.id.signup_email);
@@ -81,7 +88,7 @@ public class SignUpActivity extends AppCompatActivity {
                 final String invitationCode = invitationCodeBox.getText().toString();
                 Log.d(TAG, "INVITATION CODE: " + invitationCode);
 
-                DocumentReference docRef = invitationCodesRef.document(invitationCode);
+                final DocumentReference docRef = invitationCodesRef.document(invitationCode);
                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -89,6 +96,13 @@ public class SignUpActivity extends AppCompatActivity {
                             DocumentSnapshot document = task.getResult();
                             if (document.exists()) {
                                 Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+//                                String networkId = document.get("network").toString();
+//                                String siteId = document.get("site").toString();
+//                                Log.d(TAG, "====================" + networksRef.document(networkId).get().toString());
+//                                Log.d(TAG, networkId + "|" + siteId);
+
+                                networkNameTextView.setText(document.get("network_name").toString());
+                                siteNameTextView.setText(document.get("site_name").toString());
                                 emailPasswordLayout.setVisibility(View.VISIBLE);
                                 invitationCodeLayout.setEnabled(false);
                             } else {
@@ -103,10 +117,8 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
-
 //        ImwdlM5c1FoqpDwbsRSU
-        // TODO disable signup when email or password empty
-        TextWatcher watcher = new TextWatcher() {
+        TextWatcher emailPasswordWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int
                     count, int after) {
@@ -124,16 +136,23 @@ public class SignUpActivity extends AppCompatActivity {
                 String cp = confirmPasswordField.getText().toString();
 //                Log.d(TAG, e + "|" + p + "|" + cp);
 
-                if (e.length() == 0 || p.length() == 0 | cp.length()==0){
+                if (!p.equals(cp)){
+                    signUpButton.setEnabled(false);
+                    //TODO display warning sign next to confirm password
+                }
+
+                if (e.length() == 0 || p.length() == 0 || cp.length()==0){
                     signUpButton.setEnabled(false);
                 } else {
                     signUpButton.setEnabled(true);
                 }
-                //TODO if password != confirmPassword, disable and display message
             }
         };
-        emailField.addTextChangedListener(watcher);
-        passwordField.addTextChangedListener(watcher);
-        confirmPasswordField.addTextChangedListener(watcher);
+        emailField.addTextChangedListener(emailPasswordWatcher);
+        passwordField.addTextChangedListener(emailPasswordWatcher);
+        confirmPasswordField.addTextChangedListener(emailPasswordWatcher);
+
+        //TODO actual sign up
+//        signUpButton.setOnClickListener(new );
     }
 }
