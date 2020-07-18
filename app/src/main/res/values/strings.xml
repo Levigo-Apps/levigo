@@ -94,5 +94,7 @@
     <string name="setButton_label">Set</string>
     <string name="cancelButton_label">Cancel</string>
     <string name="type_of_equipment">Type of Equipment</string>
+    <string name="add_procedure_info_lbl">Add Procedure Info</string>
+    <string name="remove_procedure_info_lbl">Remove Procedure Info</string>
 
 </resources>
