@@ -110,7 +110,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
     }
-
+/*
     private void signUp(String email, String password) {
         mAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -126,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
     }
-
+*/
     private void userIsLoggedIn() {
         FirebaseUser user = mAuth.getCurrentUser();
         if(user != null){
