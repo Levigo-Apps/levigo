@@ -1,7 +1,5 @@
 package com.levigo.levigoapp;
 
-import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
@@ -24,12 +21,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class LoginActivity extends AppCompatActivity {
 
-    private static final String TAG = LoginActivity.class.getSimpleName();//"LoginActivity";
+    private static final String TAG = LoginActivity.class.getSimpleName();
     private static final int RC_SIGN_IN = 1;
 
     private boolean clear, signout;
@@ -59,12 +53,11 @@ public class LoginActivity extends AppCompatActivity {
         mLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String  email = mEmail.getText().toString(),
+                final String email = mEmail.getText().toString(),
                         password = mPassword.getText().toString();
-                if(Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                     signIn(email, password);
-                }
-                else {
+                } else {
                     mEmail.setError("Please enter a valid email address.");
                 }
             }
@@ -73,63 +66,47 @@ public class LoginActivity extends AppCompatActivity {
         mRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 startActivity(new Intent(getApplicationContext(), SignUpActivity.class));
-//                final String  email = mEmail.getText().toString(),
-//                        password = mPassword.getText().toString();
-//                List<AuthUI.IdpConfig> providers = Arrays.asList(new AuthUI.IdpConfig.EmailBuilder().build());
-//                startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().setAvailableProviders(providers).build(), RC_SIGN_IN);
-//
-//                Log.d(TAG, "about to match");
-//                if(Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-//                    Log.d(TAG, "here");
-//                    signUp(email, password);   //create a sign up activity
-//
-//                }
-//                else {
-//                    Log.d(TAG, "there");
-//                    mEmail.setError("Please enter a valid email address.");
-//                }
             }
         });
 
     }
 
-    private void signIn(String email, String password){
+    private void signIn(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             signout = mRemember.isChecked();
                             userIsLoggedIn();
-                        }
-                        else {
-                            Toast.makeText(LoginActivity.this, "Failed to login.",Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Failed to login.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
-/*
-    private void signUp(String email, String password) {
-        mAuth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if(task.isSuccessful()) {
-                        Log.d(TAG, "Sign in successful");
-                        signout = mRemember.isChecked();
+
+    /*
+        private void signUp(String email, String password) {
+            mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()) {
+                            Log.d(TAG, "Sign in successful");
+                            signout = mRemember.isChecked();
+                        }
+                        else {
+                            Toast.makeText(LoginActivity.this, "Failed to sign up",Toast.LENGTH_LONG).show();
+                        }
                     }
-                    else {
-                        Toast.makeText(LoginActivity.this, "Failed to sign up",Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
-    }
-*/
+                });
+        }
+    */
     private void userIsLoggedIn() {
         FirebaseUser user = mAuth.getCurrentUser();
-        if(user != null){
+        if (user != null) {
             clear = false;
             startActivity(new Intent(getApplicationContext(), MainActivity.class));
             finish();
@@ -139,20 +116,19 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == RC_SIGN_IN) {
-            if(resultCode == RESULT_OK) {
+        if (requestCode == RC_SIGN_IN) {
+            if (resultCode == RESULT_OK) {
                 signout = mRemember.isChecked();
                 userIsLoggedIn();
-            }
-            else {
-                Log.d(TAG,"Sign in cancelled");
+            } else {
+                Log.d(TAG, "Sign in cancelled");
             }
         }
     }
 
     @Override
     protected void onStop() {
-        if(clear || signout) {
+        if (clear || signout) {
             mAuth.signOut();
             finish();
         }
