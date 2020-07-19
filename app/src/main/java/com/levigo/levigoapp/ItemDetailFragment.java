@@ -153,6 +153,7 @@ public class ItemDetailFragment extends Fragment {
     private int typeCounter;
     private int siteCounter;
     private int locCounter;
+    private int procedureListCounter;
     private boolean chosenType;
     private boolean chosenLocation;
     private boolean chosenReusable;
@@ -169,7 +170,7 @@ public class ItemDetailFragment extends Fragment {
     private ArrayList<String> TYPES;
     private ArrayList<String> SITELOC;
     private ArrayList<String> PHYSICALLOC;
-    private Map<String, Object> procedureInfoMap;
+    private List<Map<String,Object>> procedureMapList;
     private TextWatcher procedureTextWatcher;
     private TextWatcher textWatcher;
 
@@ -267,6 +268,8 @@ public class ItemDetailFragment extends Fragment {
         TYPES = new ArrayList<>();
         SITELOC = new ArrayList<>();
         PHYSICALLOC = new ArrayList<>();
+        procedureMapList = new ArrayList<>();
+
 
 
         // NumberPicker Dialog for NumberAdded field
@@ -850,7 +853,7 @@ public class ItemDetailFragment extends Fragment {
     // TODO update to uniform style
     // when clicked adds one more additional field for Patient ID
     private void addProcedureField(View view) {
-        procedureInfoMap = new HashMap<>();
+        final Map<String, Object> procedureInfoMap = new HashMap<>();
         procedureFieldAdded++;
 
         LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
@@ -952,6 +955,7 @@ public class ItemDetailFragment extends Fragment {
 
             }
         };
+        procedureMapList.add(procedureInfoMap);
         procedureNameEditText.addTextChangedListener(newProcedureTextWatcher);
         procedureDateEditText.addTextChangedListener(newProcedureTextWatcher);
         numberUsedEditText.addTextChangedListener(newProcedureTextWatcher);
@@ -1364,8 +1368,7 @@ public class ItemDetailFragment extends Fragment {
                     Integer.parseInt(Objects.requireNonNull(numberUsedEditText.getText()).toString());
         } else {
             number_added_str = Objects.requireNonNull(numberAdded.getText()).toString();
-            quantity_int = Integer.parseInt(itemQuantity) +
-                    Integer.parseInt(numberAdded.getText().toString());
+            quantity_int = Integer.parseInt(numberAdded.getText().toString());
         }
         String quantity_str = String.valueOf(quantity_int);
         String site_name_str = "";
@@ -1455,30 +1458,30 @@ public class ItemDetailFragment extends Fragment {
         procedureQuantity.put("procedure_number",String.valueOf(procedureFieldAdded));
 
         if (checkItemUsed) {
-            DocumentReference procedureDocRef = db.collection(NETWORKS).document(NETWORK)
-                    .collection(SITES).document(SITE).collection(DEPARTMENTS)
-                    .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str)
-                    .collection("UDIs").document(barcode_str).collection("procedures")
-                    .document("procedure_" + procedureFieldAdded);
-
-            procedureDocRef.set(procedureInfoMap)
-                    //in case of success
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    // in case of failure
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, e.toString());
-                        }
-                    });
-            procedureInfoMap.clear();
-
+            for(int i = 0; i < procedureMapList.size(); i++){
+                DocumentReference procedureDocRef = db.collection(NETWORKS).document(NETWORK)
+                        .collection(SITES).document(SITE).collection(DEPARTMENTS)
+                        .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str)
+                        .collection("UDIs").document(barcode_str).collection("procedures")
+                        .document("procedure_" + (procedureListCounter+1));
+                procedureListCounter++;
+                procedureDocRef.set(procedureMapList.get(i))
+                        //in case of success
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        // in case of failure
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
+                                Log.d(TAG, e.toString());
+                            }
+                        });
+            }
 
 
             udiRef.update(procedureQuantity)
@@ -1526,15 +1529,15 @@ public class ItemDetailFragment extends Fragment {
     private void autoPopulate(final DocumentReference siteDocRef, final View view) {
 
 
-        final String udi = udiEditText.getText().toString();
-        Log.d(TAG, udi);
+        final String udiStr = udiEditText.getText().toString();
+        Log.d(TAG, udiStr);
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(parent);
         String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
         //  final String[] di = {""};
 
-        url = url + udi;
+        url = url + udiStr;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -1568,6 +1571,7 @@ public class ItemDetailFragment extends Fragment {
                             referenceNumber.setText(deviceInfo.getString("catalogNumber"));
                             medicalSpeciality.setText(medicalSpecialties);
                             numberAdded.setText(deviceInfo.getString("deviceCount"));
+                            autoPopulateFromDatabase(udi, siteDocRef,udiStr);
 
                             JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
 
@@ -1604,12 +1608,6 @@ public class ItemDetailFragment extends Fragment {
                                 }
                                 addItemSpecs(k,v,view);
                             }
-
-                            /* right now, the function takes udi to autopopulate quantity field
-                             from database; we could add any other fields that is possible to be
-                            populated from database */
-                            autoPopulateFromDatabase(udi, siteDocRef);
-
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -1638,7 +1636,7 @@ public class ItemDetailFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                updateProcedureFieldAdded(udi, deviceIdentifier.getText().toString());
+                updateProcedureFieldAdded(udiStr, deviceIdentifier.getText().toString());
 
             }
         };
@@ -1663,6 +1661,7 @@ public class ItemDetailFragment extends Fragment {
                         if(document.get("procedure_number") != null){
                             procedureFieldAdded = Integer.parseInt(
                                     Objects.requireNonNull(document.getString("procedure_number")));
+                            procedureListCounter = procedureFieldAdded;
                         }else{
                             procedureFieldAdded = 0;
                         }
@@ -1680,14 +1679,15 @@ public class ItemDetailFragment extends Fragment {
     }
 
 
-    private void autoPopulateFromDatabase(JSONObject udi, DocumentReference siteDocRef) {
+    private void autoPopulateFromDatabase(JSONObject udi, DocumentReference siteDocRef,String udiStr) {
         DocumentReference udiDocRef = null;
         try {
 
             udiDocRef = siteDocRef
                     .collection("n1_h3_departments").document("department1")
                     .collection("n1_h1_d1 productids").document(udi.getString("di"))
-                    .collection("UDIs").document(udi.getString("udi"));
+                    .collection("UDIs").document(udiStr);
+            System.out.println("udi is" + udiStr);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -1697,15 +1697,21 @@ public class ItemDetailFragment extends Fragment {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        itemQuantity = document.getString(QUANTITY_KEY);
-
+                        if(document.get("quantity") != null) {
+                            itemQuantity = document.getString(QUANTITY_KEY);
+                            quantity.setText(itemQuantity);
+                        }else{
+                            itemQuantity = "0";
+                            quantity.setText("0");
+                        }
                     } else {
                         itemQuantity = "0";
+                        quantity.setText("0");
+
                         Log.d(TAG, "Document does not exist!");
                     }
                     quantity.setText(document.getString(QUANTITY_KEY));
                 } else {
-                    itemQuantity = "0";
                     Log.d(TAG, "Failed with: ", task.getException());
                 }
             }
