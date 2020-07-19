@@ -403,6 +403,7 @@
             app:endIconMode="custom"
             app:helperTextEnabled="true"
             app:helperText="* Required"
+            app:endIconTint="@color/colorPrimary"
             app:helperTextTextAppearance="?attr/textAppearanceCaption">
 
             <com.google.android.material.textfield.TextInputEditText

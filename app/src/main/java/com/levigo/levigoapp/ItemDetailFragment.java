@@ -160,6 +160,10 @@ public class ItemDetailFragment extends Fragment {
     private boolean chosenSite;
     private boolean checkEditTexts;
     private boolean checkAutocompleteTexts;
+    private boolean checkItemUsed;
+    private boolean checkSingleUseButton;
+    private boolean checkMultiUseButton;
+    private boolean checkProcedureInfo;
     private Button autoPopulateButton;
     private List<TextInputEditText> allSizeOptions;
     private ArrayList<String> TYPES;
@@ -226,7 +230,7 @@ public class ItemDetailFragment extends Fragment {
         timeIn = rootView.findViewById(R.id.detail_in_time);
         TextInputLayout expirationTextLayout = rootView.findViewById(R.id.expiration_date_string);
         TextInputLayout dateInLayout = rootView.findViewById(R.id.in_date_layout);
-        TextInputLayout timeInLayout = rootView.findViewById(R.id.in_time_layout);
+        final TextInputLayout timeInLayout = rootView.findViewById(R.id.in_time_layout);
         itemUsed = rootView.findViewById(R.id.detail_used_switch);
         saveButton = rootView.findViewById(R.id.detail_save_button);
         ImageButton backButton = rootView.findViewById(R.id.detail_back_button);
@@ -245,6 +249,10 @@ public class ItemDetailFragment extends Fragment {
         chosenLocation = false;
         checkAutocompleteTexts = false;
         checkEditTexts = false;
+        checkItemUsed = false;
+        checkSingleUseButton = false;
+        checkMultiUseButton = false;
+        checkProcedureInfo = false;
         itemUsed.setChecked(false);
         saveButton.setEnabled(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
@@ -278,11 +286,12 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-
+/*
         singleUseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if((b && checkAutocompleteTexts) && checkEditTexts){
+                    checkSingleUseButton = true;
                     saveButton.setEnabled(true);
                 }
             }
@@ -292,10 +301,13 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if((b && checkAutocompleteTexts) && checkEditTexts){
+                    checkMultiUseButton = true;
                     saveButton.setEnabled(true);
                 }
             }
         });
+
+ */
 
 
         // icon listener to search di in database to autopopulate di-specific fields
@@ -307,182 +319,30 @@ public class ItemDetailFragment extends Fragment {
         });
 
 
-        textWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                for (TextInputEditText editText : new TextInputEditText[]{udiEditText, nameEditText,
-                        company, expiration, lotNumber, referenceNumber, numberAdded, deviceIdentifier,
-                        dateIn, timeIn}) {
-                    if (Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()) {
-                        saveButton.setEnabled(false);
-                        return;
-                    }
+        //set TextWatcher for required fields
+        setTextWatcherRequired();
 
 
-                }
-                checkEditTexts = true;
-            }
-        };
-
-        udiEditText.addTextChangedListener(textWatcher);
-        nameEditText.addTextChangedListener(textWatcher);
-        company.addTextChangedListener(textWatcher);
-        expiration.addTextChangedListener(textWatcher);
-        lotNumber.addTextChangedListener(textWatcher);
-        referenceNumber.addTextChangedListener(textWatcher);
-        numberAdded.addTextChangedListener(textWatcher);
-        deviceIdentifier.addTextChangedListener(textWatcher);
-        dateIn.addTextChangedListener(textWatcher);
-        timeIn.addTextChangedListener(textWatcher);
-
-
-        final TextWatcher textWatcherDropDown = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                for (AutoCompleteTextView editText : new AutoCompleteTextView[]{equipmentType,
-                        hospitalName, physicalLocation}) {
-                    if (editText.getText().toString().trim().isEmpty()) {
-                        saveButton.setEnabled(false);
-                        return;
-                    }
-                }
-                checkAutocompleteTexts = true;
-            }
-        };
-
-        equipmentType.addTextChangedListener(textWatcherDropDown);
-        hospitalName.addTextChangedListener(textWatcherDropDown);
-        physicalLocation.addTextChangedListener(textWatcherDropDown);
-
-
+        //get realtime update for Equipment Type field from database
         // Dropdown menu for Type field
         // real time type update
-        typeRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-                if (documentSnapshot != null && documentSnapshot.exists()) {
-                    Map<String, Object> typeObj = documentSnapshot.getData();
-                    typeCounter = typeObj.size();
-                    for (Object value : typeObj.values()) {
-                        if (!TYPES.contains(value.toString())) {
-                            TYPES.add(value.toString());
-                        }
-                        Collections.sort(TYPES);
-                    }
-                } else {
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
-        // adapter for dropdown list for Types
-        final ArrayAdapter<String> adapterType =
-                new ArrayAdapter<>(
-                        rootView.getContext(),
-                        R.layout.dropdown_menu_popup_item,
-                        TYPES);
-        equipmentType.setAdapter(adapterType);
+        updateEquipmentType(rootView);
 
-
-        equipmentType.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                addTypeOptionField(adapterView, view, i, l);
-
-            }
-        });
+        //get realtime update for Site field from database
         // real time site update
-        siteRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-                if (documentSnapshot != null && documentSnapshot.exists()) {
-                    Map<String, Object> typeObj = documentSnapshot.getData();
-                    assert typeObj != null;
-                    siteCounter = typeObj.size();
-                    for (Object value : typeObj.values()) {
-                        if (!SITELOC.contains(value.toString())) {
-                            SITELOC.add(value.toString());
-                        }
-                        Collections.sort(SITELOC);
-                    }
-                } else {
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
+        updateSite(rootView);
 
-        // Dropdown menu for Site Location field
-        final ArrayAdapter<String> adapterSite =
-                new ArrayAdapter<>(
-                        rootView.getContext(),
-                        R.layout.dropdown_menu_popup_item,
-                        SITELOC);
-        hospitalName.setAdapter(adapterSite);
-        hospitalName.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                addNewSite(adapterView, view, i, l);
-            }
-        });
-
-
+        //get realtime update for Physical Location field from database
         // Dropdown menu for Physical Location field
-        physLocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-                if (documentSnapshot != null && documentSnapshot.exists()) {
-                    Map<String, Object> typeObj = documentSnapshot.getData();
-                    assert typeObj != null;
-                    locCounter = typeObj.size();
-                    for (Object value : typeObj.values()) {
-                        if (!PHYSICALLOC.contains(value.toString())) {
-                            PHYSICALLOC.add(value.toString());
-                        }
-                        Collections.sort(PHYSICALLOC);
-                    }
-                } else {
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
+        updatePhysicalLocation(rootView);
 
-        final ArrayAdapter<String> adapterLoc =
-                new ArrayAdapter<>(
-                        rootView.getContext(),
-                        R.layout.dropdown_menu_popup_item,
-                        PHYSICALLOC);
-        physicalLocation.setAdapter(adapterLoc);
-        physicalLocation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        itemUsed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                addNewLoc(adapterView, view, i, l);
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    checkItemUsed = true;
+                }
             }
         });
 
@@ -504,20 +364,11 @@ public class ItemDetailFragment extends Fragment {
         timeInLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Calendar mcurrentTime = Calendar.getInstance();
-                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-                int minute = mcurrentTime.get(Calendar.MINUTE);
-                TimePickerDialog mTimePicker;
-                mTimePicker = new TimePickerDialog(rootView.getContext(), new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                        timeIn.setText(String.format(Locale.US, "%d:%d:00", selectedHour, selectedMinute));
-                    }
-                }, hour, minute, true);
-                mTimePicker.setTitle("Select Time");
-                mTimePicker.show();
+                timeInLayoutPicker(view);
             }
         });
+
+
 
         // going back to the scanner view
         rescanButton.setOnClickListener(new View.OnClickListener() {
@@ -545,6 +396,7 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 removeProcedure.setEnabled(true);
+                saveButton.setEnabled(false);
                 addProcedureField(view);
                 addTextWatcher(view);
                 setIconsAndDialogs(view);
@@ -664,6 +516,235 @@ public class ItemDetailFragment extends Fragment {
     }
 
 
+
+    private void timeInLayoutPicker(View view){
+        Calendar mcurrentTime = Calendar.getInstance();
+        int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+        int minute = mcurrentTime.get(Calendar.MINUTE);
+        TimePickerDialog mTimePicker;
+        mTimePicker = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                timeIn.setText(String.format(Locale.US, "%d:%d:00", selectedHour, selectedMinute));
+            }
+        }, hour, minute, true);
+        mTimePicker.setTitle("Select Time");
+        mTimePicker.show();
+    }
+
+    private void updatePhysicalLocation(View view){
+        physLocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    Map<String, Object> typeObj = documentSnapshot.getData();
+                    assert typeObj != null;
+                    locCounter = typeObj.size();
+                    for (Object value : typeObj.values()) {
+                        if (!PHYSICALLOC.contains(value.toString())) {
+                            PHYSICALLOC.add(value.toString());
+                        }
+                        Collections.sort(PHYSICALLOC);
+                    }
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+
+        final ArrayAdapter<String> adapterLoc =
+                new ArrayAdapter<>(
+                        view.getContext(),
+                        R.layout.dropdown_menu_popup_item,
+                        PHYSICALLOC);
+        physicalLocation.setAdapter(adapterLoc);
+        physicalLocation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                addNewLoc(adapterView, view, i, l);
+            }
+        });
+
+    }
+
+
+    private void updateSite(View view){
+        siteRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    Map<String, Object> typeObj = documentSnapshot.getData();
+                    assert typeObj != null;
+                    siteCounter = typeObj.size();
+                    for (Object value : typeObj.values()) {
+                        if (!SITELOC.contains(value.toString())) {
+                            SITELOC.add(value.toString());
+                        }
+                        Collections.sort(SITELOC);
+                    }
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+
+        // Dropdown menu for Site Location field
+        final ArrayAdapter<String> adapterSite =
+                new ArrayAdapter<>(
+                        view.getContext(),
+                        R.layout.dropdown_menu_popup_item,
+                        SITELOC);
+        hospitalName.setAdapter(adapterSite);
+        hospitalName.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                addNewSite(adapterView, view, i, l);
+            }
+        });
+
+    }
+
+    private void updateEquipmentType(View view){
+        typeRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    Map<String, Object> typeObj = documentSnapshot.getData();
+                    typeCounter = typeObj.size();
+                    for (Object value : typeObj.values()) {
+                        if (!TYPES.contains(value.toString())) {
+                            TYPES.add(value.toString());
+                        }
+                        Collections.sort(TYPES);
+                    }
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+        // adapter for dropdown list for Types
+        final ArrayAdapter<String> adapterType =
+                new ArrayAdapter<>(
+                        view.getContext(),
+                        R.layout.dropdown_menu_popup_item,
+                        TYPES);
+        equipmentType.setAdapter(adapterType);
+
+
+        equipmentType.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                addTypeOptionField(adapterView, view, i, l);
+
+            }
+        });
+    }
+    private void setTextWatcherRequired(){
+        final TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+                for (AutoCompleteTextView editText : new AutoCompleteTextView[]{equipmentType,
+                        hospitalName, physicalLocation}) {
+                    if(!(editText.getText().toString().trim().isEmpty())){
+                        checkAutocompleteTexts = true;
+                        continue;
+                    }
+                    if (editText.getText().toString().trim().isEmpty()) {
+                        checkAutocompleteTexts = false;
+                        break;
+                    }
+                }
+
+                if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)){
+                    saveButton.setEnabled(true);
+                }
+
+                for (TextInputEditText editText : new TextInputEditText[]{udiEditText, nameEditText,
+                        company, expiration, lotNumber, referenceNumber, numberAdded, deviceIdentifier,
+                        dateIn, timeIn}) {
+                    if(!(Objects.requireNonNull(editText.getText()).toString().trim().isEmpty())){
+                        checkEditTexts = true;
+                        continue;
+                    }
+                    if (Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()) { ;
+                        checkEditTexts = false;
+                        break;
+                    }
+                }
+
+                if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)){
+                    saveButton.setEnabled(true);
+                }
+
+
+                singleUseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        checkSingleUseButton = true;
+                        if((b && checkAutocompleteTexts) && checkEditTexts){
+                            saveButton.setEnabled(true);
+                        }
+                    }
+                });
+
+                multiUse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        checkMultiUseButton = true;
+                        if((b && checkAutocompleteTexts) && checkEditTexts){
+
+                            saveButton.setEnabled(true);
+                        }
+                    }
+                });
+            }
+        };
+
+        if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)){
+            saveButton.setEnabled(true);
+        }
+
+
+        equipmentType.addTextChangedListener(textWatcher);
+        hospitalName.addTextChangedListener(textWatcher);
+        physicalLocation.addTextChangedListener(textWatcher);
+        udiEditText.addTextChangedListener(textWatcher);
+        nameEditText.addTextChangedListener(textWatcher);
+        company.addTextChangedListener(textWatcher);
+        expiration.addTextChangedListener(textWatcher);
+        lotNumber.addTextChangedListener(textWatcher);
+        referenceNumber.addTextChangedListener(textWatcher);
+        numberAdded.addTextChangedListener(textWatcher);
+        deviceIdentifier.addTextChangedListener(textWatcher);
+        dateIn.addTextChangedListener(textWatcher);
+        timeIn.addTextChangedListener(textWatcher);
+    }
+
+
+
+
     private void setIconsAndDialogs(View view){
         final DatePickerDialog.OnDateSetListener date_proc = new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -705,6 +786,7 @@ public class ItemDetailFragment extends Fragment {
 
     }
 
+
     private void addTextWatcher(View view){
         procedureTextWatcher = new TextWatcher() {
             @Override
@@ -720,11 +802,19 @@ public class ItemDetailFragment extends Fragment {
                 for (TextInputEditText editText : new TextInputEditText[]{procedureNameEditText,
                         procedureDateEditText, numberUsedEditText, accessionNumberEditText}) {
                     if (Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()) {
-                        saveButton.setEnabled(false);
-                        return;
+                        if(!(editText.getText().toString().trim().isEmpty())){
+                            checkProcedureInfo = true;
+                            continue;
+                        }
+                        if (editText.getText().toString().trim().isEmpty()) {
+                            checkProcedureInfo = false;
+                            break;
+                        }
                     }
                 }
-
+                if(checkProcedureInfo){
+                    saveButton.setEnabled(true);
+                }
             }
         };
         procedureNameEditText.addTextChangedListener(procedureTextWatcher);
@@ -847,6 +937,42 @@ public class ItemDetailFragment extends Fragment {
 
         accessionNumberEditText= new TextInputEditText(procedureNameLayout.getContext());
         accessionNumberEditText.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        TextWatcher newProcedureTextWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                for (TextInputEditText editText : new TextInputEditText[]{procedureNameEditText,
+                        procedureDateEditText, numberUsedEditText, accessionNumberEditText}) {
+                    if (Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()) {
+                        if(!(editText.getText().toString().trim().isEmpty())){
+                            checkProcedureInfo = true;
+                            continue;
+                        }
+                        if (editText.getText().toString().trim().isEmpty()) {
+                            checkProcedureInfo = false;
+                            break;
+                        }
+                    }
+                }
+
+                if(checkProcedureInfo){
+                    saveButton.setEnabled(true);
+                }
+
+            }
+        };
+        procedureNameEditText.addTextChangedListener(newProcedureTextWatcher);
+        procedureDateEditText.addTextChangedListener(newProcedureTextWatcher);
+        numberUsedEditText.addTextChangedListener(newProcedureTextWatcher);
+        accessionNumberEditText.addTextChangedListener(newProcedureTextWatcher);
 
 
         // saving string to HashMap to save it to database
@@ -1014,6 +1140,7 @@ public class ItemDetailFragment extends Fragment {
         String selected = (String) adapterView.getItemAtPosition(i);
         TextInputLayout other_type_layout = null;
         if (selected.equals("Other")) {
+            saveButton.setEnabled(false);
             chosenType = true;
             other_type_layout = (TextInputLayout) View.inflate(view.getContext(),
                     R.layout.activity_itemdetail_materialcomponent, null);
@@ -1021,6 +1148,26 @@ public class ItemDetailFragment extends Fragment {
             other_type_layout.setId(View.generateViewId());
             other_type_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
             otherType_text = new TextInputEditText(other_type_layout.getContext());
+            TextWatcher typeTextWatcher = new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if(!(otherType_text.toString().trim().isEmpty())){
+                        saveButton.setEnabled(true);
+                    }
+                }
+            };
+            otherType_text.addTextChangedListener(typeTextWatcher);
+
             otherType_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
             other_type_layout.addView(otherType_text);
             linearLayout.addView(other_type_layout, 1 + linearLayout.indexOfChild(typeInputLayout));
@@ -1057,17 +1204,20 @@ public class ItemDetailFragment extends Fragment {
             });
         } else if (chosenType && (!(selected.equals("Other")))) {
             chosenType = false;
+            if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
+                saveButton.setEnabled(true);
+            }
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeInputLayout));
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeInputLayout));
         }
     }
 
 
-
     private void addNewSite(final AdapterView<?> adapterView, View view, int i, long l) {
         String selected = (String) adapterView.getItemAtPosition(i);
         TextInputLayout other_site_layout = null;
         if (selected.equals("Other")) {
+            saveButton.setEnabled(false);
             chosenSite = true;
             other_site_layout = (TextInputLayout) View.inflate(view.getContext(),
                     R.layout.activity_itemdetail_materialcomponent, null);
@@ -1075,6 +1225,27 @@ public class ItemDetailFragment extends Fragment {
             other_site_layout.setId(View.generateViewId());
             other_site_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
             otherSite_text = new TextInputEditText(other_site_layout.getContext());
+            TextWatcher siteTextWatcher = new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if(!(otherSite_text.toString().trim().isEmpty())){
+                        saveButton.setEnabled(true);
+                    }
+
+                }
+            };
+            otherSite_text.addTextChangedListener(siteTextWatcher);
+
             otherSite_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
             other_site_layout.addView(otherSite_text);
             linearLayout.addView(other_site_layout, 1 + linearLayout.indexOfChild(siteLocationLayout));
@@ -1109,6 +1280,9 @@ public class ItemDetailFragment extends Fragment {
                 }
             });
         } else if (chosenSite && (!(selected.equals("Other")))) {
+            if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
+                saveButton.setEnabled(true);
+            }
             chosenSite = false;
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(siteLocationLayout));
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(siteLocationLayout));
@@ -1119,6 +1293,7 @@ public class ItemDetailFragment extends Fragment {
         String selectedLoc = (String) adapterView.getItemAtPosition(i);
         final TextInputLayout other_physicaloc_layout;
         if (selectedLoc.equals("Other")) {
+            saveButton.setEnabled(false);
             chosenLocation = true;
             other_physicaloc_layout = (TextInputLayout) View.inflate(view.getContext(),
                     R.layout.activity_itemdetail_materialcomponent, null);
@@ -1126,6 +1301,25 @@ public class ItemDetailFragment extends Fragment {
             other_physicaloc_layout.setId(View.generateViewId());
             other_physicaloc_layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
             otherPhysicalLoc_text = new TextInputEditText(other_physicaloc_layout.getContext());
+            TextWatcher physicalLocationWatcher = new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if(!(otherPhysicalLoc_text.toString().trim().isEmpty())){
+                        saveButton.setEnabled(true);
+                    }
+
+                }
+            };
             otherPhysicalLoc_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
             other_physicaloc_layout.addView(otherPhysicalLoc_text);
             linearLayout.addView(other_physicaloc_layout, 1 + linearLayout.indexOfChild(physLocationLayout));
@@ -1160,6 +1354,9 @@ public class ItemDetailFragment extends Fragment {
                 }
             });
         } else if (chosenLocation && (!(selectedLoc.equals("Other")))) {
+            if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
+                saveButton.setEnabled(true);
+            }
             chosenLocation = false;
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(physLocationLayout));
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(physLocationLayout));
@@ -1277,9 +1474,9 @@ public class ItemDetailFragment extends Fragment {
                         Log.d(TAG, e.toString());
                     }
                 });
-/*
-        //if item is used
-        if (itemUsed.isChecked()) {
+
+
+        if (checkItemUsed) {
 
             udiRef.update(procedureInfoMap)
                     //in case of success
@@ -1298,9 +1495,6 @@ public class ItemDetailFragment extends Fragment {
                         }
                     });
         }
-
- */
-
 
 
 
