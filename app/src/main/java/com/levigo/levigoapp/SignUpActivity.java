@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 Levigo Apps
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.levigo.levigoapp;
 
 import android.content.Intent;
@@ -16,6 +32,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -26,24 +44,35 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * Signs up new user
+ */
+
 public class SignUpActivity extends AppCompatActivity {
     private static final String TAG = SignUpActivity.class.getSimpleName();
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
     private CollectionReference invitationCodesRef = levigoDb.collection("invitation_codes");
-//    private CollectionReference networksRef = levigoDb.collection("networks");
 
-    private LinearLayout emailPasswordLayout;
-    private Button submitInvitationCode;
-    private TextInputLayout invitationCodeLayout;
-    private TextInputEditText invitationCodeBox;
-    private TextInputEditText emailField;
-    private TextInputEditText passwordField;
-    private TextInputEditText confirmPasswordField;
-    private Button signUpButton;
-    private TextView networkNameTextView;
-    private TextView siteNameTextView;
+    private LinearLayout mEmailPasswordLayout;
+    private Button mSubmitInvitationCode;
+    private TextInputLayout mInvitationCodeLayout;
+    private TextInputEditText mInvitationCodeBox;
+    private TextInputEditText mEmailField;
+    private TextInputEditText mPasswordField;
+    private TextInputEditText mConfirmPasswordField;
+    private Button mSignUpButton;
+    private TextView mNetworkNameTextView;
+    private TextView mSiteNameTextView;
+
+    private String mInvitationCode;
+
+    // ID and name of network and site authorized
+    private String mNetwork;
+    private String mNetworkName;
+    private String mSite;
+    private String mSiteName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,27 +81,28 @@ public class SignUpActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        networkNameTextView = findViewById(R.id.signup_network_name);
-        siteNameTextView = findViewById(R.id.signup_site_name);
+        mNetworkNameTextView = findViewById(R.id.signup_network_name);
+        mSiteNameTextView = findViewById(R.id.signup_site_name);
 
-        emailPasswordLayout = findViewById(R.id.signup_email_password_layout);
-        emailField = findViewById(R.id.signup_email);
-        passwordField = findViewById(R.id.signup_password);
-        confirmPasswordField = findViewById(R.id.signup_password_confirm);
-        signUpButton = findViewById(R.id.signup_button);
+        mEmailPasswordLayout = findViewById(R.id.signup_email_password_layout);
+        mEmailField = findViewById(R.id.signup_email);
+        mPasswordField = findViewById(R.id.signup_password);
+        mConfirmPasswordField = findViewById(R.id.signup_password_confirm);
+        mSignUpButton = findViewById(R.id.signup_button);
 
         // Email password fields disabled until valid invitation code
-        emailPasswordLayout.setVisibility(View.GONE);
-        signUpButton.setEnabled(false);
+        mEmailPasswordLayout.setVisibility(View.GONE);
+        mSignUpButton.setEnabled(false);
 
-        submitInvitationCode = findViewById(R.id.submit_invitation_code_button);
+        mSubmitInvitationCode = findViewById(R.id.submit_invitation_code_button);
         // Disabled until not empty
-        submitInvitationCode.setEnabled(false);
-        invitationCodeLayout = findViewById(R.id.textInputLayout_invitationCode);
-        invitationCodeBox = findViewById(R.id.et_InvitationCode);
+        mSubmitInvitationCode.setEnabled(false);
+        mInvitationCodeLayout = findViewById(R.id.textInputLayout_invitationCode);
+        mInvitationCodeBox = findViewById(R.id.et_InvitationCode);
+
 
         // Disable submit invitation code when it's empty
-        invitationCodeBox.addTextChangedListener(new TextWatcher() {
+        mInvitationCodeBox.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -80,9 +110,9 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.toString().trim().length() == 0) {
-                    submitInvitationCode.setEnabled(false);
+                    mSubmitInvitationCode.setEnabled(false);
                 } else {
-                    submitInvitationCode.setEnabled(true);
+                    mSubmitInvitationCode.setEnabled(true);
                 }
             }
 
@@ -91,15 +121,13 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
-        submitInvitationCode.setOnClickListener(new View.OnClickListener() {
+        mSubmitInvitationCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String invitationCode = invitationCodeBox.getText().toString();
-//                Log.d(TAG, "INVITATION CODE: " + invitationCode);
+                mInvitationCode = mInvitationCodeBox.getText().toString();
 
-                final DocumentReference docRef = invitationCodesRef.document(invitationCode);
+                final DocumentReference docRef = invitationCodesRef.document(mInvitationCode);
                 // Verify invitation code
-
                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -108,14 +136,26 @@ public class SignUpActivity extends AppCompatActivity {
                             DocumentSnapshot document = task.getResult();
                             if (document.exists()) {
 //                                Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                                if (document.getBoolean("valid")){
-                                    // Valid code; Check which network & hospital authorized for
-                                    networkNameTextView.setText(document.get("network_name").toString());
-                                    siteNameTextView.setText(document.get("site_name").toString());
-                                    emailPasswordLayout.setVisibility(View.VISIBLE);
-                                    invitationCodeLayout.setEnabled(false);
+                                if (document.getBoolean("valid")) {
+                                    try {
+                                        // Valid code; Check which network & hospital authorized for
+                                        mNetwork = document.get("network").toString();
+                                        mNetworkName = document.get("network_name").toString();
+                                        mSite = document.get("site").toString();
+                                        mSiteName = document.get("site_name").toString();
 
-                                    toastMessage = "Validation complete";
+                                        mNetworkNameTextView.setText(mNetworkName);
+                                        mSiteNameTextView.setText(mSiteName);
+
+                                        mEmailPasswordLayout.setVisibility(View.VISIBLE);
+                                        mInvitationCodeLayout.setEnabled(false);
+
+                                        toastMessage = "Validation complete";
+
+                                        // invitation code data missing fields
+                                    } catch (NullPointerException e) {
+                                        toastMessage = "Error with validation code data; Please contact support";
+                                    }
 
                                 } else {
                                     toastMessage = "Invitation code already used; Please contact administrator";
@@ -148,33 +188,33 @@ public class SignUpActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                String e = emailField.getText().toString();
-                String p = passwordField.getText().toString();
-                String cp = confirmPasswordField.getText().toString();
+                String e = mEmailField.getText().toString();
+                String p = mPasswordField.getText().toString();
+                String cp = mConfirmPasswordField.getText().toString();
 
                 // Disable sign up if password fields don't match
-                if (!p.equals(cp)){
-                    signUpButton.setEnabled(false);
+                if (!p.equals(cp)) {
+                    mSignUpButton.setEnabled(false);
                     //TODO display warning sign next to confirm password
                 }
 
                 // Disable sign up if any field is empty
-                if (e.length() == 0 || p.length() == 0 || cp.length()==0){
-                    signUpButton.setEnabled(false);
+                if (e.length() == 0 || p.length() == 0 || cp.length() == 0) {
+                    mSignUpButton.setEnabled(false);
                 } else {
-                    signUpButton.setEnabled(true);
+                    mSignUpButton.setEnabled(true);
                 }
             }
         };
-        emailField.addTextChangedListener(emailPasswordWatcher);
-        passwordField.addTextChangedListener(emailPasswordWatcher);
-        confirmPasswordField.addTextChangedListener(emailPasswordWatcher);
+        mEmailField.addTextChangedListener(emailPasswordWatcher);
+        mPasswordField.addTextChangedListener(emailPasswordWatcher);
+        mConfirmPasswordField.addTextChangedListener(emailPasswordWatcher);
 
-        signUpButton.setOnClickListener(new View.OnClickListener() {
+        mSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = emailField.getText().toString();
-                String password = passwordField.getText().toString();
+                String email = mEmailField.getText().toString();
+                String password = mPasswordField.getText().toString();
 
                 mAuth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
@@ -182,9 +222,16 @@ public class SignUpActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
 //                                    Log.d(TAG, "createUserWithEmail:success");
-                                    //TODO disable validation code in the database!!
-                                    //TODO pass network and site to main!!
-                                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                                    disableValidationCode(mInvitationCode);
+                                    Bundle authBundle = new Bundle();
+                                    authBundle.putString("network", mNetwork);
+                                    authBundle.putString("network_name", mNetworkName);
+                                    authBundle.putString("site", mSite);
+                                    authBundle.putString("site_name", mSiteName);
+
+                                    Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                                    mainActivityIntent.putExtras(authBundle);
+                                    startActivity(mainActivityIntent);
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     Log.w(TAG, "createUserWithEmail:failure", task.getException());
@@ -197,4 +244,26 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void disableValidationCode(String invitationCode) {
+        DocumentReference currentCodeRef = invitationCodesRef.document(invitationCode);
+
+        // TODO add actions in case of success/failure OR delete custom listener?
+        currentCodeRef
+                .update("valid", false)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully updated!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error updating document", e);
+                    }
+                });
+    }
+
+
 }

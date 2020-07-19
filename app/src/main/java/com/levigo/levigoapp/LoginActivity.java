@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 Levigo Apps
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.levigo.levigoapp;
 
 import android.content.Intent;
@@ -20,6 +36,10 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+/**
+ * Logs in user
+ */
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -87,28 +107,23 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    /*
-        private void signUp(String email, String password) {
-            mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()) {
-                            Log.d(TAG, "Sign in successful");
-                            signout = mRemember.isChecked();
-                        }
-                        else {
-                            Toast.makeText(LoginActivity.this, "Failed to sign up",Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
-        }
-    */
+    // TODO grab actual values for network & site user authorized for
     private void userIsLoggedIn() {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
             clear = false;
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+
+            Bundle authBundle = new Bundle();
+            authBundle.putString("network", "mNetwork");
+            authBundle.putString("network_name", "mNetworkName");
+            authBundle.putString("site", "mSite");
+            authBundle.putString("site_name", "mSiteName");
+
+            Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+            mainActivityIntent.putExtras(authBundle);
+            startActivity(mainActivityIntent);
+
+//            startActivity(new Intent(getApplicationContext(), MainActivity.class));
             finish();
         }
     }
