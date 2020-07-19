@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +18,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -25,6 +29,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class SignUpActivity extends AppCompatActivity {
     private static final String TAG = SignUpActivity.class.getSimpleName();
 
+    private FirebaseAuth mAuth;
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
     private CollectionReference invitationCodesRef = levigoDb.collection("invitation_codes");
     private CollectionReference networksRef = levigoDb.collection("networks");
@@ -44,6 +49,8 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+
+        mAuth = FirebaseAuth.getInstance();
 
         networkNameTextView = findViewById(R.id.signup_network_name);
         siteNameTextView = findViewById(R.id.signup_site_name);
@@ -151,8 +158,39 @@ public class SignUpActivity extends AppCompatActivity {
         emailField.addTextChangedListener(emailPasswordWatcher);
         passwordField.addTextChangedListener(emailPasswordWatcher);
         confirmPasswordField.addTextChangedListener(emailPasswordWatcher);
+        
+        signUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String email = emailField.getText().toString();
+                String password = passwordField.getText().toString();
 
-        //TODO actual sign up
-//        signUpButton.setOnClickListener(new );
+                mAuth.createUserWithEmailAndPassword(email, password);
+
+                //TODO sign in user; delete invitation code
+/*
+                mAuth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    // Sign in success, update UI with the signed-in user's information
+                                    Log.d(TAG, "createUserWithEmail:success");
+                                    FirebaseUser user = mAuth.getCurrentUser();
+//                                    updateUI(user);
+                                } else {
+                                    // If sign in fails, display a message to the user.
+                                    Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                                    Toast.makeText(getApplicationContext(), "Authentication failed.",
+                                            Toast.LENGTH_SHORT).show();
+//                                    updateUI(null);
+                                }
+
+                                // ...
+                            }
+                        });
+*/
+            }
+        });
     }
 }
