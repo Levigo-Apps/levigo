@@ -148,7 +148,7 @@ public class ItemDetailFragment extends Fragment {
     private Button addSizeButton;
 
     private String itemQuantity;
-    private int procedureFieldAdded = 0;
+    private int procedureFieldAdded;
     private int emptySizeFieldCounter = 0;
     private int typeCounter;
     private int siteCounter;
@@ -186,7 +186,7 @@ public class ItemDetailFragment extends Fragment {
     private final String PROCEDURE_KEY = "procedure_used";
     private final String PROCEDUREDATE_KEY = "procedure_date";
     private final String AMOUNTUSED_KEY = "amount_used";
-    private final String ACCESION_KEY = "accesion_number";
+    private final String ACCESSION_KEY = "accession_number";
     private final String TIME_KEY = "current_time";
     private final String DATE_KEY = "current_date";
     private final String EXPIRATION_KEY = "expiration";
@@ -267,7 +267,7 @@ public class ItemDetailFragment extends Fragment {
         TYPES = new ArrayList<>();
         SITELOC = new ArrayList<>();
         PHYSICALLOC = new ArrayList<>();
-        procedureInfoMap = new HashMap<>();
+
 
         // NumberPicker Dialog for NumberAdded field
         numberAdded.setOnClickListener(new View.OnClickListener() {
@@ -285,29 +285,6 @@ public class ItemDetailFragment extends Fragment {
                 incrementNumberAdded(rootView);
             }
         });
-
-/*
-        singleUseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if((b && checkAutocompleteTexts) && checkEditTexts){
-                    checkSingleUseButton = true;
-                    saveButton.setEnabled(true);
-                }
-            }
-        });
-
-        multiUse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if((b && checkAutocompleteTexts) && checkEditTexts){
-                    checkMultiUseButton = true;
-                    saveButton.setEnabled(true);
-                }
-            }
-        });
-
- */
 
 
         // icon listener to search di in database to autopopulate di-specific fields
@@ -337,14 +314,6 @@ public class ItemDetailFragment extends Fragment {
         // Dropdown menu for Physical Location field
         updatePhysicalLocation(rootView);
 
-        itemUsed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b){
-                    checkItemUsed = true;
-                }
-            }
-        });
 
         autoPopulateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -427,17 +396,19 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
+                    checkItemUsed = true;
                     saveButton.setEnabled(false);
-                    numberAdded.removeTextChangedListener(textWatcher);
                     itemUsedFields.setVisibility(View.VISIBLE);
+                    numberAdded.setText("0");
+                    numberAdded.removeTextChangedListener(textWatcher);
                     numberAddedLayout.setVisibility(View.GONE);
                     removeProcedure.setEnabled(false);
 
                 } else {
                     // enable saveButton
                     saveButton.setEnabled(true);
+                    checkItemUsed = false;
                     numberAddedLayout.setVisibility(View.VISIBLE);
-                    numberAdded.addTextChangedListener(textWatcher);
                     itemUsedFields.setVisibility(View.GONE);
                     while (procedureFieldAdded > 0) {
                         procedureNameEditText.removeTextChangedListener(procedureTextWatcher);
@@ -447,7 +418,6 @@ public class ItemDetailFragment extends Fragment {
                         itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addProcedure) - 1);
                         --procedureFieldAdded;
                     }
-
                 }
             }
         });
@@ -880,6 +850,7 @@ public class ItemDetailFragment extends Fragment {
     // TODO update to uniform style
     // when clicked adds one more additional field for Patient ID
     private void addProcedureField(View view) {
+        procedureInfoMap = new HashMap<>();
         procedureFieldAdded++;
 
         LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
@@ -887,8 +858,9 @@ public class ItemDetailFragment extends Fragment {
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         procedureInfoLayout.setOrientation(LinearLayout.VERTICAL);
 
-        TextView procedureNumber = new TextView(view.getContext());
-        procedureNumber.setText(String.format(Locale.US,"Procedure #%d Description", procedureFieldAdded));
+        final TextView procedureNumber = new TextView(view.getContext());
+        procedureNumber.setText(String.format(Locale.US,"Procedure #%d Description",
+                procedureFieldAdded));
 
 
         procedureNameLayout = (TextInputLayout) View.inflate(view.getContext(),
@@ -967,19 +939,23 @@ public class ItemDetailFragment extends Fragment {
                     saveButton.setEnabled(true);
                 }
 
+
+                // saving string to HashMap to save it to database
+                procedureInfoMap.put(PROCEDURE_KEY,
+                        procedureNameEditText.getText().toString());
+                procedureInfoMap.put(PROCEDUREDATE_KEY,
+                        procedureDateEditText.getText().toString());
+                procedureInfoMap.put(AMOUNTUSED_KEY,
+                        numberUsedEditText.getText().toString());
+                procedureInfoMap.put(ACCESSION_KEY,
+                        accessionNumberEditText.getText().toString());
+
             }
         };
         procedureNameEditText.addTextChangedListener(newProcedureTextWatcher);
         procedureDateEditText.addTextChangedListener(newProcedureTextWatcher);
         numberUsedEditText.addTextChangedListener(newProcedureTextWatcher);
         accessionNumberEditText.addTextChangedListener(newProcedureTextWatcher);
-
-
-        // saving string to HashMap to save it to database
-        procedureInfoMap.put(PROCEDURE_KEY+ "_" +procedureNumber,procedureNameEditText);
-        procedureInfoMap.put(PROCEDUREDATE_KEY+ "_" +procedureNumber,procedureDateEditText);
-        procedureInfoMap.put(AMOUNTUSED_KEY+ "_" +procedureNumber,numberUsedEditText);
-        procedureInfoMap.put(ACCESION_KEY+ "_" +procedureNumber,accessionNumberEditText);
 
 
         procedureNameLayout.addView(procedureNameEditText);
@@ -1475,10 +1451,17 @@ public class ItemDetailFragment extends Fragment {
                     }
                 });
 
+        Map<String, Object> procedureQuantity = new HashMap<>();
+        procedureQuantity.put("procedure_number",String.valueOf(procedureFieldAdded));
 
         if (checkItemUsed) {
+            DocumentReference procedureDocRef = db.collection(NETWORKS).document(NETWORK)
+                    .collection(SITES).document(SITE).collection(DEPARTMENTS)
+                    .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str)
+                    .collection("UDIs").document(barcode_str).collection("procedures")
+                    .document("procedure_" + procedureFieldAdded);
 
-            udiRef.update(procedureInfoMap)
+            procedureDocRef.set(procedureInfoMap)
                     //in case of success
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -1494,6 +1477,23 @@ public class ItemDetailFragment extends Fragment {
                             Log.d(TAG, e.toString());
                         }
                     });
+            procedureInfoMap.clear();
+
+
+
+            udiRef.update(procedureQuantity)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG,e.toString());
+                        }
+                    });
+            procedureQuantity.clear();
         }
 
 
@@ -1522,11 +1522,11 @@ public class ItemDetailFragment extends Fragment {
         }
     }
 
-
+    String di = "";
     private void autoPopulate(final DocumentReference siteDocRef, final View view) {
 
 
-        String udi = udiEditText.getText().toString();
+        final String udi = udiEditText.getText().toString();
         Log.d(TAG, udi);
 
         // Instantiate the RequestQueue.
@@ -1561,6 +1561,7 @@ public class ItemDetailFragment extends Fragment {
                             company.setText(deviceInfo.getString("companyName"));
                             expiration.setText(udi.getString("expirationDate"));
 
+                            di = udi.getString("di");
                             deviceIdentifier.setText(udi.getString("di"));
                             nameEditText.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
                             deviceDescription.setText(deviceInfo.getString("deviceDescription"));
@@ -1604,11 +1605,6 @@ public class ItemDetailFragment extends Fragment {
                                 addItemSpecs(k,v,view);
                             }
 
-                            int currentQuantity;
-                            DocumentReference diTemp = siteDocRef.collection("n1_h3_departments").document("department1")
-                                    .collection("n1_h1_d1 productids").document(udi.getString("di"));
-
-
                             /* right now, the function takes udi to autopopulate quantity field
                              from database; we could add any other fields that is possible to be
                             populated from database */
@@ -1628,6 +1624,59 @@ public class ItemDetailFragment extends Fragment {
 // Add the request to the RequestQueue.
         queue.add(stringRequest);
 
+        // getting and updating procedure number added to database
+        TextWatcher diWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                updateProcedureFieldAdded(udi, deviceIdentifier.getText().toString());
+
+            }
+        };
+        deviceIdentifier.addTextChangedListener(diWatcher);
+
+
+    }
+
+    private void updateProcedureFieldAdded(String udi, String di){
+        DocumentReference UdiDocRef = db.collection("networks").document("network1")
+                .collection("sites").document("n1_hospital3")
+                .collection("n1_h3_departments").document("department1")
+                .collection("n1_h1_d1 productids").document(di).collection("UDIs")
+                .document(udi);
+
+        UdiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        if(document.get("procedure_number") != null){
+                            procedureFieldAdded = Integer.parseInt(
+                                    Objects.requireNonNull(document.getString("procedure_number")));
+                        }else{
+                            procedureFieldAdded = 0;
+                        }
+
+                    } else {
+                        procedureFieldAdded = 0;
+                        Log.d(TAG, "Document does not exist!");
+                    }
+                } else {
+                    procedureFieldAdded = 0;
+                    Log.d(TAG, "Failed with: ", task.getException());
+                }
+            }
+        });
     }
 
 
