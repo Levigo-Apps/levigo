@@ -183,6 +183,7 @@ public class SignUpActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
 //                                    Log.d(TAG, "createUserWithEmail:success");
                                     //TODO disable validation code in the database!!
+                                    //TODO pass network and site to main!!
                                     startActivity(new Intent(getApplicationContext(), MainActivity.class));
                                 } else {
                                     // If sign in fails, display a message to the user.
