@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,7 +70,6 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
 
 
         Object[] types1 = dis.values().toArray();
-        Log.d(TAG, Arrays.toString(types1));
         Object object1 = types1[0];
         Map<String,Object> productType;
         if(object1 instanceof Map) {
