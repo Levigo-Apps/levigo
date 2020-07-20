@@ -5,12 +5,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder> {
@@ -19,13 +21,16 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
     private Activity activity;
     private Map<String,Object> iDataset;
 
+
     public static class TypesHolder extends RecyclerView.ViewHolder {
         public RecyclerView itemDIs;
+        public TextView itemType;
 
 
         public TypesHolder(View view){
             super(view);
             itemDIs = view.findViewById(R.id.types_dis);
+            itemType = view.findViewById(R.id.types_type);
         }
     }
 
@@ -45,23 +50,50 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
 
     @Override
     public void onBindViewHolder(TypesHolder holder, int position){
+     //   Map<String,Object> udi = tDataset.get(position);
+     //   if(udi.containsKey("equipment_type")) {
+      //      String typeString = udi.get("equipment_type").toString();
+      //      holder.itemType.setText(typeString);
+       // }
 
-        Object[] types = iDataset.values().toArray();
-        Object object = types[position];
-        Map<String,Object> dis;
-        if(object instanceof Map) {
-            dis = (Map<String,Object>) object;
+         Object[] types = iDataset.values().toArray();
+
+         Object object = types[position];
+
+         Map<String,Object> dis;
+            if(object instanceof Map) {
+                dis = (Map<String, Object>) object;
+            }
+         else {
+            Log.d(TAG, "ERROR");
+            return;
+         }
+
+
+        Object[] types1 = dis.values().toArray();
+        Log.d(TAG, Arrays.toString(types1));
+        Object object1 = types1[0];
+        Map<String,Object> productType;
+        if(object1 instanceof Map) {
+            productType = (Map<String,Object>) object1;
         }
         else {
             Log.d(TAG, "ERROR");
             return;
         }
 
-        DIAdapter diAdapter = new DIAdapter(activity, dis);
+        Map<String,Object> type = (HashMap<String,Object>) productType.get("di");
+        //TODO make safe
+        if(type.containsKey("equipment_type")) {
+            String type_item = type.get("equipment_type").toString();
+            holder.itemType.setText(type_item);
+        }
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
-        holder.itemDIs.setLayoutManager(layoutManager);
-        holder.itemDIs.setAdapter(diAdapter);
+         DIAdapter diAdapter = new DIAdapter(activity, dis);
+
+         LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
+         holder.itemDIs.setLayoutManager(layoutManager);
+         holder.itemDIs.setAdapter(diAdapter);
 
     }
 

@@ -24,7 +24,7 @@
             android:text="Name of Equipment"
             android:paddingHorizontal="4dp"
             android:textStyle="bold"
-            android:textColor="@android:color/black"
+            android:textColor="@color/colorinventoryText"
             android:textSize="16sp"
             android:ellipsize="end"
             android:textAlignment="textStart"
@@ -39,7 +39,7 @@
             android:paddingStart="4dp"
             android:layout_marginStart="12dp"
             android:text="DI: 0123456789"
-            android:textColor="@android:color/black"
+            android:textColor="@color/colorinventoryText"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/dis_name"/>
@@ -51,7 +51,7 @@
             android:padding="4dp"
             android:text="0 Units"
             android:textStyle="bold"
-            android:textColor="@android:color/black"
+            android:textColor="@color/colorinventoryText"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>

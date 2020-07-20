@@ -11,9 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
-import org.w3c.dom.Text;
-
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,6 +56,7 @@ public class DIAdapter extends RecyclerView.Adapter<DIAdapter.DIHolder> {
 
 
         Object[] dis = iDataset.values().toArray();
+        Log.d(TAG, Arrays.toString(dis));
         Object object = dis[position];
         Map<String,Object> productid;
         if(object instanceof Map) {
