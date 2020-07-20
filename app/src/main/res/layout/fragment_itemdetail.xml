@@ -101,6 +101,87 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_quantity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:hint="@string/quantity_lbl"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/expiration_date_string"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            app:endIconDrawable="@drawable/calendar"
+            app:endIconMode="custom"
+            app:endIconTint="@color/colorPrimary"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_expiration_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:hint="@string/expiration_date_lbl"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/siteLocationLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
+
+            <AutoCompleteTextView
+                android:id="@+id/detail_site_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/site_location_label"
+                android:completionThreshold="1"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/physicalLocationLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
+
+            <AutoCompleteTextView
+                android:id="@+id/detail_physical_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/physical_location_lbl"
+                android:completionThreshold="1"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/typeInputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
             android:layout_width="match_parent"
@@ -117,23 +198,6 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/type_lbl"
                 android:completionThreshold="1"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            app:helperTextEnabled="true"
-            app:helperText="* Required"
-            app:helperTextTextAppearance="?attr/textAppearanceCaption">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/detail_company"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/company_lbl"
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -156,6 +220,111 @@
                 android:layout_height="wrap_content"
                 android:text="@string/reusable_lbl" />
         </RadioGroup>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_medical_speciality"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/medical_speciality_lbl"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/device_description_lbl"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_lot_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/lot_number_label"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            tools:ignore="DuplicateIds"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_reference_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/reference_number_lbl"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            app:helperTextEnabled="true"
+            app:helperText="* Required"
+            app:helperTextTextAppearance="?attr/textAppearanceCaption">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_company"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/company_lbl"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/detail_notes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/notes_lbl" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/detail_usage_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_horizontal|center_vertical"
+            android:layout_marginTop="5dp"
+            android:gravity="start"
+            android:text="Usage"
+            android:textSize="20sp" />
 
 
         <com.google.android.material.switchmaterial.SwitchMaterial
@@ -224,151 +393,9 @@
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/detail_medical_speciality"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/medical_speciality_lbl"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
 
 
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/detail_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/device_description_lbl"
-                 />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            app:helperTextEnabled="true"
-            app:helperText="* Required"
-            app:helperTextTextAppearance="?attr/textAppearanceCaption">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/detail_lot_number"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/lot_number_label"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            tools:ignore="DuplicateIds"
-            app:helperTextEnabled="true"
-            app:helperText="* Required"
-            app:helperTextTextAppearance="?attr/textAppearanceCaption">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/detail_reference_number"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/reference_number_lbl"
-                 />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/expiration_date_string"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            app:endIconDrawable="@drawable/calendar"
-            app:endIconMode="custom"
-            app:endIconTint="@color/colorPrimary"
-            app:helperTextEnabled="true"
-            app:helperText="* Required"
-            app:helperTextTextAppearance="?attr/textAppearanceCaption">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/detail_expiration_date"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:hint="@string/expiration_date_lbl"
-                 />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            >
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/detail_quantity"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:cursorVisible="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:hint="@string/quantity_lbl"
-                 />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/siteLocationLayout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            app:helperTextEnabled="true"
-            app:helperText="* Required"
-            app:helperTextTextAppearance="?attr/textAppearanceCaption">
-
-            <AutoCompleteTextView
-                android:id="@+id/detail_site_location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/site_location_label"
-                android:completionThreshold="1"
-                 />
-        </com.google.android.material.textfield.TextInputLayout>
-
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/physicalLocationLayout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            app:helperTextEnabled="true"
-            app:helperText="* Required"
-            app:helperTextTextAppearance="?attr/textAppearanceCaption">
-
-            <AutoCompleteTextView
-                android:id="@+id/detail_physical_location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/physical_location_lbl"
-                android:completionThreshold="1"
-                 />
-        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/in_date_layout"
@@ -425,7 +452,7 @@
             android:layout_gravity="fill_horizontal|center_vertical"
             android:gravity="start"
             android:text="@string/specifications_label"
-            android:textSize="18sp" />
+            android:textSize="20sp" />
 
         <Button
             android:id="@+id/button_addsize"
@@ -433,20 +460,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/add_size_field_lbl" />
-
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/detail_notes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/notes_lbl" />
-        </com.google.android.material.textfield.TextInputLayout>
 
 
         <RelativeLayout
