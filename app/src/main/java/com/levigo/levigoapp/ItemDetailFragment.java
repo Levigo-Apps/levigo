@@ -28,9 +28,11 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
@@ -43,6 +45,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
@@ -146,6 +149,7 @@ public class ItemDetailFragment extends Fragment {
     private RadioButton singleUseButton;
     private RadioButton multiUse;
     private Button addSizeButton;
+    private MaterialToolbar topToolBar;
 
     private String itemQuantity;
     private int procedureFieldAdded;
@@ -212,7 +216,6 @@ public class ItemDetailFragment extends Fragment {
         final View rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
         myCalendar = Calendar.getInstance();
         parent = getActivity();
-
         // TODO add "clear" option for some fields in xml
         linearLayout = rootView.findViewById(R.id.itemdetail_linearlayout);
         udiEditText = rootView.findViewById(R.id.detail_udi);
@@ -239,7 +242,6 @@ public class ItemDetailFragment extends Fragment {
         final TextInputLayout timeInLayout = rootView.findViewById(R.id.in_time_layout);
         itemUsed = rootView.findViewById(R.id.detail_used_switch);
         saveButton = rootView.findViewById(R.id.detail_save_button);
-        ImageButton backButton = rootView.findViewById(R.id.detail_back_button);
         Button rescanButton = rootView.findViewById(R.id.detail_rescan_button);
         addProcedure = rootView.findViewById(R.id.button_addpatient);
         removeProcedure = rootView.findViewById(R.id.button_removepatient);
@@ -249,6 +251,7 @@ public class ItemDetailFragment extends Fragment {
         singleUseButton = rootView.findViewById(R.id.RadioButton_single);
         multiUse = rootView.findViewById(R.id.radio_multiuse);
         numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
+        topToolBar = rootView.findViewById(R.id.topAppBar);
         chosenReusable = false;
         chosenType = false;
         chosenSite = false;
@@ -363,9 +366,8 @@ public class ItemDetailFragment extends Fragment {
                 parent.onBackPressed();
             }
         });
-
         //going back to inventory view
-        backButton.setOnClickListener(new View.OnClickListener() {
+        topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (parent != null)

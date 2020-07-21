@@ -232,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.add(R.id.activity_main, fragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+
 //                mAdd.setVisibility(View.GONE);
     }
 
