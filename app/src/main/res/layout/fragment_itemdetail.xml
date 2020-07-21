@@ -17,15 +17,18 @@
         android:fitsSystemWindows="true"
         android:id="@+id/fragment_appbar">
 
+
+
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
             style="@style/Widget.MaterialComponents.Toolbar.Primary"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
             android:fitsSystemWindows="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/colorPrimary"
             android:gravity="center"
+            app:liftOnScroll="true"
             app:menu="@menu/fragment_topbar"
             app:navigationIcon="@drawable/ic_baseline_arrow_back"
             app:title="Edit Item Detail"
@@ -306,7 +309,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:columnCount = "2">
+                android:columnCount = "2"
+                android:id="@+id/site_linearlayout">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/siteLocationLayout_header"
@@ -357,7 +361,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:columnCount = "2"
-                android:baselineAligned="false">
+                android:baselineAligned="false"
+                android:id="@+id/physicalLocationLinearLayout">
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/physicalLocationLayout_header"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
@@ -404,7 +409,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:columnCount="2"
-                android:baselineAligned="false">
+                android:baselineAligned="false"
+                android:id="@+id/typeLinearLayout">
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/typeInputLayout_header"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
@@ -770,7 +776,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:columnCount="2"
-                android:baselineAligned="false">
+                android:baselineAligned="false"
+                android:id="@+id/numberAddedLinearLayout">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/numberAddedLayout_header"
@@ -855,9 +862,6 @@
                 app:endIconDrawable="@drawable/calendar"
                 app:endIconMode="custom"
                 app:endIconTint="@color/colorPrimary"
-                app:helperTextEnabled="true"
-                app:helperText="* Required"
-                app:helperTextTextAppearance="?attr/textAppearanceCaption"
                 android:layout_weight="4"
                 android:gravity="center_vertical|start">
 
@@ -905,10 +909,7 @@
                 android:layout_marginTop="5dp"
                 app:endIconDrawable="@drawable/clock"
                 app:endIconMode="custom"
-                app:helperTextEnabled="true"
-                app:helperText="* Required"
                 app:endIconTint="@color/colorPrimary"
-                app:helperTextTextAppearance="?attr/textAppearanceCaption"
                 android:layout_weight="4"
                 android:gravity="center_vertical|start">
 
