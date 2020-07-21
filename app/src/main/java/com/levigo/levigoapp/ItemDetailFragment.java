@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -129,10 +130,12 @@ public class ItemDetailFragment extends Fragment {
     private TextInputLayout procedureNameLayout;
     private TextInputLayout accessionNumberLayout;
     private TextInputLayout numberUsedLayout;
+    private TextInputLayout procedureEndIcon;
     private TextInputEditText procedureDateEditText;
     private TextInputEditText procedureNameEditText;
     private TextInputEditText numberUsedEditText;
     private TextInputEditText accessionNumberEditText;
+    private TextView usageHeader;
 
     private Button saveButton;
     private MaterialButton addProcedure;
@@ -164,6 +167,7 @@ public class ItemDetailFragment extends Fragment {
     private boolean checkMultiUseButton;
     private boolean isCountRead;
     private boolean checkProcedureInfo;
+    private boolean isMaximized;
     private Button autoPopulateButton;
     private List<TextInputEditText> allSizeOptions;
     private ArrayList<String> TYPES;
@@ -258,6 +262,7 @@ public class ItemDetailFragment extends Fragment {
         isCountRead = false;
         itemUsed.setChecked(false);
         saveButton.setEnabled(false);
+        isMaximized = false;
         addSizeButton = rootView.findViewById(R.id.button_addsize);
         itemUsedFields = rootView.findViewById(R.id.layout_itemused);
         itemUsedFields.setVisibility(View.GONE);
@@ -266,6 +271,7 @@ public class ItemDetailFragment extends Fragment {
         typeInputLayout = rootView.findViewById(R.id.typeInputLayout);
         siteLocationLayout = rootView.findViewById(R.id.siteLocationLayout);
         physLocationLayout = rootView.findViewById(R.id.physicalLocationLayout);
+        usageHeader = rootView.findViewById(R.id.detail_usage_textview);
         allSizeOptions = new ArrayList<>();
         TYPES = new ArrayList<>();
         SITELOC = new ArrayList<>();
@@ -397,6 +403,11 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
+                    //temporary start
+                    List<List<String>> test = new ArrayList<>();
+                    addProcedureInfoFields(test, rootView);
+                    //temporary end
+
                     checkItemUsed = true;
                     saveButton.setEnabled(false);
                     itemUsedFields.setVisibility(View.VISIBLE);
@@ -1540,7 +1551,7 @@ public class ItemDetailFragment extends Fragment {
                             medicalSpeciality.setEnabled(false);
 
                             numberAdded.setText(deviceInfo.getString("deviceCount"));
-                            autoPopulateFromDatabase(udi, siteDocRef,udiStr);
+                            autoPopulateFromDatabase(udi, siteDocRef,udiStr, view);
 
                             JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
 
@@ -1657,7 +1668,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
 
-    private void autoPopulateFromDatabase(final JSONObject udi, final DocumentReference siteDocRef, final String udiStr) {
+    private void autoPopulateFromDatabase(final JSONObject udi, final DocumentReference siteDocRef, final String udiStr, final View view) {
         DocumentReference udiDocRef = null;
         DocumentReference diDocRef = null;
         try {
@@ -1684,7 +1695,7 @@ public class ItemDetailFragment extends Fragment {
                         if(document.get("procedure_number") != null){
                             procedureCount = Integer.parseInt(
                                     Objects.requireNonNull(document.getString("procedure_number")));
-                            getProcedureInfo(procedureCount,siteDocRef,udi, udiStr);
+                            getProcedureInfo(procedureCount,siteDocRef,udi, udiStr, view);
                         }else{
                             procedureCount = 0;
                         }
@@ -1759,7 +1770,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
     private void getProcedureInfo(final int procedureCount, DocumentReference siteDocRef, JSONObject udi,
-                                  String udiStr){
+                                  String udiStr, final View view){
         final int[] check = {0};
         DocumentReference procedureRef;
 
@@ -1788,7 +1799,7 @@ public class ItemDetailFragment extends Fragment {
                             }
                             procedureDoc.add(procedureDocuments);
                             if(check[0] == procedureCount) {
-                                addProcedureInfoFields(procedureDoc);
+                                addProcedureInfoFields(procedureDoc,view);
                             }
                         }
                     }
@@ -1801,8 +1812,89 @@ public class ItemDetailFragment extends Fragment {
 
     // need to create procedure info fields for each procedure.
     // data is already queried.
-    private void addProcedureInfoFields(List<List<String>> procedureDoc){
+    private void addProcedureInfoFields(List<List<String>> procedureDoc,View view){
         System.out.println(procedureDoc);
+
+        LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
+        procedureInfoLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        procedureInfoLayout.setOrientation(LinearLayout.VERTICAL);
+
+        GridLayout procedureInfo = new GridLayout(view.getContext());
+
+
+        GridLayout.LayoutParams procedureDateParams = new GridLayout.LayoutParams();
+        procedureDateParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureDateParams.width = WRAP_CONTENT;
+        procedureDateParams.rowSpec = GridLayout.spec(0);
+        procedureDateParams.columnSpec = GridLayout.spec(0);
+        procedureDateParams.setMargins(0, 0, 10, 5);
+        TextInputLayout procedureDateHeader = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_filledbox, null);
+        procedureDateHeader.setLayoutParams(procedureDateParams);
+        procedureDateHeader.setBoxBackgroundColor(Color.rgb(0,0,0));
+        TextInputEditText dateKey = new TextInputEditText(procedureDateHeader.getContext());
+        dateKey.setText("Procedure Date");
+        dateKey.setLayoutParams(new LinearLayout.LayoutParams(400, WRAP_CONTENT));
+        procedureDateHeader.addView(dateKey);
+        dateKey.setTextColor(Color.rgb(255,255,255));
+
+
+        GridLayout.LayoutParams procedureParams = new GridLayout.LayoutParams();
+        procedureParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureParams.width = WRAP_CONTENT;
+        procedureParams.rowSpec = GridLayout.spec(0);
+        procedureParams.columnSpec = GridLayout.spec(1);
+        procedureParams.setMargins(0, 0, 0, 5);
+        TextInputLayout procedureDateText = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_filledbox, null);
+        procedureDateHeader.setLayoutParams(procedureParams);
+        procedureDateText.setBoxBackgroundColor(Color.rgb(0,0,0));
+        TextInputEditText dateText = new TextInputEditText(procedureDateText.getContext());
+        dateText.setText("2020/09/09");
+        dateText.setLayoutParams(new LinearLayout.LayoutParams(350, WRAP_CONTENT));
+        procedureDateText.addView(dateText);
+        dateText.setTextColor(Color.rgb(255,255,255));
+
+
+        GridLayout.LayoutParams procedureIconParams = new GridLayout.LayoutParams();
+        procedureDateParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureDateParams.width = WRAP_CONTENT;
+        procedureDateParams.rowSpec = GridLayout.spec(0);
+        procedureDateParams.columnSpec = GridLayout.spec(2);
+        procedureDateParams.setMargins(0, 0, 10, 5);
+        procedureEndIcon = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_filledbox, null);
+        procedureDateText.setBoxBackgroundColor(Color.rgb(0,0,0));
+        procedureEndIcon.setBoxBackgroundColor(Color.rgb(0,0,0));
+        procedureEndIcon.setLayoutParams(procedureIconParams);
+        procedureEndIcon.setEndIconTintList(ColorStateList.valueOf(getResources().
+                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
+        TextInputEditText iconText = new TextInputEditText(procedureEndIcon.getContext());
+        iconText.setLayoutParams(new LinearLayout.LayoutParams(110, WRAP_CONTENT));
+        procedureEndIcon.addView(iconText);
+        procedureEndIcon.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
+        procedureEndIcon.setEndIconDrawable(R.drawable.ic_baseline_plus);
+
+        procedureEndIcon.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(isMaximized){
+                    procedureEndIcon.setEndIconDrawable(R.drawable.ic_baseline_plus);
+                    isMaximized = false;
+                }else{
+                    procedureEndIcon.setEndIconDrawable(R.drawable.ic_remove_minimize);
+                    isMaximized = true;
+                }
+            }
+        });
+
+
+        procedureInfo.addView(procedureDateHeader);
+        procedureInfo.addView(procedureDateText);
+        procedureInfo.addView(procedureEndIcon);
+        procedureInfoLayout.addView(procedureInfo);
+        linearLayout.addView(procedureInfoLayout,linearLayout.indexOfChild(usageHeader) +   1);
 
     }
     private void autoPopulateFromDatabase(final View view, String di) {
