@@ -10,11 +10,14 @@
         android:layout_height="wrap_content"
         android:id="@+id/dis_type"
         android:padding="8dp"
-        android:background="@drawable/inventoryitemlayout"
+        android:background="@drawable/inventory_di_background"
+
+        android:layout_marginBottom="2dp"
 
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/dis_udis">
 
         <TextView
             android:id="@+id/dis_name"
@@ -61,9 +64,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/dis_udis"
-        android:layout_marginVertical="1dp"
         android:orientation="vertical"
         android:nestedScrollingEnabled="false"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/dis_type"
         app:layout_constraintBottom_toBottomOf="parent"/>
 

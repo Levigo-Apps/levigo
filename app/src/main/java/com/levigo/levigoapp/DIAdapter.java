@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,6 +26,7 @@ public class DIAdapter extends RecyclerView.Adapter<DIAdapter.DIHolder> {
     public static class DIHolder extends RecyclerView.ViewHolder {
         public RecyclerView itemUDIs;
         public TextView itemName, itemQuantity, itemDI;
+        public ConstraintLayout itemType;
 
 
         public DIHolder(View view){
@@ -33,6 +35,19 @@ public class DIAdapter extends RecyclerView.Adapter<DIAdapter.DIHolder> {
             itemDI = view.findViewById(R.id.dis_di);
             itemName = view.findViewById(R.id.dis_name);
             itemQuantity = view.findViewById(R.id.dis_quantity);
+
+            itemType = view.findViewById(R.id.dis_type);
+            itemType.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(itemUDIs.getVisibility() == View.GONE){
+                        itemUDIs.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        itemUDIs.setVisibility(View.GONE);
+                    }
+                }
+            });
         }
     }
 

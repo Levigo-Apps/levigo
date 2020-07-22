@@ -20,7 +20,6 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
     private Activity activity;
     private Map<String,Object> iDataset;
 
-
     public static class TypesHolder extends RecyclerView.ViewHolder {
         public RecyclerView itemDIs;
         public TextView itemType;
@@ -30,6 +29,17 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
             super(view);
             itemDIs = view.findViewById(R.id.types_dis);
             itemType = view.findViewById(R.id.types_type);
+            itemType.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(itemDIs.getVisibility() == View.GONE){
+                        itemDIs.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        itemDIs.setVisibility(View.GONE);
+                    }
+                }
+            });
         }
     }
 

@@ -71,7 +71,6 @@ public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdap
         LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
         holder.itemTypes.setLayoutManager(layoutManager);
         holder.itemTypes.setAdapter(typesAdapter);
-        Log.d(TAG, "here");
 
 
 //        Log.d(TAG, "DATASET: " + iDataset);

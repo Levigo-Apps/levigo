@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginHorizontal="10dp"
-    android:background="@drawable/inventoryitemlayout">
+    android:background="@drawable/inventory_di_background">
 
         <TextView
             android:id="@+id/item_type"
