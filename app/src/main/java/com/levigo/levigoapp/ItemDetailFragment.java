@@ -7,7 +7,9 @@ import android.app.TimePickerDialog;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
@@ -50,6 +52,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -80,6 +83,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -94,9 +98,12 @@ public class ItemDetailFragment extends Fragment {
     DocumentReference physLocRef = db.collection("networks").document("network1")
             .collection("sites").document("n1_hospital3")
             .collection("physical_locations").document("locations");
-
     DocumentReference siteDocRef = db.collection("networks").document("network1")
             .collection("sites").document("n1_hospital3");
+    CollectionReference accessionNumberRef = db.collection("networks")
+            .document("network1")
+            .collection("sites").document("n1_hospital3")
+            .collection("accession_numbers");
 
 
     InventoryTemplate udiDocument;
@@ -163,6 +170,7 @@ public class ItemDetailFragment extends Fragment {
     private int locCounter;
     private int procedureCount;
     private int procedureListCounter;
+    private boolean isValid;
     private boolean chosenType;
     private boolean chosenLocation;
     private boolean chosenReusable;
@@ -215,6 +223,7 @@ public class ItemDetailFragment extends Fragment {
     private final String SINGLEORMULTI_KEY = "single_multi";
     private final String REFERENCE_KEY = "reference_number";
     private final String UDI_KEY = "udi";
+    private String accessionNumber;
 
 
     @Override
@@ -242,7 +251,7 @@ public class ItemDetailFragment extends Fragment {
         deviceDescription = rootView.findViewById(R.id.detail_description);
         quantity = rootView.findViewById(R.id.detail_quantity);
         dateIn = rootView.findViewById(R.id.detail_in_date);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
         dateIn.setText(dateFormat.format(new Date()));
         timeIn = rootView.findViewById(R.id.detail_in_time);
         TextInputLayout expirationTextLayout = rootView.findViewById(R.id.expiration_date_string);
@@ -276,6 +285,7 @@ public class ItemDetailFragment extends Fragment {
         checkMultiUseButton = false;
         checkProcedureInfo = false;
         isCountRead = false;
+        isValid = false;
         itemUsed.setChecked(false);
         saveButton.setEnabled(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
@@ -822,6 +832,7 @@ public class ItemDetailFragment extends Fragment {
         saveButton.setEnabled(false);
         final Map<String, Object> procedureInfoMap = new HashMap<>();
         procedureFieldAdded++;
+
         LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
         procedureInfoLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -845,20 +856,64 @@ public class ItemDetailFragment extends Fragment {
         procedureDateLayout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
         procedureDateLayout.setEndIconDrawable(R.drawable.calendar);
         procedureDateLayout.setPadding(0, 10, 0, 0);
+        final TextInputEditText procedureDateEditText = new TextInputEditText(procedureDateLayout.getContext());
+        setIconsAndDialogs(view,procedureDateEditText);
+        procedureDateEditTextId = procedureDateEditText.getId();
+        procedureDateEditText.setFocusable(false);
+        procedureDateEditText.setClickable(true);
+        procedureDateEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+
+
+        TextInputLayout procedureTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureTimeLayout.setHint("Enter Time");
+        procedureTimeLayout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
+        procedureTimeLayout.setEndIconDrawable(R.drawable.clock);
+        procedureTimeLayout.setEndIconTintList(ColorStateList.valueOf(getResources().
+                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
+        procedureTimeLayout.setPadding(0, 10, 0, 0);
+        final TextInputEditText procedureTimeEditText = new TextInputEditText(procedureTimeLayout.getContext());
+        procedureTimeEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+        procedureTimeLayout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Calendar mcurrentTime = Calendar.getInstance();
+                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+                int minute = mcurrentTime.get(Calendar.MINUTE);
+                TimePickerDialog mTimePicker;
+                mTimePicker = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                        procedureTimeEditText.setText(String.format(Locale.US, "%d:%d:00", selectedHour, selectedMinute));
+                    }
+                }, hour, minute, true);
+                mTimePicker.setTitle("Select Time");
+                mTimePicker.show();
+
+            }
+        });
+        procedureTimeLayout.addView(procedureTimeEditText);
+
 
 
         procedureNameLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureNameLayout.setHint("Enter Procedure");
         procedureNameLayout.setPadding(0, 10, 0, 0);
+        procedureNameEditText = new TextInputEditText(procedureNameLayout.getContext());
+        procedureNameEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+
 
 
         accessionNumberLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
-        accessionNumberLayout.setEndIconTintList(ColorStateList.valueOf(getResources().
-                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
         accessionNumberLayout.setHint("Enter Accession Number");
         accessionNumberLayout.setPadding(0, 10, 0, 10);
+        accessionNumberEditText= new TextInputEditText(procedureNameLayout.getContext());
+        accessionNumberEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+        generateNewNumber(view,accessionNumberEditText);
+
+
 
 
 
@@ -870,22 +925,11 @@ public class ItemDetailFragment extends Fragment {
         numberUsedLayout.setFocusable(false);
         numberUsedLayout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
         numberUsedLayout.setEndIconDrawable(R.drawable.plusone);
-
-
-
-
-        procedureNameEditText = new TextInputEditText(procedureNameLayout.getContext());
-        procedureNameEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-        final TextInputEditText procedureDateEditText = new TextInputEditText(procedureNameLayout.getContext());
-        setIconsAndDialogs(view,procedureDateEditText);
-        procedureDateEditTextId = procedureDateEditText.getId();
-        procedureDateEditText.setFocusable(false);
-        procedureDateEditText.setClickable(true);
-        procedureDateEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-
+        numberUsedLayout.setEndIconTintList(ColorStateList.valueOf(getResources().
+                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
         final TextInputEditText numberUsedEditText = new TextInputEditText(procedureNameLayout.getContext());
+        numberUsedEditText.setId(View.generateViewId());
         numberUsedEditTextId = numberUsedEditText.getId();
-
         // incrementing number by 1 when clicked on the end icon
         numberUsedLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
@@ -897,15 +941,15 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 showNumberPicker(view,numberUsedEditText);
-
             }
         });
         numberUsedEditText.setClickable(true);
         numberUsedEditText.setFocusable(false);
         numberUsedEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
-        accessionNumberEditText= new TextInputEditText(procedureNameLayout.getContext());
-        accessionNumberEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+
+
+
 
         TextWatcher newProcedureTextWatcher = new TextWatcher() {
             @Override
@@ -927,9 +971,12 @@ public class ItemDetailFragment extends Fragment {
                         numberUsedEditText.getText().toString());
                 procedureInfoMap.put(ACCESSION_KEY,
                         accessionNumberEditText.getText().toString());
+                procedureInfoMap.put(TIME_KEY,
+                        procedureTimeEditText.getText().toString());
                 for(TextInputEditText text : new TextInputEditText[]{
                         procedureDateEditText,procedureNameEditText,
-                        accessionNumberEditText,numberUsedEditText}){
+                        accessionNumberEditText,numberUsedEditText,
+                        procedureTimeEditText}){
                     if(text.toString().trim().isEmpty()){
                         saveButton.setEnabled(false);
                         break;
@@ -943,6 +990,7 @@ public class ItemDetailFragment extends Fragment {
         procedureDateEditText.addTextChangedListener(newProcedureTextWatcher);
         numberUsedEditText.addTextChangedListener(newProcedureTextWatcher);
         accessionNumberEditText.addTextChangedListener(newProcedureTextWatcher);
+        procedureTimeEditText.addTextChangedListener(newProcedureTextWatcher);
 
 
         procedureNameLayout.addView(procedureNameEditText);
@@ -952,14 +1000,63 @@ public class ItemDetailFragment extends Fragment {
 
         procedureInfoLayout.addView(procedureNumber,0);
         procedureInfoLayout.addView(procedureDateLayout,1);
-        procedureInfoLayout.addView(procedureNameLayout,2);
-        procedureInfoLayout.addView(accessionNumberLayout,3);
-        procedureInfoLayout.addView(numberUsedLayout,4);
+        procedureInfoLayout.addView(procedureTimeLayout,2);
+        procedureInfoLayout.addView(procedureNameLayout,3);
+        procedureInfoLayout.addView(accessionNumberLayout,4);
+        procedureInfoLayout.addView(numberUsedLayout,5);
 
         itemUsedFields.addView(procedureInfoLayout, itemUsedFields.indexOfChild(addProcedure));
     }
 
+    private void checkAccessionNumber(final View view, final String accessionNum, final TextInputEditText accessionNumberEditText) {
+        final DocumentReference docRef = accessionNumberRef.document(accessionNum);
+        System.out.println(docRef);
 
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        generateNewNumber(view,accessionNumberEditText);
+                    } else {
+                        setAccessionNumber(view,accessionNumberEditText,accessionNum);
+                    }
+                } else {
+                    Log.d(TAG, "Failed with: ", task.getException());
+                }
+            }
+        });
+    }
+
+    public void generateNewNumber(View view, TextInputEditText accessionNumberEditText){
+        Random rand = new Random();
+        String randomAccessionNum = "TZ" + (1 + rand.nextInt(999999));
+        checkAccessionNumber(view, randomAccessionNum, accessionNumberEditText);
+
+    }
+
+    public void setAccessionNumber(View view, TextInputEditText accessionNumberEditText,String accessionNumber){
+        accessionNumberEditText.setText((accessionNumber));
+        Map<String, Object> data = new HashMap<>();
+        data.put("accession_number", accessionNumber);
+        accessionNumberRef.document(accessionNumber)
+                .set(data)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error writing document", e);
+                    }
+                });
+
+
+    }
 
     // adds new row of size text views if users clicks on a button
     int rowIndex = 1;
@@ -1015,7 +1112,7 @@ public class ItemDetailFragment extends Fragment {
             removeSizeButton = new MaterialButton(view.getContext(),
                     null, R.attr.materialButtonOutlinedStyle);
             removeSizeButton.setText(R.string.removeSize_label);
-            removeSizeButton.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
+            removeSizeButton.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT,
                     WRAP_CONTENT));
             linearLayout.addView(removeSizeButton, 1 + linearLayout.indexOfChild(addSizeButton));
         }

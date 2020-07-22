@@ -97,5 +97,7 @@
     <string name="add_procedure_info_lbl">Add Procedure Info</string>
     <string name="remove_procedure_info_lbl">Remove Procedure Info</string>
     <string name="barcode_udi_label">Barcode | UDI</string>
+    <string name="usage_label">Usage</string>
+    <string name="name_label">Name</string>
 
 </resources>
