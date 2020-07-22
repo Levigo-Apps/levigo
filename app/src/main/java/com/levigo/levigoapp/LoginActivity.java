@@ -112,6 +112,8 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
             clear = false;
+            Log.d(TAG, "USER: " +user.toString());
+            Log.d(TAG, "USER EMAIL" + user.getEmail());
 
             Bundle authBundle = new Bundle();
             authBundle.putString("network", "mNetwork");
