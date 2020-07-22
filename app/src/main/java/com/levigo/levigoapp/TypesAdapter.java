@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,20 +24,25 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
     public static class TypesHolder extends RecyclerView.ViewHolder {
         public RecyclerView itemDIs;
         public TextView itemType;
+        public ImageView itemIcon;
 
 
         public TypesHolder(View view){
             super(view);
             itemDIs = view.findViewById(R.id.types_dis);
-            itemType = view.findViewById(R.id.types_type);
+            itemType = view.findViewById(R.id.types_name);
+            itemIcon = view.findViewById(R.id.types_icon);
+
             itemType.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if(itemDIs.getVisibility() == View.GONE){
                         itemDIs.setVisibility(View.VISIBLE);
+                        itemIcon.setImageResource(R.drawable.ic_remove_minimize);
                     }
                     else {
                         itemDIs.setVisibility(View.GONE);
+                        itemIcon.setImageResource(R.drawable.ic_baseline_plus);
                     }
                 }
             });
