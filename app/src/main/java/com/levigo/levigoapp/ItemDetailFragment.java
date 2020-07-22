@@ -411,6 +411,7 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (procedureFieldAdded - procedureListCounter > 0) {
+                    removeAccessionNumber(view,itemUsedFields);
                     itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addProcedure) - 1);
                     --procedureFieldAdded;
                 }if(procedureFieldAdded - procedureListCounter == 0){
@@ -834,6 +835,7 @@ public class ItemDetailFragment extends Fragment {
         procedureFieldAdded++;
 
         LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
+        procedureInfoLayout.setTag("procedure_info");
         procedureInfoLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         procedureInfoLayout.setOrientation(LinearLayout.VERTICAL);
@@ -911,6 +913,8 @@ public class ItemDetailFragment extends Fragment {
         accessionNumberLayout.setPadding(0, 10, 0, 10);
         accessionNumberEditText= new TextInputEditText(procedureNameLayout.getContext());
         accessionNumberEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+        accessionNumberLayout.setTag("accession");
+        accessionNumberEditText.setTag("accession_text");
         generateNewNumber(view,accessionNumberEditText);
 
 
@@ -997,7 +1001,6 @@ public class ItemDetailFragment extends Fragment {
         procedureDateLayout.addView(procedureDateEditText);
         numberUsedLayout.addView(numberUsedEditText);
         accessionNumberLayout.addView(accessionNumberEditText);
-
         procedureInfoLayout.addView(procedureNumber,0);
         procedureInfoLayout.addView(procedureDateLayout,1);
         procedureInfoLayout.addView(procedureTimeLayout,2);
@@ -1008,6 +1011,7 @@ public class ItemDetailFragment extends Fragment {
         itemUsedFields.addView(procedureInfoLayout, itemUsedFields.indexOfChild(addProcedure));
     }
 
+    //checks whether or not the accession number is unique
     private void checkAccessionNumber(final View view, final String accessionNum, final TextInputEditText accessionNumberEditText) {
         final DocumentReference docRef = accessionNumberRef.document(accessionNum);
         System.out.println(docRef);
@@ -1029,13 +1033,32 @@ public class ItemDetailFragment extends Fragment {
         });
     }
 
+    // generates new number
     public void generateNewNumber(View view, TextInputEditText accessionNumberEditText){
         Random rand = new Random();
-        String randomAccessionNum = "TZ" + (1 + rand.nextInt(999999));
+        String randomAccessionNum = null;
+        String randomAccession = String.valueOf (1 + rand.nextInt(999999));
+        if(randomAccession.length() == 1){
+            randomAccessionNum = "TZ00000" + randomAccession;
+        }if(randomAccession.length() == 2){
+            randomAccessionNum = "TZ0000" + randomAccession;
+        }
+        if(randomAccession.length() == 3){
+            randomAccessionNum = "TZ000" + randomAccession;
+        }
+        if(randomAccession.length() == 4){
+            randomAccessionNum = "TZ00" + randomAccession;
+        }
+        if(randomAccession.length() == 5){
+            randomAccessionNum = "TZ0" + randomAccession;
+        }if(randomAccession.length() == 6){
+            randomAccessionNum = "TZ" + randomAccession;
+        }
         checkAccessionNumber(view, randomAccessionNum, accessionNumberEditText);
 
     }
 
+    //sets accession number and save it to the database
     public void setAccessionNumber(View view, TextInputEditText accessionNumberEditText,String accessionNumber){
         accessionNumberEditText.setText((accessionNumber));
         Map<String, Object> data = new HashMap<>();
@@ -1056,6 +1079,27 @@ public class ItemDetailFragment extends Fragment {
                 });
 
 
+    }
+    // removes the accession number from the database if users removes
+    // newly added procedure info fields
+    private void removeAccessionNumber(View view,LinearLayout itemUsedFields){
+        LinearLayout procedureInfo = (LinearLayout) itemUsedFields.getChildAt((itemUsedFields.indexOfChild(addProcedure))-1);
+        TextInputLayout accessionNumLayout = procedureInfo.findViewWithTag("accession");
+        TextInputEditText accessionNumEditText =  accessionNumLayout.findViewWithTag("accession_text");
+        accessionNumberRef.document(String.valueOf(accessionNumEditText.getText()))
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error deleting document", e);
+                    }
+                });
     }
 
     // adds new row of size text views if users clicks on a button
