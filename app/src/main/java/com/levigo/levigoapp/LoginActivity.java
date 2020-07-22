@@ -36,6 +36,10 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
  * Logs in user
@@ -51,6 +55,12 @@ public class LoginActivity extends AppCompatActivity {
     private MaterialButton mLogin, mRegister;
     private EditText mEmail, mPassword;
     private MaterialCheckBox mRemember;
+
+    private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
+    private CollectionReference usersRef = levigoDb.collection("users");
+
+
+    private String mNetwork, mNetworkName, mSite, mSiteName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -112,14 +122,62 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
             clear = false;
-            Log.d(TAG, "USER: " +user.toString());
-            Log.d(TAG, "USER EMAIL" + user.getEmail());
+
+//            Log.d(TAG, "USER: " +user.toString());
+//            Log.d(TAG, "USER EMAIL" + user.getEmail());
+//            Log.d(TAG, "USER ID: " + user.getUid());
+            String userId = user.getUid();
 
             Bundle authBundle = new Bundle();
-            authBundle.putString("network", "mNetwork");
-            authBundle.putString("network_name", "mNetworkName");
-            authBundle.putString("site", "mSite");
-            authBundle.putString("site_name", "mSiteName");
+
+
+            final DocumentReference currentUserRef = usersRef.document(userId);
+
+            currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    String toastMessage;
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "successful");
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            Log.d(TAG, "HERE");
+                            try {
+                                mNetwork = document.get("network").toString();
+                                mNetworkName = document.get("network_name").toString();
+                                mSite = document.get("site").toString();
+                                mSiteName = document.get("site_name").toString();
+                                Log.d(TAG, "=====" + mNetwork + " | " + mNetworkName + " | " + mSite + " | " + mSiteName);
+//                                authBundle.putString("network", mNetwork);
+//                                authBundle.putString("network_name", mNetworkName);
+//                                authBundle.putString("site", mSite);
+//                                authBundle.putString("site_name", mSiteName);
+                            } catch (NullPointerException e){
+                                //TODO
+                                Log.d(TAG, "EXCEPTION!");
+                            }
+                        } else {
+                            // document for invitation code doesn't exist
+                            toastMessage = "Uesr not found; Please contact support";
+                            Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        toastMessage = "User lookup failed; Please try again and contact support if issue persists";
+                        Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "get failed with ", task.getException());
+                    }
+//                    Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            //TODO NOT WORKING!!!
+            authBundle.putString("network", mNetwork);
+            authBundle.putString("network_name", mNetworkName);
+            authBundle.putString("site", mSite);
+            authBundle.putString("site_name", mSiteName);
+            Log.d(TAG, "AUTH BUNDLE: " + authBundle);
+            Log.d(TAG, authBundle.toString());
+
 
             Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
             mainActivityIntent.putExtras(authBundle);
