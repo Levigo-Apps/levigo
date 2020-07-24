@@ -161,6 +161,7 @@ public class ItemDetailFragment extends Fragment {
     private MaterialToolbar topToolBar;
 
     private String itemQuantity;
+    private String diQuantity;
     private int numberUsedEditTextId;
     private int procedureDateEditTextId;
     private int procedureFieldAdded;
@@ -421,16 +422,13 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-
-
-
         itemUsed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
                     //temporary start
                     List<List<String>> test = new ArrayList<>();
-                    addProcedureInfoFields(test, rootView);
+                 //   addProcedureInfoFields(test, rootView);
                     //temporary end
 
                     checkItemUsed = true;
@@ -1214,6 +1212,7 @@ public class ItemDetailFragment extends Fragment {
         sizeKeyLayout.setHint("Key");
         TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
         sizeKey.setText(key);
+        sizeKey.setFocusable(false);
 
         TextInputLayout sizeValueLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
@@ -1221,6 +1220,7 @@ public class ItemDetailFragment extends Fragment {
         sizeValueLayout.setHint("Value");
         TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
         sizeValue.setText(value);
+        sizeValue.setFocusable(false);
 
 
         sizeKey.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
@@ -1480,16 +1480,21 @@ public class ItemDetailFragment extends Fragment {
         String lotNumber_str = Objects.requireNonNull(lotNumber.getText()).toString();
         String referenceNumber_str = Objects.requireNonNull(referenceNumber.getText()).toString();
         String expiration_str = Objects.requireNonNull(expiration.getText()).toString();
-        String currentDate_str = dateIn.getText().toString();
+        String currentDate_str = Objects.requireNonNull(dateIn.getText()).toString();
         int quantity_int;
         String number_added_str = "0";
         TextInputEditText numberUsedEditText = view.findViewById(numberUsedEditTextId);
         if (itemUsed.isChecked()) {
             quantity_int = Integer.parseInt(itemQuantity) -
                     Integer.parseInt(Objects.requireNonNull(numberUsedEditText.getText()).toString());
+            diQuantity = String.valueOf(Integer.parseInt(diQuantity) -
+                    Integer.parseInt(numberUsedEditText.getText().toString()));
         } else {
             number_added_str = Objects.requireNonNull(numberAdded.getText()).toString();
-            quantity_int = Integer.parseInt(numberAdded.getText().toString());
+            quantity_int = Integer.parseInt(itemQuantity) +
+                    Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
+            diQuantity = String.valueOf(Integer.parseInt(diQuantity) +
+                    Integer.parseInt(numberAdded.getText().toString()));
         }
         String quantity_str = String.valueOf(quantity_int);
         String site_name_str = "";
@@ -1513,6 +1518,10 @@ public class ItemDetailFragment extends Fragment {
         RadioButton radioButton = view.findViewById(radioButtonInt);
         String singleOrMultiUse = radioButton.getText().toString();
 
+
+
+
+
         // saving di-specific identifiers using HashMap
         Map<String, Object> diDoc = new HashMap<>();
         diDoc.put(NAME_KEY, name_str);
@@ -1523,6 +1532,7 @@ public class ItemDetailFragment extends Fragment {
         diDoc.put(DESCRIPTION_KEY, description_str);
         diDoc.put(SPECIALTY_KEY, medical_speciality_str);
         diDoc.put(USAGE_KEY, singleOrMultiUse);
+        diDoc.put(QUANTITY_KEY,diQuantity);
 
         DocumentReference diRef = db.collection(NETWORKS).document(NETWORK)
                 .collection(SITES).document(SITE).collection(DEPARTMENTS)
@@ -1677,37 +1687,35 @@ public class ItemDetailFragment extends Fragment {
                             medicalSpecialties = medicalSpecialties.substring(0, medicalSpecialties.length() - 2);
 
                             lotNumber.setText(udi.getString("lotNumber"));
-                            lotNumber.setEnabled(false);
                             lotNumber.setFocusable(false);
 
                             company.setText(deviceInfo.getString("companyName"));
-                            company.setEnabled(false);
                             company.setFocusable(false);
 
                             expiration.setText(udi.getString("expirationDate"));
                             expiration.setFocusable(false);
-                            expiration.setEnabled(false);
+
 
                             di = udi.getString("di");
                             deviceIdentifier.setText(udi.getString("di"));
                             deviceIdentifier.setFocusable(false);
-                            deviceIdentifier.setEnabled(false);
+
 
                             nameEditText.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
-                            nameEditText.setEnabled(false);
+
                             nameEditText.setFocusable(false);
 
                             deviceDescription.setText(deviceInfo.getString("deviceDescription"));
                             deviceDescription.setFocusable(false);
-                            deviceDescription.setEnabled(false);
+
 
                             referenceNumber.setText(deviceInfo.getString("catalogNumber"));
-                            referenceNumber.setEnabled(false);
+
                             referenceNumber.setFocusable(false);
 
                             medicalSpeciality.setText(medicalSpecialties);
                             medicalSpeciality.setFocusable(false);
-                            medicalSpeciality.setEnabled(false);
+
 
                             numberAdded.setText(deviceInfo.getString("deviceCount"));
                             autoPopulateFromDatabase(udi, siteDocRef,udiStr, view);
@@ -1880,13 +1888,17 @@ public class ItemDetailFragment extends Fragment {
                         if(document.get(TYPE_KEY) != null){
                             equipmentType.setText(document.getString(TYPE_KEY));
                             equipmentType.setFocusable(false);
-                            equipmentType.setEnabled(false);
+
                         }if(document.get(SITE_KEY) != null){
                             hospitalName.setText(document.getString(SITE_KEY));
-                            hospitalName.setEnabled(false);
                             hospitalName.setFocusable(false);
+                        }if(document.get(QUANTITY_KEY) != null){
+                            diQuantity = document.getString(QUANTITY_KEY);
+                        }else{
+                            diQuantity = "0";
                         }
                     } else {
+                        diQuantity = "0";
                         Log.d(TAG, "Document does not exist!");
                     }
                 } else {
@@ -1911,7 +1923,7 @@ public class ItemDetailFragment extends Fragment {
                         }if(document.get(PHYSICALLOC_KEY) != null){
                             physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
                             physicalLocation.setFocusable(false);
-                            physicalLocation.setEnabled(false);
+
                         }
                     } else {
                         itemQuantity = "0";
@@ -1971,10 +1983,10 @@ public class ItemDetailFragment extends Fragment {
 
     // need to create procedure info fields for each procedure.
     // data is already queried.
-    private void addProcedureInfoFields(List<List<String>> procedureDoc,View view){
+    private void addProcedureInfoFields(final List<List<String>> procedureDoc, View view){
         System.out.println(procedureDoc);
 
-        LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
+        final LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
         procedureInfoLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         procedureInfoLayout.setOrientation(LinearLayout.VERTICAL);
@@ -2024,9 +2036,14 @@ public class ItemDetailFragment extends Fragment {
             public void onClick(View view) {
                 if(isMaximized[0]){
                     procedureDateText.setEndIconDrawable(R.drawable.ic_baseline_plus);
+                    procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
+                            getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
                     isMaximized[0] = false;
+                    addProcedureSubFields(procedureInfoLayout,view,procedureDoc);
                 }else{
                     procedureDateText.setEndIconDrawable(R.drawable.ic_remove_minimize);
+                    procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
+                            getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
                     isMaximized[0] = true;
                 }
             }
@@ -2036,6 +2053,10 @@ public class ItemDetailFragment extends Fragment {
         procedureInfo.addView(procedureDateText);
         procedureInfoLayout.addView(procedureInfo);
         linearLayout.addView(procedureInfoLayout,linearLayout.indexOfChild(usageHeader) +   1);
+
+    }
+
+    private void addProcedureSubFields(LinearLayout procedureInfoLayout, View view, List<List<String>> procedureDoc){
 
     }
     private void autoPopulateFromDatabase(final View view, String di) {
