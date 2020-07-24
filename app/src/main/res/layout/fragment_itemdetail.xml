@@ -275,12 +275,9 @@
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_quantity"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:clickable="false"
-                        android:cursorVisible="false"
                         android:focusable="false"
-                        android:focusableInTouchMode="false"
                         android:layout_weight="4"
                         android:gravity="center_vertical|start"
                         />
@@ -332,7 +329,8 @@
                     android:gravity="center_vertical|start"
                     app:layout_constraintStart_toEndOf="@id/expiration_date_string_header"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf = "@id/expiration_date_string_header">
+                    app:layout_constraintBottom_toBottomOf = "@id/expiration_date_string_header"
+                    >
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_expiration_date"
@@ -344,10 +342,9 @@
                 </com.google.android.material.textfield.TextInputLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:columnCount = "2"
                 android:id="@+id/site_linearlayout"
                 android:baselineAligned="false">
@@ -355,11 +352,14 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/siteLocationLayout_header"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_weight="6"
                     android:gravity="center_vertical|start"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/siteLocationLayout"
+                    app:layout_constraintBottom_toBottomOf = "@id/siteLocationLayout"
                     >
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -376,11 +376,14 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/siteLocationLayout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense.ExposedDropdownMenu"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_weight="4"
                     android:gravity="center_vertical|start"
+                    app:layout_constraintStart_toEndOf="@id/siteLocationLayout_header"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf = "@id/siteLocationLayout_header"
                     >
 
                     <AutoCompleteTextView
@@ -389,28 +392,31 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/colorPrimaryDark"
                         android:completionThreshold="1"
+                        android:hint="@string/choose_site_label"
 
                         />
                 </com.google.android.material.textfield.TextInputLayout>
 
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:columnCount = "2"
                 android:baselineAligned="false"
                 android:id="@+id/physicalLocationLinearLayout">
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/physicalLocationLayout_header"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_weight="6"
                     android:gravity="center_vertical|start"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/physicalLocationLayout"
+                    app:layout_constraintBottom_toBottomOf = "@id/physicalLocationLayout"
                     >
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -427,38 +433,43 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/physicalLocationLayout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense.ExposedDropdownMenu"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_weight="4"
-                    android:gravity="center_vertical|start">
+                    android:gravity="center_vertical|start"
+                    app:layout_constraintStart_toEndOf="@id/physicalLocationLayout_header"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf = "@id/physicalLocationLayout_header"
+                    >
 
                     <AutoCompleteTextView
                         android:id="@+id/detail_physical_location"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:completionThreshold="1"
+                        android:hint="@string/choose_location_lbl"
                         />
                 </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:columnCount="2"
                 android:baselineAligned="false"
                 android:id="@+id/typeLinearLayout">
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/typeInputLayout_header"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_weight="6"
                     android:gravity="center_vertical|start"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/typeInputLayout"
+                    app:layout_constraintBottom_toBottomOf = "@id/typeInputLayout"
                     >
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_type_header"
@@ -473,22 +484,26 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/typeInputLayout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense.ExposedDropdownMenu"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_weight="4"
                     android:gravity="center_vertical|start"
+                    app:layout_constraintStart_toEndOf="@id/typeInputLayout_header"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf = "@id/typeInputLayout_header"
                     >
                     <AutoCompleteTextView
                         android:id="@+id/detail_type"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:completionThreshold="1"
+                        android:hint="@string/choose_type_lbl"
                         />
                 </com.google.android.material.textfield.TextInputLayout>
 
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <RadioGroup
                 android:id="@+id/RadioGroup_id"
@@ -510,21 +525,24 @@
                     android:text="@string/reusable_lbl" />
             </RadioGroup>
             
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
 
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:columnCount="2"
                 android:baselineAligned="false">
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_weight="6"
-                    android:gravity="center_vertical|start">
+                    android:gravity="center_vertical|start"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/specialtyInput"
+                    app:layout_constraintBottom_toBottomOf = "@id/specialtyInput"
+                    android:id="@+id/specialtyInputHeader">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_medical_speciality_header"
@@ -539,11 +557,15 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_weight="4"
-                    android:gravity="center_vertical|start">
+                    android:gravity="center_vertical|start"
+                    android:id="@+id/specialtyInput"
+                    app:layout_constraintStart_toEndOf="@id/specialtyInputHeader"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf = "@id/specialtyInputHeader">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_medical_speciality"
@@ -551,7 +573,7 @@
                         android:layout_height="wrap_content"
                         />
                 </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
