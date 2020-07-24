@@ -193,6 +193,7 @@ public class ItemDetailFragment extends Fragment {
     private List<String> procedureDocuments;
     private List<List<String>> procedureDoc;
     private TextWatcher textWatcher;
+    private List<TextInputEditText> numberUsedList;
 
     private LinearLayout siteLinearLayout;
     private LinearLayout physicalLocationLinearLayout;
@@ -304,6 +305,7 @@ public class ItemDetailFragment extends Fragment {
         PHYSICALLOC = new ArrayList<>();
         procedureMapList = new ArrayList<>();
         procedureDoc = new ArrayList<>();
+        numberUsedList = new ArrayList<>();
 
 
 
@@ -415,6 +417,7 @@ public class ItemDetailFragment extends Fragment {
                 if (procedureFieldAdded - procedureListCounter > 0) {
                     removeAccessionNumber(view,itemUsedFields);
                     itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addProcedure) - 1);
+                    numberUsedList.remove(numberUsedList.size() - 1);
                     --procedureFieldAdded;
                 }if(procedureFieldAdded - procedureListCounter == 0){
                     removeProcedure.setEnabled(false);
@@ -916,8 +919,6 @@ public class ItemDetailFragment extends Fragment {
 
 
 
-
-
         TextInputLayout numberUsedLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
         numberUsedLayout.setHint("Enter Number of Items Used");
@@ -930,6 +931,7 @@ public class ItemDetailFragment extends Fragment {
                 getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
         final TextInputEditText numberUsedEditText = new TextInputEditText(procedureNameLayout.getContext());
         numberUsedEditText.setId(View.generateViewId());
+        numberUsedList.add(numberUsedEditText);
         numberUsedEditTextId = numberUsedEditText.getId();
         // incrementing number by 1 when clicked on the end icon
         numberUsedLayout.setEndIconOnClickListener(new View.OnClickListener() {
@@ -1484,11 +1486,13 @@ public class ItemDetailFragment extends Fragment {
         int quantity_int;
         String number_added_str = "0";
         TextInputEditText numberUsedEditText = view.findViewById(numberUsedEditTextId);
+        int totalUsed = 0;
+        for(int i = 0; i < numberUsedList.size(); i++){
+            totalUsed += Integer.parseInt(Objects.requireNonNull(numberUsedList.get(i).getText()).toString());
+        }
         if (itemUsed.isChecked()) {
-            quantity_int = Integer.parseInt(itemQuantity) -
-                    Integer.parseInt(Objects.requireNonNull(numberUsedEditText.getText()).toString());
-            diQuantity = String.valueOf(Integer.parseInt(diQuantity) -
-                    Integer.parseInt(numberUsedEditText.getText().toString()));
+            quantity_int = Integer.parseInt(itemQuantity) - totalUsed;
+            diQuantity = String.valueOf(Integer.parseInt(diQuantity) - totalUsed);
         } else {
             number_added_str = Objects.requireNonNull(numberAdded.getText()).toString();
             quantity_int = Integer.parseInt(itemQuantity) +
