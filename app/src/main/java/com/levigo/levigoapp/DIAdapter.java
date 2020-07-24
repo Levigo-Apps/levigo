@@ -20,7 +20,7 @@ import java.util.Map;
 public class DIAdapter extends RecyclerView.Adapter<DIAdapter.DIHolder> {
 
     private static final String TAG = "diadapter";
-    private Activity activity;
+    private MainActivity activity;
     private Map<String,Object> iDataset;
 
     public static class DIHolder extends RecyclerView.ViewHolder {
@@ -51,7 +51,7 @@ public class DIAdapter extends RecyclerView.Adapter<DIAdapter.DIHolder> {
         }
     }
 
-    public DIAdapter(Activity activity, Map<String,Object> iDataset) {
+    public DIAdapter(MainActivity activity, Map<String,Object> iDataset) {
         this.activity = activity;
         this.iDataset = iDataset;
     }

@@ -18,7 +18,7 @@ import java.util.Map;
 public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder> {
 
     private static final String TAG = "typesadapter";
-    private Activity activity;
+    private MainActivity activity;
     private Map<String,Object> iDataset;
 
     public static class TypesHolder extends RecyclerView.ViewHolder {
@@ -49,7 +49,7 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
         }
     }
 
-    public TypesAdapter(Activity activity, Map<String,Object> iDataset) {
+    public TypesAdapter(MainActivity activity, Map<String,Object> iDataset) {
         this.activity = activity;
         this.iDataset = iDataset;
     }

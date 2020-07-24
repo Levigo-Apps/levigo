@@ -15,7 +15,7 @@ import java.util.Map;
 public class UDIAdapter extends RecyclerView.Adapter<UDIAdapter.UDIHolder> {
 
     private static final String TAG = "udiadapter";
-    private Activity activity;
+    private MainActivity activity;
     private List<Map<String,Object>> iDataset;
 
     public static class UDIHolder extends RecyclerView.ViewHolder {
@@ -30,7 +30,7 @@ public class UDIAdapter extends RecyclerView.Adapter<UDIAdapter.UDIHolder> {
         }
     }
 
-    public UDIAdapter(Activity activity, List<Map<String,Object>> iDataset) {
+    public UDIAdapter(MainActivity activity, List<Map<String,Object>> iDataset) {
         this.activity = activity;
         this.iDataset = iDataset;
     }
@@ -46,16 +46,25 @@ public class UDIAdapter extends RecyclerView.Adapter<UDIAdapter.UDIHolder> {
 
     @Override
     public void onBindViewHolder(UDIHolder holder, int position){
-        Map<String,Object> udi = iDataset.get(position);
+        final Map<String,Object> udi = iDataset.get(position);
         if(udi.containsKey("expiration")) {
-            String udiString = "EXP " + udi.get("expiration").toString();
-            holder.itemExpiration.setText(udiString);
+            String expiration = "EXP " + udi.get("expiration").toString();
+            holder.itemExpiration.setText(expiration);
         }
         if(udi.containsKey("quantity")) {
             //TODO PLURAL
             String quantity = udi.get("quantity").toString() + " Units";
             holder.itemQuantity.setText(quantity);
         }
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(udi.containsKey("udi")) {
+                    String udiString = udi.get("udi").toString();
+                    activity.startItemView(udiString);
+                }
+            }
+        });
     }
 
     @Override
