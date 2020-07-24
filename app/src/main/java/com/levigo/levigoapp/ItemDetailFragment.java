@@ -40,6 +40,7 @@ import android.widget.Toolbar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
@@ -195,10 +196,10 @@ public class ItemDetailFragment extends Fragment {
     private TextWatcher textWatcher;
     private List<TextInputEditText> numberUsedList;
 
-    private LinearLayout siteLinearLayout;
-    private LinearLayout physicalLocationLinearLayout;
-    private LinearLayout typeLinearLayout;
-    private LinearLayout numberAddedLinearLayout;
+    private ConstraintLayout siteConstrainLayout;
+    private ConstraintLayout physicalLocationConstrainLayout;
+    private ConstraintLayout typeConstrainLayout;
+    private ConstraintLayout numberAddedConstrainLayout;
 
 
     // firebase key labels to avoid hard-coded paths
@@ -272,10 +273,10 @@ public class ItemDetailFragment extends Fragment {
         numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
         topToolBar = rootView.findViewById(R.id.topAppBar);
 
-        siteLinearLayout = rootView.findViewById(R.id.site_linearlayout);
-        physicalLocationLinearLayout = rootView.findViewById(R.id.physicalLocationLinearLayout);
-        typeLinearLayout = rootView.findViewById(R.id.typeLinearLayout);
-        numberAddedLinearLayout = rootView.findViewById(R.id.numberAddedLinearLayout);
+        siteConstrainLayout = rootView.findViewById(R.id.site_linearlayout);
+        physicalLocationConstrainLayout= rootView.findViewById(R.id.physicalLocationLinearLayout);
+        typeConstrainLayout= rootView.findViewById(R.id.typeLinearLayout);
+        numberAddedConstrainLayout = rootView.findViewById(R.id.numberAddedLinearLayout);
         chosenReusable = false;
         chosenType = false;
         chosenSite = false;
@@ -439,14 +440,14 @@ public class ItemDetailFragment extends Fragment {
                     itemUsedFields.setVisibility(View.VISIBLE);
                     numberAdded.setText("0");
                     numberAdded.removeTextChangedListener(textWatcher);
-                    numberAddedLinearLayout.setVisibility(View.GONE);
+                    numberAddedConstrainLayout.setVisibility(View.GONE);
                     removeProcedure.setEnabled(false);
 
                 } else {
                     // enable saveButton
                     saveButton.setEnabled(true);
                     checkItemUsed = false;
-                    numberAddedLinearLayout.setVisibility(View.VISIBLE);
+                    numberAddedConstrainLayout.setVisibility(View.VISIBLE);
                     itemUsedFields.setVisibility(View.GONE);
                     while (procedureFieldAdded  - procedureListCounter > 0) {
                         itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addProcedure) - 1);
@@ -1275,7 +1276,7 @@ public class ItemDetailFragment extends Fragment {
 
             otherType_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
             other_type_layout.addView(otherType_text);
-            linearLayout.addView(other_type_layout, 1 + linearLayout.indexOfChild(typeLinearLayout));
+            linearLayout.addView(other_type_layout, 1 + linearLayout.indexOfChild(typeConstrainLayout));
 
             MaterialButton submit_otherType = new MaterialButton(view.getContext(),
                     null, R.attr.materialButtonOutlinedStyle);
@@ -1312,7 +1313,7 @@ public class ItemDetailFragment extends Fragment {
             if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
                 saveButton.setEnabled(true);
             }
-            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeLinearLayout));
+            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeConstrainLayout));
         }
     }
 
@@ -1351,7 +1352,7 @@ public class ItemDetailFragment extends Fragment {
             otherSite_text.addTextChangedListener(siteTextWatcher);
             otherSite_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
             other_site_layout.addView(otherSite_text);
-            linearLayout.addView(other_site_layout, 1 + linearLayout.indexOfChild(siteLinearLayout));
+            linearLayout.addView(other_site_layout, 1 + linearLayout.indexOfChild(siteConstrainLayout));
 
             MaterialButton submitOtherSite = new MaterialButton(view.getContext(),
                     null, R.attr.materialButtonOutlinedStyle);
@@ -1387,7 +1388,7 @@ public class ItemDetailFragment extends Fragment {
                 saveButton.setEnabled(true);
             }
             chosenSite = false;
-            linearLayout.removeViewAt( 1 +  linearLayout.indexOfChild(siteLinearLayout));
+            linearLayout.removeViewAt( 1 +  linearLayout.indexOfChild(siteConstrainLayout));
         }
     }
 
@@ -1425,7 +1426,7 @@ public class ItemDetailFragment extends Fragment {
             otherPhysicalLoc_text.addTextChangedListener(physicalLocationWatcher);
             otherPhysicalLoc_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
             other_physicaloc_layout.addView(otherPhysicalLoc_text);
-            linearLayout.addView(other_physicaloc_layout, 1 + linearLayout.indexOfChild(physicalLocationLinearLayout));
+            linearLayout.addView(other_physicaloc_layout, 1 + linearLayout.indexOfChild(physicalLocationConstrainLayout));
 
             MaterialButton submit_otherPhysicalLoc = new MaterialButton(view.getContext(),
                     null, R.attr.materialButtonOutlinedStyle);
@@ -1461,7 +1462,7 @@ public class ItemDetailFragment extends Fragment {
                 saveButton.setEnabled(true);
             }
             chosenLocation = false;
-            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(physicalLocationLinearLayout));
+            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(physicalLocationConstrainLayout));
         }
     }
 
