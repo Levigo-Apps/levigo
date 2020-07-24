@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
@@ -15,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -98,8 +100,6 @@ public class MainActivity extends AppCompatActivity {
 
         iAdapter = new InventoryViewAdapter(MainActivity.this, entries);
         inventoryScroll.setAdapter(iAdapter);
-
-
 
         inventoryRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -220,13 +220,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void startItemView(String barcode) {
+    public void startItemView(String barcode) {
         ItemDetailFragment fragment = new ItemDetailFragment();
         Bundle bundle = new Bundle();
         bundle.putString("barcode",barcode);
         fragment.setArguments(bundle);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
+//        List<Fragment> fragments = fragmentManager.getFragments();
+//        //prevents creating more than one ItemDetailFragment
+//        for(Fragment f : fragments) {
+//            if(f instanceof ItemDetailFragment){
+//                return;
+//            }
+//        }
+
+        //clears other fragments
+        fragmentManager.popBackStack(null,FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
         fragmentTransaction.add(R.id.activity_main, fragment);

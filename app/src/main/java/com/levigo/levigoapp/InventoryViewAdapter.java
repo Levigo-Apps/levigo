@@ -15,7 +15,7 @@ import java.util.Map;
 public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdapter.InventoryViewHolder> {
 
     private static final String TAG = "ivadapter";
-    private Activity activity;
+    private MainActivity activity;
     private Map<String,Object> iDataset;
 
     public static class InventoryViewHolder extends RecyclerView.ViewHolder {
@@ -38,7 +38,7 @@ public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdap
         }
     }
 
-    public InventoryViewAdapter(Activity activity, Map<String,Object> iDataset) {
+    public InventoryViewAdapter(MainActivity activity, Map<String,Object> iDataset) {
         this.activity = activity;
         this.iDataset = iDataset;
     }

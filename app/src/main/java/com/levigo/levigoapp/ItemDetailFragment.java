@@ -385,7 +385,7 @@ public class ItemDetailFragment extends Fragment {
                 integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
                 integrator.setBarcodeImageEnabled(true);
                 integrator.initiateScan();
-                parent.onBackPressed();
+//                parent.onBackPressed();
             }
         });
         //going back to inventory view
@@ -396,6 +396,7 @@ public class ItemDetailFragment extends Fragment {
                     parent.onBackPressed();
             }
         });
+
 
         addProcedure.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -516,8 +517,6 @@ public class ItemDetailFragment extends Fragment {
         udiEditText.setText(barcode);
         return rootView;
     }
-
-
 
     private void timeInLayoutPicker(View view){
         Calendar mcurrentTime = Calendar.getInstance();

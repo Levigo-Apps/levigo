@@ -6,8 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
-    >
+    android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -15,9 +14,9 @@
         android:background="@color/colorPrimary"
         android:layout_gravity="center_horizontal"
         android:fitsSystemWindows="true"
-        android:id="@+id/fragment_appbar">
-
-
+        android:id="@+id/fragment_appbar"
+        android:elevation="2dp"
+        app:elevation="2dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
@@ -31,8 +30,7 @@
             app:liftOnScroll="true"
             app:menu="@menu/fragment_topbar"
             app:navigationIcon="@drawable/ic_baseline_arrow_back"
-            app:title="Edit Item Detail"
-            android:elevation="0dp"/>
+            app:title="Edit Item Detail"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
