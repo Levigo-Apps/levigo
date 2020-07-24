@@ -52,7 +52,7 @@
             android:orientation="vertical"
            >
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:columnCount="2"
@@ -60,13 +60,17 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:helperTextEnabled="true"
                     app:helperTextTextColor="@color/colorPrimaryDark"
                     app:boxStrokeColor="@color/colorPrimary"
                     android:layout_weight="6"
                     android:gravity="center_vertical|end"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/barcodeInputLayout"
+                    app:layout_constraintBottom_toBottomOf = "@id/barcodeInputLayout"
+                    android:id="@+id/barcodeHeaderLayout"
 
                     >
 
@@ -85,11 +89,15 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:boxStrokeColor="@color/colorPrimary"
                     android:layout_weight="4"
                     android:gravity="center_vertical|end"
+                    android:id="@+id/barcodeInputLayout"
+                    app:layout_constraintStart_toEndOf="@id/barcodeHeaderLayout"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf = "@id/barcodeHeaderLayout"
                     >
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -101,7 +109,7 @@
                         />
                 </com.google.android.material.textfield.TextInputLayout>
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
             <Button
@@ -113,21 +121,24 @@
                 app:iconTint="#0C2CDF"
                 app:strokeColor="#0A2ADC" />
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:columnCount="2"
-                android:orientation="horizontal"
                 android:baselineAligned="false">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/TextInputLayout_di_header"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_weight="6"
-                    android:gravity="center_vertical|end">
+                    android:gravity="center_vertical|end"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/TextInputLayout_di"
+                    app:layout_constraintBottom_toBottomOf = "@id/TextInputLayout_di"
+                    >
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_di_header"
@@ -141,14 +152,18 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/TextInputLayout_di"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     app:endIconDrawable="@drawable/search"
                     app:endIconMode="custom"
                     app:endIconTint="@color/colorPrimary"
                     android:layout_weight="4"
-                    android:gravity="center_vertical|end">
+                    android:gravity="center_vertical|end"
+                    app:layout_constraintStart_toEndOf="@id/TextInputLayout_di_header"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf = "@id/TextInputLayout_di_header"
+                    >
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_di"
                         android:layout_width="match_parent"
@@ -158,24 +173,26 @@
                         android:gravity="fill_horizontal"
                        />
                 </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:columnCount="2"
-                android:orientation="horizontal"
-
                 android:baselineAligned="false">
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_weight="6"
                     android:gravity="center_vertical|end"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/nameHeaderInput"
+                    app:layout_constraintBottom_toBottomOf = "@id/nameHeaderInput"
+                    android:id="@+id/nameHeaderLayout"
                    >
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -191,11 +208,15 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_weight="4"
-                    android:gravity="center_vertical|end">
+                    android:gravity="center_vertical|end"
+                    android:id="@+id/nameHeaderInput"
+                    app:layout_constraintStart_toEndOf="@id/nameHeaderLayout"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf = "@id/nameHeaderLayout">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_name"
@@ -203,9 +224,9 @@
                         android:layout_height="wrap_content"
                         />
                 </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:columnCount = "2"
@@ -214,11 +235,16 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_weight="6"
                     android:gravity="center_vertical|end"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/quantityInputHeader"
+                    app:layout_constraintBottom_toBottomOf = "@id/quantityInputHeader"
+                    android:id="@+id/quantityInput"
+
                     >
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -236,16 +262,20 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_weight="4"
                     android:gravity="center_vertical|end"
+                    android:id="@+id/quantityInputHeader"
+                    app:layout_constraintStart_toEndOf="@id/quantityInput"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf = "@id/quantityInput"
                     >
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_quantity"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:clickable="false"
                         android:cursorVisible="false"
@@ -255,11 +285,10 @@
                         android:gravity="center_vertical|start"
                         />
                 </com.google.android.material.textfield.TextInputLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            </LinearLayout>
 
-
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -269,11 +298,14 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/expiration_date_string_header"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_weight="6"
                     android:gravity="center_vertical|start"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/expiration_date_string"
+                    app:layout_constraintBottom_toBottomOf = "@id/expiration_date_string"
                     >
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -290,14 +322,17 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/expiration_date_string"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     app:endIconDrawable="@drawable/calendar"
                     app:endIconMode="custom"
                     app:endIconTint="@color/colorPrimary"
                     android:layout_weight="4"
-                    android:gravity="center_vertical|start">
+                    android:gravity="center_vertical|start"
+                    app:layout_constraintStart_toEndOf="@id/expiration_date_string_header"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf = "@id/expiration_date_string_header">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_expiration_date"
@@ -307,7 +342,7 @@
                         android:focusable="false"
                         />
                 </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
