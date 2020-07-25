@@ -98,7 +98,7 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
 
         Map<String,Object> type = (HashMap<String,Object>) productType.get("di");
         //TODO make safe
-        if(type.containsKey("equipment_type")) {
+        if(type != null && type.containsKey("equipment_type")) {
             String type_item = type.get("equipment_type").toString();
             holder.itemType.setText(type_item);
         }
