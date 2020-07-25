@@ -164,48 +164,104 @@ public class MainActivity extends AppCompatActivity {
                     final Map<String, Object> di = dc.getDocument().getData();
                     final String type = di.get("equipment_type").toString();
                     final String diString = di.get("di").toString();
-                    Log.d(TAG, "Data di: " + di.toString());
-                    Log.d(TAG, "UDIs: " + dc.getDocument().getReference().collection("UDIs"));
+//                    Log.d(TAG, "Data di: " + di.toString());
+//                    Log.d(TAG, "UDIs: " + dc.getDocument().getReference().collection("UDIs"));
                     //TODO: add cases
-                    dc.getDocument().getReference().collection("UDIs").addSnapshotListener(new EventListener<QuerySnapshot>() {
-                        @Override
-                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                            if (e != null) {
-                                System.err.println("Listen failed: " + e);
-                                return;
-                            }
-                            assert queryDocumentSnapshots != null;
-                            List<Map<String, Object>> udis = new LinkedList<>();
-                            for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-//                                switch(dc.getType()) {
-//                                    case ADDED:
-                                udis.add(dc.getDocument().getData());
-//                                }
-                            }
-                            Map<String, Object> entry = new HashMap<>();
-                            entry.put("di", di);
-                            entry.put("udis", udis);
+                    Map<String, Object> types, dis, productid;
+                    switch (dc.getType()) {
+                        case ADDED:
+                            Log.d(TAG, "Added");
+                            dc.getDocument().getReference().collection("UDIs").addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                @Override
+                                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                    if (e != null) {
+                                        System.err.println("Listen failed: " + e);
+                                        return;
+                                    }
+                                    assert queryDocumentSnapshots != null;
+
+
+                                    if (!entries.containsKey("Category1")) {
+                                        entries.put("Category1", new HashMap<>());
+                                    }
+                                    Map<String, Object> types = (HashMap<String, Object>) entries.get("Category1");
+                                    assert types != null;
+                                    if (!types.containsKey(type)) {
+                                        types.put(type, new HashMap<>());
+                                    }
+                                    Map<String, Object> dis = (HashMap<String, Object>) types.get(type);
+                                    assert dis != null;
+                                    if (!dis.containsKey(diString)) {
+                                        dis.put(diString, new HashMap<>());
+                                    }
+                                    Map<String, Object> productid = (HashMap<String, Object>) dis.get(diString);
+                                    assert productid != null;
+
+                                    if (!productid.containsKey("udis")) {
+                                        productid.put("udis", new HashMap<>());
+                                    }
+                                    Map<String, Object> udis = (HashMap<String, Object>) productid.get("udis");
+                                    assert udis != null;
+
+                                    for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                                        Map<String, Object> data = dc.getDocument().getData();
+                                        //TODO: make safe
+                                        String udi = data.get("udi").toString();
+                                        switch (dc.getType()) {
+                                            case ADDED:
+                                            case MODIFIED:
+                                                udis.put(udi, data);
+                                                break;
+                                            case REMOVED:
+                                                udis.remove(udi);
+                                        }
+                                    }
+
+//                                    productid.put("udis", udis);
+//                                    Log.d(TAG, "ENTRIES: " + entries);
+                                    iAdapter.notifyDataSetChanged();
+                                }
+                            });
+                        case MODIFIED:
+                            Log.d(TAG, "Modified");
                             if (!entries.containsKey("Category1")) {
                                 entries.put("Category1", new HashMap<>());
                             }
-                            Map<String, Object> types = (HashMap<String, Object>) entries.get("Category1");
+                            types = (HashMap<String, Object>) entries.get("Category1");
                             assert types != null;
                             if (!types.containsKey(type)) {
                                 types.put(type, new HashMap<>());
                             }
-                            Map<String, Object> dis = (HashMap<String, Object>) types.get(type);
+                            dis = (HashMap<String, Object>) types.get(type);
                             assert dis != null;
                             if (!dis.containsKey(diString)) {
                                 dis.put(diString, new HashMap<>());
                             }
-                            Map<String, Object> productid = (HashMap<String, Object>) dis.get(diString);
+                            productid = (HashMap<String, Object>) dis.get(diString);
                             assert productid != null;
                             productid.put("di", di);
-                            productid.put("udis", udis);
-                            Log.d(TAG, "ENTRIES: " + entries);
-                            iAdapter.notifyDataSetChanged();
-                        }
-                    });
+                            break;
+                        case REMOVED:
+                            Log.d(TAG, "Removed");
+                            if (!entries.containsKey("Category1")) {
+                                entries.put("Category1", new HashMap<>());
+                            }
+                            types = (HashMap<String, Object>) entries.get("Category1");
+                            assert types != null;
+                            if (!types.containsKey(type)) {
+                                types.put(type, new HashMap<>());
+                            }
+                            dis = (HashMap<String, Object>) types.get(type);
+                            assert dis != null;
+                            if (!dis.containsKey(diString)) {
+                                dis.put(diString, new HashMap<>());
+                            }
+                            productid = (HashMap<String, Object>) dis.get(diString);
+                            assert productid != null;
+                            productid.remove("di");
+                            break;
+                    }
+                    iAdapter.notifyDataSetChanged();
 //                    switch(dc.getType()) {
 //                        case ADDED:
 //                            Log.d(TAG, "added");

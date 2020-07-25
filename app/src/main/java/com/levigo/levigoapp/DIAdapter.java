@@ -82,6 +82,8 @@ public class DIAdapter extends RecyclerView.Adapter<DIAdapter.DIHolder> {
 
         Map<String,Object> di = (HashMap<String,Object>) productid.get("di");
         //TODO make safe
+        if(di == null)
+            return;
         if(di.containsKey("name")) {
             String name = di.get("name").toString();
             holder.itemName.setText(name);
@@ -100,7 +102,7 @@ public class DIAdapter extends RecyclerView.Adapter<DIAdapter.DIHolder> {
 
 
 
-        List<Map<String,Object>> udis = (LinkedList<Map<String, Object>>)productid.get("udis");
+        Map<String,Object> udis = (Map<String, Object>) productid.get("udis");
 
         UDIAdapter udiAdapter = new UDIAdapter(activity, udis);
 
