@@ -28,7 +28,10 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".SignUpActivity"></activity>
+        <activity android:name=".SignUpActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value=".LoginActivity"/>
+        </activity>
 
         <activity android:name=".NetworkActivity"
             android:theme="@style/Theme.MaterialComponents.NoActionBar">

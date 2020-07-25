@@ -44,6 +44,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Signs up new user
  */
@@ -54,6 +57,7 @@ public class SignUpActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
     private CollectionReference invitationCodesRef = levigoDb.collection("invitation_codes");
+    private CollectionReference usersRef = levigoDb.collection("users");
 
     private LinearLayout mEmailPasswordLayout;
     private Button mSubmitInvitationCode;
@@ -64,15 +68,15 @@ public class SignUpActivity extends AppCompatActivity {
     private TextInputEditText mConfirmPasswordField;
     private Button mSignUpButton;
     private TextView mNetworkNameTextView;
-    private TextView mSiteNameTextView;
+    private TextView mHospitalNameTextView;
 
     private String mInvitationCode;
 
     // ID and name of network and site authorized
-    private String mNetwork;
+    private String mNetworkId;
     private String mNetworkName;
-    private String mSite;
-    private String mSiteName;
+    private String mHospitalId;
+    private String mHospitalName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,7 +86,7 @@ public class SignUpActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         mNetworkNameTextView = findViewById(R.id.signup_network_name);
-        mSiteNameTextView = findViewById(R.id.signup_site_name);
+        mHospitalNameTextView = findViewById(R.id.signup_site_name);
 
         mEmailPasswordLayout = findViewById(R.id.signup_email_password_layout);
         mEmailField = findViewById(R.id.signup_email);
@@ -139,13 +143,13 @@ public class SignUpActivity extends AppCompatActivity {
                                 if (document.getBoolean("valid")) {
                                     try {
                                         // Valid code; Check which network & hospital authorized for
-                                        mNetwork = document.get("network").toString();
+                                        mNetworkId = document.get("network_id").toString();
                                         mNetworkName = document.get("network_name").toString();
-                                        mSite = document.get("site").toString();
-                                        mSiteName = document.get("site_name").toString();
+                                        mHospitalId = document.get("hospital_id").toString();
+                                        mHospitalName = document.get("hospital_name").toString();
 
                                         mNetworkNameTextView.setText(mNetworkName);
-                                        mSiteNameTextView.setText(mSiteName);
+                                        mHospitalNameTextView.setText(mHospitalName);
 
                                         mEmailPasswordLayout.setVisibility(View.VISIBLE);
                                         mInvitationCodeLayout.setEnabled(false);
@@ -210,6 +214,8 @@ public class SignUpActivity extends AppCompatActivity {
         mPasswordField.addTextChangedListener(emailPasswordWatcher);
         mConfirmPasswordField.addTextChangedListener(emailPasswordWatcher);
 
+//        HctpKDcubLGmhZ4AIqSg
+
         mSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -221,16 +227,21 @@ public class SignUpActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-//                                    Log.d(TAG, "createUserWithEmail:success");
                                     disableValidationCode(mInvitationCode);
-                                    Bundle authBundle = new Bundle();
-                                    authBundle.putString("network", mNetwork);
-                                    authBundle.putString("network_name", mNetworkName);
-                                    authBundle.putString("site", mSite);
-                                    authBundle.putString("site_name", mSiteName);
+
+                                    String userId = mAuth.getCurrentUser().getUid();
+                                    String currentUserEmail = mAuth.getCurrentUser().getEmail();
+//                                    Log.d(TAG, "///////" + userId);
+                                    Map<String, Object> newUserData = new HashMap<>();
+                                    newUserData.put("network_id", mNetworkId);
+                                    newUserData.put("network_name", mNetworkName);
+                                    newUserData.put("hospital_id", mHospitalId);
+                                    newUserData.put("hospital_name", mHospitalName);
+                                    newUserData.put("email", currentUserEmail);
+
+                                    usersRef.document(userId).set(newUserData);
 
                                     Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
-                                    mainActivityIntent.putExtras(authBundle);
                                     startActivity(mainActivityIntent);
                                 } else {
                                     // If sign in fails, display a message to the user.
