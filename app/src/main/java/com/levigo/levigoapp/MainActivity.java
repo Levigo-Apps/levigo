@@ -102,9 +102,9 @@ public class MainActivity extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         try {
-                            mNetworkId = document.get("network").toString();
+                            mNetworkId = document.get("network_id").toString();
                             mNetworkName = document.get("network_name").toString();
-                            mHospitalId = document.get("hospital").toString();
+                            mHospitalId = document.get("hospital_id").toString();
                             mHospitalName = document.get("hospital_name").toString();
 
                             String inventoryRefUrl = "networks/" + mNetworkId + "/sites/" + mHospitalId + "/n1_h3_departments/department1/n1_h1_d1 productids";

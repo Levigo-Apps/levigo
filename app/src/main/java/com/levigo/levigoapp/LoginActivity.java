@@ -119,60 +119,6 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
             clear = false;
-/*
-            String userId = user.getUid();
-            Log.d(TAG, "USER ID: " + userId);
-
-            final DocumentReference currentUserRef = usersRef.document(userId);
-
-            currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    String toastMessage;
-                    if (task.isSuccessful()) {
-//                        Log.d(TAG, "successful");
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-//                            Log.d(TAG, "HERE");
-                            try {
-                                mNetwork = document.get("network").toString();
-                                mNetworkName = document.get("network_name").toString();
-                                mSite = document.get("hospital").toString();
-                                mSiteName = document.get("hospital_name").toString();
-//                                Log.d(TAG, "=====" + mNetwork + " | " + mNetworkName + " | " + mSite + " | " + mSiteName);
-                                Bundle authBundle = new Bundle();
-                                authBundle.putString("network", mNetwork);
-                                authBundle.putString("network_name", mNetworkName);
-                                authBundle.putString("hospital", mSite);
-                                authBundle.putString("hospital_name", mSiteName);
-                                Log.d(TAG, "BUNDLE SENT: " + authBundle.toString());
-
-                                //TODO good idea only starting main if document retrieved?
-                                Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
-                                mainActivityIntent.putExtras(authBundle);
-                                startActivity(mainActivityIntent);
-
-                                //TODO Major issue: triggered when starting
-                            } catch (NullPointerException e){
-//                                toastMessage = "Error retrieving user information; Please contact support";
-//                                Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                                Log.d(TAG, "PROBLEMATIC EXCEPTION!");
-                            }
-                        } else {
-                            // document for invitation code doesn't exist
-                            toastMessage = "User not found; Please contact support";
-                            Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        toastMessage = "User lookup failed; Please try again and contact support if issue persists";
-                        Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "get failed with ", task.getException());
-                    }
-//                    Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                }
-            });
-
- */
 
             Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(mainActivityIntent);
