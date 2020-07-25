@@ -3,7 +3,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/colorBackground"
+    android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -12,7 +14,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" >
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/colorBackground">
         <TextView
             android:id="@+id/login_title"
             android:layout_gravity="center_horizontal"
@@ -23,50 +26,7 @@
             android:textColor="#5E5A5A"
             android:textSize="40sp"
             android:textStyle="bold"/>
-        <TableLayout
-            android:id="@+id/middle_table"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_gravity="center_horizontal">
 
-            <TableRow
-                android:id="@+id/text_row"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <TextView
-                    android:id="@+id/usertype_textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/I_label"
-                    android:textColor="#353232"
-                    android:textSize="20sp"
-                    android:layout_marginBottom="10dp"/>
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/buttons_row"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal">
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/user_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="20dp"
-                    android:text="@string/admin_label"
-                    android:textSize="15sp"/>
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/admin_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/user_label"
-                    android:textSize="15sp"/>
-            </TableRow>
-        </TableLayout>
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="250dp"
             android:layout_height="wrap_content"
@@ -98,6 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/remember_me_label"
+            android:checked="false"
             android:layout_gravity="left"/>
         <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"

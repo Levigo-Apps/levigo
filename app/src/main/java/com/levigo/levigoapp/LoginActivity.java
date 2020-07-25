@@ -55,10 +55,9 @@ public class LoginActivity extends AppCompatActivity {
     private MaterialCheckBox mRemember;
 
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
-    private CollectionReference usersRef = levigoDb.collection("users");
+//    private CollectionReference usersRef = levigoDb.collection("users");
 
-
-    private String mNetwork, mNetworkName, mSite, mSiteName;
+//    private String mNetwork, mNetworkName, mSite, mSiteName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -106,7 +105,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            signout = mRemember.isChecked();
+                            signout = !mRemember.isChecked();
                             userIsLoggedIn();
                         } else {
                             Toast.makeText(LoginActivity.this, "Failed to login.", Toast.LENGTH_SHORT).show();
@@ -132,7 +131,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
-                signout = mRemember.isChecked();
+                signout = !mRemember.isChecked();
                 userIsLoggedIn();
             } else {
                 Log.d(TAG, "Sign in cancelled");

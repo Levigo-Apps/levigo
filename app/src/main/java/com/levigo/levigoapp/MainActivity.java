@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 Levigo Apps
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.levigo.levigoapp;
 
 import android.Manifest;
@@ -76,23 +92,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        inventoryScroll = findViewById(R.id.main_categories);
-        mAdd = findViewById(R.id.main_add);
-        inventoryScroll.setHasFixedSize(true);
-        mAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startScanner();
-            }
-        });
-        Toolbar mToolbar = findViewById(R.id.main_toolbar);
-        setSupportActionBar(mToolbar);
-        getPermissions();
 
         mAuth = FirebaseAuth.getInstance();
         String userId = mAuth.getCurrentUser().getUid();
-//        Log.d(TAG, "USER ID: " + userId);
 
+        // Get user information in "users" collection
         final DocumentReference currentUserRef = usersRef.document(userId);
         currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -108,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                             mHospitalName = document.get("hospital_name").toString();
 
                             String inventoryRefUrl = "networks/" + mNetworkId + "/sites/" + mHospitalId + "/n1_h3_departments/department1/n1_h1_d1 productids";
-                            Log.d(TAG, "InvRefUrl: " + inventoryRefUrl);
+//                            Log.d(TAG, "InvRefUrl: " + inventoryRefUrl);
                             inventoryRef = levigoDb.collection(inventoryRefUrl);
                             initInventory();
                         } catch (NullPointerException e) {
@@ -116,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        // document for invitation code doesn't exist
+                        // document for user doesn't exist
                         toastMessage = "User not found; Please contact support";
                         Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
                     }
@@ -127,6 +131,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        inventoryScroll = findViewById(R.id.main_categories);
+        mAdd = findViewById(R.id.main_add);
+        inventoryScroll.setHasFixedSize(true);
+        mAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startScanner();
+            }
+        });
+        Toolbar mToolbar = findViewById(R.id.main_toolbar);
+        setSupportActionBar(mToolbar);
+        getPermissions();
     }
 
     private void startScanner() {
