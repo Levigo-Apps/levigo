@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="15dp"
-    android:background="@color/colorBackground"
+    android:background="@android:color/white"
     android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -14,13 +13,14 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:layout_alignParentTop="true"
-        android:background="@android:color/transparent"
+        android:background="@color/fui_transparent"
         app:layout_collapseMode="pin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@android:drawable/ic_menu_sort_by_size"
-        app:title="Sign Up" />
+        app:titleTextColor="@color/colorPrimaryDark"
+        app:title="Create an Account" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -40,8 +40,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="InvitationCode"
+                android:textColor="@color/colorCustomBlack"
                 android:inputType="textCapCharacters"
-                />
+                android:shadowColor="@color/colorPrimaryDark"/>
         </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -49,6 +50,7 @@
             android:id="@+id/submit_invitation_code_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimaryDark"
             android:text="Submit" />
 
     </LinearLayout>
@@ -136,7 +138,8 @@
             android:id="@+id/signup_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sign Up" />
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:text="Create Account" />
 
 
     </LinearLayout>

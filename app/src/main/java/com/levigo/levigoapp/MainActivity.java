@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
     private Map<String, Object> entries = new HashMap<>();
 
     private FloatingActionButton mAdd;
-//    private MaterialToolbar mMainToolbar;
 
     // authorized hospital based on user
     private FirebaseAuth mAuth;
@@ -97,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         String userId = mAuth.getCurrentUser().getUid();
-//        mMainToolbar = findViewById(R.id.main_toolbar);
 
         // Get user information in "users" collection
         final DocumentReference currentUserRef = usersRef.document(userId);
@@ -114,11 +112,11 @@ public class MainActivity extends AppCompatActivity {
                             mHospitalId = document.get("hospital_id").toString();
                             mHospitalName = document.get("hospital_name").toString();
                             String inventoryRefUrl = "networks/" + mNetworkId + "/sites/" + mHospitalId + "/n1_h3_departments/department1/n1_h1_d1 productids";
-//                            mMainToolbar.setTitle(mHospitalName);
 
                             Toolbar mToolbar = findViewById(R.id.main_toolbar);
                             setSupportActionBar(mToolbar);
                             mToolbar.setTitle(mHospitalName);
+
                             inventoryRef = levigoDb.collection(inventoryRefUrl);
                             initInventory();
                         } catch (NullPointerException e) {

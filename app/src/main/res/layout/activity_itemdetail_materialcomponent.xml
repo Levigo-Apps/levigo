@@ -5,5 +5,5 @@
     android:layout_height="wrap_content"
     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
     android:textAppearance="?android:attr/textAppearance"
-    app:chipBackgroundColor="@color/colorAccent"
+    app:chipBackgroundColor="@color/colorPrimary"
     />
