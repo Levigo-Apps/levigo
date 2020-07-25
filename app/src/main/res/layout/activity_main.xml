@@ -34,7 +34,6 @@
                 app:layout_collapseMode="pin"
                 android:id="@+id/main_toolbar"
                 android:background="@android:color/transparent"
-                app:title="Hospital Clinic Name"
                 app:navigationIcon="@android:drawable/ic_menu_sort_by_size" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>

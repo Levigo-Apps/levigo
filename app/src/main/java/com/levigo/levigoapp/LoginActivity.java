@@ -36,7 +36,6 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
@@ -55,9 +54,6 @@ public class LoginActivity extends AppCompatActivity {
     private MaterialCheckBox mRemember;
 
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
-//    private CollectionReference usersRef = levigoDb.collection("users");
-
-//    private String mNetwork, mNetworkName, mSite, mSiteName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -96,7 +92,6 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), SignUpActivity.class));
             }
         });
-
     }
 
     private void signIn(String email, String password) {

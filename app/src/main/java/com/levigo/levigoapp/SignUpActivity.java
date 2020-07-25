@@ -32,8 +32,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -192,6 +190,7 @@ public class SignUpActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
+                //TODO NullPointerException?
                 String e = mEmailField.getText().toString();
                 String p = mPasswordField.getText().toString();
                 String cp = mConfirmPasswordField.getText().toString();
@@ -200,7 +199,7 @@ public class SignUpActivity extends AppCompatActivity {
                     // Disable sign up if password fields don't match
                     mSignUpButton.setEnabled(false);
                     //TODO display warning sign next to confirm password
-                } else if (e.length() == 0 || p.length() == 0 || cp.length() == 0) {
+                } else if (e.length() == 0 || p.length() == 0) {
                     // Disable sign up if any field is empty
                     mSignUpButton.setEnabled(false);
                 } else {
@@ -255,21 +254,6 @@ public class SignUpActivity extends AppCompatActivity {
 
     private void disableValidationCode(String invitationCode) {
         DocumentReference currentCodeRef = invitationCodesRef.document(invitationCode);
-
-        // TODO add actions in case of success/failure OR delete custom listener?
-        currentCodeRef
-                .update("valid", false);
-//                .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                    @Override
-//                    public void onSuccess(Void aVoid) {
-//                        Log.d(TAG, "DocumentSnapshot successfully updated!");
-//                    }
-//                })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        Log.w(TAG, "Error updating document", e);
-//                    }
-//                });
+        currentCodeRef.update("valid", false);
     }
 }

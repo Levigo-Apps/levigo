@@ -40,6 +40,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
-    private CollectionReference inventoryRef; //= levigoDb.collection("networks/network1/sites/n1_hospital3/n1_h3_departments/department1/n1_h1_d1 productids");
+    private CollectionReference inventoryRef;
 
     private RecyclerView inventoryScroll;
     private RecyclerView.Adapter iAdapter;
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private Map<String, Object> entries = new HashMap<>();
 
     private FloatingActionButton mAdd;
+//    private MaterialToolbar mMainToolbar;
 
     // authorized hospital based on user
     private FirebaseAuth mAuth;
@@ -95,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         String userId = mAuth.getCurrentUser().getUid();
+//        mMainToolbar = findViewById(R.id.main_toolbar);
 
         // Get user information in "users" collection
         final DocumentReference currentUserRef = usersRef.document(userId);
@@ -110,9 +113,12 @@ public class MainActivity extends AppCompatActivity {
                             mNetworkName = document.get("network_name").toString();
                             mHospitalId = document.get("hospital_id").toString();
                             mHospitalName = document.get("hospital_name").toString();
-
                             String inventoryRefUrl = "networks/" + mNetworkId + "/sites/" + mHospitalId + "/n1_h3_departments/department1/n1_h1_d1 productids";
-//                            Log.d(TAG, "InvRefUrl: " + inventoryRefUrl);
+//                            mMainToolbar.setTitle(mHospitalName);
+
+                            Toolbar mToolbar = findViewById(R.id.main_toolbar);
+                            setSupportActionBar(mToolbar);
+                            mToolbar.setTitle(mHospitalName);
                             inventoryRef = levigoDb.collection(inventoryRefUrl);
                             initInventory();
                         } catch (NullPointerException e) {
@@ -141,8 +147,7 @@ public class MainActivity extends AppCompatActivity {
                 startScanner();
             }
         });
-        Toolbar mToolbar = findViewById(R.id.main_toolbar);
-        setSupportActionBar(mToolbar);
+
         getPermissions();
     }
 
@@ -407,6 +412,7 @@ public class MainActivity extends AppCompatActivity {
                 finish();
                 return true;
             case R.id.settings:
+                //TODO next step
                 Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
                 return true;
             default:
