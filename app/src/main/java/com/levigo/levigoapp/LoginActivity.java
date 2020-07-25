@@ -122,10 +122,7 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
             clear = false;
-
-//            Log.d(TAG, "USER: " +user.toString());
-//            Log.d(TAG, "USER EMAIL" + user.getEmail());
-
+/*
             String userId = user.getUid();
             Log.d(TAG, "USER ID: " + userId);
 
@@ -177,6 +174,11 @@ public class LoginActivity extends AppCompatActivity {
 //                    Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
                 }
             });
+
+ */
+
+            Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(mainActivityIntent);
 
             finish();
         }

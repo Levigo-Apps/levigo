@@ -22,10 +22,15 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -52,14 +57,16 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
     private CollectionReference inventoryRef; //= levigoDb.collection("networks/network1/sites/n1_hospital3/n1_h3_departments/department1/n1_h1_d1 productids");
 
-    private RecyclerView inventoryScroll ;
-    private RecyclerView.Adapter iAdapter ;
-    private RecyclerView.LayoutManager iLayoutManager ;
+    private RecyclerView inventoryScroll;
+    private RecyclerView.Adapter iAdapter;
+    private RecyclerView.LayoutManager iLayoutManager;
     private Map<String, Object> entries = new HashMap<>();
 
     private FloatingActionButton mAdd;
 
     // authorized hospital based on user
+    private FirebaseAuth mAuth;
+    private CollectionReference usersRef = levigoDb.collection("users");
     private String mNetworkId;
     private String mNetworkName;
     private String mHospitalId;
@@ -69,23 +76,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-//            Log.d(TAG, "BUNDLE RECEIVED: " + extras.toString());
-            mNetworkId = extras.getString("network");
-            mNetworkName = extras.getString("network_name");
-            mHospitalId = extras.getString("hospital");
-            mHospitalName = extras.getString("hospital_name");
-            Log.d(TAG, "=====" + mNetworkId + " | " + mNetworkName + " | " + mHospitalId + " | " + mHospitalName);
-//            Log.d(TAG, "NETWORK NAME: " + networkName); // also network, hospital, hospital_name
-//            inventoryRef = levigoDb.collection()
-            String inventoryRefUrl = "networks/" + mNetworkId + "/sites/" + mHospitalId + "/n1_h3_departments/department1/n1_h1_d1 productids";
-            Log.d(TAG, "InvRefUrl: " + inventoryRefUrl);
-            inventoryRef = levigoDb.collection(inventoryRefUrl);
-        }
-
-
-//        inventoryScroll = findViewById(R.id.inventory_scroll);
         inventoryScroll = findViewById(R.id.main_categories);
         mAdd = findViewById(R.id.main_add);
         inventoryScroll.setHasFixedSize(true);
@@ -98,7 +88,79 @@ public class MainActivity extends AppCompatActivity {
         Toolbar mToolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(mToolbar);
         getPermissions();
-        initInventory();
+
+        mAuth = FirebaseAuth.getInstance();
+        String userId = mAuth.getCurrentUser().getUid();
+        Log.d(TAG, "USER ID: " + userId);
+
+        final DocumentReference currentUserRef = usersRef.document(userId);
+        currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                String toastMessage;
+                if (task.isSuccessful()) {
+//                        Log.d(TAG, "successful");
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+//                            Log.d(TAG, "HERE");
+                        try {
+                            mNetworkId = document.get("network").toString();
+                            mNetworkName = document.get("network_name").toString();
+                            mHospitalId = document.get("hospital").toString();
+                            mHospitalName = document.get("hospital_name").toString();
+
+                            String inventoryRefUrl = "networks/" + mNetworkId + "/sites/" + mHospitalId + "/n1_h3_departments/department1/n1_h1_d1 productids";
+                            Log.d(TAG, "InvRefUrl: " + inventoryRefUrl);
+                            inventoryRef = levigoDb.collection(inventoryRefUrl);
+                            initInventory();
+                        } catch (NullPointerException e) {
+                            toastMessage = "Error retrieving user information; Please contact support";
+                            Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "PROBLEMATIC EXCEPTION!");
+                        }
+                    } else {
+                        // document for invitation code doesn't exist
+                        toastMessage = "User not found; Please contact support";
+                        Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    toastMessage = "User lookup failed; Please try again and contact support if issue persists";
+                    Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+//        String inventoryRefUrl = "networks/" + mNetworkId + "/sites/" + mHospitalId + "/n1_h3_departments/department1/n1_h1_d1 productids";
+//        Log.d(TAG, "InvRefUrl: " + inventoryRefUrl);
+//        inventoryRef = levigoDb.collection(inventoryRefUrl);
+
+//        Bundle extras = getIntent().getExtras();
+//        if (extras != null) {
+//            mNetworkId = extras.getString("network");
+//            mNetworkName = extras.getString("network_name");
+//            mHospitalId = extras.getString("hospital");
+//            mHospitalName = extras.getString("hospital_name");
+//            Log.d(TAG, "=====" + mNetworkId + " | " + mNetworkName + " | " + mHospitalId + " | " + mHospitalName);
+
+//            String inventoryRefUrl = "networks/" + mNetworkId + "/sites/" + mHospitalId + "/n1_h3_departments/department1/n1_h1_d1 productids";
+//            Log.d(TAG, "InvRefUrl: " + inventoryRefUrl);
+//            inventoryRef = levigoDb.collection(inventoryRefUrl);
+//        }
+
+//        inventoryScroll = findViewById(R.id.main_categories);
+//        mAdd = findViewById(R.id.main_add);
+//        inventoryScroll.setHasFixedSize(true);
+//        mAdd.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                startScanner();
+//            }
+//        });
+//        Toolbar mToolbar = findViewById(R.id.main_toolbar);
+//        setSupportActionBar(mToolbar);
+//        getPermissions();
+//        initInventory();
     }
 
     private void startScanner() {
@@ -111,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getPermissions() {
         final String[] permissions = new String[]{Manifest.permission.CAMERA};
-        if (checkSelfPermission(permissions[0]) != PackageManager.PERMISSION_GRANTED){
+        if (checkSelfPermission(permissions[0]) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(permissions, RC_HANDLE_CAMERA_PERM);
         }
     }
@@ -132,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 assert queryDocumentSnapshots != null;
-                for(DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                     final Map<String, Object> di = dc.getDocument().getData();
                     final String type = di.get("equipment_type").toString();
                     final String diString = di.get("di").toString();
@@ -147,33 +209,33 @@ public class MainActivity extends AppCompatActivity {
                                 return;
                             }
                             assert queryDocumentSnapshots != null;
-                            List<Map<String,Object>> udis = new LinkedList<>();
-                            for(DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                            List<Map<String, Object>> udis = new LinkedList<>();
+                            for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
 //                                switch(dc.getType()) {
 //                                    case ADDED:
                                 udis.add(dc.getDocument().getData());
 //                                }
                             }
                             Map<String, Object> entry = new HashMap<>();
-                            entry.put("di",di);
-                            entry.put("udis",udis);
-                            if(!entries.containsKey("Category1")) {
+                            entry.put("di", di);
+                            entry.put("udis", udis);
+                            if (!entries.containsKey("Category1")) {
                                 entries.put("Category1", new HashMap<>());
                             }
-                            Map<String,Object> types = (HashMap<String, Object>) entries.get("Category1");
+                            Map<String, Object> types = (HashMap<String, Object>) entries.get("Category1");
                             assert types != null;
-                            if(!types.containsKey(type)) {
+                            if (!types.containsKey(type)) {
                                 types.put(type, new HashMap<>());
                             }
-                            Map<String,Object> dis = (HashMap<String, Object>) types.get(type);
+                            Map<String, Object> dis = (HashMap<String, Object>) types.get(type);
                             assert dis != null;
-                            if(!dis.containsKey(diString)) {
+                            if (!dis.containsKey(diString)) {
                                 dis.put(diString, new HashMap<>());
                             }
-                            Map<String,Object> productid = (HashMap<String, Object>) dis.get(diString);
+                            Map<String, Object> productid = (HashMap<String, Object>) dis.get(diString);
                             assert productid != null;
-                            productid.put("di",di);
-                            productid.put("udis",udis);
+                            productid.put("di", di);
+                            productid.put("udis", udis);
                             Log.d(TAG, "ENTRIES: " + entries);
                             iAdapter.notifyDataSetChanged();
                         }
@@ -225,19 +287,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if(result != null){
+        if (result != null) {
             String contents = result.getContents();
-            if(contents != null) {
+            if (contents != null) {
                 startItemView(contents);
 
             }
-            if(result.getBarcodeImagePath() != null) {
+            if (result.getBarcodeImagePath() != null) {
                 Log.d(TAG, "" + result.getBarcodeImagePath());
 //                mImageView.setImageBitmap(BitmapFactory.decodeFile(result.getBarcodeImagePath()));
                 //maybe add image to firebase storage
             }
-        }
-        else{
+        } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -245,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
     public void startItemView(String barcode) {
         ItemDetailFragment fragment = new ItemDetailFragment();
         Bundle bundle = new Bundle();
-        bundle.putString("barcode",barcode);
+        bundle.putString("barcode", barcode);
         fragment.setArguments(bundle);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -258,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
         //clears other fragments
-        fragmentManager.popBackStack(null,FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -273,10 +334,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode != RC_HANDLE_CAMERA_PERM) {
+        if (requestCode != RC_HANDLE_CAMERA_PERM) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-        else if(!(grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+        } else if (!(grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             finish();
         }
 
@@ -291,7 +351,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case R.id.manual_entry:
                 startItemView("");
                 return true;
@@ -311,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
                 return true;
             default:
-            return super.onOptionsItemSelected(item);
+                return super.onOptionsItemSelected(item);
         }
     }
 
