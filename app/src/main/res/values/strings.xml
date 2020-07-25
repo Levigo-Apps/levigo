@@ -106,5 +106,6 @@
     <string name="procedureTime_lbl">Procedure Time</string>
     <string name="AccessionNumber_lbl">Accession Number</string>
     <string name="itemsUsed_lbl">Number of Items Used</string>
+    <string name="procedureDate_lbl">Procedure Date</string>
 
 </resources>
