@@ -17,6 +17,7 @@
 package com.levigo.levigoapp;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -51,6 +52,7 @@ import java.util.Map;
 
 public class SignUpActivity extends AppCompatActivity {
     private static final String TAG = SignUpActivity.class.getSimpleName();
+    private final String SUPPORT_EMAIL = "theelliotliu@gmail.com";
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
@@ -65,6 +67,7 @@ public class SignUpActivity extends AppCompatActivity {
     private TextInputEditText mPasswordField;
     private TextInputEditText mConfirmPasswordField;
     private Button mSignUpButton;
+    private Button mEmailForAdmin;
     private TextView mNetworkNameTextView;
     private TextView mHospitalNameTextView;
 
@@ -91,6 +94,7 @@ public class SignUpActivity extends AppCompatActivity {
         mPasswordField = findViewById(R.id.signup_password);
         mConfirmPasswordField = findViewById(R.id.signup_password_confirm);
         mSignUpButton = findViewById(R.id.signup_button);
+        mEmailForAdmin = findViewById(R.id.signup_admin_email);
 
         // Email password fields disabled until valid invitation code
         mEmailPasswordLayout.setVisibility(View.GONE);
@@ -255,5 +259,16 @@ public class SignUpActivity extends AppCompatActivity {
     private void disableValidationCode(String invitationCode) {
         DocumentReference currentCodeRef = invitationCodesRef.document(invitationCode);
         currentCodeRef.update("valid", false);
+    }
+
+    public void composeEmail(View view) {
+//        String[] addresses = {"theelliotliu@gmail.com"};
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:" + SUPPORT_EMAIL));
+//        intent.putExtra(Intent.EXTRA_EMAIL, addresses);
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Admin Account Request");
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 }

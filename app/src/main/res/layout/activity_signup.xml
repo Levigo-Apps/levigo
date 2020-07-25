@@ -51,6 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorPrimaryDark"
+            android:textColor="@android:color/white"
             android:text="Submit" />
 
     </LinearLayout>
@@ -65,6 +66,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimary"
             android:text="Your Network:"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
@@ -72,6 +74,7 @@
             android:id="@+id/signup_network_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimary"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textStyle="bold" />
 
@@ -140,7 +143,30 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorPrimaryDark"
             android:text="Create Account" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="3"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Are you a hospital administrator?"
+            android:textColor="@color/colorPrimaryDark">
+        </TextView>
 
-
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/signup_admin_email"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:gravity="center"
+            android:text="Email us to create an admin account"
+            android:onClick="composeEmail"
+            android:textSize="14sp"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 </LinearLayout>

@@ -116,6 +116,7 @@ public class LoginActivity extends AppCompatActivity {
 
             Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(mainActivityIntent);
+//            Log.d(TAG, "FINISHING from loggedIn");
 
             finish();
         }
@@ -134,12 +135,13 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onStop() {
-        if (clear || signout) {
-            mAuth.signOut();
-            finish();
-        }
-        super.onStop();
-    }
+//    @Override
+//    protected void onStop() {
+//        if (clear || signout) {
+//            mAuth.signOut();
+//            Log.d(TAG, "FINISHING from onstop");
+//            finish();
+//        }
+//        super.onStop();
+//    }
 }
