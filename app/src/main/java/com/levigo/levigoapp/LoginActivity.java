@@ -117,7 +117,7 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    // TODO grab actual values for network & site user authorized for
+    // TODO potential issue: if unable to retreive user info, doesn't proceed to MainActivity
     private void userIsLoggedIn() {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
@@ -125,11 +125,9 @@ public class LoginActivity extends AppCompatActivity {
 
 //            Log.d(TAG, "USER: " +user.toString());
 //            Log.d(TAG, "USER EMAIL" + user.getEmail());
-//            Log.d(TAG, "USER ID: " + user.getUid());
+
             String userId = user.getUid();
-
-            Bundle authBundle = new Bundle();
-
+            Log.d(TAG, "USER ID: " + userId);
 
             final DocumentReference currentUserRef = usersRef.document(userId);
 
@@ -138,27 +136,37 @@ public class LoginActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     String toastMessage;
                     if (task.isSuccessful()) {
-                        Log.d(TAG, "successful");
+//                        Log.d(TAG, "successful");
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
-                            Log.d(TAG, "HERE");
+//                            Log.d(TAG, "HERE");
                             try {
                                 mNetwork = document.get("network").toString();
                                 mNetworkName = document.get("network_name").toString();
-                                mSite = document.get("site").toString();
-                                mSiteName = document.get("site_name").toString();
-                                Log.d(TAG, "=====" + mNetwork + " | " + mNetworkName + " | " + mSite + " | " + mSiteName);
-//                                authBundle.putString("network", mNetwork);
-//                                authBundle.putString("network_name", mNetworkName);
-//                                authBundle.putString("site", mSite);
-//                                authBundle.putString("site_name", mSiteName);
+                                mSite = document.get("hospital").toString();
+                                mSiteName = document.get("hospital_name").toString();
+//                                Log.d(TAG, "=====" + mNetwork + " | " + mNetworkName + " | " + mSite + " | " + mSiteName);
+                                Bundle authBundle = new Bundle();
+                                authBundle.putString("network", mNetwork);
+                                authBundle.putString("network_name", mNetworkName);
+                                authBundle.putString("hospital", mSite);
+                                authBundle.putString("hospital_name", mSiteName);
+                                Log.d(TAG, "BUNDLE SENT: " + authBundle.toString());
+
+                                //TODO good idea only starting main if document retrieved?
+                                Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                                mainActivityIntent.putExtras(authBundle);
+                                startActivity(mainActivityIntent);
+
+                                //TODO Major issue: triggered when starting
                             } catch (NullPointerException e){
-                                //TODO
-                                Log.d(TAG, "EXCEPTION!");
+//                                toastMessage = "Error retrieving user information; Please contact support";
+//                                Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                                Log.d(TAG, "PROBLEMATIC EXCEPTION!");
                             }
                         } else {
                             // document for invitation code doesn't exist
-                            toastMessage = "Uesr not found; Please contact support";
+                            toastMessage = "User not found; Please contact support";
                             Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
                         }
                     } else {
@@ -170,20 +178,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
 
-            //TODO NOT WORKING!!!
-            authBundle.putString("network", mNetwork);
-            authBundle.putString("network_name", mNetworkName);
-            authBundle.putString("site", mSite);
-            authBundle.putString("site_name", mSiteName);
-            Log.d(TAG, "AUTH BUNDLE: " + authBundle);
-            Log.d(TAG, authBundle.toString());
-
-
-            Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
-            mainActivityIntent.putExtras(authBundle);
-            startActivity(mainActivityIntent);
-
-//            startActivity(new Intent(getApplicationContext(), MainActivity.class));
             finish();
         }
     }

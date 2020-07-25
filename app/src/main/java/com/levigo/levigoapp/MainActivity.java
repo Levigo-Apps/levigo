@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
-    private CollectionReference inventoryRef = levigoDb.collection("networks/network1/sites/n1_hospital3/n1_h3_departments/department1/n1_h1_d1 productids");
+    private CollectionReference inventoryRef; //= levigoDb.collection("networks/network1/sites/n1_hospital3/n1_h3_departments/department1/n1_h1_d1 productids");
 
     private RecyclerView inventoryScroll ;
     private RecyclerView.Adapter iAdapter ;
@@ -59,10 +59,32 @@ public class MainActivity extends AppCompatActivity {
 
     private FloatingActionButton mAdd;
 
+    // authorized hospital based on user
+    private String mNetworkId;
+    private String mNetworkName;
+    private String mHospitalId;
+    private String mHospitalName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+//            Log.d(TAG, "BUNDLE RECEIVED: " + extras.toString());
+            mNetworkId = extras.getString("network");
+            mNetworkName = extras.getString("network_name");
+            mHospitalId = extras.getString("hospital");
+            mHospitalName = extras.getString("hospital_name");
+            Log.d(TAG, "=====" + mNetworkId + " | " + mNetworkName + " | " + mHospitalId + " | " + mHospitalName);
+//            Log.d(TAG, "NETWORK NAME: " + networkName); // also network, hospital, hospital_name
+//            inventoryRef = levigoDb.collection()
+            String inventoryRefUrl = "networks/" + mNetworkId + "/sites/" + mHospitalId + "/n1_h3_departments/department1/n1_h1_d1 productids";
+            Log.d(TAG, "InvRefUrl: " + inventoryRefUrl);
+            inventoryRef = levigoDb.collection(inventoryRefUrl);
+        }
+
+
 //        inventoryScroll = findViewById(R.id.inventory_scroll);
         inventoryScroll = findViewById(R.id.main_categories);
         mAdd = findViewById(R.id.main_add);

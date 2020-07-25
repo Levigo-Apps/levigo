@@ -64,15 +64,15 @@ public class SignUpActivity extends AppCompatActivity {
     private TextInputEditText mConfirmPasswordField;
     private Button mSignUpButton;
     private TextView mNetworkNameTextView;
-    private TextView mSiteNameTextView;
+    private TextView mHospitalNameTextView;
 
     private String mInvitationCode;
 
     // ID and name of network and site authorized
     private String mNetwork;
     private String mNetworkName;
-    private String mSite;
-    private String mSiteName;
+    private String mHospital;
+    private String mHospitalName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,7 +82,7 @@ public class SignUpActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         mNetworkNameTextView = findViewById(R.id.signup_network_name);
-        mSiteNameTextView = findViewById(R.id.signup_site_name);
+        mHospitalNameTextView = findViewById(R.id.signup_site_name);
 
         mEmailPasswordLayout = findViewById(R.id.signup_email_password_layout);
         mEmailField = findViewById(R.id.signup_email);
@@ -141,11 +141,11 @@ public class SignUpActivity extends AppCompatActivity {
                                         // Valid code; Check which network & hospital authorized for
                                         mNetwork = document.get("network").toString();
                                         mNetworkName = document.get("network_name").toString();
-                                        mSite = document.get("site").toString();
-                                        mSiteName = document.get("site_name").toString();
+                                        mHospital = document.get("hospital").toString();
+                                        mHospitalName = document.get("hospital_name").toString();
 
                                         mNetworkNameTextView.setText(mNetworkName);
-                                        mSiteNameTextView.setText(mSiteName);
+                                        mHospitalNameTextView.setText(mHospitalName);
 
                                         mEmailPasswordLayout.setVisibility(View.VISIBLE);
                                         mInvitationCodeLayout.setEnabled(false);
@@ -226,8 +226,8 @@ public class SignUpActivity extends AppCompatActivity {
                                     Bundle authBundle = new Bundle();
                                     authBundle.putString("network", mNetwork);
                                     authBundle.putString("network_name", mNetworkName);
-                                    authBundle.putString("site", mSite);
-                                    authBundle.putString("site_name", mSiteName);
+                                    authBundle.putString("hospital", mHospital);
+                                    authBundle.putString("hospital_name", mHospitalName);
 
                                     Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
                                     mainActivityIntent.putExtras(authBundle);
