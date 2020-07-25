@@ -37,8 +37,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
@@ -117,7 +115,6 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    // TODO potential issue: if unable to retreive user info, doesn't proceed to MainActivity
     private void userIsLoggedIn() {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {

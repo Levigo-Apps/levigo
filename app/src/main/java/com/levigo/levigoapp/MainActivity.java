@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         String userId = mAuth.getCurrentUser().getUid();
-        Log.d(TAG, "USER ID: " + userId);
+//        Log.d(TAG, "USER ID: " + userId);
 
         final DocumentReference currentUserRef = usersRef.document(userId);
         currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -99,10 +99,8 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 String toastMessage;
                 if (task.isSuccessful()) {
-//                        Log.d(TAG, "successful");
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-//                            Log.d(TAG, "HERE");
                         try {
                             mNetworkId = document.get("network").toString();
                             mNetworkName = document.get("network_name").toString();
@@ -116,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
                         } catch (NullPointerException e) {
                             toastMessage = "Error retrieving user information; Please contact support";
                             Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, "PROBLEMATIC EXCEPTION!");
                         }
                     } else {
                         // document for invitation code doesn't exist
@@ -130,37 +127,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-//        String inventoryRefUrl = "networks/" + mNetworkId + "/sites/" + mHospitalId + "/n1_h3_departments/department1/n1_h1_d1 productids";
-//        Log.d(TAG, "InvRefUrl: " + inventoryRefUrl);
-//        inventoryRef = levigoDb.collection(inventoryRefUrl);
-
-//        Bundle extras = getIntent().getExtras();
-//        if (extras != null) {
-//            mNetworkId = extras.getString("network");
-//            mNetworkName = extras.getString("network_name");
-//            mHospitalId = extras.getString("hospital");
-//            mHospitalName = extras.getString("hospital_name");
-//            Log.d(TAG, "=====" + mNetworkId + " | " + mNetworkName + " | " + mHospitalId + " | " + mHospitalName);
-
-//            String inventoryRefUrl = "networks/" + mNetworkId + "/sites/" + mHospitalId + "/n1_h3_departments/department1/n1_h1_d1 productids";
-//            Log.d(TAG, "InvRefUrl: " + inventoryRefUrl);
-//            inventoryRef = levigoDb.collection(inventoryRefUrl);
-//        }
-
-//        inventoryScroll = findViewById(R.id.main_categories);
-//        mAdd = findViewById(R.id.main_add);
-//        inventoryScroll.setHasFixedSize(true);
-//        mAdd.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                startScanner();
-//            }
-//        });
-//        Toolbar mToolbar = findViewById(R.id.main_toolbar);
-//        setSupportActionBar(mToolbar);
-//        getPermissions();
-//        initInventory();
     }
 
     private void startScanner() {
