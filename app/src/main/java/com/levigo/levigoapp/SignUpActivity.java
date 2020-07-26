@@ -52,7 +52,6 @@ import java.util.Map;
 
 public class SignUpActivity extends AppCompatActivity {
     private static final String TAG = SignUpActivity.class.getSimpleName();
-    private final String SUPPORT_EMAIL = "theelliotliu@gmail.com";
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
@@ -67,7 +66,7 @@ public class SignUpActivity extends AppCompatActivity {
     private TextInputEditText mPasswordField;
     private TextInputEditText mConfirmPasswordField;
     private Button mSignUpButton;
-    private Button mEmailForAdmin;
+//    private Button mEmailForAdmin;
     private TextView mNetworkNameTextView;
     private TextView mHospitalNameTextView;
 
@@ -94,7 +93,7 @@ public class SignUpActivity extends AppCompatActivity {
         mPasswordField = findViewById(R.id.signup_password);
         mConfirmPasswordField = findViewById(R.id.signup_password_confirm);
         mSignUpButton = findViewById(R.id.signup_button);
-        mEmailForAdmin = findViewById(R.id.signup_admin_email);
+//        mEmailForAdmin = findViewById(R.id.signup_admin_email);
 
         // Email password fields disabled until valid invitation code
         mEmailPasswordLayout.setVisibility(View.GONE);
@@ -264,6 +263,7 @@ public class SignUpActivity extends AppCompatActivity {
     public void composeEmail(View view) {
 //        String[] addresses = {"theelliotliu@gmail.com"};
         Intent intent = new Intent(Intent.ACTION_SENDTO);
+        final String SUPPORT_EMAIL = "theelliotliu@gmail.com";
         intent.setData(Uri.parse("mailto:" + SUPPORT_EMAIL));
 //        intent.putExtra(Intent.EXTRA_EMAIL, addresses);
         intent.putExtra(Intent.EXTRA_SUBJECT, "Admin Account Request");

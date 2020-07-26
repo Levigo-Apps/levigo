@@ -411,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.settings:
                 //TODO next step
-                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
