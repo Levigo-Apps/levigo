@@ -69,6 +69,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/barcodeInputLayout"
                     app:layout_constraintBottom_toBottomOf = "@id/barcodeInputLayout"
+                    app:layout_constraintTop_toBottomOf="parent"
                     android:id="@+id/barcodeHeaderLayout"
                     app:layout_constraintHorizontal_weight="4"
 
@@ -98,6 +99,7 @@
                     app:layout_constraintStart_toEndOf="@id/barcodeHeaderLayout"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf = "@id/barcodeHeaderLayout"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="6"
                     >
 
@@ -138,6 +140,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/TextInputLayout_di"
                     app:layout_constraintBottom_toBottomOf = "@id/TextInputLayout_di"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="4"
                     >
 
@@ -164,6 +167,7 @@
                     app:layout_constraintStart_toEndOf="@id/TextInputLayout_di_header"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf = "@id/TextInputLayout_di_header"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="6"
                     >
                     <com.google.android.material.textfield.TextInputEditText
@@ -193,6 +197,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/nameHeaderInput"
                     app:layout_constraintBottom_toBottomOf = "@id/nameHeaderInput"
+                    app:layout_constraintTop_toBottomOf="parent"
                     android:id="@+id/nameHeaderLayout"
                     app:layout_constraintHorizontal_weight="4"
                    >
@@ -219,6 +224,7 @@
                     app:layout_constraintStart_toEndOf="@id/nameHeaderLayout"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf = "@id/nameHeaderLayout"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="6">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -244,6 +250,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/quantityInputHeader"
                     app:layout_constraintBottom_toBottomOf = "@id/quantityInputHeader"
+                    app:layout_constraintTop_toBottomOf="parent"
                     android:id="@+id/quantityInput"
                     app:layout_constraintHorizontal_weight="4"
 
@@ -273,6 +280,7 @@
                     app:layout_constraintStart_toEndOf="@id/quantityInput"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf = "@id/quantityInput"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="6"
                     >
 
@@ -304,6 +312,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/expiration_date_string"
                     app:layout_constraintBottom_toBottomOf = "@id/expiration_date_string"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="4"
                     >
 
@@ -332,6 +341,7 @@
                     app:layout_constraintStart_toEndOf="@id/expiration_date_string_header"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf = "@id/expiration_date_string_header"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="6"
                     >
 
@@ -362,6 +372,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/siteLocationLayout"
                     app:layout_constraintBottom_toBottomOf = "@id/siteLocationLayout"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="4"
 
                     >
@@ -388,6 +399,7 @@
                     app:layout_constraintStart_toEndOf="@id/siteLocationLayout_header"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf = "@id/siteLocationLayout_header"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="6"
                     >
 
@@ -421,6 +433,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/physicalLocationLayout"
                     app:layout_constraintBottom_toBottomOf = "@id/physicalLocationLayout"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="4"
                     >
 
@@ -446,6 +459,7 @@
                     app:layout_constraintStart_toEndOf="@id/physicalLocationLayout_header"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf = "@id/physicalLocationLayout_header"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="6"
                     >
 
@@ -475,6 +489,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/typeInputLayout"
                     app:layout_constraintBottom_toBottomOf = "@id/typeInputLayout"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="4"
                     >
                     <com.google.android.material.textfield.TextInputEditText
@@ -498,6 +513,7 @@
                     app:layout_constraintStart_toEndOf="@id/typeInputLayout_header"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf = "@id/typeInputLayout_header"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="6"
                     >
                     <AutoCompleteTextView
@@ -549,6 +565,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/specialtyInput"
                     app:layout_constraintBottom_toBottomOf = "@id/specialtyInput"
+                    app:layout_constraintTop_toBottomOf="parent"
                     android:id="@+id/specialtyInputHeader"
                     app:layout_constraintHorizontal_weight="4">
 
@@ -574,6 +591,7 @@
                     app:layout_constraintStart_toEndOf="@id/specialtyInputHeader"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf = "@id/specialtyInputHeader"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="6">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -599,6 +617,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/deviceDescriptionInput"
                 app:layout_constraintBottom_toBottomOf = "@id/deviceDescriptionInput"
+                app:layout_constraintTop_toBottomOf="parent"
                 app:layout_constraintHorizontal_weight="4">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -622,6 +641,7 @@
                 app:layout_constraintStart_toEndOf="@id/deviceDesciptionHeader"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf = "@id/deviceDesciptionHeader"
+                app:layout_constraintTop_toBottomOf="parent"
                 app:layout_constraintHorizontal_weight="6">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -647,6 +667,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/lotNumberInput"
                 app:layout_constraintBottom_toBottomOf = "@id/lotNumberInput"
+                app:layout_constraintTop_toBottomOf="parent"
                 android:id="@+id/lotNumberHeader"
                 app:layout_constraintHorizontal_weight="4"
                 >
@@ -672,6 +693,7 @@
                 app:layout_constraintStart_toEndOf="@id/lotNumberHeader"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf = "@id/lotNumberHeader"
+                app:layout_constraintTop_toBottomOf="parent"
                 app:layout_constraintHorizontal_weight="6"
                 >
 
@@ -686,19 +708,19 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             >
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_weight="6"
                 android:gravity="center_vertical|start"
                 android:id="@+id/referenceHeader"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/referenceInput"
                 app:layout_constraintBottom_toBottomOf = "@id/referenceInput"
+                app:layout_constraintTop_toBottomOf="parent"
                 app:layout_constraintHorizontal_weight="4"
                 >
                 <com.google.android.material.textfield.TextInputEditText
@@ -715,13 +737,12 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_weight="4"
                 android:gravity="center_vertical|start"
                 android:id="@+id/referenceInput"
                 app:layout_constraintStart_toEndOf="@id/referenceHeader"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf = "@id/referenceHeader"
+                app:layout_constraintTop_toBottomOf="parent"
                 app:layout_constraintHorizontal_weight="6"
                 >
                 <com.google.android.material.textfield.TextInputEditText
@@ -748,6 +769,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/companyInput"
                 app:layout_constraintBottom_toBottomOf = "@id/companyInput"
+                app:layout_constraintTop_toBottomOf="parent"
                 app:layout_constraintHorizontal_weight="4"
                >
 
@@ -772,6 +794,7 @@
                 app:layout_constraintStart_toEndOf="@id/companyHeader"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf = "@id/companyHeader"
+                app:layout_constraintTop_toBottomOf="parent"
                 app:layout_constraintHorizontal_weight="6"
                 >
                 <com.google.android.material.textfield.TextInputEditText
@@ -799,6 +822,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/noteInput"
                 app:layout_constraintBottom_toBottomOf = "@id/noteInput"
+                app:layout_constraintTop_toBottomOf="parent"
                 app:layout_constraintHorizontal_weight="4">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -821,6 +845,7 @@
                 app:layout_constraintStart_toEndOf="@id/noteHeader"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf = "@id/noteHeader"
+                app:layout_constraintTop_toBottomOf="parent"
                 app:layout_constraintHorizontal_weight="6">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -894,6 +919,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/numberAddedLayout"
                     app:layout_constraintBottom_toBottomOf = "@id/numberAddedLayout"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="4"
                     >
 
@@ -924,6 +950,7 @@
                     app:layout_constraintStart_toEndOf="@id/numberAddedLayout_header"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf = "@id/numberAddedLayout_header"
+                    app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintHorizontal_weight="6">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -953,6 +980,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/in_date_layout"
                 app:layout_constraintBottom_toBottomOf = "@id/in_date_layout"
+                app:layout_constraintTop_toBottomOf="parent"
                 app:layout_constraintHorizontal_weight="4"
                >
 
@@ -981,6 +1009,7 @@
                 app:layout_constraintStart_toEndOf="@id/in_date_layout_header"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf = "@id/in_date_layout_header"
+                app:layout_constraintTop_toBottomOf="parent"
                 app:layout_constraintHorizontal_weight="6">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -1008,6 +1037,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/in_time_layout"
                 app:layout_constraintBottom_toBottomOf = "@id/in_time_layout"
+                app:layout_constraintTop_toBottomOf="parent"
                 app:layout_constraintHorizontal_weight="4"
                 >
 
@@ -1035,6 +1065,7 @@
                 app:layout_constraintStart_toEndOf="@id/in_time_layout_header"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf = "@id/in_time_layout_header"
+                app:layout_constraintTop_toBottomOf="parent"
                 app:layout_constraintHorizontal_weight="6">
 
                 <com.google.android.material.textfield.TextInputEditText
