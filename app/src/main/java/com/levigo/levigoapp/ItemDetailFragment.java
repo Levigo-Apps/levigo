@@ -196,9 +196,9 @@ public class ItemDetailFragment extends Fragment {
     private TextWatcher textWatcher;
     private List<TextInputEditText> numberUsedList;
 
-    private ConstraintLayout siteConstrainLayout;
-    private ConstraintLayout physicalLocationConstrainLayout;
-    private ConstraintLayout typeConstrainLayout;
+    private LinearLayout siteConstrainLayout;
+    private LinearLayout physicalLocationConstrainLayout;
+    private LinearLayout typeConstrainLayout;
     private ConstraintLayout numberAddedConstrainLayout;
 
 
@@ -514,9 +514,11 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-        assert getArguments() != null;
-        String barcode = getArguments().getString("barcode");
-        udiEditText.setText(barcode);
+        if(getArguments() != null) {
+            String barcode = getArguments().getString("barcode");
+            udiEditText.setText(barcode);
+            autoPopulate(siteDocRef, rootView);
+        }
         return rootView;
     }
 
@@ -1793,6 +1795,7 @@ public class ItemDetailFragment extends Fragment {
             }
         };
         deviceIdentifier.addTextChangedListener(diWatcher);
+
 
 
     }
