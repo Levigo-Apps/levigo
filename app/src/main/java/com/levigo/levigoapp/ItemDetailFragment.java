@@ -1155,7 +1155,7 @@ public class ItemDetailFragment extends Fragment {
             removeSizeButton.setText(R.string.removeSize_label);
             removeSizeButton.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT,
                     WRAP_CONTENT));
-            linearLayout.addView(removeSizeButton, 1 + linearLayout.indexOfChild(addSizeButton));
+            linearLayout.addView(removeSizeButton,  linearLayout.indexOfChild(addSizeButton));
         }
 
         removeSizeButton.setOnClickListener(new View.OnClickListener() {
@@ -1288,21 +1288,39 @@ public class ItemDetailFragment extends Fragment {
                 public void onClick(View view) {
                     Toast.makeText(view.getContext(), Objects.requireNonNull(otherType_text.getText()).toString(), Toast.LENGTH_SHORT).show();
                     Map<String, Object> newType = new HashMap<>();
-                    newType.put("type_" + typeCounter, otherType_text.getText().toString());
-                    typeRef.update(newType)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                    Log.d(TAG, e.toString());
-                                }
-                            });
+                    newType.put("type_" + (++typeCounter), otherType_text.getText().toString());
+                    if(typeCounter == 1){
+                        typeRef.set(newType)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
+                                        Log.d(TAG, e.toString());
+                                    }
+                                });
+                    }else{
+                        typeRef.update(newType)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
+                                        Log.d(TAG, e.toString());
+                                    }
+                                });
+                    }
+
 
                 }
             });
@@ -1364,21 +1382,39 @@ public class ItemDetailFragment extends Fragment {
                 public void onClick(View view) {
                     Toast.makeText(view.getContext(), Objects.requireNonNull(otherSite_text.getText()).toString(), Toast.LENGTH_SHORT).show();
                     Map<String, Object> newType = new HashMap<>();
-                    newType.put("site_" + siteCounter, otherSite_text.getText().toString());
-                    siteRef.document("site_options").update(newType)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                    Log.d(TAG, e.toString());
-                                }
-                            });
+                    newType.put("site_" + (++siteCounter), otherSite_text.getText().toString());
+                    if(siteCounter == 1){
+                        siteRef.document("site_options").set(newType)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
+                                        Log.d(TAG, e.toString());
+                                    }
+                                });
+                    }else{
+                        siteRef.document("site_options").update(newType)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
+                                        Log.d(TAG, e.toString());
+                                    }
+                                });
+                    }
+
                 }
             });
         } else if (chosenSite) {
@@ -1438,21 +1474,39 @@ public class ItemDetailFragment extends Fragment {
                 public void onClick(View view) {
                     Toast.makeText(view.getContext(), Objects.requireNonNull(otherPhysicalLoc_text.getText()).toString(), Toast.LENGTH_SHORT).show();
                     Map<String, Object> newType = new HashMap<>();
-                    newType.put("loc_" + locCounter, otherPhysicalLoc_text.getText().toString());
-                    physLocRef.update(newType)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                    Log.d(TAG, e.toString());
-                                }
-                            });
+                    newType.put("loc_" + (++locCounter), otherPhysicalLoc_text.getText().toString());
+                    if(locCounter == 1){
+                        physLocRef.set(newType)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
+                                        Log.d(TAG, e.toString());
+                                    }
+                                });
+                    }else{
+                        physLocRef.update(newType)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
+                                        Log.d(TAG, e.toString());
+                                    }
+                                });
+                    }
+
                 }
             });
         } else if (chosenLocation) {
@@ -1473,7 +1527,6 @@ public class ItemDetailFragment extends Fragment {
         Log.d(TAG, "SAVING");
         String barcode_str = Objects.requireNonNull(udiEditText.getText()).toString();
         String name_str = Objects.requireNonNull(nameEditText.getText()).toString();
-        String type_str = equipmentType.getText().toString();
         String company_str = Objects.requireNonNull(company.getText()).toString();
         String medical_speciality_str = Objects.requireNonNull(medicalSpeciality.getText()).toString();
         String di_str = Objects.requireNonNull(deviceIdentifier.getText()).toString();
@@ -1510,6 +1563,12 @@ public class ItemDetailFragment extends Fragment {
             physical_location_str = Objects.requireNonNull(otherPhysicalLoc_text.getText()).toString().trim();
         } else {
             physical_location_str = physicalLocation.getText().toString().trim();
+        }
+        String type_str;
+        if(chosenType){
+            type_str = otherType_text.getText().toString();
+        }else{
+            type_str = equipmentType.getText().toString();
         }
         String currentTime_str = Objects.requireNonNull(timeIn.getText()).toString();
         String notes_str = Objects.requireNonNull(notes.getText()).toString();
