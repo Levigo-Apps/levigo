@@ -82,73 +82,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
     private RecyclerView inventoryScroll;
     private RecyclerView.Adapter iAdapter;
     private RecyclerView.LayoutManager iLayoutManager;
-    private Map<String, Object> entries = new Map<String, Object>() {
-        @Override
-        public int size() {
-            return 0;
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return false;
-        }
-
-        @Override
-        public boolean containsKey(@Nullable Object o) {
-            return false;
-        }
-
-        @Override
-        public boolean containsValue(@Nullable Object o) {
-            return false;
-        }
-
-        @Nullable
-        @Override
-        public Object get(@Nullable Object o) {
-            return null;
-        }
-
-        @Nullable
-        @Override
-        public Object put(String s, Object o) {
-            return null;
-        }
-
-        @Nullable
-        @Override
-        public Object remove(@Nullable Object o) {
-            return null;
-        }
-
-        @Override
-        public void putAll(@NonNull Map<? extends String, ?> map) {
-
-        }
-
-        @Override
-        public void clear() {
-
-        }
-
-        @NonNull
-        @Override
-        public Set<String> keySet() {
-            return null;
-        }
-
-        @NonNull
-        @Override
-        public Collection<Object> values() {
-            return null;
-        }
-
-        @NonNull
-        @Override
-        public Set<Entry<String, Object>> entrySet() {
-            return null;
-        }
-    };
+    private Map<String, Object> entries = new HashMap<String, Object>();
 
     private FloatingActionButton mAdd;
 
