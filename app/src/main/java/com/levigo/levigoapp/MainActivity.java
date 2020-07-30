@@ -26,6 +26,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Filter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -51,11 +52,15 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -65,7 +70,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Serializable {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int RC_HANDLE_CAMERA_PERM = 1;
@@ -77,9 +82,77 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView inventoryScroll;
     private RecyclerView.Adapter iAdapter;
     private RecyclerView.LayoutManager iLayoutManager;
-    private Map<String, Object> entries = new HashMap<>();
+    private Map<String, Object> entries = new Map<String, Object>() {
+        @Override
+        public int size() {
+            return 0;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return false;
+        }
+
+        @Override
+        public boolean containsKey(@Nullable Object o) {
+            return false;
+        }
+
+        @Override
+        public boolean containsValue(@Nullable Object o) {
+            return false;
+        }
+
+        @Nullable
+        @Override
+        public Object get(@Nullable Object o) {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public Object put(String s, Object o) {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public Object remove(@Nullable Object o) {
+            return null;
+        }
+
+        @Override
+        public void putAll(@NonNull Map<? extends String, ?> map) {
+
+        }
+
+        @Override
+        public void clear() {
+
+        }
+
+        @NonNull
+        @Override
+        public Set<String> keySet() {
+            return null;
+        }
+
+        @NonNull
+        @Override
+        public Collection<Object> values() {
+            return null;
+        }
+
+        @NonNull
+        @Override
+        public Set<Entry<String, Object>> entrySet() {
+            return null;
+        }
+    };
 
     private FloatingActionButton mAdd;
+
+    private Query query;
 
     // authorized hospital based on user
     private FirebaseAuth mAuth;
@@ -118,6 +191,8 @@ public class MainActivity extends AppCompatActivity {
                             mToolbar.setTitle(mHospitalName);
 
                             inventoryRef = levigoDb.collection(inventoryRefUrl);
+                            query = inventoryRef.whereEqualTo("equipment_type", "Scalpel");
+
                             initInventory();
                         } catch (NullPointerException e) {
                             toastMessage = "Error retrieving user information; Please contact support";
@@ -138,7 +213,6 @@ public class MainActivity extends AppCompatActivity {
 
         inventoryScroll = findViewById(R.id.main_categories);
         mAdd = findViewById(R.id.main_add);
-        inventoryScroll.setHasFixedSize(true);
         mAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -171,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
         iAdapter = new InventoryViewAdapter(MainActivity.this, entries);
         inventoryScroll.setAdapter(iAdapter);
 
-        inventoryRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) throws NullPointerException {
                 if (e != null) {
@@ -412,6 +486,12 @@ public class MainActivity extends AppCompatActivity {
             case R.id.settings:
                 //TODO next step
 //                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.filter:
+                Log.d(TAG, "reached case filter");
+                Intent intent_filter = new Intent(getApplicationContext(), FilterActivity.class);
+                startActivity(intent_filter);
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
