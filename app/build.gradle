@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
 android {
     compileSdkVersion 29
@@ -46,7 +47,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:19.3.1'
     implementation 'com.firebaseui:firebase-ui-auth:6.2.0'
 
-
+    implementation 'com.google.firebase:firebase-crashlytics:17.1.1'
 
 
     testImplementation 'junit:junit:4.12'
