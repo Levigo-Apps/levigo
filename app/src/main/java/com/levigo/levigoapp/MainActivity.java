@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                             mNetworkName = document.get("network_name").toString();
                             mHospitalId = document.get("hospital_id").toString();
                             mHospitalName = document.get("hospital_name").toString();
-                            String inventoryRefUrl = "networks/network1/sites/n1_hospital3/n1_h3_departments/department1/n1_h1_d1 productids";
+                            String inventoryRefUrl = "networks/network1/sites/n1_hospital3/n1_h3_departments/department1/n_h1_d1 productids";
                             //TODO update to the following
                             //String inventoryRefUrl = "networks/" + mNetworkId + "/hospitals/" + mHospitalId + "/departments/default_department/dis";
 
