@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                assert queryDocumentSnapshots != null;
+                if(queryDocumentSnapshots == null) return;
                 for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                     final Map<String, Object> di = dc.getDocument().getData();
                     final String type = di.get("equipment_type").toString();
@@ -200,30 +200,28 @@ public class MainActivity extends AppCompatActivity {
                                         System.err.println("Listen failed: " + e);
                                         return;
                                     }
-                                    assert queryDocumentSnapshots != null;
-
+                                    if(queryDocumentSnapshots == null) return;
 
                                     if (!entries.containsKey("Category1")) {
                                         entries.put("Category1", new HashMap<>());
                                     }
                                     Map<String, Object> types = (HashMap<String, Object>) entries.get("Category1");
-                                    assert types != null;
+                                    if(types == null) return;
                                     if (!types.containsKey(type)) {
                                         types.put(type, new HashMap<>());
                                     }
                                     Map<String, Object> dis = (HashMap<String, Object>) types.get(type);
-                                    assert dis != null;
+                                    if(dis == null) return;
                                     if (!dis.containsKey(diString)) {
                                         dis.put(diString, new HashMap<>());
                                     }
                                     Map<String, Object> productid = (HashMap<String, Object>) dis.get(diString);
-                                    assert productid != null;
-
+                                    if(productid == null) return;
                                     if (!productid.containsKey("udis")) {
                                         productid.put("udis", new HashMap<>());
                                     }
                                     Map<String, Object> udis = (HashMap<String, Object>) productid.get("udis");
-                                    assert udis != null;
+                                    if(udis == null) return;
 
                                     for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                                         Map<String, Object> data = dc.getDocument().getData();
@@ -250,17 +248,17 @@ public class MainActivity extends AppCompatActivity {
                                 entries.put("Category1", new HashMap<>());
                             }
                             types = (HashMap<String, Object>) entries.get("Category1");
-                            assert types != null;
+                            if(types == null) return;
                             if (!types.containsKey(type)) {
                                 types.put(type, new HashMap<>());
                             }
                             dis = (HashMap<String, Object>) types.get(type);
-                            assert dis != null;
+                            if(dis == null) return;
                             if (!dis.containsKey(diString)) {
                                 dis.put(diString, new HashMap<>());
                             }
                             productid = (HashMap<String, Object>) dis.get(diString);
-                            assert productid != null;
+                            if(productid == null) return;
                             productid.put("di", di);
                             break;
                         case REMOVED:
@@ -269,17 +267,17 @@ public class MainActivity extends AppCompatActivity {
                                 entries.put("Category1", new HashMap<>());
                             }
                             types = (HashMap<String, Object>) entries.get("Category1");
-                            assert types != null;
+                            if(types == null) return;
                             if (!types.containsKey(type)) {
                                 types.put(type, new HashMap<>());
                             }
                             dis = (HashMap<String, Object>) types.get(type);
-                            assert dis != null;
+                            if(dis == null) return;
                             if (!dis.containsKey(diString)) {
                                 dis.put(diString, new HashMap<>());
                             }
                             productid = (HashMap<String, Object>) dis.get(diString);
-                            assert productid != null;
+                            if(productid == null) return;
                             productid.remove("di");
                             break;
                     }
