@@ -55,8 +55,8 @@ public class ResetActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "Email sent.");
-                            Toast.makeText(getApplicationContext(), "Email sent!", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Reset instructions sent. Please check email");
+                            Toast.makeText(getApplicationContext(), "Email sent!", Toast.LENGTH_LONG).show();
                             finish();
                         }
                     }

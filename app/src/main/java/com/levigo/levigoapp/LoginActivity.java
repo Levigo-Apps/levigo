@@ -59,36 +59,12 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-//        clear = true;
         userIsLoggedIn();
 
         setContentView(R.layout.activity_login);
 
-//        mLogin = findViewById(R.id.login_button);
-//        mRegister = findViewById(R.id.login_register);
         mEmail = findViewById(R.id.login_email);
         mPassword = findViewById(R.id.login_password);
-//        mRemember = findViewById(R.id.login_remember);
-
-//        mLogin.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                final String email = mEmail.getText().toString(),
-//                        password = mPassword.getText().toString();
-//                if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-//                    signIn(email, password);
-//                } else {
-//                    mEmail.setError("Please enter a valid email address.");
-//                }
-//            }
-//        });
-
-//        mRegister.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                startActivity(new Intent(getApplicationContext(), SignUpActivity.class));
-//            }
-//        });
     }
 
     private void signIn(String email, String password) {
@@ -97,7 +73,6 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-//                            signout = !mRemember.isChecked();
                             userIsLoggedIn();
                         } else {
                             Toast.makeText(LoginActivity.this, "Failed to login.", Toast.LENGTH_SHORT).show();
@@ -109,8 +84,6 @@ public class LoginActivity extends AppCompatActivity {
     private void userIsLoggedIn() {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
-//            clear = false;
-
             Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(mainActivityIntent);
             finish();
@@ -122,7 +95,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
-//                signout = !mRemember.isChecked();
                 userIsLoggedIn();
             } else {
                 Log.d(TAG, "Sign in cancelled");
@@ -147,14 +119,4 @@ public class LoginActivity extends AppCompatActivity {
     public void register(View view) {
         startActivity(new Intent(getApplicationContext(), SignUpActivity.class));
     }
-
-//    @Override
-//    protected void onStop() {
-//        if (clear || signout) {
-//            mAuth.signOut();
-//            Log.d(TAG, "FINISHING from onstop");
-//            finish();
-//        }
-//        super.onStop();
-//    }
 }

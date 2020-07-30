@@ -38,6 +38,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -66,7 +67,7 @@ public class SignUpActivity extends AppCompatActivity {
     private TextInputEditText mPasswordField;
     private TextInputEditText mConfirmPasswordField;
     private Button mSignUpButton;
-//    private Button mEmailForAdmin;
+    //    private Button mEmailForAdmin;
     private TextView mNetworkNameTextView;
     private TextView mHospitalNameTextView;
 
@@ -93,7 +94,6 @@ public class SignUpActivity extends AppCompatActivity {
         mPasswordField = findViewById(R.id.signup_password);
         mConfirmPasswordField = findViewById(R.id.signup_password_confirm);
         mSignUpButton = findViewById(R.id.signup_button);
-//        mEmailForAdmin = findViewById(R.id.signup_admin_email);
 
         // Email password fields disabled until valid invitation code
         mEmailPasswordLayout.setVisibility(View.GONE);
@@ -136,7 +136,7 @@ public class SignUpActivity extends AppCompatActivity {
                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        String toastMessage;
+                        String toastMessage = null;
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             if (document.exists()) {
@@ -154,11 +154,9 @@ public class SignUpActivity extends AppCompatActivity {
 
                                         mEmailPasswordLayout.setVisibility(View.VISIBLE);
                                         mInvitationCodeLayout.setEnabled(false);
-
-                                        toastMessage = "Validation complete";
-
                                     } catch (NullPointerException e) {
                                         // invitation code data missing fields
+                                        FirebaseCrashlytics.getInstance().recordException(e);
                                         toastMessage = "Error with validation code data; Please contact support";
                                     }
 
@@ -171,9 +169,14 @@ public class SignUpActivity extends AppCompatActivity {
                             }
                         } else {
                             toastMessage = "Invitation code validation failed; Please try again and contact support if issue persists";
-                            Log.d(TAG, "get failed with ", task.getException());
+                            Exception failedTaskException = task.getException();
+                            Log.d(TAG, "get failed with ", failedTaskException);
+                            FirebaseCrashlytics.getInstance().recordException(failedTaskException);
+//                            Log.d(TAG, "get failed with ", task.getException());
                         }
-                        Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                        if (toastMessage != null){
+                            Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
             }
@@ -242,11 +245,16 @@ public class SignUpActivity extends AppCompatActivity {
 
                                     Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
                                     startActivity(mainActivityIntent);
+                                    Toast.makeText(getApplicationContext(), "Account created. Welcome!",
+                                            Toast.LENGTH_SHORT).show();
                                 } else {
                                     // If sign in fails, display a message to the user.
-                                    Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                                    Exception createUserException = task.getException();
+                                    Log.w(TAG, "createUserWithEmail:failure", createUserException);
+//                                    Log.w(TAG, "createUserWithEmail:failure", task.getException());
                                     Toast.makeText(getApplicationContext(), "Authentication failed.",
                                             Toast.LENGTH_SHORT).show();
+                                    FirebaseCrashlytics.getInstance().recordException(createUserException);
                                 }
                             }
                         });

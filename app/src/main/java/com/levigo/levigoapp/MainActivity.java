@@ -47,6 +47,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -147,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
 
                             initInventory();
                         } catch (NullPointerException e) {
+                            FirebaseCrashlytics.getInstance().recordException(e);
                             toastMessage = "Error retrieving user information; Please contact support";
                             Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
                         }
@@ -295,6 +297,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                         }
                         iAdapter.notifyDataSetChanged();
                     } catch (NullPointerException npe) {
+                        FirebaseCrashlytics.getInstance().recordException(npe);
                         String toastMessage = "Error 0001: Failed to retrieve inventory information; Please report to support if possible";
                         Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
                     }
