@@ -86,8 +86,6 @@ public class ItemDetailFragment extends Fragment {
     private String mHospitalId;
     private String mHospitalName;
 
-
-
     // Firebase database
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("users");
@@ -195,11 +193,12 @@ public class ItemDetailFragment extends Fragment {
     private final String QUANTITY_KEY = "quantity";
     private final String SINGLEORMULTI_KEY = "single_multi";
 
-
+    private float dp;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        dp = getContext().getResources().getDisplayMetrics().density;
         // Inflate the layout for this fragment
         final View rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
         myCalendar = Calendar.getInstance();
