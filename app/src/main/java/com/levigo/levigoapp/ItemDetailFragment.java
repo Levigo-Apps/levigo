@@ -138,6 +138,8 @@ public class ItemDetailFragment extends Fragment {
     private TextInputLayout procedureDateLayout;
     private TextInputEditText procedureNameEditText;
     private TextInputEditText accessionNumberEditText;
+    private TextInputLayout dateInLayout;
+    private TextInputLayout numberAddedLayout;
     private TextView usageHeader;
 
     private Button saveButton;
@@ -177,10 +179,10 @@ public class ItemDetailFragment extends Fragment {
     private List<List<String>> procedureDoc;
     private TextWatcher textWatcher;
     private List<TextInputEditText> numberUsedList;
-    private ConstraintLayout siteConstrainLayout;
-    private ConstraintLayout physicalLocationConstrainLayout;
-    private ConstraintLayout typeConstrainLayout;
-    private ConstraintLayout numberAddedConstrainLayout;
+
+    private LinearLayout siteConstrainLayout;
+    private LinearLayout physicalLocationConstrainLayout;
+    private LinearLayout typeConstrainLayout;
 
 
     // firebase key labels to avoid hard-coded paths
@@ -230,7 +232,7 @@ public class ItemDetailFragment extends Fragment {
         dateIn.setText(dateFormat.format(new Date()));
         timeIn = rootView.findViewById(R.id.detail_in_time);
         TextInputLayout expirationTextLayout = rootView.findViewById(R.id.expiration_date_string);
-        TextInputLayout dateInLayout = rootView.findViewById(R.id.in_date_layout);
+        dateInLayout = rootView.findViewById(R.id.in_date_layout);
         final TextInputLayout timeInLayout = rootView.findViewById(R.id.in_time_layout);
         itemUsed = rootView.findViewById(R.id.detail_used_switch);
         saveButton = rootView.findViewById(R.id.detail_save_button);
@@ -242,14 +244,13 @@ public class ItemDetailFragment extends Fragment {
         TextInputLayout diLayout = rootView.findViewById(R.id.TextInputLayout_di);
         singleUseButton = rootView.findViewById(R.id.RadioButton_single);
         multiUse = rootView.findViewById(R.id.radio_multiuse);
-        TextInputLayout numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
+        numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
 
         siteConstrainLayout = rootView.findViewById(R.id.site_linearlayout);
         physicalLocationConstrainLayout= rootView.findViewById(R.id.physicalLocationLinearLayout);
         typeConstrainLayout= rootView.findViewById(R.id.typeLinearLayout);
-        numberAddedConstrainLayout = rootView.findViewById(R.id.numberAddedLinearLayout);
-        chosenType  = false;
+        chosenType = false;
         chosenSite = false;
         chosenLocation = false;
         checkAutocompleteTexts = false;
@@ -435,14 +436,14 @@ public class ItemDetailFragment extends Fragment {
                     itemUsedFields.setVisibility(View.VISIBLE);
                     numberAdded.setText("0");
                     numberAdded.removeTextChangedListener(textWatcher);
-                    numberAddedConstrainLayout.setVisibility(View.GONE);
+                    numberAddedLayout.setVisibility(View.GONE);
                     removeProcedure.setEnabled(false);
 
                 } else {
                     // enable saveButton
                     saveButton.setEnabled(true);
                     checkItemUsed = false;
-                    numberAddedConstrainLayout.setVisibility(View.VISIBLE);
+                    numberAddedLayout.setVisibility(View.VISIBLE);
                     itemUsedFields.setVisibility(View.GONE);
                     while (procedureFieldAdded  - procedureListCounter > 0) {
                         itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addProcedure) - 1);
@@ -509,9 +510,11 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-        assert getArguments() != null;
-        String barcode = getArguments().getString("barcode");
-        udiEditText.setText(barcode);
+        if(getArguments() != null) {
+            String barcode = getArguments().getString("barcode");
+            udiEditText.setText(barcode);
+            autoPopulate(siteDocRef, rootView);
+        }
         return rootView;
     }
 
@@ -1103,6 +1106,7 @@ public class ItemDetailFragment extends Fragment {
         Log.d(TAG, "Adding empty size option!");
         emptySizeFieldCounter++;
         GridLayout gridLayoutSize = new GridLayout(view.getContext());
+
         GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
         paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         paramSizeKey.width = WRAP_CONTENT;
@@ -1786,6 +1790,7 @@ public class ItemDetailFragment extends Fragment {
             }
         };
         deviceIdentifier.addTextChangedListener(diWatcher);
+
 
 
     }
