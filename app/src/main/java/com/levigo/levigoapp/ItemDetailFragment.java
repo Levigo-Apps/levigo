@@ -33,6 +33,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import com.android.volley.Request;
@@ -50,6 +51,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -75,11 +77,20 @@ import java.util.Random;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 public class ItemDetailFragment extends Fragment {
 
+    private FirebaseAuth mAuth;
+    private String mNetworkId;
+    private String mNetworkName;
+    private String mHospitalId;
+    private String mHospitalName;
+
     // Firebase database
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private CollectionReference usersRef = db.collection("users");
+
     final DocumentReference typeRef = db.collection("networks").document("types");
     final DocumentReference siteRef = db.collection("networks").document("network1")
             .collection("sites").document("site_options");
@@ -261,6 +272,42 @@ public class ItemDetailFragment extends Fragment {
         procedureMapList = new ArrayList<>();
         procedureDoc = new ArrayList<>();
         numberUsedList = new ArrayList<>();
+
+        mAuth = FirebaseAuth.getInstance();
+        String userId = mAuth.getCurrentUser().getUid();
+
+        // Get user information in "users" collection
+        final DocumentReference currentUserRef = usersRef.document(userId);
+        currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                String toastMessage;
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        try {
+                            //TODO Davit update database paths with these variables
+                            mNetworkId = document.get("network_id").toString();
+//                            mNetworkName = document.get("network_name").toString();
+                            mHospitalId = document.get("hospital_id").toString();
+//                            mHospitalName = document.get("hospital_name").toString();
+
+                        } catch (NullPointerException e) {
+                            toastMessage = "Error retrieving user information; Please contact support";
+                            Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        // document for user doesn't exist
+                        toastMessage = "User not found; Please contact support";
+                        Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    toastMessage = "User lookup failed; Please try again and contact support if issue persists";
+                    Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
 
 
         // NumberPicker Dialog for NumberAdded field
