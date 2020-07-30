@@ -118,8 +118,6 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                             mNetworkName = document.get("network_name").toString();
                             mHospitalId = document.get("hospital_id").toString();
                             mHospitalName = document.get("hospital_name").toString();
-//                            String inventoryRefUrl = "networks/network1/sites/n1_hospital3/n1_h3_departments/department1/n1_h1_d1 productids";
-                            //TODO update to the following
                             String inventoryRefUrl = "networks/" + mNetworkId + "/hospitals/" + mHospitalId + "/departments/default_department/dis";
 
                             Toolbar mToolbar = findViewById(R.id.main_toolbar);
@@ -197,8 +195,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                         final String type = di.get("equipment_type").toString();
                         Log.d(TAG, "TYPEEE: " + type);
                         final String diString = di.get("di").toString();
-                        //                    Log.d(TAG, "Data di: " + di.toString());
-                        //                    Log.d(TAG, "UDIs: " + dc.getDocument().getReference().collection("UDIs"));
+
                         //TODO: add cases
                         Map<String, Object> types, dis, productid;
                         switch (dc.getType()) {
@@ -211,28 +208,23 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                                             System.err.println("Listen failed: " + e);
                                             return;
                                         }
-//                                        if (queryDocumentSnapshots == null) return;
 
                                         if (!entries.containsKey("Category1")) {
                                             entries.put("Category1", new HashMap<>());
                                         }
                                         Map<String, Object> types = (HashMap<String, Object>) entries.get("Category1");
-//                                        if (types == null) return;
                                         if (!types.containsKey(type)) {
                                             types.put(type, new HashMap<>());
                                         }
                                         Map<String, Object> dis = (HashMap<String, Object>) types.get(type);
-//                                        if (dis == null) return;
                                         if (!dis.containsKey(diString)) {
                                             dis.put(diString, new HashMap<>());
                                         }
                                         Map<String, Object> productid = (HashMap<String, Object>) dis.get(diString);
-//                                        if (productid == null) return;
                                         if (!productid.containsKey("udis")) {
                                             productid.put("udis", new HashMap<>());
                                         }
                                         Map<String, Object> udis = (HashMap<String, Object>) productid.get("udis");
-//                                        if (udis == null) return;
 
                                         for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                                             Map<String, Object> data = dc.getDocument().getData();
@@ -247,9 +239,6 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                                                     udis.remove(udi);
                                             }
                                         }
-
-                                        //                                    productid.put("udis", udis);
-                                        //                                    Log.d(TAG, "ENTRIES: " + entries);
                                         iAdapter.notifyDataSetChanged();
                                     }
                                 });
@@ -259,17 +248,14 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                                     entries.put("Category1", new HashMap<>());
                                 }
                                 types = (HashMap<String, Object>) entries.get("Category1");
-//                                if (types == null) return;
                                 if (!types.containsKey(type)) {
                                     types.put(type, new HashMap<>());
                                 }
                                 dis = (HashMap<String, Object>) types.get(type);
-//                                if (dis == null) return;
                                 if (!dis.containsKey(diString)) {
                                     dis.put(diString, new HashMap<>());
                                 }
                                 productid = (HashMap<String, Object>) dis.get(diString);
-//                                if (productid == null) return;
                                 productid.put("di", di);
                                 break;
                             case REMOVED:
@@ -278,24 +264,21 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                                     entries.put("Category1", new HashMap<>());
                                 }
                                 types = (HashMap<String, Object>) entries.get("Category1");
-//                                if (types == null) return;
                                 if (!types.containsKey(type)) {
                                     types.put(type, new HashMap<>());
                                 }
                                 dis = (HashMap<String, Object>) types.get(type);
-//                                if (dis == null) return;
                                 if (!dis.containsKey(diString)) {
                                     dis.put(diString, new HashMap<>());
                                 }
                                 productid = (HashMap<String, Object>) dis.get(diString);
-//                                if (productid == null) return;
                                 productid.remove("di");
                                 break;
                         }
                         iAdapter.notifyDataSetChanged();
                     } catch (NullPointerException npe) {
-                        String toastMessage = "Error 0001: Failed to retrieve inventory information; Please report support";
-                        Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                        String toastMessage = "Error 0001: Failed to retrieve inventory information; Please report to support if possible";
+                        Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
                     }
                 }
             }
