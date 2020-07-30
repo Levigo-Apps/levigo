@@ -54,6 +54,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginHorizontal="12dp"
+                android:layout_marginBottom="64dp"
                 android:paddingTop="32dp"
                 android:orientation="vertical">
                 <com.google.android.material.textfield.TextInputLayout
@@ -407,12 +408,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="4dp"
-                    android:layout_marginBottom="64dp"
+
                     android:id="@+id/button_addsize"
                     android:text="@string/add_size_field_lbl" />
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -420,7 +422,7 @@
             android:layout_gravity="bottom"
             android:id="@+id/item_bottom"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:background="@color/colorPrimaryDark">
+            android:background="@color/colorAccent">
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

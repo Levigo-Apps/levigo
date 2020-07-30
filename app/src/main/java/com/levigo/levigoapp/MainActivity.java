@@ -82,73 +82,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
     private RecyclerView inventoryScroll;
     private RecyclerView.Adapter iAdapter;
     private RecyclerView.LayoutManager iLayoutManager;
-    private Map<String, Object> entries = new Map<String, Object>() {
-        @Override
-        public int size() {
-            return 0;
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return false;
-        }
-
-        @Override
-        public boolean containsKey(@Nullable Object o) {
-            return false;
-        }
-
-        @Override
-        public boolean containsValue(@Nullable Object o) {
-            return false;
-        }
-
-        @Nullable
-        @Override
-        public Object get(@Nullable Object o) {
-            return null;
-        }
-
-        @Nullable
-        @Override
-        public Object put(String s, Object o) {
-            return null;
-        }
-
-        @Nullable
-        @Override
-        public Object remove(@Nullable Object o) {
-            return null;
-        }
-
-        @Override
-        public void putAll(@NonNull Map<? extends String, ?> map) {
-
-        }
-
-        @Override
-        public void clear() {
-
-        }
-
-        @NonNull
-        @Override
-        public Set<String> keySet() {
-            return null;
-        }
-
-        @NonNull
-        @Override
-        public Collection<Object> values() {
-            return null;
-        }
-
-        @NonNull
-        @Override
-        public Set<Entry<String, Object>> entrySet() {
-            return null;
-        }
-    };
+    private Map<String, Object> entries = new HashMap<String, Object>();
 
     private FloatingActionButton mAdd;
 
@@ -184,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                             mNetworkName = document.get("network_name").toString();
                             mHospitalId = document.get("hospital_id").toString();
                             mHospitalName = document.get("hospital_name").toString();
-                            String inventoryRefUrl = "networks/network1/sites/n1_hospital3/n1_h3_departments/department1/n_h1_d1 productids";
+                            String inventoryRefUrl = "networks/network1/sites/n1_hospital3/n1_h3_departments/department1/n1_h1_d1 productids";
                             //TODO update to the following
                             //String inventoryRefUrl = "networks/" + mNetworkId + "/hospitals/" + mHospitalId + "/departments/default_department/dis";
 
@@ -255,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                     return;
                 }
 
-                assert queryDocumentSnapshots != null;
+                if(queryDocumentSnapshots == null) return;
                 for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                     final Map<String, Object> di = dc.getDocument().getData();
                     final String type = di.get("equipment_type").toString();
@@ -274,30 +208,28 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                                         System.err.println("Listen failed: " + e);
                                         return;
                                     }
-                                    assert queryDocumentSnapshots != null;
-
+                                    if(queryDocumentSnapshots == null) return;
 
                                     if (!entries.containsKey("Category1")) {
                                         entries.put("Category1", new HashMap<>());
                                     }
                                     Map<String, Object> types = (HashMap<String, Object>) entries.get("Category1");
-                                    assert types != null;
+                                    if(types == null) return;
                                     if (!types.containsKey(type)) {
                                         types.put(type, new HashMap<>());
                                     }
                                     Map<String, Object> dis = (HashMap<String, Object>) types.get(type);
-                                    assert dis != null;
+                                    if(dis == null) return;
                                     if (!dis.containsKey(diString)) {
                                         dis.put(diString, new HashMap<>());
                                     }
                                     Map<String, Object> productid = (HashMap<String, Object>) dis.get(diString);
-                                    assert productid != null;
-
+                                    if(productid == null) return;
                                     if (!productid.containsKey("udis")) {
                                         productid.put("udis", new HashMap<>());
                                     }
                                     Map<String, Object> udis = (HashMap<String, Object>) productid.get("udis");
-                                    assert udis != null;
+                                    if(udis == null) return;
 
                                     for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                                         Map<String, Object> data = dc.getDocument().getData();
@@ -324,17 +256,17 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                                 entries.put("Category1", new HashMap<>());
                             }
                             types = (HashMap<String, Object>) entries.get("Category1");
-                            assert types != null;
+                            if(types == null) return;
                             if (!types.containsKey(type)) {
                                 types.put(type, new HashMap<>());
                             }
                             dis = (HashMap<String, Object>) types.get(type);
-                            assert dis != null;
+                            if(dis == null) return;
                             if (!dis.containsKey(diString)) {
                                 dis.put(diString, new HashMap<>());
                             }
                             productid = (HashMap<String, Object>) dis.get(diString);
-                            assert productid != null;
+                            if(productid == null) return;
                             productid.put("di", di);
                             break;
                         case REMOVED:
@@ -343,17 +275,17 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                                 entries.put("Category1", new HashMap<>());
                             }
                             types = (HashMap<String, Object>) entries.get("Category1");
-                            assert types != null;
+                            if(types == null) return;
                             if (!types.containsKey(type)) {
                                 types.put(type, new HashMap<>());
                             }
                             dis = (HashMap<String, Object>) types.get(type);
-                            assert dis != null;
+                            if(dis == null) return;
                             if (!dis.containsKey(diString)) {
                                 dis.put(diString, new HashMap<>());
                             }
                             productid = (HashMap<String, Object>) dis.get(diString);
-                            assert productid != null;
+                            if(productid == null) return;
                             productid.remove("di");
                             break;
                     }

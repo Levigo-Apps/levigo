@@ -9,7 +9,9 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
@@ -83,8 +85,6 @@ public class ItemDetailFragment extends Fragment {
     private String mNetworkName;
     private String mHospitalId;
     private String mHospitalName;
-
-
 
     // Firebase database
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -193,11 +193,12 @@ public class ItemDetailFragment extends Fragment {
     private final String QUANTITY_KEY = "quantity";
     private final String SINGLEORMULTI_KEY = "single_multi";
 
-
+    private float dp;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        dp = getContext().getResources().getDisplayMetrics().density;
         // Inflate the layout for this fragment
         final View rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
         myCalendar = Calendar.getInstance();
@@ -1105,57 +1106,77 @@ public class ItemDetailFragment extends Fragment {
 
         Log.d(TAG, "Adding empty size option!");
         emptySizeFieldCounter++;
-        GridLayout gridLayoutSize = new GridLayout(view.getContext());
+        LinearLayout layoutSize = new LinearLayout(getContext());
+        layoutSize.setOrientation(LinearLayout.HORIZONTAL);
+        layoutSize.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+//        GridLayout gridLayoutSize = new GridLayout(view.getContext());
+//
+//        GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
+//        paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+//        paramSizeKey.width = WRAP_CONTENT;
+//        paramSizeKey.rowSpec = GridLayout.spec(rowIndex);
+//        paramSizeKey.columnSpec = GridLayout.spec(0);
+//        paramSizeKey.setMargins(0, 0, 0, 20);
+//
+//
+//        GridLayout.LayoutParams paramSizeValue = new GridLayout.LayoutParams();
+//        paramSizeValue.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+//        paramSizeValue.width = WRAP_CONTENT;
+//        paramSizeValue.rowSpec = GridLayout.spec(rowIndex);
+//        paramSizeValue.columnSpec = GridLayout.spec(1);
+//        paramSizeValue.setMargins(10, 0, 0, 20);
 
-        GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
-        paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        paramSizeKey.width = WRAP_CONTENT;
-        paramSizeKey.rowSpec = GridLayout.spec(rowIndex);
-        paramSizeKey.columnSpec = GridLayout.spec(0);
-        paramSizeKey.setMargins(0, 0, 0, 20);
 
-
-        GridLayout.LayoutParams paramSizeValue = new GridLayout.LayoutParams();
-        paramSizeValue.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        paramSizeValue.width = WRAP_CONTENT;
-        paramSizeValue.rowSpec = GridLayout.spec(rowIndex);
-        paramSizeValue.columnSpec = GridLayout.spec(1);
-        paramSizeValue.setMargins(10, 0, 0, 20);
-
-
-        TextInputLayout sizeKeyLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        sizeKeyLayout.setLayoutParams(paramSizeKey);
+//        TextInputLayout sizeKeyLayout = (TextInputLayout) View.inflate(view.getContext(),
+//                R.layout.activity_itemdetail_materialcomponent, null);
+        TextInputLayout sizeKeyLayout = new TextInputLayout(view.getContext());
+//        sizeKeyLayout.setLayoutParams(paramSizeKey);
         sizeKeyLayout.setHint("Key");
+        LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(0,MATCH_PARENT,1f);
+        klp.setMargins( (int)(4*dp),(int)(4*dp), (int)(4*dp), (int)(4*dp));
+        sizeKeyLayout.setLayoutParams(klp);
         TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
+        sizeKey.setSingleLine();
+        sizeKey.setEllipsize(TextUtils.TruncateAt.END);
 
-        TextInputLayout sizeValueLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        sizeValueLayout.setLayoutParams(paramSizeValue);
+//        TextInputLayout sizeValueLayout = (TextInputLayout) View.inflate(view.getContext(),
+//                R.layout.activity_itemdetail_materialcomponent, null);
+        TextInputLayout sizeValueLayout = new TextInputLayout(view.getContext());
+//        sizeValueLayout.setLayoutParams(paramSizeValue);
         sizeValueLayout.setHint("Value");
+        LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(0,MATCH_PARENT,1f);
+        vlp.setMargins( (int)(4*dp),(int)(4*dp), (int)(4*dp), (int)(4*dp));
+        sizeValueLayout.setLayoutParams(vlp);
         TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
+        sizeValue.setSingleLine();
+        sizeValue.setEllipsize(TextUtils.TruncateAt.END);
 
 
-        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
+//        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
         sizeKeyLayout.addView(sizeKey);
-        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
+//        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
         sizeValueLayout.addView(sizeValue);
-        gridLayoutSize.addView(sizeKeyLayout);
-        gridLayoutSize.addView(sizeValueLayout);
+        layoutSize.addView(sizeKeyLayout);
+        layoutSize.addView(sizeValueLayout);
+//        gridLayoutSize.addView(sizeKeyLayout);
+//        gridLayoutSize.addView(sizeValueLayout);
 
 
         allSizeOptions.add(sizeKey);
         allSizeOptions.add(sizeValue);
-        linearLayout.addView(gridLayoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
+        linearLayout.addView(layoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
         rowIndex++;
         System.out.println("row index is " + rowIndex);
         if (isAddSizeButtonClicked) {
             removeSizeButton = new MaterialButton(view.getContext(),
                     null, R.attr.materialButtonOutlinedStyle);
             removeSizeButton.setText(R.string.removeSize_label);
-            removeSizeButton.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT,
-                    WRAP_CONTENT));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+            lp.setMargins( (int)(4*dp),0, (int)(4*dp), 0);
+            removeSizeButton.setLayoutParams(lp);
+
             linearLayout.addView(removeSizeButton,  linearLayout.indexOfChild(addSizeButton));
+
         }
 
         removeSizeButton.setOnClickListener(new View.OnClickListener() {
@@ -1191,50 +1212,82 @@ public class ItemDetailFragment extends Fragment {
         Log.d(TAG, "Adding item specs!");
 
 
-        GridLayout gridLayoutSize = new GridLayout(view.getContext());
-        GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
-        paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        paramSizeKey.width = WRAP_CONTENT;
-        paramSizeKey.rowSpec = GridLayout.spec(rowIndex);
-        paramSizeKey.columnSpec = GridLayout.spec(0);
-        paramSizeKey.setMargins(0, 0, 0, 20);
+//        GridLayout gridLayoutSize = new GridLayout(view.getContext());
+//        GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
+//        paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+//        paramSizeKey.width = WRAP_CONTENT;
+//        paramSizeKey.rowSpec = GridLayout.spec(rowIndex);
+//        paramSizeKey.columnSpec = GridLayout.spec(0);
+//        paramSizeKey.setMargins(0, 0, 0, 20);
+//
+//
+//        GridLayout.LayoutParams paramSizeValue = new GridLayout.LayoutParams();
+//        paramSizeValue.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+//        paramSizeValue.width = WRAP_CONTENT;
+//        paramSizeValue.rowSpec = GridLayout.spec(rowIndex);
+//        paramSizeValue.columnSpec = GridLayout.spec(1);
+//        paramSizeValue.setMargins(10, 0, 0, 20);
+//
+//
+//        TextInputLayout sizeKeyLayout = (TextInputLayout) View.inflate(view.getContext(),
+//                R.layout.activity_itemdetail_materialcomponent, null);
+//        sizeKeyLayout.setLayoutParams(paramSizeKey);
+//        sizeKeyLayout.setHint("Key");
+//        TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
+//        sizeKey.setText(key);
+//        sizeKey.setFocusable(false);
+//
+//        TextInputLayout sizeValueLayout = (TextInputLayout) View.inflate(view.getContext(),
+//                R.layout.activity_itemdetail_materialcomponent, null);
+//        sizeValueLayout.setLayoutParams(paramSizeValue);
+//        sizeValueLayout.setHint("Value");
+//        TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
+//        sizeValue.setText(value);
+//        sizeValue.setFocusable(false);
+//
+//        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
+//        sizeKeyLayout.addView(sizeKey);
+//        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
+//        sizeValueLayout.addView(sizeValue);
+//        gridLayoutSize.addView(sizeKeyLayout);
+//        gridLayoutSize.addView(sizeValueLayout);
 
+        LinearLayout layoutSize = new LinearLayout(getContext());
+        layoutSize.setOrientation(LinearLayout.HORIZONTAL);
+        layoutSize.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
-        GridLayout.LayoutParams paramSizeValue = new GridLayout.LayoutParams();
-        paramSizeValue.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        paramSizeValue.width = WRAP_CONTENT;
-        paramSizeValue.rowSpec = GridLayout.spec(rowIndex);
-        paramSizeValue.columnSpec = GridLayout.spec(1);
-        paramSizeValue.setMargins(10, 0, 0, 20);
-
-
-        TextInputLayout sizeKeyLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        sizeKeyLayout.setLayoutParams(paramSizeKey);
+        TextInputLayout sizeKeyLayout = new TextInputLayout(view.getContext());
         sizeKeyLayout.setHint("Key");
+        LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(0,MATCH_PARENT,1f);
+        klp.setMargins( (int)(4*dp),(int)(4*dp), (int)(4*dp), (int)(4*dp));
+        sizeKeyLayout.setLayoutParams(klp);
         TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
+        sizeKey.setSingleLine();
+        sizeKey.setEllipsize(TextUtils.TruncateAt.END);
+        sizeKey.setEnabled(false);
         sizeKey.setText(key);
-        sizeKey.setFocusable(false);
 
-        TextInputLayout sizeValueLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        sizeValueLayout.setLayoutParams(paramSizeValue);
+        TextInputLayout sizeValueLayout = new TextInputLayout(view.getContext());
         sizeValueLayout.setHint("Value");
+        LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(0,MATCH_PARENT,1f);
+        vlp.setMargins( (int)(4*dp),(int)(4*dp), (int)(4*dp), (int)(4*dp));
+        sizeValueLayout.setLayoutParams(vlp);
         TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
+        sizeValue.setSingleLine();
+        sizeValue.setEllipsize(TextUtils.TruncateAt.END);
+        sizeValue.setEnabled(false);
         sizeValue.setText(value);
-        sizeValue.setFocusable(false);
 
-        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
         sizeKeyLayout.addView(sizeKey);
-        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
         sizeValueLayout.addView(sizeValue);
-        gridLayoutSize.addView(sizeKeyLayout);
-        gridLayoutSize.addView(sizeValueLayout);
+
+        layoutSize.addView(sizeKeyLayout);
+        layoutSize.addView(sizeValueLayout);
 
 
         allSizeOptions.add(sizeKey);
         allSizeOptions.add(sizeValue);
-        linearLayout.addView(gridLayoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
+        linearLayout.addView(layoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
         rowIndex++;
     }
 
@@ -1749,36 +1802,46 @@ public class ItemDetailFragment extends Fragment {
                             medicalSpecialties = new StringBuilder(medicalSpecialties.substring(0, medicalSpecialties.length() - 2));
 
                             lotNumber.setText(udi.getString("lotNumber"));
-                            lotNumber.setFocusable(false);
+//                            lotNumber.setFocusable(false);
+                            lotNumber.setEnabled(false);
+                            lotNumber.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
                             company.setText(deviceInfo.getString("companyName"));
-                            company.setFocusable(false);
+//                            company.setFocusable(false);
+                            company.setEnabled(false);
+                            company.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
                             expiration.setText(udi.getString("expirationDate"));
-                            expiration.setFocusable(false);
+//                            expiration.setFocusable(false);
+                            expiration.setEnabled(false);
 
 
                             di = udi.getString("di");
                             deviceIdentifier.setText(udi.getString("di"));
-                            deviceIdentifier.setFocusable(false);
+//                            deviceIdentifier.setFocusable(false);
+                            deviceIdentifier.setEnabled(false);
 
                             updateProcedureFieldAdded(udiStr, di);
 
 
                             nameEditText.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
-                            nameEditText.setFocusable(false);
+//                            nameEditText.setFocusable(false);
+                            nameEditText.setEnabled(false);
+                            nameEditText.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
                             deviceDescription.setText(deviceInfo.getString("deviceDescription"));
-                            deviceDescription.setFocusable(false);
-
+//                            deviceDescription.setFocusable(false);
+                            deviceDescription.setEnabled(false);
+                            deviceDescription.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
                             referenceNumber.setText(deviceInfo.getString("catalogNumber"));
-
-                            referenceNumber.setFocusable(false);
+//                            referenceNumber.setFocusable(false);
+                            referenceNumber.setEnabled(false);
 
                             medicalSpeciality.setText(medicalSpecialties.toString());
-                            medicalSpeciality.setFocusable(false);
-
+//                            medicalSpeciality.setFocusable(false);
+                            medicalSpeciality.setEnabled(false);
+                            medicalSpeciality.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
                             numberAdded.setText(deviceInfo.getString("deviceCount"));
                             autoPopulateFromDatabase(udi, siteDocRef,udiStr, view);
@@ -1953,11 +2016,12 @@ public class ItemDetailFragment extends Fragment {
                     if (document.exists()) {
                         if(document.get(TYPE_KEY) != null){
                             equipmentType.setText(document.getString(TYPE_KEY));
-                            equipmentType.setFocusable(false);
-
+//                            equipmentType.setFocusable(false);
+                            equipmentType.setEnabled(false);
                         }if(document.get(SITE_KEY) != null){
                             hospitalName.setText(document.getString(SITE_KEY));
-                            hospitalName.setFocusable(false);
+//                            hospitalName.setFocusable(false);
+//                            hospitalName.setEnabled(false);
                         }if(document.get(QUANTITY_KEY) != null){
                             diQuantity = document.getString(QUANTITY_KEY);
                         }else{
@@ -1996,7 +2060,8 @@ public class ItemDetailFragment extends Fragment {
                             quantity.setText("0");
                         }if(document.get(PHYSICALLOC_KEY) != null){
                             physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
-                            physicalLocation.setFocusable(false);
+//                            physicalLocation.setFocusable(false);
+//                            physicalLocation.setEnabled(false);
 
                         }
                     } else {
@@ -2006,6 +2071,7 @@ public class ItemDetailFragment extends Fragment {
                         Log.d(TAG, "Document does not exist!");
                     }
                     quantity.setText(document.getString(QUANTITY_KEY));
+                    quantity.setEnabled(false);
                 } else {
                     Log.d(TAG, "Failed with: ", task.getException());
                 }

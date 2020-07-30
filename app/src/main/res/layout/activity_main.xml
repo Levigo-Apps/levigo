@@ -63,7 +63,6 @@
         android:layout_margin="20dp"
         android:elevation="0dp"
         app:elevation="0dp"
-        android:background="@color/colorAccent"
         android:layout_gravity="end|bottom"
         app:srcCompat="@android:drawable/ic_input_add"/>
 
