@@ -189,135 +189,115 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                     return;
                 }
 
-                if(queryDocumentSnapshots == null) return;
+                if (queryDocumentSnapshots == null) return;
                 for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                    final Map<String, Object> di = dc.getDocument().getData();
-                    final String type = di.get("equipment_type").toString();
-                    final String diString = di.get("di").toString();
-//                    Log.d(TAG, "Data di: " + di.toString());
-//                    Log.d(TAG, "UDIs: " + dc.getDocument().getReference().collection("UDIs"));
-                    //TODO: add cases
-                    Map<String, Object> types, dis, productid;
-                    switch (dc.getType()) {
-                        case ADDED:
-                            Log.d(TAG, "Added");
-                            dc.getDocument().getReference().collection("udis").addSnapshotListener(new EventListener<QuerySnapshot>() {
-                                @Override
-                                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                                    if (e != null) {
-                                        System.err.println("Listen failed: " + e);
-                                        return;
-                                    }
-                                    if(queryDocumentSnapshots == null) return;
-
-                                    if (!entries.containsKey("Category1")) {
-                                        entries.put("Category1", new HashMap<>());
-                                    }
-                                    Map<String, Object> types = (HashMap<String, Object>) entries.get("Category1");
-                                    if(types == null) return;
-                                    if (!types.containsKey(type)) {
-                                        types.put(type, new HashMap<>());
-                                    }
-                                    Map<String, Object> dis = (HashMap<String, Object>) types.get(type);
-                                    if(dis == null) return;
-                                    if (!dis.containsKey(diString)) {
-                                        dis.put(diString, new HashMap<>());
-                                    }
-                                    Map<String, Object> productid = (HashMap<String, Object>) dis.get(diString);
-                                    if(productid == null) return;
-                                    if (!productid.containsKey("udis")) {
-                                        productid.put("udis", new HashMap<>());
-                                    }
-                                    Map<String, Object> udis = (HashMap<String, Object>) productid.get("udis");
-                                    if(udis == null) return;
-
-                                    for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                                        Map<String, Object> data = dc.getDocument().getData();
-                                        //TODO: make safe
-                                        String udi = data.get("udi").toString();
-                                        switch (dc.getType()) {
-                                            case ADDED:
-                                            case MODIFIED:
-                                                udis.put(udi, data);
-                                                break;
-                                            case REMOVED:
-                                                udis.remove(udi);
+                    try {
+                        final Map<String, Object> di = dc.getDocument().getData();
+                        Log.d(TAG, "DIII: " + di);
+                        final String type = di.get("equipment_type").toString();
+                        Log.d(TAG, "TYPEEE: " + type);
+                        final String diString = di.get("di").toString();
+                        //                    Log.d(TAG, "Data di: " + di.toString());
+                        //                    Log.d(TAG, "UDIs: " + dc.getDocument().getReference().collection("UDIs"));
+                        //TODO: add cases
+                        Map<String, Object> types, dis, productid;
+                        switch (dc.getType()) {
+                            case ADDED:
+                                Log.d(TAG, "Added");
+                                dc.getDocument().getReference().collection("udis").addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                        if (e != null) {
+                                            System.err.println("Listen failed: " + e);
+                                            return;
                                         }
-                                    }
+//                                        if (queryDocumentSnapshots == null) return;
 
-//                                    productid.put("udis", udis);
-//                                    Log.d(TAG, "ENTRIES: " + entries);
-                                    iAdapter.notifyDataSetChanged();
+                                        if (!entries.containsKey("Category1")) {
+                                            entries.put("Category1", new HashMap<>());
+                                        }
+                                        Map<String, Object> types = (HashMap<String, Object>) entries.get("Category1");
+//                                        if (types == null) return;
+                                        if (!types.containsKey(type)) {
+                                            types.put(type, new HashMap<>());
+                                        }
+                                        Map<String, Object> dis = (HashMap<String, Object>) types.get(type);
+//                                        if (dis == null) return;
+                                        if (!dis.containsKey(diString)) {
+                                            dis.put(diString, new HashMap<>());
+                                        }
+                                        Map<String, Object> productid = (HashMap<String, Object>) dis.get(diString);
+//                                        if (productid == null) return;
+                                        if (!productid.containsKey("udis")) {
+                                            productid.put("udis", new HashMap<>());
+                                        }
+                                        Map<String, Object> udis = (HashMap<String, Object>) productid.get("udis");
+//                                        if (udis == null) return;
+
+                                        for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                                            Map<String, Object> data = dc.getDocument().getData();
+                                            //TODO: make safe
+                                            String udi = data.get("udi").toString();
+                                            switch (dc.getType()) {
+                                                case ADDED:
+                                                case MODIFIED:
+                                                    udis.put(udi, data);
+                                                    break;
+                                                case REMOVED:
+                                                    udis.remove(udi);
+                                            }
+                                        }
+
+                                        //                                    productid.put("udis", udis);
+                                        //                                    Log.d(TAG, "ENTRIES: " + entries);
+                                        iAdapter.notifyDataSetChanged();
+                                    }
+                                });
+                            case MODIFIED:
+                                Log.d(TAG, "Modified");
+                                if (!entries.containsKey("Category1")) {
+                                    entries.put("Category1", new HashMap<>());
                                 }
-                            });
-                        case MODIFIED:
-                            Log.d(TAG, "Modified");
-                            if (!entries.containsKey("Category1")) {
-                                entries.put("Category1", new HashMap<>());
-                            }
-                            types = (HashMap<String, Object>) entries.get("Category1");
-                            if(types == null) return;
-                            if (!types.containsKey(type)) {
-                                types.put(type, new HashMap<>());
-                            }
-                            dis = (HashMap<String, Object>) types.get(type);
-                            if(dis == null) return;
-                            if (!dis.containsKey(diString)) {
-                                dis.put(diString, new HashMap<>());
-                            }
-                            productid = (HashMap<String, Object>) dis.get(diString);
-                            if(productid == null) return;
-                            productid.put("di", di);
-                            break;
-                        case REMOVED:
-                            Log.d(TAG, "Removed");
-                            if (!entries.containsKey("Category1")) {
-                                entries.put("Category1", new HashMap<>());
-                            }
-                            types = (HashMap<String, Object>) entries.get("Category1");
-                            if(types == null) return;
-                            if (!types.containsKey(type)) {
-                                types.put(type, new HashMap<>());
-                            }
-                            dis = (HashMap<String, Object>) types.get(type);
-                            if(dis == null) return;
-                            if (!dis.containsKey(diString)) {
-                                dis.put(diString, new HashMap<>());
-                            }
-                            productid = (HashMap<String, Object>) dis.get(diString);
-                            if(productid == null) return;
-                            productid.remove("di");
-                            break;
+                                types = (HashMap<String, Object>) entries.get("Category1");
+//                                if (types == null) return;
+                                if (!types.containsKey(type)) {
+                                    types.put(type, new HashMap<>());
+                                }
+                                dis = (HashMap<String, Object>) types.get(type);
+//                                if (dis == null) return;
+                                if (!dis.containsKey(diString)) {
+                                    dis.put(diString, new HashMap<>());
+                                }
+                                productid = (HashMap<String, Object>) dis.get(diString);
+//                                if (productid == null) return;
+                                productid.put("di", di);
+                                break;
+                            case REMOVED:
+                                Log.d(TAG, "Removed");
+                                if (!entries.containsKey("Category1")) {
+                                    entries.put("Category1", new HashMap<>());
+                                }
+                                types = (HashMap<String, Object>) entries.get("Category1");
+//                                if (types == null) return;
+                                if (!types.containsKey(type)) {
+                                    types.put(type, new HashMap<>());
+                                }
+                                dis = (HashMap<String, Object>) types.get(type);
+//                                if (dis == null) return;
+                                if (!dis.containsKey(diString)) {
+                                    dis.put(diString, new HashMap<>());
+                                }
+                                productid = (HashMap<String, Object>) dis.get(diString);
+//                                if (productid == null) return;
+                                productid.remove("di");
+                                break;
+                        }
+                        iAdapter.notifyDataSetChanged();
+                    } catch (NullPointerException npe) {
+                        String toastMessage = "Error 0001: Failed to retrieve inventory information; Please report support";
+                        Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
                     }
-                    iAdapter.notifyDataSetChanged();
-//                    switch(dc.getType()) {
-//                        case ADDED:
-//                            Log.d(TAG, "added");
-//                            entries.add(entry);
-//                            break;
-//                        case REMOVED:
-//                            Log.d(TAG, "remove");
-//                            for(int i = 0; i < entries.size(); ++i) {
-//                                if(entries.get(i).get("di").equals(entry.get("di"))) {
-//                                    Log.d(TAG, "remove2");
-//                                    entries.remove(i);
-//                                    break;
-//                                }
-//                            }
-//                            break;
-//                        case MODIFIED:
-//                            Log.d(TAG, "modify");
-//                            for(int i = 0; i < entries.size(); ++i) {
-//                                if(entries.get(i).get("di").equals(entry.get("di"))) {
-//                                    Log.d(TAG, "modify2");
-//                                    entries.set(i,entry);
-//                                    break;
-//                                }
-//                            }
-//                            break;
-//                    }
                 }
-//                iAdapter.notifyDataSetChanged();
             }
         });
     }
