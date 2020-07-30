@@ -261,11 +261,9 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     public void composeEmail(View view) {
-//        String[] addresses = {"theelliotliu@gmail.com"};
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         final String SUPPORT_EMAIL = "theelliotliu@gmail.com";
         intent.setData(Uri.parse("mailto:" + SUPPORT_EMAIL));
-//        intent.putExtra(Intent.EXTRA_EMAIL, addresses);
         intent.putExtra(Intent.EXTRA_SUBJECT, "Admin Account Request");
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
