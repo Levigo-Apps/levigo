@@ -1967,20 +1967,16 @@ public class ItemDetailFragment extends Fragment {
     private void autoPopulateFromDatabase(final JSONObject udi, final DocumentReference siteDocRef, final String udiStr, final View view) {
         DocumentReference udiDocRef = null;
         DocumentReference diDocRef = null;
-        try {
 
-            udiDocRef = siteDocRef
-                    .collection("departments").document("default_department")
-                    .collection("dis").document(udi.getString("di"))
-                    .collection("udis").document(udiStr);
+        udiDocRef = db.collection("networks").document(mNetworkId)
+                .collection("hospitals").document(mHospitalId).collection("departments")
+                .document("default_department").collection("dis").document(di)
+                .collection("udis").document(udiStr);
 
-            diDocRef = siteDocRef
-                    .collection("departments").document("default_department")
-                    .collection("dis").document(udi.getString("di"));
+        diDocRef = db.collection("networks").document(mNetworkId)
+                .collection("hospitals").document(mHospitalId).collection("departments")
+                .document("default_department").collection("dis").document(di);
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
 
         udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -2020,8 +2016,8 @@ public class ItemDetailFragment extends Fragment {
                             equipmentType.setEnabled(false);
                         }if(document.get(SITE_KEY) != null){
                             hospitalName.setText(document.getString(SITE_KEY));
-//                            hospitalName.setFocusable(false);
-//                            hospitalName.setEnabled(false);
+                            hospitalName.setFocusable(false);
+                            hospitalName.setEnabled(false);
                         }if(document.get(QUANTITY_KEY) != null){
                             diQuantity = document.getString(QUANTITY_KEY);
                         }else{
@@ -2060,9 +2056,6 @@ public class ItemDetailFragment extends Fragment {
                             quantity.setText("0");
                         }if(document.get(PHYSICALLOC_KEY) != null){
                             physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
-//                            physicalLocation.setFocusable(false);
-//                            physicalLocation.setEnabled(false);
-
                         }
                     } else {
                         itemQuantity = "0";
