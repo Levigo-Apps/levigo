@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                             mToolbar.setTitle(mHospitalName);
 
                             inventoryRef = levigoDb.collection(inventoryRefUrl);
-                            query = inventoryRef.whereEqualTo("equipment_type", "Scalpel");
+                            //query = inventoryRef.whereEqualTo("equipment_type", "Scalpel");
 
                             initInventory();
                         } catch (NullPointerException e) {
@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
         iAdapter = new InventoryViewAdapter(MainActivity.this, entries);
         inventoryScroll.setAdapter(iAdapter);
 
-        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        inventoryRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) throws NullPointerException {
                 if (e != null) {
