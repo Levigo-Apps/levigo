@@ -8,6 +8,11 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         android:title="Search"/>
     <item
+        android:id="@+id/filter"
+        android:title="filter button"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        app:showAsAction="always"/>
+    <item
         android:id="@+id/manual_entry"
         android:title="Add entry manually"
         android:icon="@android:drawable/ic_menu_add"

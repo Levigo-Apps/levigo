@@ -42,7 +42,8 @@
                 android:value=".MainActivity"/>
         </activity>
 
+        <activity android:name=".FilterActivity">
 
+        </activity>
     </application>
-
 </manifest>

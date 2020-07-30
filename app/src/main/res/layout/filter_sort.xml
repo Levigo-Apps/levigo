@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    android:background="#d6d6d6"
+>
+    <TextView
+        android:id="@+id/filter_by"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:background="@drawable/inventory_di_background"
+        android:text="Filter By"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        />
+    <ImageButton
+        android:id="@+id/exit_filter"
+        android:padding="8dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:icon="@drawable/ic_baseline_close_24"
+        android:background="@drawable/ic_baseline_close_24"
+        android:layout_margin="5dp"
+        />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_below="@id/filter_by"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/search_recycler"
+        />
+
+</RelativeLayout>
+
+
