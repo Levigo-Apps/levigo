@@ -6,4 +6,4 @@
     android:layout_gravity="start"
     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
     android:textAppearance="?android:attr/textAppearance"
-    app:chipBackgroundColor="@color/colorAccent" />
+    app:chipBackgroundColor="@color/colorPrimary" />

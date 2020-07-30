@@ -32,11 +32,14 @@
                 android:value=".LoginActivity"/>
         </activity>
 
-        <activity android:name=".NetworkActivity">
+        <activity android:name=".ResetActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value=".LoginActivity"/>
+        </activity>
 
+        <activity android:name=".NetworkActivity">
             <meta-data android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity"/>
-
         </activity>
 
 

@@ -7,9 +7,7 @@ import android.app.TimePickerDialog;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
@@ -26,23 +24,18 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.GridLayout;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-import android.widget.Toolbar;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -53,27 +46,23 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -88,20 +77,29 @@ import java.util.Random;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 public class ItemDetailFragment extends Fragment {
 
+    private FirebaseAuth mAuth;
+    private String mNetworkId;
+    private String mNetworkName;
+    private String mHospitalId;
+    private String mHospitalName;
+
     // Firebase database
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    DocumentReference typeRef = db.collection("networks").document("types");
-    DocumentReference siteRef = db.collection("networks").document("network1")
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private CollectionReference usersRef = db.collection("users");
+
+    final DocumentReference typeRef = db.collection("networks").document("types");
+    final DocumentReference siteRef = db.collection("networks").document("network1")
             .collection("sites").document("site_options");
-    DocumentReference physLocRef = db.collection("networks").document("network1")
+    final DocumentReference physLocRef = db.collection("networks").document("network1")
             .collection("sites").document("n1_hospital3")
             .collection("physical_locations").document("locations");
-    DocumentReference siteDocRef = db.collection("networks").document("network1")
+    final DocumentReference siteDocRef = db.collection("networks").document("network1")
             .collection("sites").document("n1_hospital3");
-    CollectionReference accessionNumberRef = db.collection("networks")
+    final CollectionReference accessionNumberRef = db.collection("networks")
             .document("network1")
             .collection("sites").document("n1_hospital3")
             .collection("accession_numbers");
@@ -112,7 +110,6 @@ public class ItemDetailFragment extends Fragment {
     private static final String TAG = ItemDetailFragment.class.getSimpleName();
     private Activity parent;
     private Calendar myCalendar;
-    private NetworkActivity Sites = new NetworkActivity();
 
     // USER INPUT VALUES
     private TextInputEditText udiEditText;
@@ -134,18 +131,11 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText dateIn;
     private TextInputEditText timeIn;
     private TextInputEditText numberAdded;
-    private TextInputLayout siteLocationLayout;
-    private TextInputLayout physLocationLayout;
-    private TextInputLayout diLayout;
-    private TextInputLayout numberAddedLayout;
     private TextInputEditText medicalSpeciality;
-    private TextInputLayout typeInputLayout;
     private TextView specsTextView;
     private LinearLayout itemUsedFields;
     private LinearLayout linearLayout;
     private TextInputLayout procedureDateLayout;
-    private TextInputLayout procedureNameLayout;
-    private TextInputLayout accessionNumberLayout;
     private TextInputEditText procedureNameEditText;
     private TextInputEditText accessionNumberEditText;
     private TextInputLayout dateInLayout;
@@ -160,12 +150,9 @@ public class ItemDetailFragment extends Fragment {
     private RadioButton singleUseButton;
     private RadioButton multiUse;
     private Button addSizeButton;
-    private MaterialToolbar topToolBar;
 
     private String itemQuantity;
     private String diQuantity;
-    private int numberUsedEditTextId;
-    private int procedureDateEditTextId;
     private int procedureFieldAdded;
     private int emptySizeFieldCounter = 0;
     private int typeCounter;
@@ -173,10 +160,8 @@ public class ItemDetailFragment extends Fragment {
     private int locCounter;
     private int procedureCount;
     private int procedureListCounter;
-    private boolean isValid;
     private boolean chosenType;
     private boolean chosenLocation;
-    private boolean chosenReusable;
     private boolean isAddSizeButtonClicked;
     private boolean chosenSite;
     private boolean checkEditTexts;
@@ -184,9 +169,6 @@ public class ItemDetailFragment extends Fragment {
     private boolean checkItemUsed;
     private boolean checkSingleUseButton;
     private boolean checkMultiUseButton;
-    private boolean isCountRead;
-    private boolean checkProcedureInfo;
-    private Button autoPopulateButton;
     private List<TextInputEditText> allSizeOptions;
     private ArrayList<String> TYPES;
     private ArrayList<String> SITELOC;
@@ -206,7 +188,6 @@ public class ItemDetailFragment extends Fragment {
     private final String NAME_KEY = "name";
     private final String TYPE_KEY = "equipment_type";
     private final String COMPANY_KEY = "company";
-    private final String DI_KEY = "di";
     private final String SITE_KEY = "site_name";
     private final String SPECIALTY_KEY = "medical_specialty";
     private final String DESCRIPTION_KEY = "device_description";
@@ -217,16 +198,9 @@ public class ItemDetailFragment extends Fragment {
     private final String ACCESSION_KEY = "accession_number";
     private final String PHYSICALLOC_KEY = "physical_location";
     private final String TIME_KEY = "current_time";
-    private final String DATE_KEY = "current_date";
-    private final String EXPIRATION_KEY = "expiration";
-    private final String ISUSED_KEY = "is_used";
-    private final String LOT_KEY = "lot_number";
-    private final String NOTE_KEY = "notes";
     private final String QUANTITY_KEY = "quantity";
     private final String SINGLEORMULTI_KEY = "single_multi";
-    private final String REFERENCE_KEY = "reference_number";
-    private final String UDI_KEY = "udi";
-    private String accessionNumber;
+
 
 
     @Override
@@ -236,7 +210,6 @@ public class ItemDetailFragment extends Fragment {
         final View rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
         myCalendar = Calendar.getInstance();
         parent = getActivity();
-        // TODO add "clear" option for some fields in xml
         linearLayout = rootView.findViewById(R.id.itemdetail_linearlayout);
         udiEditText = rootView.findViewById(R.id.detail_udi);
         nameEditText = rootView.findViewById(R.id.detail_name);
@@ -265,18 +238,17 @@ public class ItemDetailFragment extends Fragment {
         Button rescanButton = rootView.findViewById(R.id.detail_rescan_button);
         addProcedure = rootView.findViewById(R.id.button_addpatient);
         removeProcedure = rootView.findViewById(R.id.button_removepatient);
-        autoPopulateButton = rootView.findViewById(R.id.detail_autopop_button);
+        Button autoPopulateButton = rootView.findViewById(R.id.detail_autopop_button);
         useRadioGroup = rootView.findViewById(R.id.RadioGroup_id);
-        diLayout = rootView.findViewById(R.id.TextInputLayout_di);
+        TextInputLayout diLayout = rootView.findViewById(R.id.TextInputLayout_di);
         singleUseButton = rootView.findViewById(R.id.RadioButton_single);
         multiUse = rootView.findViewById(R.id.radio_multiuse);
-        numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
-        topToolBar = rootView.findViewById(R.id.topAppBar);
+        TextInputLayout numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
+        MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
 
         siteConstrainLayout = rootView.findViewById(R.id.site_linearlayout);
         physicalLocationConstrainLayout= rootView.findViewById(R.id.physicalLocationLinearLayout);
         typeConstrainLayout= rootView.findViewById(R.id.typeLinearLayout);
-        chosenReusable = false;
         chosenType = false;
         chosenSite = false;
         chosenLocation = false;
@@ -285,19 +257,13 @@ public class ItemDetailFragment extends Fragment {
         checkItemUsed = false;
         checkSingleUseButton = false;
         checkMultiUseButton = false;
-        checkProcedureInfo = false;
-        isCountRead = false;
-        isValid = false;
+        isAddSizeButtonClicked = true;
         itemUsed.setChecked(false);
         saveButton.setEnabled(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
         itemUsedFields = rootView.findViewById(R.id.layout_itemused);
         itemUsedFields.setVisibility(View.GONE);
-        isAddSizeButtonClicked = true;
         specsTextView = rootView.findViewById(R.id.detail_specs_textview);
-        typeInputLayout = rootView.findViewById(R.id.typeInputLayout);
-        siteLocationLayout = rootView.findViewById(R.id.siteLocationLayout);
-        physLocationLayout = rootView.findViewById(R.id.physicalLocationLayout);
         usageHeader = rootView.findViewById(R.id.detail_usage_textview);
         allSizeOptions = new ArrayList<>();
         TYPES = new ArrayList<>();
@@ -307,6 +273,41 @@ public class ItemDetailFragment extends Fragment {
         procedureDoc = new ArrayList<>();
         numberUsedList = new ArrayList<>();
 
+        mAuth = FirebaseAuth.getInstance();
+        String userId = mAuth.getCurrentUser().getUid();
+
+        // Get user information in "users" collection
+        final DocumentReference currentUserRef = usersRef.document(userId);
+        currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                String toastMessage;
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        try {
+                            //TODO Davit update database paths with these variables
+                            mNetworkId = document.get("network_id").toString();
+//                            mNetworkName = document.get("network_name").toString();
+                            mHospitalId = document.get("hospital_id").toString();
+//                            mHospitalName = document.get("hospital_name").toString();
+
+                        } catch (NullPointerException e) {
+                            toastMessage = "Error retrieving user information; Please contact support";
+                            Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        // document for user doesn't exist
+                        toastMessage = "User not found; Please contact support";
+                        Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    toastMessage = "User lookup failed; Please try again and contact support if issue persists";
+                    Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
 
 
         // NumberPicker Dialog for NumberAdded field
@@ -322,7 +323,7 @@ public class ItemDetailFragment extends Fragment {
         numberAddedLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                incrementNumberAdded(rootView);
+                incrementNumberAdded();
             }
         });
 
@@ -331,7 +332,7 @@ public class ItemDetailFragment extends Fragment {
         diLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                autoPopulateFromDatabase(view, deviceIdentifier.getText().toString().trim());
+                autoPopulateFromDatabase(view, Objects.requireNonNull(deviceIdentifier.getText()).toString().trim());
             }
         });
 
@@ -415,7 +416,7 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (procedureFieldAdded - procedureListCounter > 0) {
-                    removeAccessionNumber(view,itemUsedFields);
+                    removeAccessionNumber(itemUsedFields);
                     itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addProcedure) - 1);
                     numberUsedList.remove(numberUsedList.size() - 1);
                     --procedureFieldAdded;
@@ -429,11 +430,6 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    //temporary start
-                    List<List<String>> test = new ArrayList<>();
-                 //   addProcedureInfoFields(test, rootView);
-                    //temporary end
-
                     checkItemUsed = true;
                     saveButton.setEnabled(false);
                     itemUsedFields.setVisibility(View.VISIBLE);
@@ -529,7 +525,7 @@ public class ItemDetailFragment extends Fragment {
         mTimePicker = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                timeIn.setText(String.format(Locale.US, "%d:%d:00", selectedHour, selectedMinute));
+                timeIn.setText(String.format(Locale.US, "%02d:%02d:00", selectedHour, selectedMinute));
             }
         }, hour, minute, true);
         mTimePicker.setTitle("Select Time");
@@ -569,7 +565,7 @@ public class ItemDetailFragment extends Fragment {
         physicalLocation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                addNewLoc(adapterView, view, i, l);
+                addNewLoc(adapterView, view, i);
             }
         });
 
@@ -610,7 +606,7 @@ public class ItemDetailFragment extends Fragment {
         hospitalName.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                addNewSite(adapterView, view, i, l);
+                addNewSite(adapterView, view, i);
             }
         });
 
@@ -626,6 +622,7 @@ public class ItemDetailFragment extends Fragment {
                 }
                 if (documentSnapshot != null && documentSnapshot.exists()) {
                     Map<String, Object> typeObj = documentSnapshot.getData();
+                    assert typeObj != null;
                     typeCounter = typeObj.size();
                     for (Object value : typeObj.values()) {
                         if (!TYPES.contains(value.toString())) {
@@ -650,7 +647,7 @@ public class ItemDetailFragment extends Fragment {
         equipmentType.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                addTypeOptionField(adapterView, view, i, l);
+                addTypeOptionField(adapterView, view, i);
 
             }
         });
@@ -692,7 +689,7 @@ public class ItemDetailFragment extends Fragment {
                         checkEditTexts = true;
                         continue;
                     }
-                    if (Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()) { ;
+                    if (Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()) {
                         checkEditTexts = false;
                         break;
                     }
@@ -749,7 +746,7 @@ public class ItemDetailFragment extends Fragment {
 
 
 
-    private void setIconsAndDialogs(View view, final TextInputEditText procedureDateEditText){
+    private void setIconsAndDialogs(final TextInputEditText procedureDateEditText){
         final DatePickerDialog.OnDateSetListener date_proc = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
@@ -776,23 +773,23 @@ public class ItemDetailFragment extends Fragment {
 
     }
 
-    private void incrementNumberUsed(View view,TextInputEditText numberUsed){
+    private void incrementNumberUsed(TextInputEditText numberUsed){
         int newNumber = 0;
         try {
             newNumber = Integer.parseInt(Objects.requireNonNull(numberUsed.getText()).toString());
         }catch (NumberFormatException e){
-            newNumber = 0;
+            Log.d(TAG,e.toString());
         }finally {
             numberUsed.setText(String.valueOf(++newNumber));
         }
     }
 
-    private void incrementNumberAdded(View view){
+    private void incrementNumberAdded(){
         int newNumber = 0;
         try {
             newNumber = Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
         }catch (NumberFormatException e){
-            newNumber = 0;
+            Log.d(TAG,e.toString());
         }finally {
             numberAdded.setText(String.valueOf(++newNumber));
         }
@@ -804,9 +801,9 @@ public class ItemDetailFragment extends Fragment {
         final Dialog d = new Dialog(view.getContext());
         d.setTitle("NumberPicker");
         d.setContentView(R.layout.dialog);
-        Button b1 = (Button) d.findViewById(R.id.button1);
-        Button b2 = (Button) d.findViewById(R.id.button2);
-        final NumberPicker np = (NumberPicker) d.findViewById(R.id.numberPicker1);
+        Button b1 = d.findViewById(R.id.button1);
+        Button b2 = d.findViewById(R.id.button2);
+        final NumberPicker np = d.findViewById(R.id.numberPicker1);
         np.setMaxValue(1000); // max value 100
         np.setMinValue(0);   // min value 0
 
@@ -861,8 +858,7 @@ public class ItemDetailFragment extends Fragment {
         procedureDateLayout.setEndIconDrawable(R.drawable.calendar);
         procedureDateLayout.setPadding(0, 10, 0, 0);
         final TextInputEditText procedureDateEditText = new TextInputEditText(procedureDateLayout.getContext());
-        setIconsAndDialogs(view,procedureDateEditText);
-        procedureDateEditTextId = procedureDateEditText.getId();
+        setIconsAndDialogs(procedureDateEditText);
         procedureDateEditText.setFocusable(false);
         procedureDateEditText.setClickable(true);
         procedureDateEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
@@ -888,7 +884,7 @@ public class ItemDetailFragment extends Fragment {
                 mTimePicker = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                        procedureTimeEditText.setText(String.format(Locale.US, "%d:%d:00", selectedHour, selectedMinute));
+                        procedureTimeEditText.setText(String.format(Locale.US, "%02d:%02d:00", selectedHour, selectedMinute));
                     }
                 }, hour, minute, true);
                 mTimePicker.setTitle("Select Time");
@@ -899,8 +895,7 @@ public class ItemDetailFragment extends Fragment {
         procedureTimeLayout.addView(procedureTimeEditText);
 
 
-
-        procedureNameLayout = (TextInputLayout) View.inflate(view.getContext(),
+        TextInputLayout procedureNameLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureNameLayout.setHint("Enter Procedure");
         procedureNameLayout.setPadding(0, 10, 0, 0);
@@ -908,8 +903,7 @@ public class ItemDetailFragment extends Fragment {
         procedureNameEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
 
-
-        accessionNumberLayout = (TextInputLayout) View.inflate(view.getContext(),
+        TextInputLayout accessionNumberLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
         accessionNumberLayout.setHint("Enter Accession Number");
         accessionNumberLayout.setPadding(0, 10, 0, 10);
@@ -934,12 +928,11 @@ public class ItemDetailFragment extends Fragment {
         final TextInputEditText numberUsedEditText = new TextInputEditText(procedureNameLayout.getContext());
         numberUsedEditText.setId(View.generateViewId());
         numberUsedList.add(numberUsedEditText);
-        numberUsedEditTextId = numberUsedEditText.getId();
         // incrementing number by 1 when clicked on the end icon
         numberUsedLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                incrementNumberUsed(view,numberUsedEditText);
+                incrementNumberUsed(numberUsedEditText);
             }
         });
         numberUsedEditText.setOnClickListener(new View.OnClickListener() {
@@ -969,15 +962,15 @@ public class ItemDetailFragment extends Fragment {
             public void afterTextChanged(Editable editable) {
                 // saving string to HashMap to save it to database
                 procedureInfoMap.put(PROCEDURE_KEY,
-                        procedureNameEditText.getText().toString());
+                        Objects.requireNonNull(procedureNameEditText.getText()).toString());
                 procedureInfoMap.put(PROCEDUREDATE_KEY,
-                        procedureDateEditText.getText().toString());
+                        Objects.requireNonNull(procedureDateEditText.getText()).toString());
                 procedureInfoMap.put(AMOUNTUSED_KEY,
-                        numberUsedEditText.getText().toString());
+                        Objects.requireNonNull(numberUsedEditText.getText()).toString());
                 procedureInfoMap.put(ACCESSION_KEY,
-                        accessionNumberEditText.getText().toString());
+                        Objects.requireNonNull(accessionNumberEditText.getText()).toString());
                 procedureInfoMap.put(TIME_KEY,
-                        procedureTimeEditText.getText().toString());
+                        Objects.requireNonNull(procedureTimeEditText.getText()).toString());
                 for(TextInputEditText text : new TextInputEditText[]{
                         procedureDateEditText,procedureNameEditText,
                         accessionNumberEditText,numberUsedEditText,
@@ -1022,10 +1015,11 @@ public class ItemDetailFragment extends Fragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
+                    assert document != null;
                     if (document.exists()) {
                         generateNewNumber(view,accessionNumberEditText);
                     } else {
-                        setAccessionNumber(view,accessionNumberEditText,accessionNum);
+                        setAccessionNumber(accessionNumberEditText,accessionNum);
                     }
                 } else {
                     Log.d(TAG, "Failed with: ", task.getException());
@@ -1060,7 +1054,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
     //sets accession number and save it to the database
-    public void setAccessionNumber(View view, TextInputEditText accessionNumberEditText,String accessionNumber){
+    public void setAccessionNumber(TextInputEditText accessionNumberEditText, String accessionNumber){
         accessionNumberEditText.setText((accessionNumber));
         Map<String, Object> data = new HashMap<>();
         data.put("accession_number", accessionNumber);
@@ -1083,7 +1077,7 @@ public class ItemDetailFragment extends Fragment {
     }
     // removes the accession number from the database if users removes
     // newly added procedure info fields
-    private void removeAccessionNumber(View view,LinearLayout itemUsedFields){
+    private void removeAccessionNumber(LinearLayout itemUsedFields){
         LinearLayout procedureInfo = (LinearLayout) itemUsedFields.getChildAt((itemUsedFields.indexOfChild(addProcedure))-1);
         TextInputLayout accessionNumLayout = procedureInfo.findViewWithTag("accession");
         TextInputEditText accessionNumEditText =  accessionNumLayout.findViewWithTag("accession_text");
@@ -1166,7 +1160,7 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                removeEmptySizeOption(view);
+                removeEmptySizeOption();
 
             }
         });
@@ -1174,7 +1168,7 @@ public class ItemDetailFragment extends Fragment {
 
     }
     //removes one row of size text entry
-    private void removeEmptySizeOption(View view) {
+    private void removeEmptySizeOption() {
         if (emptySizeFieldCounter > 0) {
             linearLayout.removeViewAt(linearLayout.indexOfChild(specsTextView) + --rowLoc);
             emptySizeFieldCounter--;
@@ -1193,6 +1187,8 @@ public class ItemDetailFragment extends Fragment {
     }
     private void addItemSpecs(String key,String value, View view){
         Log.d(TAG, "Adding item specs!");
+
+
         GridLayout gridLayoutSize = new GridLayout(view.getContext());
         GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
         paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -1226,7 +1222,6 @@ public class ItemDetailFragment extends Fragment {
         sizeValue.setText(value);
         sizeValue.setFocusable(false);
 
-
         sizeKey.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
         sizeKeyLayout.addView(sizeKey);
         sizeValue.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
@@ -1243,9 +1238,9 @@ public class ItemDetailFragment extends Fragment {
 
 
     // adds new text field if users choose "other" for type
-    private void addTypeOptionField(final AdapterView<?> adapterView, View view, int i, long l) {
+    private void addTypeOptionField(final AdapterView<?> adapterView, View view, int i) {
         String selected = (String) adapterView.getItemAtPosition(i);
-        TextInputLayout other_type_layout = null;
+        TextInputLayout other_type_layout;
         if (selected.equals("Other")) {
             saveButton.setEnabled(false);
             chosenType = true;
@@ -1289,7 +1284,7 @@ public class ItemDetailFragment extends Fragment {
             submit_otherType.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(view.getContext(), otherType_text.getText().toString(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(view.getContext(), Objects.requireNonNull(otherType_text.getText()).toString(), Toast.LENGTH_SHORT).show();
                     Map<String, Object> newType = new HashMap<>();
                     newType.put("type_" + typeCounter, otherType_text.getText().toString());
                     typeRef.update(newType)
@@ -1309,7 +1304,7 @@ public class ItemDetailFragment extends Fragment {
 
                 }
             });
-        } else if (chosenType && (!(selected.equals("Other")))) {
+        } else if (chosenType) {
             chosenType = false;
             if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
                 saveButton.setEnabled(true);
@@ -1319,9 +1314,9 @@ public class ItemDetailFragment extends Fragment {
     }
 
 
-    private void addNewSite(final AdapterView<?> adapterView, View view, int i, long l) {
+    private void addNewSite(final AdapterView<?> adapterView, View view, int i) {
         String selected = (String) adapterView.getItemAtPosition(i);
-        TextInputLayout other_site_layout = null;
+        TextInputLayout other_site_layout;
         if (selected.equals("Other")) {
             saveButton.setEnabled(false);
             chosenSite = true;
@@ -1365,7 +1360,7 @@ public class ItemDetailFragment extends Fragment {
             submitOtherSite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(view.getContext(), otherSite_text.getText().toString(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(view.getContext(), Objects.requireNonNull(otherSite_text.getText()).toString(), Toast.LENGTH_SHORT).show();
                     Map<String, Object> newType = new HashMap<>();
                     newType.put("site_" + siteCounter, otherSite_text.getText().toString());
                     siteRef.update(newType)
@@ -1384,7 +1379,7 @@ public class ItemDetailFragment extends Fragment {
                             });
                 }
             });
-        } else if (chosenSite && (!(selected.equals("Other")))) {
+        } else if (chosenSite) {
             if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
                 saveButton.setEnabled(true);
             }
@@ -1393,7 +1388,7 @@ public class ItemDetailFragment extends Fragment {
         }
     }
 
-    private void addNewLoc(final AdapterView<?> adapterView, View view, int i, long l) {
+    private void addNewLoc(final AdapterView<?> adapterView, View view, int i) {
         String selectedLoc = (String) adapterView.getItemAtPosition(i);
         final TextInputLayout other_physicaloc_layout;
         if (selectedLoc.equals("Other")) {
@@ -1439,7 +1434,7 @@ public class ItemDetailFragment extends Fragment {
             submit_otherPhysicalLoc.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(view.getContext(), otherPhysicalLoc_text.getText().toString(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(view.getContext(), Objects.requireNonNull(otherPhysicalLoc_text.getText()).toString(), Toast.LENGTH_SHORT).show();
                     Map<String, Object> newType = new HashMap<>();
                     newType.put("loc_" + locCounter, otherPhysicalLoc_text.getText().toString());
                     physLocRef.update(newType)
@@ -1458,7 +1453,7 @@ public class ItemDetailFragment extends Fragment {
                             });
                 }
             });
-        } else if (chosenLocation && (!(selectedLoc.equals("Other")))) {
+        } else if (chosenLocation) {
             if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
                 saveButton.setEnabled(true);
             }
@@ -1487,7 +1482,6 @@ public class ItemDetailFragment extends Fragment {
         String currentDate_str = Objects.requireNonNull(dateIn.getText()).toString();
         int quantity_int;
         String number_added_str = "0";
-        TextInputEditText numberUsedEditText = view.findViewById(numberUsedEditTextId);
         int totalUsed = 0;
         for(int i = 0; i < numberUsedList.size(); i++){
             totalUsed += Integer.parseInt(Objects.requireNonNull(numberUsedList.get(i).getText()).toString());
@@ -1503,13 +1497,13 @@ public class ItemDetailFragment extends Fragment {
                     Integer.parseInt(numberAdded.getText().toString()));
         }
         String quantity_str = String.valueOf(quantity_int);
-        String site_name_str = "";
+        String site_name_str;
         if (chosenSite) {
             site_name_str = Objects.requireNonNull(otherSite_text.getText()).toString();
         } else {
             site_name_str = hospitalName.getText().toString();
         }
-        String physical_location_str = "";
+        String physical_location_str;
         if (chosenLocation) {
             physical_location_str = Objects.requireNonNull(otherPhysicalLoc_text.getText()).toString().trim();
         } else {
@@ -1533,6 +1527,7 @@ public class ItemDetailFragment extends Fragment {
         diDoc.put(NAME_KEY, name_str);
         diDoc.put(TYPE_KEY, type_str);
         diDoc.put(COMPANY_KEY, company_str);
+        String DI_KEY = "di";
         diDoc.put(DI_KEY, di_str);
         diDoc.put(SITE_KEY, site_name_str);
         diDoc.put(DESCRIPTION_KEY, description_str);
@@ -1637,8 +1632,8 @@ public class ItemDetailFragment extends Fragment {
             int i = 0;
             Map<String, Object> sizeOptions = new HashMap<>();
             while (i < allSizeOptions.size()) {
-                sizeOptions.put(allSizeOptions.get(i++).getText().toString().trim(),
-                        allSizeOptions.get(i++).getText().toString().trim());
+                sizeOptions.put(Objects.requireNonNull(allSizeOptions.get(i++).getText()).toString().trim(),
+                        Objects.requireNonNull(allSizeOptions.get(i++).getText()).toString().trim());
             }
             diRef.update(sizeOptions)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -1661,7 +1656,7 @@ public class ItemDetailFragment extends Fragment {
     private void autoPopulate(final DocumentReference siteDocRef, final View view) {
 
 
-        final String udiStr = udiEditText.getText().toString();
+        final String udiStr = Objects.requireNonNull(udiEditText.getText()).toString();
         Log.d(TAG, udiStr);
 
         // Instantiate the RequestQueue.
@@ -1676,7 +1671,7 @@ public class ItemDetailFragment extends Fragment {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        JSONObject responseJson = null;
+                        JSONObject responseJson;
                         try {
                             responseJson = new JSONObject(response);
 
@@ -1685,12 +1680,12 @@ public class ItemDetailFragment extends Fragment {
                             JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
                             JSONObject udi = responseJson.getJSONObject("udi");
                             JSONArray productCodes = responseJson.getJSONArray("productCodes");
-                            String medicalSpecialties = "";
+                            StringBuilder medicalSpecialties = new StringBuilder();
                             for (int i = 0; i < productCodes.length(); i++) {
-                                medicalSpecialties += productCodes.getJSONObject(i).getString("medicalSpecialty");
-                                medicalSpecialties += "; ";
+                                medicalSpecialties.append(productCodes.getJSONObject(i).getString("medicalSpecialty"));
+                                medicalSpecialties.append("; ");
                             }
-                            medicalSpecialties = medicalSpecialties.substring(0, medicalSpecialties.length() - 2);
+                            medicalSpecialties = new StringBuilder(medicalSpecialties.substring(0, medicalSpecialties.length() - 2));
 
                             lotNumber.setText(udi.getString("lotNumber"));
                             lotNumber.setFocusable(false);
@@ -1708,7 +1703,6 @@ public class ItemDetailFragment extends Fragment {
 
 
                             nameEditText.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
-
                             nameEditText.setFocusable(false);
 
                             deviceDescription.setText(deviceInfo.getString("deviceDescription"));
@@ -1719,7 +1713,7 @@ public class ItemDetailFragment extends Fragment {
 
                             referenceNumber.setFocusable(false);
 
-                            medicalSpeciality.setText(medicalSpecialties);
+                            medicalSpeciality.setText(medicalSpecialties.toString());
                             medicalSpeciality.setFocusable(false);
 
 
@@ -1789,7 +1783,7 @@ public class ItemDetailFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                updateProcedureFieldAdded(udiStr, deviceIdentifier.getText().toString());
+                updateProcedureFieldAdded(udiStr, Objects.requireNonNull(deviceIdentifier.getText()).toString());
 
             }
         };
@@ -1811,6 +1805,7 @@ public class ItemDetailFragment extends Fragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
+                    assert document != null;
                     if (document.exists()) {
                         if(document.get("procedure_number") != null){
                             procedureFieldAdded = Integer.parseInt(
@@ -1860,11 +1855,13 @@ public class ItemDetailFragment extends Fragment {
             e.printStackTrace();
         }
 
+        assert udiDocRef != null;
         udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
+                    assert document != null;
                     if (document.exists()) {
                         if(document.get("procedure_number") != null){
                             procedureCount = Integer.parseInt(
@@ -1886,11 +1883,13 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
+        assert diDocRef != null;
         diDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
+                    assert document != null;
                     if (document.exists()) {
                         if(document.get(TYPE_KEY) != null){
                             equipmentType.setText(document.getString(TYPE_KEY));
@@ -1903,6 +1902,15 @@ public class ItemDetailFragment extends Fragment {
                             diQuantity = document.getString(QUANTITY_KEY);
                         }else{
                             diQuantity = "0";
+                        }if(document.get(USAGE_KEY) != null){
+                            String usage = document.getString(USAGE_KEY);
+                            System.out.println("usage is" + usage);
+                            assert usage != null;
+                            if(usage.equals("Single Use")){
+                                singleUseButton.setChecked(true);
+                            }else if(usage.equals("Ruesable")){
+                                multiUse.setChecked(true);
+                            }
                         }
                     } else {
                         diQuantity = "0";
@@ -1920,6 +1928,7 @@ public class ItemDetailFragment extends Fragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
+                    assert document != null;
                     if (document.exists()) {
                         if(document.get("quantity") != null) {
                             itemQuantity = document.getString(QUANTITY_KEY);
@@ -1964,6 +1973,7 @@ public class ItemDetailFragment extends Fragment {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
+                            assert document != null;
                             if (document.exists()) {
                                 Map<String, Object> map = document.getData();
                                 if (map != null) {
@@ -1991,79 +2001,253 @@ public class ItemDetailFragment extends Fragment {
     // need to create procedure info fields for each procedure.
     // data is already queried.
     private void addProcedureInfoFields(final List<List<String>> procedureDoc, View view){
+        int i;
         System.out.println(procedureDoc);
 
         final LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
         procedureInfoLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         procedureInfoLayout.setOrientation(LinearLayout.VERTICAL);
-        GridLayout procedureInfo = new GridLayout(view.getContext());;
+
+        for(i = 0; i < procedureDoc.size(); i++){
+            final GridLayout procedureInfo = new GridLayout(view.getContext());
+            GridLayout.LayoutParams procedureDateParams = new GridLayout.LayoutParams();
+            procedureDateParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            procedureDateParams.width = (((View) view.getParent()).getWidth())/2;
+            procedureDateParams.rowSpec = GridLayout.spec(i);
+            procedureDateParams.columnSpec = GridLayout.spec(0);
+            procedureDateParams.setMargins(0, 0, 0, 5);
+            TextInputLayout procedureDateHeader = (TextInputLayout) View.inflate(view.getContext(),
+                    R.layout.activity_itemdetail_materialcomponent, null);
+            procedureDateHeader.setLayoutParams(procedureDateParams);
+
+            TextInputEditText dateKey = new TextInputEditText(procedureDateHeader.getContext());
+            dateKey.setText(R.string.procedureDate_lbl);
+            dateKey.setClickable(false);
+            dateKey.setFocusable(false);
+            procedureDateHeader.addView(dateKey);
 
 
-        GridLayout.LayoutParams procedureDateParams = new GridLayout.LayoutParams();
-        procedureDateParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureDateParams.width = (((View) view.getParent()).getWidth())/2;
-        procedureDateParams.rowSpec = GridLayout.spec(0);
-        procedureDateParams.columnSpec = GridLayout.spec(0);
-        procedureDateParams.setMargins(0, 0, 0, 5);
-        TextInputLayout procedureDateHeader = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureDateHeader.setLayoutParams(procedureDateParams);
+            GridLayout.LayoutParams procedureParams = new GridLayout.LayoutParams();
+            procedureParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            procedureParams.width = (((View) view.getParent()).getWidth())/2;
+            procedureParams.rowSpec = GridLayout.spec(i);
+            procedureParams.columnSpec = GridLayout.spec(1);
+            procedureParams.setMargins(0, 0, 0, 5);
+            final TextInputLayout procedureDateText = (TextInputLayout) View.inflate(view.getContext(),
+                    R.layout.activity_itemdetail_materialcomponent, null);
+            procedureDateText.setLayoutParams(procedureParams);
 
-        TextInputEditText dateKey = new TextInputEditText(procedureDateHeader.getContext());
-        dateKey.setText("Procedure Date");
-        dateKey.setClickable(false);
-        dateKey.setFocusable(false);
-        procedureDateHeader.addView(dateKey);
+            TextInputEditText dateText = new TextInputEditText(procedureDateText.getContext());
+            dateText.setText(procedureDoc.get(i).get(3));
+
+            dateText.setFocusable(false);
+            procedureDateText.addView(dateText);
+            procedureDateText.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
+            procedureDateText.setEndIconDrawable(R.drawable.ic_baseline_plus);
+            procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
+                    getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
+
+            procedureInfo.addView(procedureDateHeader);
+            procedureInfo.addView(procedureDateText);
+            procedureInfoLayout.addView(procedureInfo);
+
+            final boolean[] isMaximized = {false};
+
+            final int finalI = i;
+            procedureDateText.setEndIconOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(isMaximized[0]){
+                        procedureInfoLayout.getChildAt((procedureInfoLayout.indexOfChild(procedureInfo)) + 1).setVisibility(View.GONE);
+                        procedureDateText.setEndIconDrawable(R.drawable.ic_baseline_plus);
+                        procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
+                                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
+                        isMaximized[0] = false;
 
 
-        GridLayout.LayoutParams procedureParams = new GridLayout.LayoutParams();
-        procedureParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureParams.width = (((View) view.getParent()).getWidth())/2;
-        procedureParams.rowSpec = GridLayout.spec(0);
-        procedureParams.columnSpec = GridLayout.spec(1);
-        procedureParams.setMargins(0, 0, 0, 5);
-        final TextInputLayout procedureDateText = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureDateText.setLayoutParams(procedureParams);
+                    }else{
+                        addProcedureSubFields(procedureInfoLayout,view,procedureDoc, finalI,procedureInfo);
+                        procedureDateText.setEndIconDrawable(R.drawable.ic_remove_minimize);
+                        procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
+                                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
+                        isMaximized[0] = true;
 
-        TextInputEditText dateText = new TextInputEditText(procedureDateText.getContext());
-        dateText.setText("2020/09/09");
-        dateText.setFocusable(false);
-        procedureDateText.addView(dateText);
-        procedureDateText.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
-        procedureDateText.setEndIconDrawable(R.drawable.ic_baseline_plus);
-        procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
-                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
-
-        final boolean[] isMaximized = {false};
-
-        procedureDateText.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(isMaximized[0]){
-                    procedureDateText.setEndIconDrawable(R.drawable.ic_baseline_plus);
-                    procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
-                            getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
-                    isMaximized[0] = false;
-                    addProcedureSubFields(procedureInfoLayout,view,procedureDoc);
-                }else{
-                    procedureDateText.setEndIconDrawable(R.drawable.ic_remove_minimize);
-                    procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
-                            getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
-                    isMaximized[0] = true;
+                    }
                 }
-            }
-        });
+            });
 
-        procedureInfo.addView(procedureDateHeader);
-        procedureInfo.addView(procedureDateText);
-        procedureInfoLayout.addView(procedureInfo);
+
+
+        }
+
         linearLayout.addView(procedureInfoLayout,linearLayout.indexOfChild(usageHeader) +   1);
 
     }
 
-    private void addProcedureSubFields(LinearLayout procedureInfoLayout, View view, List<List<String>> procedureDoc){
+    private void addProcedureSubFields(LinearLayout procedureInfoLayout, View view,
+                                       List<List<String>> procedureDoc, int item, GridLayout procedureInfo){
+        LinearLayout subFieldsLayout = new LinearLayout(view.getContext());
+        subFieldsLayout.setOrientation(LinearLayout.VERTICAL);
+
+        GridLayout procedureName = new GridLayout(view.getContext());
+        procedureName.setColumnCount(2);
+        procedureName.setRowCount(1);
+        GridLayout.LayoutParams procedureNameHeaderParams = new GridLayout.LayoutParams();
+        procedureNameHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureNameHeaderParams.width = linearLayout.getWidth()/2;
+        procedureNameHeaderParams.rowSpec = GridLayout.spec(0);
+        procedureNameHeaderParams.columnSpec = GridLayout.spec(0);
+        procedureNameHeaderParams.setMargins(0, 0, 0, 5);
+        TextInputLayout procedureNameHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureNameHeaderLayout.setLayoutParams(procedureNameHeaderParams);
+        TextInputEditText procedureNameHeaderEditText = new TextInputEditText(procedureNameHeaderLayout.getContext());
+        procedureNameHeaderEditText.setText(R.string.procedureName_lbl);
+        procedureNameHeaderLayout.addView(procedureNameHeaderEditText);
+        procedureNameHeaderEditText.setFocusable(false);
+
+
+        GridLayout.LayoutParams procedureNameParams = new GridLayout.LayoutParams();
+        procedureNameParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureNameParams.width = linearLayout.getWidth()/2;
+        procedureNameParams.rowSpec = GridLayout.spec(0);
+        procedureNameParams.columnSpec = GridLayout.spec(1);
+        procedureNameParams.setMargins(0, 0, 0, 5);
+        TextInputLayout procedureNameLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureNameLayout.setLayoutParams(procedureNameParams);
+        TextInputEditText procedureNameEditText = new TextInputEditText(procedureNameLayout.getContext());
+        procedureNameEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
+        procedureNameHeaderEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
+        procedureNameEditText.setText(procedureDoc.get(item).get(1));
+        procedureNameLayout.addView(procedureNameEditText);
+        procedureNameEditText.setFocusable(false);
+        procedureName.addView(procedureNameHeaderLayout);
+        procedureName.addView(procedureNameLayout);
+
+
+        GridLayout procedureTime = new GridLayout(view.getContext());
+        procedureTime.setColumnCount(2);
+        procedureTime.setRowCount(1);
+        GridLayout.LayoutParams procedureTimeHeaderParams = new GridLayout.LayoutParams();
+        procedureTimeHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureTimeHeaderParams.width = linearLayout.getWidth()/2;
+        procedureTimeHeaderParams.rowSpec = GridLayout.spec(0);
+        procedureTimeHeaderParams.columnSpec = GridLayout.spec(0);
+        procedureTimeHeaderParams.setMargins(0, 0, 0, 5);
+        TextInputLayout procedureTimeHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureTimeHeaderLayout.setLayoutParams(procedureTimeHeaderParams);
+        TextInputEditText procedureTimeHeaderEditText = new TextInputEditText(procedureTimeHeaderLayout.getContext());
+        procedureTimeHeaderEditText.setText(R.string.procedureTime_lbl);
+        procedureTimeHeaderLayout.addView(procedureTimeHeaderEditText);
+        procedureTimeHeaderEditText.setFocusable(false);
+
+        GridLayout.LayoutParams procedureTimeParams = new GridLayout.LayoutParams();
+        procedureTimeParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureTimeParams.width = linearLayout.getWidth()/2;
+        procedureTimeParams.rowSpec = GridLayout.spec(0);
+        procedureTimeParams.columnSpec = GridLayout.spec(1);
+        procedureTimeParams.setMargins(0, 0, 0, 5);
+
+        TextInputLayout procedureTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureTimeLayout.setLayoutParams(procedureTimeParams);
+        TextInputEditText procedureTimeEditText = new TextInputEditText(procedureTimeLayout.getContext());
+        procedureTimeEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
+        procedureTimeHeaderEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
+        procedureTimeEditText.setText(procedureDoc.get(item).get(4));
+        procedureTimeLayout.addView(procedureTimeEditText);
+        procedureTimeEditText.setFocusable(false);
+        procedureTime.addView(procedureTimeHeaderLayout);
+        procedureTime.addView(procedureTimeLayout);
+
+
+
+        GridLayout procedureAccession = new GridLayout(view.getContext());
+        procedureAccession.setColumnCount(2);
+        procedureAccession.setRowCount(1);
+        GridLayout.LayoutParams procedureAccessionHeaderParams = new GridLayout.LayoutParams();
+        procedureAccessionHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureAccessionHeaderParams.width = linearLayout.getWidth()/2;
+        procedureAccessionHeaderParams.rowSpec = GridLayout.spec(0);
+        procedureAccessionHeaderParams.columnSpec = GridLayout.spec(0);
+        procedureAccessionHeaderParams.setMargins(0, 0, 0, 5);
+        TextInputLayout accessionHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        accessionHeaderLayout.setLayoutParams(procedureAccessionHeaderParams);
+        TextInputEditText accessionHeaderEditText = new TextInputEditText(accessionHeaderLayout.getContext());
+        accessionHeaderEditText.setText(R.string.AccessionNumber_lbl);
+        accessionHeaderLayout.addView(accessionHeaderEditText);
+        accessionHeaderEditText.setFocusable(false);
+
+
+        GridLayout.LayoutParams procedureAccessionParams = new GridLayout.LayoutParams();
+        procedureAccessionParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureAccessionParams.width = linearLayout.getWidth()/2;
+        procedureAccessionParams.rowSpec = GridLayout.spec(0);
+        procedureAccessionParams.columnSpec = GridLayout.spec(1);
+        procedureAccessionParams.setMargins(0, 0, 0, 5);
+        TextInputLayout accessionLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        accessionLayout.setLayoutParams(procedureAccessionParams);
+        TextInputEditText accessionEditText = new TextInputEditText(accessionLayout.getContext());
+        accessionEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
+        accessionHeaderEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
+        accessionEditText.setText(procedureDoc.get(item).get(0));
+        accessionLayout.addView(accessionEditText);
+        accessionEditText.setFocusable(false);
+        procedureAccession.addView(accessionHeaderLayout);
+        procedureAccession.addView(accessionLayout);
+
+        GridLayout procedureItemUsed = new GridLayout(view.getContext());
+        procedureItemUsed.setColumnCount(2);
+        procedureItemUsed.setRowCount(1);
+
+        GridLayout.LayoutParams procedureItemUsedHeader = new GridLayout.LayoutParams();
+        procedureItemUsedHeader.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureItemUsedHeader.width = linearLayout.getWidth()/2;
+        procedureItemUsedHeader.rowSpec = GridLayout.spec(0);
+        procedureItemUsedHeader.columnSpec = GridLayout.spec(0);
+        procedureItemUsedHeader.setMargins(0, 0, 0, 5);
+        TextInputLayout itemUsedHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        itemUsedHeaderLayout.setLayoutParams(procedureItemUsedHeader);
+        TextInputEditText itemUsedHeaderEditText = new TextInputEditText(itemUsedHeaderLayout.getContext());
+        itemUsedHeaderEditText.setText(R.string.itemsUsed_lbl);
+        itemUsedHeaderLayout.addView(itemUsedHeaderEditText);
+        itemUsedHeaderEditText.setFocusable(false);
+
+
+        GridLayout.LayoutParams procedureItemUsedLayout = new GridLayout.LayoutParams();
+        procedureItemUsedLayout.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureItemUsedLayout.width = linearLayout.getWidth()/2;
+        procedureItemUsedLayout.rowSpec = GridLayout.spec(0);
+        procedureItemUsedLayout.columnSpec = GridLayout.spec(1);
+        procedureItemUsedLayout.setMargins(0, 0, 0, 5);
+        TextInputLayout itemUsedLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        TextInputEditText itemUsedEditText = new TextInputEditText(itemUsedLayout.getContext());
+        itemUsedEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
+        itemUsedHeaderEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
+        itemUsedLayout.setLayoutParams(procedureItemUsedLayout);
+        itemUsedEditText.setText(procedureDoc.get(item).get(2));
+        itemUsedLayout.addView(itemUsedEditText);
+        itemUsedEditText.setFocusable(false);
+
+        procedureItemUsed.addView(itemUsedHeaderLayout);
+        procedureItemUsed.addView(itemUsedLayout);
+
+
+        subFieldsLayout.addView(procedureName);
+        subFieldsLayout.addView(procedureTime);
+        subFieldsLayout.addView(procedureAccession);
+        subFieldsLayout.addView(procedureItemUsed);
+        procedureInfoLayout.addView(subFieldsLayout,(procedureInfoLayout.indexOfChild(procedureInfo))+1);
+
+
+
 
     }
     private void autoPopulateFromDatabase(final View view, String di) {
@@ -2080,6 +2264,7 @@ public class ItemDetailFragment extends Fragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
+                    assert document != null;
                     if (document.exists()) {
                         quantity.setText("0");
                         company.setText(document.getString(COMPANY_KEY));

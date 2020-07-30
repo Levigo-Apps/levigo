@@ -17,6 +17,7 @@
 package com.levigo.levigoapp;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -32,8 +33,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -67,6 +66,7 @@ public class SignUpActivity extends AppCompatActivity {
     private TextInputEditText mPasswordField;
     private TextInputEditText mConfirmPasswordField;
     private Button mSignUpButton;
+//    private Button mEmailForAdmin;
     private TextView mNetworkNameTextView;
     private TextView mHospitalNameTextView;
 
@@ -93,6 +93,7 @@ public class SignUpActivity extends AppCompatActivity {
         mPasswordField = findViewById(R.id.signup_password);
         mConfirmPasswordField = findViewById(R.id.signup_password_confirm);
         mSignUpButton = findViewById(R.id.signup_button);
+//        mEmailForAdmin = findViewById(R.id.signup_admin_email);
 
         // Email password fields disabled until valid invitation code
         mEmailPasswordLayout.setVisibility(View.GONE);
@@ -139,7 +140,6 @@ public class SignUpActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             if (document.exists()) {
-//                                Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                                 if (document.getBoolean("valid")) {
                                     try {
                                         // Valid code; Check which network & hospital authorized for
@@ -148,6 +148,7 @@ public class SignUpActivity extends AppCompatActivity {
                                         mHospitalId = document.get("hospital_id").toString();
                                         mHospitalName = document.get("hospital_name").toString();
 
+                                        // Display authorized network and hospital
                                         mNetworkNameTextView.setText(mNetworkName);
                                         mHospitalNameTextView.setText(mHospitalName);
 
@@ -156,8 +157,8 @@ public class SignUpActivity extends AppCompatActivity {
 
                                         toastMessage = "Validation complete";
 
-                                        // invitation code data missing fields
                                     } catch (NullPointerException e) {
+                                        // invitation code data missing fields
                                         toastMessage = "Error with validation code data; Please contact support";
                                     }
 
@@ -192,18 +193,17 @@ public class SignUpActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
+                //TODO NullPointerException?
                 String e = mEmailField.getText().toString();
                 String p = mPasswordField.getText().toString();
                 String cp = mConfirmPasswordField.getText().toString();
 
-                // Disable sign up if password fields don't match
                 if (!p.equals(cp)) {
+                    // Disable sign up if password fields don't match
                     mSignUpButton.setEnabled(false);
                     //TODO display warning sign next to confirm password
-                }
-
-                // Disable sign up if any field is empty
-                if (e.length() == 0 || p.length() == 0 || cp.length() == 0) {
+                } else if (e.length() == 0 || p.length() == 0) {
+                    // Disable sign up if any field is empty
                     mSignUpButton.setEnabled(false);
                 } else {
                     mSignUpButton.setEnabled(true);
@@ -215,7 +215,6 @@ public class SignUpActivity extends AppCompatActivity {
         mConfirmPasswordField.addTextChangedListener(emailPasswordWatcher);
 
 //        HctpKDcubLGmhZ4AIqSg
-
         mSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -229,9 +228,9 @@ public class SignUpActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     disableValidationCode(mInvitationCode);
 
+                                    // Create user document in "users" collection to store authorized hospital
                                     String userId = mAuth.getCurrentUser().getUid();
                                     String currentUserEmail = mAuth.getCurrentUser().getEmail();
-//                                    Log.d(TAG, "///////" + userId);
                                     Map<String, Object> newUserData = new HashMap<>();
                                     newUserData.put("network_id", mNetworkId);
                                     newUserData.put("network_name", mNetworkName);
@@ -258,23 +257,16 @@ public class SignUpActivity extends AppCompatActivity {
 
     private void disableValidationCode(String invitationCode) {
         DocumentReference currentCodeRef = invitationCodesRef.document(invitationCode);
-
-        // TODO add actions in case of success/failure OR delete custom listener?
-        currentCodeRef
-                .update("valid", false)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully updated!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error updating document", e);
-                    }
-                });
+        currentCodeRef.update("valid", false);
     }
 
-
+    public void composeEmail(View view) {
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        final String SUPPORT_EMAIL = "theelliotliu@gmail.com";
+        intent.setData(Uri.parse("mailto:" + SUPPORT_EMAIL));
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Admin Account Request");
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
 }

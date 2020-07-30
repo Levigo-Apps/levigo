@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 Levigo Apps
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.levigo.levigoapp;
 
 import android.Manifest;
@@ -24,6 +40,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -55,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
-    private CollectionReference inventoryRef; //= levigoDb.collection("networks/network1/sites/n1_hospital3/n1_h3_departments/department1/n1_h1_d1 productids");
+    private CollectionReference inventoryRef;
 
     private RecyclerView inventoryScroll;
     private RecyclerView.Adapter iAdapter;
@@ -76,23 +93,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        inventoryScroll = findViewById(R.id.main_categories);
-        mAdd = findViewById(R.id.main_add);
-        inventoryScroll.setHasFixedSize(true);
-        mAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startScanner();
-            }
-        });
-        Toolbar mToolbar = findViewById(R.id.main_toolbar);
-        setSupportActionBar(mToolbar);
-        getPermissions();
 
         mAuth = FirebaseAuth.getInstance();
         String userId = mAuth.getCurrentUser().getUid();
-//        Log.d(TAG, "USER ID: " + userId);
 
+        // Get user information in "users" collection
         final DocumentReference currentUserRef = usersRef.document(userId);
         currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -106,9 +111,14 @@ public class MainActivity extends AppCompatActivity {
                             mNetworkName = document.get("network_name").toString();
                             mHospitalId = document.get("hospital_id").toString();
                             mHospitalName = document.get("hospital_name").toString();
+                            String inventoryRefUrl = "networks/network_1/sites/n1_hospital3/n1_h3_departments/department1/n1_h1_d1 productids";
+                            //TODO update to the following
+                            //String inventoryRefUrl = "networks/" + mNetworkId + "/hospitals/" + mHospitalId + "/departments/default_department/dis";
 
-                            String inventoryRefUrl = "networks/" + mNetworkId + "/sites/" + mHospitalId + "/n1_h3_departments/department1/n1_h1_d1 productids";
-                            Log.d(TAG, "InvRefUrl: " + inventoryRefUrl);
+                            Toolbar mToolbar = findViewById(R.id.main_toolbar);
+                            setSupportActionBar(mToolbar);
+                            mToolbar.setTitle(mHospitalName);
+
                             inventoryRef = levigoDb.collection(inventoryRefUrl);
                             initInventory();
                         } catch (NullPointerException e) {
@@ -116,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        // document for invitation code doesn't exist
+                        // document for user doesn't exist
                         toastMessage = "User not found; Please contact support";
                         Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
                     }
@@ -127,6 +137,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        inventoryScroll = findViewById(R.id.main_categories);
+        mAdd = findViewById(R.id.main_add);
+        inventoryScroll.setHasFixedSize(true);
+        mAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startScanner();
+            }
+        });
+
+        getPermissions();
     }
 
     private void startScanner() {
@@ -390,7 +412,8 @@ public class MainActivity extends AppCompatActivity {
                 finish();
                 return true;
             case R.id.settings:
-                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
+                //TODO next step
+//                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

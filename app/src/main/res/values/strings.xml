@@ -102,5 +102,10 @@
     <string name="choose_site_label">Choose site</string>
     <string name="choose_location_lbl">Choose location</string>
     <string name="choose_type_lbl">Choose type</string>
+    <string name="procedureName_lbl">Procedure Name</string>
+    <string name="procedureTime_lbl">Procedure Time</string>
+    <string name="AccessionNumber_lbl">Accession Number</string>
+    <string name="itemsUsed_lbl">Number of Items Used</string>
+    <string name="procedureDate_lbl">Procedure Date</string>
 
 </resources>

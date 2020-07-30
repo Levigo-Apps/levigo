@@ -3,7 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/colorBackground"
+    android:backgroundTint="@color/colorPrimaryDark"
+    android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -12,7 +15,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" >
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/colorPrimaryDark">
         <TextView
             android:id="@+id/login_title"
             android:layout_gravity="center_horizontal"
@@ -20,57 +24,15 @@
             android:layout_height="wrap_content"
             android:text="@string/levigo_label"
             android:fontFamily="sans-serif-light"
-            android:textColor="#5E5A5A"
+            android:textColor="@android:color/white"
             android:textSize="40sp"
             android:textStyle="bold"/>
-        <TableLayout
-            android:id="@+id/middle_table"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_gravity="center_horizontal">
 
-            <TableRow
-                android:id="@+id/text_row"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <TextView
-                    android:id="@+id/usertype_textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/I_label"
-                    android:textColor="#353232"
-                    android:textSize="20sp"
-                    android:layout_marginBottom="10dp"/>
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/buttons_row"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal">
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/user_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="20dp"
-                    android:text="@string/admin_label"
-                    android:textSize="15sp"/>
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/admin_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/user_label"
-                    android:textSize="15sp"/>
-            </TableRow>
-        </TableLayout>
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            app:boxBackgroundColor="@android:color/white"
             app:errorEnabled="true">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/login_email"
@@ -78,12 +40,14 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:hint="@string/email_label"
+                android:textColor="@color/colorCustomBlack"
                 android:inputType="textEmailAddress"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            app:boxBackgroundColor="@android:color/white"
             app:endIconMode="password_toggle">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/login_password"
@@ -91,21 +55,18 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:inputType="textPassword"
+                android:textColor="@color/colorCustomBlack"
                 android:hint="@string/password_label"/>
         </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/login_remember"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/remember_me_label"
-            android:layout_gravity="left"/>
+
         <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:textSize="12sp"
             android:text="@string/forgot_your_password_label"
-            android:background="?attr/selectableItemBackground"
+            android:textColor="@android:color/white"
+            android:onClick="resetPassword"
             style="@style/Widget.MaterialComponents.Button.TextButton"/>
         <com.google.android.material.button.MaterialButton
             android:id="@+id/login_button"
@@ -113,8 +74,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="@string/login_label"
-            android:textColor="#ffffff"
-            android:background="@color/colorPrimary"/>
+            android:onClick="login"
+            android:backgroundTint="@color/colorPrimary"
+            android:textColor="@android:color/white"/>
     </LinearLayout>
 
 
@@ -127,6 +89,8 @@
         android:gravity="center"
         android:text="@string/register_label"
         android:textSize="14sp"
+        android:textColor="@android:color/white"
+        android:onClick="register"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

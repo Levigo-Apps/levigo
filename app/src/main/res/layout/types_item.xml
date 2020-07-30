@@ -24,7 +24,7 @@
             android:text="Type of Equipment"
             android:textStyle="bold"
             android:textSize="18sp"
-            android:textColor="@color/colorinventoryText"
+            android:textColor="@android:color/white"
             android:backgroundTint="@color/colorPrimary"
             android:ellipsize="end"
             android:lines="1"

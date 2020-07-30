@@ -30,14 +30,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
  * Logs in user
@@ -48,17 +44,13 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = LoginActivity.class.getSimpleName();
     private static final int RC_SIGN_IN = 1;
 
-    private boolean clear, signout;
+//    private boolean clear, signout;
     private FirebaseAuth mAuth;
-    private MaterialButton mLogin, mRegister;
+//    private MaterialButton mRegister;
     private EditText mEmail, mPassword;
-    private MaterialCheckBox mRemember;
+//    private MaterialCheckBox mRemember;
 
-    private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
-    private CollectionReference usersRef = levigoDb.collection("users");
-
-
-    private String mNetwork, mNetworkName, mSite, mSiteName;
+//    private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,37 +59,36 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        clear = true;
+//        clear = true;
         userIsLoggedIn();
 
         setContentView(R.layout.activity_login);
 
-        mLogin = findViewById(R.id.login_button);
-        mRegister = findViewById(R.id.login_register);
+//        mLogin = findViewById(R.id.login_button);
+//        mRegister = findViewById(R.id.login_register);
         mEmail = findViewById(R.id.login_email);
         mPassword = findViewById(R.id.login_password);
-        mRemember = findViewById(R.id.login_remember);
+//        mRemember = findViewById(R.id.login_remember);
 
-        mLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String email = mEmail.getText().toString(),
-                        password = mPassword.getText().toString();
-                if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    signIn(email, password);
-                } else {
-                    mEmail.setError("Please enter a valid email address.");
-                }
-            }
-        });
+//        mLogin.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                final String email = mEmail.getText().toString(),
+//                        password = mPassword.getText().toString();
+//                if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+//                    signIn(email, password);
+//                } else {
+//                    mEmail.setError("Please enter a valid email address.");
+//                }
+//            }
+//        });
 
-        mRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), SignUpActivity.class));
-            }
-        });
-
+//        mRegister.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                startActivity(new Intent(getApplicationContext(), SignUpActivity.class));
+//            }
+//        });
     }
 
     private void signIn(String email, String password) {
@@ -106,7 +97,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            signout = mRemember.isChecked();
+//                            signout = !mRemember.isChecked();
                             userIsLoggedIn();
                         } else {
                             Toast.makeText(LoginActivity.this, "Failed to login.", Toast.LENGTH_SHORT).show();
@@ -118,11 +109,10 @@ public class LoginActivity extends AppCompatActivity {
     private void userIsLoggedIn() {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
-            clear = false;
+//            clear = false;
 
             Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(mainActivityIntent);
-
             finish();
         }
     }
@@ -132,7 +122,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
-                signout = mRemember.isChecked();
+//                signout = !mRemember.isChecked();
                 userIsLoggedIn();
             } else {
                 Log.d(TAG, "Sign in cancelled");
@@ -140,12 +130,31 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onStop() {
-        if (clear || signout) {
-            mAuth.signOut();
-            finish();
-        }
-        super.onStop();
+    public void resetPassword(View view) {
+        startActivity(new Intent(getApplicationContext(), ResetActivity.class));
     }
+
+    public void login(View view) {
+        final String email = mEmail.getText().toString(),
+                password = mPassword.getText().toString();
+        if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            signIn(email, password);
+        } else {
+            mEmail.setError("Please enter a valid email address.");
+        }
+    }
+
+    public void register(View view) {
+        startActivity(new Intent(getApplicationContext(), SignUpActivity.class));
+    }
+
+//    @Override
+//    protected void onStop() {
+//        if (clear || signout) {
+//            mAuth.signOut();
+//            Log.d(TAG, "FINISHING from onstop");
+//            finish();
+//        }
+//        super.onStop();
+//    }
 }
