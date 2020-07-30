@@ -139,6 +139,7 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText procedureNameEditText;
     private TextInputEditText accessionNumberEditText;
     private TextInputLayout dateInLayout;
+    private TextInputLayout numberAddedLayout;
     private TextView usageHeader;
 
     private Button saveButton;
@@ -243,7 +244,7 @@ public class ItemDetailFragment extends Fragment {
         TextInputLayout diLayout = rootView.findViewById(R.id.TextInputLayout_di);
         singleUseButton = rootView.findViewById(R.id.RadioButton_single);
         multiUse = rootView.findViewById(R.id.radio_multiuse);
-        TextInputLayout numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
+        numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
 
         siteConstrainLayout = rootView.findViewById(R.id.site_linearlayout);
@@ -1105,6 +1106,7 @@ public class ItemDetailFragment extends Fragment {
         Log.d(TAG, "Adding empty size option!");
         emptySizeFieldCounter++;
         GridLayout gridLayoutSize = new GridLayout(view.getContext());
+
         GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
         paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         paramSizeKey.width = WRAP_CONTENT;
