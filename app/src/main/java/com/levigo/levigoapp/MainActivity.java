@@ -24,18 +24,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Filter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,10 +38,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
@@ -62,15 +55,8 @@ import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity implements Serializable {
@@ -95,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
     private FirebaseAuth mAuth;
     private CollectionReference usersRef = levigoDb.collection("users");
     private String mNetworkId;
-    private String mNetworkName;
+    //    private String mNetworkName;
     private String mHospitalId;
     private String mHospitalName;
 
@@ -134,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                     if (document.exists()) {
                         try {
                             mNetworkId = document.get("network_id").toString();
-                            mNetworkName = document.get("network_name").toString();
+//                            mNetworkName = document.get("network_name").toString();
                             mHospitalId = document.get("hospital_id").toString();
                             mHospitalName = document.get("hospital_name").toString();
                             String inventoryRefUrl = "networks/" + mNetworkId + "/hospitals/" + mHospitalId + "/departments/default_department/dis";
@@ -211,9 +197,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                 for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                     try {
                         final Map<String, Object> di = dc.getDocument().getData();
-                        Log.d(TAG, "DIII: " + di);
                         final String type = di.get("equipment_type").toString();
-                        Log.d(TAG, "TYPEEE: " + type);
                         final String diString = di.get("di").toString();
 
                         //TODO: add cases
@@ -361,8 +345,6 @@ public class MainActivity extends AppCompatActivity implements Serializable {
         fragmentTransaction.add(R.id.activity_main, fragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-
-//                mAdd.setVisibility(View.GONE);
     }
 
 
@@ -415,5 +397,4 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                 return super.onOptionsItemSelected(item);
         }
     }
-
 }

@@ -44,13 +44,8 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = LoginActivity.class.getSimpleName();
     private static final int RC_SIGN_IN = 1;
 
-//    private boolean clear, signout;
     private FirebaseAuth mAuth;
-//    private MaterialButton mRegister;
     private EditText mEmail, mPassword;
-//    private MaterialCheckBox mRemember;
-
-//    private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
