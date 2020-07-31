@@ -2,6 +2,7 @@ package com.levigo.levigoapp;
 
 import android.app.Activity;
 import android.content.res.ColorStateList;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -44,29 +44,27 @@ public class ItemDetailViewFragment extends Fragment {
     private Activity parent;
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference usersRef = db.collection("users");
-    private FirebaseAuth mAuth;
-
-
-    private DocumentReference typeRef;
-    private CollectionReference siteRef;
-    private DocumentReference physLocRef;
-    private DocumentReference siteDocRef;
-    private CollectionReference accessionNumberRef;
+    private final CollectionReference usersRef = db.collection("users");
 
     private String mNetworkId;
-    private String mNetworkName;
     private String mHospitalId;
-    private String mHospitalName;
+    private String itemQuantity;
+    private String currentDate;
+    private String currentTime;
+    private int procedureCount;
+    private final String TYPE_KEY = "equipment_type";
+    private final String SITE_KEY = "site_name";
+    private final String USAGE_KEY = "usage";
+    private final String PHYSICALLOC_KEY = "physical_location";
+    private final String QUANTITY_KEY = "quantity";
 
-    private TextInputLayout specificationLayout;
-    private TextInputLayout usageLayout;
+
     private LinearLayout linearLayout;
-    private LinearLayout specsLinearLayout;
     private LinearLayout usageLinearLayout;
     private LinearLayout itemSpecsLinearLayout;
 
-
+    private TextInputLayout specificationLayout;
+    private TextInputLayout usageLayout;
     private TextInputEditText itemName;
     private TextInputEditText udi;
     private TextInputEditText deviceIdentifier;
@@ -84,27 +82,6 @@ public class ItemDetailViewFragment extends Fragment {
     private TextInputEditText notes;
     private TextInputEditText deviceDescription;
     private TextInputLayout usageHeader;
-
-    private String itemQuantity;
-    private String currentDate;
-    private String currentTime;
-    private int procedureCount;
-    // firebase key labels to avoid hard-coded paths
-    private final String NAME_KEY = "name";
-    private final String TYPE_KEY = "equipment_type";
-    private final String COMPANY_KEY = "company";
-    private final String SITE_KEY = "site_name";
-    private final String SPECIALTY_KEY = "medical_specialty";
-    private final String DESCRIPTION_KEY = "device_description";
-    private final String USAGE_KEY = "usage";
-    private final String PROCEDURE_KEY = "procedure_used";
-    private final String PROCEDUREDATE_KEY = "procedure_date";
-    private final String AMOUNTUSED_KEY = "amount_used";
-    private final String ACCESSION_KEY = "accession_number";
-    private final String PHYSICALLOC_KEY = "physical_location";
-    private final String TIME_KEY = "current_time";
-    private final String QUANTITY_KEY = "quantity";
-    private final String SINGLEORMULTI_KEY = "single_multi";
 
     private List<String> procedureDocuments;
     private List<List<String>> procedureDoc;
@@ -138,7 +115,7 @@ public class ItemDetailViewFragment extends Fragment {
         procedureDoc = new ArrayList<>();
         usageHeader = rootView.findViewById(R.id.usage_header);
         linearLayout = rootView.findViewById(R.id.itemdetailviewonly_linearlayout);
-        specsLinearLayout = rootView.findViewById(R.id.specs_linearlayout);
+        LinearLayout specsLinearLayout = rootView.findViewById(R.id.specs_linearlayout);
         usageLinearLayout = rootView.findViewById(R.id.usage_linearlayout);
         itemSpecsLinearLayout = new LinearLayout(rootView.getContext());
         itemSpecsLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -148,9 +125,8 @@ public class ItemDetailViewFragment extends Fragment {
         linearLayout.addView(itemSpecsLinearLayout,linearLayout.indexOfChild(specsLinearLayout) + 1);
 
 
-
-        mAuth = FirebaseAuth.getInstance();
-        String userId = mAuth.getCurrentUser().getUid();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
 
         final DocumentReference currentUserRef = usersRef.document(userId);
         currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -159,25 +135,10 @@ public class ItemDetailViewFragment extends Fragment {
                 String toastMessage;
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (Objects.requireNonNull(document).exists()) {
                         try {
-                            mNetworkId = document.get("network_id").toString();
-                            mNetworkName = document.get("network_name").toString();
-                            mHospitalId = document.get("hospital_id").toString();
-                            mHospitalName = document.get("hospital_name").toString();
-                            typeRef = db.collection("networks").document(mNetworkId).collection("hospitals")
-                                    .document(mHospitalId).collection("types").document("type_options");
-                            siteRef = db.collection("networks").document(mNetworkId)
-                                    .collection("hospitals");
-                            physLocRef = db.collection("networks").document(mNetworkId)
-                                    .collection("hospitals").document(mHospitalId)
-                                    .collection("physical_locations").document("locations");
-                            siteDocRef = db.collection("networks").document(mNetworkId)
-                                    .collection("hospitals").document(mHospitalId);
-                            accessionNumberRef = db.collection("networks")
-                                    .document(mNetworkId)
-                                    .collection("hospitals").document(mHospitalId)
-                                    .collection("accession_numbers");
+                            mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
+                            mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
                         } catch (NullPointerException e) {
                             toastMessage = "Error retrieving user information; Please contact support";
                             Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
@@ -199,7 +160,7 @@ public class ItemDetailViewFragment extends Fragment {
         if (getArguments() != null) {
             String barcode = getArguments().getString("barcode");
             udi.setText(barcode);
-            autoPopulate(siteDocRef, rootView);
+            autoPopulate(rootView);
         }
 
         topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -232,7 +193,7 @@ public class ItemDetailViewFragment extends Fragment {
     }
 
     String di = "";
-    private void autoPopulate(final DocumentReference siteDocRef, final View view) {
+    private void autoPopulate(final View view) {
 
 
         final String udiStr = Objects.requireNonNull(udi.getText()).toString();
@@ -291,7 +252,7 @@ public class ItemDetailViewFragment extends Fragment {
                             medicalSpecialty.setText(medicalSpecialties.toString());
                             medicalSpecialty.setFocusable(false);
 
-                            autoPopulateFromDatabase(udi, siteDocRef, udiStr, view);
+                            autoPopulateFromDatabase(udi, udiStr, view);
 
                             JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
                             for (int i = 0; i < deviceSizeArray.length(); ++i) {
@@ -360,6 +321,7 @@ public class ItemDetailViewFragment extends Fragment {
         TextInputEditText headerKey = new TextInputEditText(itemSpecsHeader.getContext());
         headerKey.setText(key);
         headerKey.setFocusable(false);
+        headerKey.setTypeface(headerKey.getTypeface(), Typeface.BOLD);
         itemSpecsHeader.addView(headerKey);
 
 
@@ -381,9 +343,9 @@ public class ItemDetailViewFragment extends Fragment {
     }
 
 
-    private void autoPopulateFromDatabase(final JSONObject udi, final DocumentReference siteDocRef, final String udiStr, final View view) {
-        DocumentReference udiDocRef = null;
-        DocumentReference diDocRef = null;
+    private void autoPopulateFromDatabase(final JSONObject udi, final String udiStr, final View view) {
+        DocumentReference udiDocRef;
+        DocumentReference diDocRef;
 
         udiDocRef = db.collection("networks").document(mNetworkId)
                 .collection("hospitals").document(mHospitalId).collection("departments")
@@ -400,12 +362,12 @@ public class ItemDetailViewFragment extends Fragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (Objects.requireNonNull(document).exists()) {
                         if(document.get("procedure_number") != null){
                             procedureCount = Integer.parseInt(
                                     Objects.requireNonNull(document.getString("procedure_number")));
 
-                            getProcedureInfo(procedureCount,siteDocRef,udi, udiStr, view);
+                            getProcedureInfo(procedureCount, udi, udiStr, view);
                         }else{
                             procedureCount = 0;
                         }
@@ -427,7 +389,7 @@ public class ItemDetailViewFragment extends Fragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (Objects.requireNonNull(document).exists()) {
                         if(document.get(TYPE_KEY) != null){
                             type.setText(document.getString(TYPE_KEY));
                             type.setFocusable(false);
@@ -435,14 +397,9 @@ public class ItemDetailViewFragment extends Fragment {
                         }if(document.get(SITE_KEY) != null){
                             hospitalName.setText(document.getString(SITE_KEY));
                             hospitalName.setFocusable(false);
-                        }if(document.get(QUANTITY_KEY) != null){
-
-                        }else{
-
                         }if(document.get(USAGE_KEY) != null){
                             String usageStr = document.getString(USAGE_KEY);
                             usage.setText(usageStr);
-
                         }
                     } else {
 
@@ -460,7 +417,7 @@ public class ItemDetailViewFragment extends Fragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (Objects.requireNonNull(document).exists()) {
                         if(document.get("quantity") != null) {
                             itemQuantity = document.getString(QUANTITY_KEY);
                             quantity.setText(itemQuantity);
@@ -479,7 +436,9 @@ public class ItemDetailViewFragment extends Fragment {
                             String isUsedStr = isUsed.substring(0, 1).toUpperCase() + isUsed.substring(1);
                            TextInputEditText isUsedEditText = view.findViewById(R.id.isitemused_edittext);
                            isUsedEditText.setText(isUsedStr);
-
+                        }
+                        if(document.get("notes") != null){
+                            notes.setText(document.getString("notes"));
                         }
                     } else {
                         itemQuantity = "0";
@@ -496,7 +455,7 @@ public class ItemDetailViewFragment extends Fragment {
 
     }
 
-    private void getProcedureInfo(final int procedureCount, DocumentReference siteDocRef, JSONObject udi,
+    private void getProcedureInfo(final int procedureCount, JSONObject udi,
                                   String udiStr, final View view){
         final int[] check = {0};
         DocumentReference procedureRef;
@@ -514,7 +473,7 @@ public class ItemDetailViewFragment extends Fragment {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
+                            if (Objects.requireNonNull(document).exists()) {
                                 Map<String, Object> map = document.getData();
                                 if (map != null) {
                                     check[0]++;
@@ -587,6 +546,7 @@ public class ItemDetailViewFragment extends Fragment {
             procedureDateHeader.setLayoutParams(procedureHeaderParams);
             TextInputEditText dateKey = new TextInputEditText(procedureDateHeader.getContext());
             dateKey.setText(R.string.procedureDate_lbl);
+            dateKey.setTypeface(dateKey.getTypeface(), Typeface.BOLD);
             dateKey.setFocusable(false);
             procedureDateHeader.addView(dateKey);
 
@@ -659,6 +619,7 @@ public class ItemDetailViewFragment extends Fragment {
         procedureNameHeaderLayout.setLayoutParams(procedureNameHeaderParams);
         TextInputEditText procedureNameHeaderEditText = new TextInputEditText(procedureNameHeaderLayout.getContext());
         procedureNameHeaderEditText.setText(R.string.procedureName_lbl);
+        procedureNameHeaderEditText.setTypeface(procedureNameHeaderEditText.getTypeface(), Typeface.BOLD);
         procedureNameHeaderLayout.addView(procedureNameHeaderEditText);
         procedureNameHeaderEditText.setFocusable(false);
 
@@ -694,6 +655,7 @@ public class ItemDetailViewFragment extends Fragment {
         procedureTimeHeaderLayout.setLayoutParams(procedureTimeHeaderParams);
         TextInputEditText procedureTimeHeaderEditText = new TextInputEditText(procedureTimeHeaderLayout.getContext());
         procedureTimeHeaderEditText.setText(R.string.procedureTime_lbl);
+        procedureTimeHeaderEditText.setTypeface(procedureNameHeaderEditText.getTypeface(), Typeface.BOLD);
         procedureTimeHeaderLayout.addView(procedureTimeHeaderEditText);
         procedureTimeHeaderEditText.setFocusable(false);
 
@@ -730,6 +692,7 @@ public class ItemDetailViewFragment extends Fragment {
         accessionHeaderLayout.setLayoutParams(procedureAccessionHeaderParams);
         TextInputEditText accessionHeaderEditText = new TextInputEditText(accessionHeaderLayout.getContext());
         accessionHeaderEditText.setText(R.string.AccessionNumber_lbl);
+        accessionHeaderEditText.setTypeface(procedureNameHeaderEditText.getTypeface(), Typeface.BOLD);
         accessionHeaderLayout.addView(accessionHeaderEditText);
         accessionHeaderEditText.setFocusable(false);
 
@@ -765,6 +728,7 @@ public class ItemDetailViewFragment extends Fragment {
         itemUsedHeaderLayout.setLayoutParams(procedureItemUsedHeader);
         TextInputEditText itemUsedHeaderEditText = new TextInputEditText(itemUsedHeaderLayout.getContext());
         itemUsedHeaderEditText.setText(R.string.itemsUsed_lbl);
+        itemUsedHeaderEditText.setTypeface(itemUsedHeaderEditText.getTypeface(), Typeface.BOLD);
         itemUsedHeaderLayout.addView(itemUsedHeaderEditText);
         itemUsedHeaderEditText.setFocusable(false);
 
