@@ -1211,47 +1211,6 @@ public class ItemDetailFragment extends Fragment {
     private void addItemSpecs(String key,String value, View view){
         Log.d(TAG, "Adding item specs!");
 
-
-//        GridLayout gridLayoutSize = new GridLayout(view.getContext());
-//        GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
-//        paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-//        paramSizeKey.width = WRAP_CONTENT;
-//        paramSizeKey.rowSpec = GridLayout.spec(rowIndex);
-//        paramSizeKey.columnSpec = GridLayout.spec(0);
-//        paramSizeKey.setMargins(0, 0, 0, 20);
-//
-//
-//        GridLayout.LayoutParams paramSizeValue = new GridLayout.LayoutParams();
-//        paramSizeValue.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-//        paramSizeValue.width = WRAP_CONTENT;
-//        paramSizeValue.rowSpec = GridLayout.spec(rowIndex);
-//        paramSizeValue.columnSpec = GridLayout.spec(1);
-//        paramSizeValue.setMargins(10, 0, 0, 20);
-//
-//
-//        TextInputLayout sizeKeyLayout = (TextInputLayout) View.inflate(view.getContext(),
-//                R.layout.activity_itemdetail_materialcomponent, null);
-//        sizeKeyLayout.setLayoutParams(paramSizeKey);
-//        sizeKeyLayout.setHint("Key");
-//        TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
-//        sizeKey.setText(key);
-//        sizeKey.setFocusable(false);
-//
-//        TextInputLayout sizeValueLayout = (TextInputLayout) View.inflate(view.getContext(),
-//                R.layout.activity_itemdetail_materialcomponent, null);
-//        sizeValueLayout.setLayoutParams(paramSizeValue);
-//        sizeValueLayout.setHint("Value");
-//        TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
-//        sizeValue.setText(value);
-//        sizeValue.setFocusable(false);
-//
-//        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
-//        sizeKeyLayout.addView(sizeKey);
-//        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
-//        sizeValueLayout.addView(sizeValue);
-//        gridLayoutSize.addView(sizeKeyLayout);
-//        gridLayoutSize.addView(sizeValueLayout);
-
         LinearLayout layoutSize = new LinearLayout(getContext());
         layoutSize.setOrientation(LinearLayout.HORIZONTAL);
         layoutSize.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));

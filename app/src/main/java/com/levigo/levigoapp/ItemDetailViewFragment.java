@@ -2,23 +2,18 @@ package com.levigo.levigoapp;
 
 import android.app.Activity;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -27,6 +22,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,11 +30,9 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +46,7 @@ public class ItemDetailViewFragment extends Fragment {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("users");
     private FirebaseAuth mAuth;
+
 
     private DocumentReference typeRef;
     private CollectionReference siteRef;
@@ -69,6 +64,7 @@ public class ItemDetailViewFragment extends Fragment {
     private LinearLayout linearLayout;
     private LinearLayout specsLinearLayout;
     private LinearLayout usageLinearLayout;
+    private LinearLayout itemSpecsLinearLayout;
 
 
     private TextInputEditText itemName;
@@ -120,6 +116,7 @@ public class ItemDetailViewFragment extends Fragment {
 
         final View rootView = inflater.inflate(R.layout.fragment_viewonlyitemdetail, container, false);
         parent = getActivity();
+        MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
         itemName = rootView.findViewById(R.id.itemname_text);
         udi = rootView.findViewById(R.id.barcode_edittext);
         deviceIdentifier = rootView.findViewById(R.id.di_edittext);
@@ -143,6 +140,12 @@ public class ItemDetailViewFragment extends Fragment {
         linearLayout = rootView.findViewById(R.id.itemdetailviewonly_linearlayout);
         specsLinearLayout = rootView.findViewById(R.id.specs_linearlayout);
         usageLinearLayout = rootView.findViewById(R.id.usage_linearlayout);
+        itemSpecsLinearLayout = new LinearLayout(rootView.getContext());
+        itemSpecsLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        itemSpecsLinearLayout.setOrientation(LinearLayout.VERTICAL);
+        itemSpecsLinearLayout.setVisibility(View.GONE);
+        linearLayout.addView(itemSpecsLinearLayout,linearLayout.indexOfChild(specsLinearLayout) + 1);
 
 
 
@@ -158,7 +161,6 @@ public class ItemDetailViewFragment extends Fragment {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         try {
-                            //TODO Davit update database paths with these variables
                             mNetworkId = document.get("network_id").toString();
                             mNetworkName = document.get("network_name").toString();
                             mHospitalId = document.get("hospital_id").toString();
@@ -199,6 +201,33 @@ public class ItemDetailViewFragment extends Fragment {
             udi.setText(barcode);
             autoPopulate(siteDocRef, rootView);
         }
+
+        topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (parent != null)
+                    parent.onBackPressed();
+            }
+        });
+
+        final boolean[] isSpecsMaximized = {false};
+        specificationLayout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(isSpecsMaximized[0]){
+                    isSpecsMaximized[0] = false;
+                    itemSpecsLinearLayout.setVisibility(View.GONE);
+                    specificationLayout.setEndIconDrawable(R.drawable.ic_baseline_plus);
+
+                }else{
+                    itemSpecsLinearLayout.setVisibility(View.VISIBLE);
+                    specificationLayout.setEndIconDrawable(R.drawable.ic_remove_minimize);
+                    isSpecsMaximized[0] = true;
+
+                }
+            }
+        });
+
         return rootView;
     }
 
@@ -213,7 +242,6 @@ public class ItemDetailViewFragment extends Fragment {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(parent);
         String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
-        //  final String[] di = {""};
 
         url = url + udiStr;
 
@@ -247,12 +275,9 @@ public class ItemDetailViewFragment extends Fragment {
                             expiration.setText(udi.getString("expirationDate"));
                             expiration.setFocusable(false);
 
-
-
                             di = udi.getString("di");
                             deviceIdentifier.setText(udi.getString("di"));
                             deviceIdentifier.setFocusable(false);
-
 
                             itemName.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
                             itemName.setFocusable(false);
@@ -263,19 +288,16 @@ public class ItemDetailViewFragment extends Fragment {
                             referenceNumber.setText(deviceInfo.getString("catalogNumber"));
                             referenceNumber.setFocusable(false);
 
-
                             medicalSpecialty.setText(medicalSpecialties.toString());
                             medicalSpecialty.setFocusable(false);
 
-                            // TODO implement these two
                             autoPopulateFromDatabase(udi, siteDocRef, udiStr, view);
-                            //     updateProcedureFieldAdded(udiStr, di);
 
                             JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
-
                             for (int i = 0; i < deviceSizeArray.length(); ++i) {
                                 String k;
                                 String v;
+
                                 JSONObject currentSizeObject = deviceSizeArray.getJSONObject(i);
                                 k = currentSizeObject.getString("sizeType");
                                 Log.d(TAG, "KEYS: " + k);
@@ -304,7 +326,7 @@ public class ItemDetailViewFragment extends Fragment {
                                             + currentSizeObject.getJSONObject("size").getString("unit");
                                     Log.d(TAG, "Value: " + v);
                                 }
-                              //  addItemSpecs(k, v, view);
+                                addItemSpecs(k, v, view);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -319,6 +341,43 @@ public class ItemDetailViewFragment extends Fragment {
 
 // Add the request to the RequestQueue.
         queue.add(stringRequest);
+    }
+
+    private void addItemSpecs(String key, String value, View view){
+
+        LinearLayout eachItemSpecsLayout = new LinearLayout(view.getContext());
+        eachItemSpecsLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        eachItemSpecsLayout.setOrientation(LinearLayout.HORIZONTAL);
+        eachItemSpecsLayout.setBaselineAligned(false);
+
+        final TextInputLayout itemSpecsHeader = new TextInputLayout(view.getContext());
+        LinearLayout.LayoutParams itemSpecsParams = new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        itemSpecsParams.weight = (float) 1.0;
+        itemSpecsHeader.setLayoutParams(itemSpecsParams);
+
+        TextInputEditText headerKey = new TextInputEditText(itemSpecsHeader.getContext());
+        headerKey.setText(key);
+        headerKey.setFocusable(false);
+        itemSpecsHeader.addView(headerKey);
+
+
+        final TextInputLayout itemSpecsValue = new TextInputLayout(view.getContext());
+        LinearLayout.LayoutParams specValueParams = new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        specValueParams.weight = (float) 1.0;
+        itemSpecsValue.setLayoutParams(specValueParams);
+
+        TextInputEditText specsValue = new TextInputEditText(itemSpecsValue.getContext());
+        specsValue.setText(value);
+        specsValue.setFocusable(false);
+        itemSpecsValue.addView(specsValue);
+
+        eachItemSpecsLayout.addView(itemSpecsHeader);
+        eachItemSpecsLayout.addView(itemSpecsValue);
+
+        itemSpecsLinearLayout.addView(eachItemSpecsLayout);
     }
 
 
@@ -346,7 +405,6 @@ public class ItemDetailViewFragment extends Fragment {
                             procedureCount = Integer.parseInt(
                                     Objects.requireNonNull(document.getString("procedure_number")));
 
-                            // TODO implement this function
                             getProcedureInfo(procedureCount,siteDocRef,udi, udiStr, view);
                         }else{
                             procedureCount = 0;
@@ -710,7 +768,6 @@ public class ItemDetailViewFragment extends Fragment {
         itemUsedHeaderLayout.addView(itemUsedHeaderEditText);
         itemUsedHeaderEditText.setFocusable(false);
 
-
         GridLayout.LayoutParams procedureItemUsedLayout = new GridLayout.LayoutParams();
         procedureItemUsedLayout.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         procedureItemUsedLayout.width = usageLinearLayout.getWidth()/2;
@@ -728,15 +785,11 @@ public class ItemDetailViewFragment extends Fragment {
         procedureItemUsed.addView(itemUsedHeaderLayout);
         procedureItemUsed.addView(itemUsedLayout);
 
-
         subFieldsLayout.addView(procedureName);
         subFieldsLayout.addView(procedureTime);
         subFieldsLayout.addView(procedureAccession);
         subFieldsLayout.addView(procedureItemUsed);
         procedureInfoLayout.addView(subFieldsLayout,(procedureInfoLayout.indexOfChild(procedureInfo))+1);
-
-
-
 
     }
 }
