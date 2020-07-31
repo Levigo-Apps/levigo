@@ -49,11 +49,13 @@
             app:layout_constraintTop_toTopOf="parent"
            >
             <LinearLayout
-                android:id="@+id/itemdetail_linearlayout"
+                android:id="@+id/itemdetailviewonly_linearlayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginHorizontal="12dp"
+                android:layout_marginBottom="44dp"
                 android:orientation="vertical"
+
                 >
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -94,6 +96,7 @@
                             android:layout_height="match_parent"
                             android:text="Barcode | UDI"
                             android:focusable="false"
+                            android:textStyle="bold"
                             />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -134,7 +137,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:focusable="false"
-                            android:text="Device Identifier" />
+                            android:text="Device Identifier"
+                            android:textStyle="bold"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -173,7 +177,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:focusable="false"
-                            android:text="Quantity" />
+                            android:text="Quantity"
+                            android:textStyle="bold"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -212,7 +217,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:focusable="false"
-                            android:text="Expiration" />
+                            android:text="Expiration"
+                            android:textStyle="bold"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -251,7 +257,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:focusable="false"
-                            android:text="Hospital" />
+                            android:text="Hospital"
+                            android:textStyle="bold"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -290,7 +297,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:focusable="false"
-                            android:text="Physical Location" />
+                            android:text="Physical Location"
+                            android:textStyle="bold"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -329,7 +337,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:focusable="false"
-                            android:text="Type" />
+                            android:text="Type"
+                            android:textStyle="bold"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -367,7 +376,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:focusable="false"
-                            android:text="Usage" />
+                            android:text="Usage"
+                            android:textStyle="bold"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -405,7 +415,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:focusable="false"
-                            android:text="Medical Specialty" />
+                            android:text="Medical Specialty"
+                            android:textStyle="bold"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -443,7 +454,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:focusable="false"
-                            android:text="Device Description" />
+                            android:text="Device Description"
+                            android:textStyle="bold"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -482,7 +494,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:focusable="false"
-                            android:text="Reference Number" />
+                            android:text="Reference Number"
+                            android:textStyle="bold"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -521,7 +534,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:focusable="false"
-                            android:text="Lot Number" />
+                            android:text="Lot Number"
+                            android:textStyle="bold"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -559,7 +573,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:focusable="false"
-                            android:text="Manufacturer Company" />
+                            android:text="Manufacturer Company"
+                            android:textStyle="bold"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -597,7 +612,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:focusable="false"
-                            android:text="Last Update" />
+                            android:text="Last Update"
+                            android:textStyle="bold"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -635,7 +651,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:focusable="false"
-                            android:text="Notes" />
+                            android:text="Notes"
+                            android:textStyle="bold"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -661,7 +678,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:baselineAligned="false"
-                    android:layout_marginTop="10dp">
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/specs_linearlayout">
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/specifications_header"
@@ -671,6 +689,7 @@
                         android:layout_weight="1"
                         app:endIconMode="custom"
                         app:endIconDrawable="@drawable/ic_baseline_plus"
+                        app:endIconTint="@color/colorPrimary"
 
                         >
                         <com.google.android.material.textfield.TextInputEditText
@@ -678,26 +697,26 @@
                             android:layout_height="match_parent"
                             android:focusable="false"
                             android:text="Specification"
+                            android:textStyle="bold"
                             android:textSize="20sp"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:baselineAligned="false"
-                    android:layout_marginTop="10dp">
+                    android:orientation="vertical"
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/usage_linearlayout">
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/usageicon_header"
                         style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"
                         app:endIconMode="custom"
                         app:endIconDrawable="@drawable/ic_baseline_plus"
+                        app:endIconTint="@color/colorPrimary"
 
                         >
                         <com.google.android.material.textfield.TextInputEditText
@@ -705,15 +724,10 @@
                             android:layout_height="match_parent"
                             android:focusable="false"
                             android:text="Usage"
+                            android:textStyle="bold"
                             android:textSize="20sp"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
-
-                
-
-
-
-
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

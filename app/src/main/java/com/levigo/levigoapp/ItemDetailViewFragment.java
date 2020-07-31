@@ -1,6 +1,8 @@
 package com.levigo.levigoapp;
 
 import android.app.Activity;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -9,6 +11,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,6 +39,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class ItemDetailViewFragment extends Fragment {
@@ -58,6 +66,9 @@ public class ItemDetailViewFragment extends Fragment {
 
     private TextInputLayout specificationLayout;
     private TextInputLayout usageLayout;
+    private LinearLayout linearLayout;
+    private LinearLayout specsLinearLayout;
+    private LinearLayout usageLinearLayout;
 
 
     private TextInputEditText itemName;
@@ -76,6 +87,7 @@ public class ItemDetailViewFragment extends Fragment {
     private TextInputEditText lastUpdate;
     private TextInputEditText notes;
     private TextInputEditText deviceDescription;
+    private TextInputLayout usageHeader;
 
     private String itemQuantity;
     private String currentDate;
@@ -97,6 +109,9 @@ public class ItemDetailViewFragment extends Fragment {
     private final String TIME_KEY = "current_time";
     private final String QUANTITY_KEY = "quantity";
     private final String SINGLEORMULTI_KEY = "single_multi";
+
+    private List<String> procedureDocuments;
+    private List<List<String>> procedureDoc;
 
 
     @Override
@@ -123,6 +138,12 @@ public class ItemDetailViewFragment extends Fragment {
         deviceDescription = rootView.findViewById(R.id.devicedescription_edittext);
         specificationLayout = rootView.findViewById(R.id.specifications_header);
         usageLayout = rootView.findViewById(R.id.usageicon_header);
+        procedureDoc = new ArrayList<>();
+        usageHeader = rootView.findViewById(R.id.usage_header);
+        linearLayout = rootView.findViewById(R.id.itemdetailviewonly_linearlayout);
+        specsLinearLayout = rootView.findViewById(R.id.specs_linearlayout);
+        usageLinearLayout = rootView.findViewById(R.id.usage_linearlayout);
+
 
 
         mAuth = FirebaseAuth.getInstance();
@@ -326,7 +347,7 @@ public class ItemDetailViewFragment extends Fragment {
                                     Objects.requireNonNull(document.getString("procedure_number")));
 
                             // TODO implement this function
-                           // getProcedureInfo(procedureCount,siteDocRef,udi, udiStr, view);
+                            getProcedureInfo(procedureCount,siteDocRef,udi, udiStr, view);
                         }else{
                             procedureCount = 0;
                         }
@@ -409,6 +430,301 @@ public class ItemDetailViewFragment extends Fragment {
                 }
             }
         });
+
+    }
+
+    private void getProcedureInfo(final int procedureCount, DocumentReference siteDocRef, JSONObject udi,
+                                  String udiStr, final View view){
+        final int[] check = {0};
+        DocumentReference procedureRef;
+
+        try {
+            for ( int i = 0; i < procedureCount; i++) {
+                procedureRef = db.collection("networks").document(mNetworkId)
+                        .collection("hospitals").document(mHospitalId).collection("departments")
+                        .document("default_department").collection("dis").document(udi.getString("di"))
+                        .collection("udis").document(udiStr).collection("procedures")
+                        .document("procedure_" + (i + 1));
+
+                procedureRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Map<String, Object> map = document.getData();
+                                if (map != null) {
+                                    check[0]++;
+                                    procedureDocuments = new ArrayList<>();
+                                    for (Object entry : map.values()) {
+                                        procedureDocuments.add(entry.toString());
+                                    }
+                                    map.clear();
+                                }
+                            }
+                            procedureDoc.add(procedureDocuments);
+                            final boolean[] isUsageMaximized = {false};
+                            if(check[0] == procedureCount) {
+                                usageLayout.setEndIconOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        if(isUsageMaximized[0]){
+                                            linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout)+ 1)
+                                                    .setVisibility(View.GONE);
+                                            isUsageMaximized[0] = false;
+                                            usageHeader.setEndIconDrawable(R.drawable.ic_baseline_plus);
+
+                                        }else{
+                                            addProcedureInfoFields(procedureDoc,view);
+                                            isUsageMaximized[0] = true;
+                                            usageHeader.setEndIconDrawable(R.drawable.ic_remove_minimize);
+
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            }
+        }catch(JSONException e){
+            Log.d(TAG, e.toString());
+        }
+
+    }
+
+
+    private void addProcedureInfoFields(final List<List<String>> procedureDoc, View view){
+        int i;
+        final LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
+        procedureInfoLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        procedureInfoLayout.setOrientation(LinearLayout.VERTICAL);
+
+        for(i = 0; i < procedureDoc.size(); i++) {
+
+            final LinearLayout eachProcedureLayout = new LinearLayout(view.getContext());
+            eachProcedureLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            eachProcedureLayout.setOrientation(LinearLayout.HORIZONTAL);
+            eachProcedureLayout.setBaselineAligned(false);
+
+            final TextInputLayout procedureDateHeader = new TextInputLayout(view.getContext());
+            LinearLayout.LayoutParams procedureHeaderParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            procedureHeaderParams.weight = (float) 1.0;
+            procedureDateHeader.setLayoutParams(procedureHeaderParams);
+            TextInputEditText dateKey = new TextInputEditText(procedureDateHeader.getContext());
+            dateKey.setText(R.string.procedureDate_lbl);
+            dateKey.setFocusable(false);
+            procedureDateHeader.addView(dateKey);
+
+
+            final TextInputLayout procedureDateText = new TextInputLayout(view.getContext());
+            LinearLayout.LayoutParams procedureParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            procedureParams.weight = (float) 1.0;
+            procedureDateText.setLayoutParams(procedureParams);
+
+            TextInputEditText dateText = new TextInputEditText(procedureDateText.getContext());
+            dateText.setText(procedureDoc.get(i).get(3));
+            dateText.setFocusable(false);
+            procedureDateText.addView(dateText);
+            procedureDateText.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
+            procedureDateText.setEndIconDrawable(R.drawable.ic_baseline_plus);
+            procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
+                    getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
+
+            eachProcedureLayout.addView(procedureDateHeader);
+            eachProcedureLayout.addView(procedureDateText);
+            procedureInfoLayout.addView(eachProcedureLayout);
+
+
+            final boolean[] isMaximized = {false};
+            final int finalI = i;
+            procedureDateText.setEndIconOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (isMaximized[0]) {
+                        procedureInfoLayout.getChildAt((procedureInfoLayout.indexOfChild(eachProcedureLayout)) + 1).setVisibility(View.GONE);
+                        procedureDateText.setEndIconDrawable(R.drawable.ic_baseline_plus);
+                        procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
+                                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
+                        isMaximized[0] = false;
+
+
+                    } else {
+                        addProcedureSubFields(procedureInfoLayout,view,procedureDoc, finalI,eachProcedureLayout);
+                        procedureDateText.setEndIconDrawable(R.drawable.ic_remove_minimize);
+                        procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
+                                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
+                        isMaximized[0] = true;
+
+                    }
+                }
+            });
+        }
+
+        linearLayout.addView(procedureInfoLayout,linearLayout.indexOfChild(usageLinearLayout) +   1);
+    }
+
+    private void addProcedureSubFields(LinearLayout procedureInfoLayout, View view,
+                                       List<List<String>> procedureDoc, int item, LinearLayout procedureInfo){
+        LinearLayout subFieldsLayout = new LinearLayout(view.getContext());
+        subFieldsLayout.setOrientation(LinearLayout.VERTICAL);
+
+        GridLayout procedureName = new GridLayout(view.getContext());
+        procedureName.setColumnCount(2);
+        procedureName.setRowCount(1);
+        GridLayout.LayoutParams procedureNameHeaderParams = new GridLayout.LayoutParams();
+        procedureNameHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureNameHeaderParams.width = usageLinearLayout.getWidth()/2;
+        procedureNameHeaderParams.rowSpec = GridLayout.spec(0);
+        procedureNameHeaderParams.columnSpec = GridLayout.spec(0);
+        procedureNameHeaderParams.setMargins(0, 0, 0, 5);
+        TextInputLayout procedureNameHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureNameHeaderLayout.setLayoutParams(procedureNameHeaderParams);
+        TextInputEditText procedureNameHeaderEditText = new TextInputEditText(procedureNameHeaderLayout.getContext());
+        procedureNameHeaderEditText.setText(R.string.procedureName_lbl);
+        procedureNameHeaderLayout.addView(procedureNameHeaderEditText);
+        procedureNameHeaderEditText.setFocusable(false);
+
+
+        GridLayout.LayoutParams procedureNameParams = new GridLayout.LayoutParams();
+        procedureNameParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureNameParams.width = usageLinearLayout.getWidth()/2;
+        procedureNameParams.rowSpec = GridLayout.spec(0);
+        procedureNameParams.columnSpec = GridLayout.spec(1);
+        procedureNameParams.setMargins(0, 0, 0, 5);
+        TextInputLayout procedureNameLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureNameLayout.setLayoutParams(procedureNameParams);
+        TextInputEditText procedureNameEditText = new TextInputEditText(procedureNameLayout.getContext());
+        procedureNameEditText.setText(procedureDoc.get(item).get(1));
+        procedureNameLayout.addView(procedureNameEditText);
+        procedureNameEditText.setFocusable(false);
+        procedureName.addView(procedureNameHeaderLayout);
+        procedureName.addView(procedureNameLayout);
+
+
+        GridLayout procedureTime = new GridLayout(view.getContext());
+        procedureTime.setColumnCount(2);
+        procedureTime.setRowCount(1);
+        GridLayout.LayoutParams procedureTimeHeaderParams = new GridLayout.LayoutParams();
+        procedureTimeHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureTimeHeaderParams.width = linearLayout.getWidth()/2;
+        procedureTimeHeaderParams.rowSpec = GridLayout.spec(0);
+        procedureTimeHeaderParams.columnSpec = GridLayout.spec(0);
+        procedureTimeHeaderParams.setMargins(0, 0, 0, 5);
+        TextInputLayout procedureTimeHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureTimeHeaderLayout.setLayoutParams(procedureTimeHeaderParams);
+        TextInputEditText procedureTimeHeaderEditText = new TextInputEditText(procedureTimeHeaderLayout.getContext());
+        procedureTimeHeaderEditText.setText(R.string.procedureTime_lbl);
+        procedureTimeHeaderLayout.addView(procedureTimeHeaderEditText);
+        procedureTimeHeaderEditText.setFocusable(false);
+
+        GridLayout.LayoutParams procedureTimeParams = new GridLayout.LayoutParams();
+        procedureTimeParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureTimeParams.width = linearLayout.getWidth()/2;
+        procedureTimeParams.rowSpec = GridLayout.spec(0);
+        procedureTimeParams.columnSpec = GridLayout.spec(1);
+        procedureTimeParams.setMargins(0, 0, 0, 5);
+
+        TextInputLayout procedureTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureTimeLayout.setLayoutParams(procedureTimeParams);
+        TextInputEditText procedureTimeEditText = new TextInputEditText(procedureTimeLayout.getContext());
+        procedureTimeEditText.setText(procedureDoc.get(item).get(4));
+        procedureTimeLayout.addView(procedureTimeEditText);
+        procedureTimeEditText.setFocusable(false);
+        procedureTime.addView(procedureTimeHeaderLayout);
+        procedureTime.addView(procedureTimeLayout);
+
+
+
+        GridLayout procedureAccession = new GridLayout(view.getContext());
+        procedureAccession.setColumnCount(2);
+        procedureAccession.setRowCount(1);
+        GridLayout.LayoutParams procedureAccessionHeaderParams = new GridLayout.LayoutParams();
+        procedureAccessionHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureAccessionHeaderParams.width = linearLayout.getWidth()/2;
+        procedureAccessionHeaderParams.rowSpec = GridLayout.spec(0);
+        procedureAccessionHeaderParams.columnSpec = GridLayout.spec(0);
+        procedureAccessionHeaderParams.setMargins(0, 0, 0, 5);
+        TextInputLayout accessionHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        accessionHeaderLayout.setLayoutParams(procedureAccessionHeaderParams);
+        TextInputEditText accessionHeaderEditText = new TextInputEditText(accessionHeaderLayout.getContext());
+        accessionHeaderEditText.setText(R.string.AccessionNumber_lbl);
+        accessionHeaderLayout.addView(accessionHeaderEditText);
+        accessionHeaderEditText.setFocusable(false);
+
+
+        GridLayout.LayoutParams procedureAccessionParams = new GridLayout.LayoutParams();
+        procedureAccessionParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureAccessionParams.width = linearLayout.getWidth()/2;
+        procedureAccessionParams.rowSpec = GridLayout.spec(0);
+        procedureAccessionParams.columnSpec = GridLayout.spec(1);
+        procedureAccessionParams.setMargins(0, 0, 0, 5);
+        TextInputLayout accessionLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        accessionLayout.setLayoutParams(procedureAccessionParams);
+        TextInputEditText accessionEditText = new TextInputEditText(accessionLayout.getContext());
+        accessionEditText.setText(procedureDoc.get(item).get(0));
+        accessionLayout.addView(accessionEditText);
+        accessionEditText.setFocusable(false);
+        procedureAccession.addView(accessionHeaderLayout);
+        procedureAccession.addView(accessionLayout);
+
+        GridLayout procedureItemUsed = new GridLayout(view.getContext());
+        procedureItemUsed.setColumnCount(2);
+        procedureItemUsed.setRowCount(1);
+
+        GridLayout.LayoutParams procedureItemUsedHeader = new GridLayout.LayoutParams();
+        procedureItemUsedHeader.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureItemUsedHeader.width = linearLayout.getWidth()/2;
+        procedureItemUsedHeader.rowSpec = GridLayout.spec(0);
+        procedureItemUsedHeader.columnSpec = GridLayout.spec(0);
+        procedureItemUsedHeader.setMargins(0, 0, 0, 5);
+        TextInputLayout itemUsedHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        itemUsedHeaderLayout.setLayoutParams(procedureItemUsedHeader);
+        TextInputEditText itemUsedHeaderEditText = new TextInputEditText(itemUsedHeaderLayout.getContext());
+        itemUsedHeaderEditText.setText(R.string.itemsUsed_lbl);
+        itemUsedHeaderLayout.addView(itemUsedHeaderEditText);
+        itemUsedHeaderEditText.setFocusable(false);
+
+
+        GridLayout.LayoutParams procedureItemUsedLayout = new GridLayout.LayoutParams();
+        procedureItemUsedLayout.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureItemUsedLayout.width = usageLinearLayout.getWidth()/2;
+        procedureItemUsedLayout.rowSpec = GridLayout.spec(0);
+        procedureItemUsedLayout.columnSpec = GridLayout.spec(1);
+        procedureItemUsedLayout.setMargins(0, 0, 0, 5);
+        TextInputLayout itemUsedLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        TextInputEditText itemUsedEditText = new TextInputEditText(itemUsedLayout.getContext());
+        itemUsedLayout.setLayoutParams(procedureItemUsedLayout);
+        itemUsedEditText.setText(procedureDoc.get(item).get(2));
+        itemUsedLayout.addView(itemUsedEditText);
+        itemUsedEditText.setFocusable(false);
+
+        procedureItemUsed.addView(itemUsedHeaderLayout);
+        procedureItemUsed.addView(itemUsedLayout);
+
+
+        subFieldsLayout.addView(procedureName);
+        subFieldsLayout.addView(procedureTime);
+        subFieldsLayout.addView(procedureAccession);
+        subFieldsLayout.addView(procedureItemUsed);
+        procedureInfoLayout.addView(subFieldsLayout,(procedureInfoLayout.indexOfChild(procedureInfo))+1);
+
+
+
 
     }
 }
