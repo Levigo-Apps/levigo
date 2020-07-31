@@ -405,18 +405,6 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                 //TODO next step
 //                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
                 return true;
-            case R.id.viewonly:
-                ItemDetailViewFragment fragment = new ItemDetailViewFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("barcode", "");
-                fragment.setArguments(bundle);
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
-                fragmentTransaction.add(R.id.activity_main, fragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
 
             case R.id.filter:
                 Log.d(TAG, "reached case filter");
