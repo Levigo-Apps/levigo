@@ -1895,25 +1895,7 @@ public class ItemDetailFragment extends Fragment {
 // Add the request to the RequestQueue.
         queue.add(stringRequest);
 
-        // getting and updating procedure number added to database
-        TextWatcher diWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                //updateProcedureFieldAdded(udiStr, Objects.requireNonNull(deviceIdentifier.getText()).toString());
-
-            }
-        };
-        deviceIdentifier.addTextChangedListener(diWatcher);
 
 
 

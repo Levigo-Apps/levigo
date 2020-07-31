@@ -308,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
         if (result != null) {
             String contents = result.getContents();
             if (contents != null) {
-                startItemView(contents);
+               startItemView(contents);
 
             }
             if (result.getBarcodeImagePath() != null) {
@@ -336,6 +336,24 @@ public class MainActivity extends AppCompatActivity implements Serializable {
 //            }
 //        }
 
+        //clears other fragments
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+        fragmentTransaction.add(R.id.activity_main, fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+    public void startItemViewOnly(String barcode) {
+        ItemDetailViewFragment fragment = new ItemDetailViewFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("barcode", barcode);
+        fragment.setArguments(bundle);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
         //clears other fragments
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
@@ -399,7 +417,6 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                 fragmentTransaction.add(R.id.activity_main, fragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
-                return true;
 
             case R.id.filter:
                 Log.d(TAG, "reached case filter");

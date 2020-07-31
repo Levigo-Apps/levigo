@@ -68,7 +68,8 @@ public class UDIAdapter extends RecyclerView.Adapter<UDIAdapter.UDIHolder> {
                 public void onClick(View view) {
                     if(udi.containsKey("udi")) {
                         String udiString = udi.get("udi").toString();
-                        activity.startItemView(udiString);
+                        //activity.startItemView(udiString);
+                        activity.startItemViewOnly(udiString);
                     }
                 }
             });

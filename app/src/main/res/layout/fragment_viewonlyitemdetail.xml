@@ -71,7 +71,8 @@
                         android:gravity="center"
                         android:text="Item Name Product Description"
                         android:textColor="#ffffff"
-                        android:textSize="19sp" />
+                        android:textSize="19sp"
+                        android:id="@+id/itemname_text"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <LinearLayout
@@ -108,7 +109,7 @@
                             android:id="@+id/barcode_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Some barcode here"
+                            android:text=""
                             android:focusable="false"
                             />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -148,7 +149,7 @@
                             android:id="@+id/di_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Some Identifier Here"
+                            android:text=""
                             android:focusable="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -187,7 +188,7 @@
                             android:id="@+id/quantity_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Some Quantity here"
+                            android:text=""
                             android:focusable="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -226,7 +227,7 @@
                             android:id="@+id/expiration_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Some Expiration Here"
+                            android:text=""
                             android:focusable="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -265,7 +266,7 @@
                             android:id="@+id/site_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Some Hospital Here"
+                            android:text=""
                             android:focusable="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -304,7 +305,7 @@
                             android:id="@+id/physicallocation_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Some Location Here"
+                            android:text=""
                             android:focusable="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -343,7 +344,7 @@
                             android:id="@+id/type_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Some Type Here"
+                            android:text=""
                             android:focusable="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -381,7 +382,7 @@
                             android:id="@+id/usage_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Single vs Reusable"
+                            android:text=""
                             android:focusable="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -419,7 +420,45 @@
                             android:id="@+id/medicalspecialty_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Some Specialty here"
+                            android:text=""
+                            android:focusable="false"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/devicedescription_header"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+
+                        >
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:focusable="false"
+                            android:text="Device Description" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/devicedescription_text"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        >
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/devicedescription_edittext"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text=""
                             android:focusable="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -458,7 +497,7 @@
                             android:id="@+id/referencenumber_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Some Quantity here"
+                            android:text=""
                             android:focusable="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -494,10 +533,10 @@
                         >
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/elotnumber_edittext"
+                            android:id="@+id/lotnumber_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Some Lot Number Here"
+                            android:text=""
                             android:focusable="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -535,7 +574,7 @@
                             android:id="@+id/company_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Some Manufacturer"
+                            android:text=""
                             android:focusable="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -611,7 +650,7 @@
                             android:id="@+id/notes_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Some Notes Here"
+                            android:text=""
                             android:focusable="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
