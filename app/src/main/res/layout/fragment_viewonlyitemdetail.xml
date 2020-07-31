@@ -628,7 +628,7 @@
                             android:id="@+id/lasteupdate_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Last Update Here"
+                            android:text=""
                             android:focusable="false"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -727,7 +727,51 @@
                             android:textStyle="bold"
                             android:textSize="20sp"/>
                     </com.google.android.material.textfield.TextInputLayout>
+
                 </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/isitemused_linear"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false"
+                    android:visibility="gone">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/isitemused_header"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        >
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:focusable="false"
+                            android:text="Item Used?"
+                            android:textStyle="bold"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/isitemused_text"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        >
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/isitemused_edittext"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text=""
+                            android:focusable="false"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+
+
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

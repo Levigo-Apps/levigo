@@ -416,11 +416,16 @@ public class ItemDetailViewFragment extends Fragment {
                         }if(document.get("current_date_time") != null){
                             currentTime = document.getString("current_date_time");
                             lastUpdate.setText(String.format("%s\n%s", currentDate, currentTime));
+                        }if(document.get("isUsed") != null){
+                            String isUsed = String.valueOf(document.getBoolean("isUsed"));
+                            String isUsedStr = isUsed.substring(0, 1).toUpperCase() + isUsed.substring(1);
+                           TextInputEditText isUsedEditText = view.findViewById(R.id.isitemused_edittext);
+                           isUsedEditText.setText(isUsedStr);
+
                         }
                     } else {
                         itemQuantity = "0";
                         quantity.setText("0");
-
                         Log.d(TAG, "Document does not exist!");
                     }
                     quantity.setText(document.getString(QUANTITY_KEY));
@@ -464,17 +469,23 @@ public class ItemDetailViewFragment extends Fragment {
                             }
                             procedureDoc.add(procedureDocuments);
                             final boolean[] isUsageMaximized = {false};
+                            final LinearLayout isItemUsedLinearLayout = view.findViewById(R.id.isitemused_linear);
                             if(check[0] == procedureCount) {
                                 usageLayout.setEndIconOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
                                         if(isUsageMaximized[0]){
+                                            isItemUsedLinearLayout.setVisibility(View.GONE);
                                             linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout)+ 1)
+                                                    .setVisibility(View.GONE);
+                                            linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout)+ 2)
                                                     .setVisibility(View.GONE);
                                             isUsageMaximized[0] = false;
                                             usageHeader.setEndIconDrawable(R.drawable.ic_baseline_plus);
 
                                         }else{
+
+                                            isItemUsedLinearLayout.setVisibility(View.VISIBLE);
                                             addProcedureInfoFields(procedureDoc,view);
                                             isUsageMaximized[0] = true;
                                             usageHeader.setEndIconDrawable(R.drawable.ic_remove_minimize);
@@ -567,7 +578,7 @@ public class ItemDetailViewFragment extends Fragment {
             });
         }
 
-        linearLayout.addView(procedureInfoLayout,linearLayout.indexOfChild(usageLinearLayout) +   1);
+        linearLayout.addView(procedureInfoLayout,linearLayout.indexOfChild(usageLinearLayout) +   2);
     }
 
     private void addProcedureSubFields(LinearLayout procedureInfoLayout, View view,
