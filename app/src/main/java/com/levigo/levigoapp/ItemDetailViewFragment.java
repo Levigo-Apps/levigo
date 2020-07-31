@@ -475,6 +475,7 @@ public class ItemDetailViewFragment extends Fragment {
                                     @Override
                                     public void onClick(View view) {
                                         if(isUsageMaximized[0]){
+                                            usageLayout.setEndIconDrawable(R.drawable.ic_baseline_plus);
                                             isItemUsedLinearLayout.setVisibility(View.GONE);
                                             linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout)+ 1)
                                                     .setVisibility(View.GONE);
@@ -484,7 +485,7 @@ public class ItemDetailViewFragment extends Fragment {
                                             usageHeader.setEndIconDrawable(R.drawable.ic_baseline_plus);
 
                                         }else{
-
+                                            usageLayout.setEndIconDrawable(R.drawable.ic_remove_minimize);
                                             isItemUsedLinearLayout.setVisibility(View.VISIBLE);
                                             addProcedureInfoFields(procedureDoc,view);
                                             isUsageMaximized[0] = true;
