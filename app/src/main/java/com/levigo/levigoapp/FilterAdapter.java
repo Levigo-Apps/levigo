@@ -19,18 +19,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHolder>{
+public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHolder> {
     private static final String TAG = "FilterAdapter";
 
     private boolean sign = true;
     private ArrayList<String> mList;
     private Context mContext;
-    private String text = "";
     private HashMap<String, Object> mData;
-    private RecyclerView categoryView;
-    private MainActivity activity;
 
-    public FilterAdapter(Context context, HashMap<String, Object>  entries, ArrayList<String> list){
+    public FilterAdapter(Context context, HashMap<String, Object>  entries, ArrayList<String> list) {
         mList = list;
         mData = entries;
         mContext = context;
@@ -54,7 +51,7 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHold
             @Override
             public void onClick(View view) {
 
-                Log.d(TAG, "clicked on: "+mList.get(position));
+                Log.d(TAG, "clicked on: " + mList.get(position));
 
                 if ((sign)) {
                     holder.plusSign.setImageResource(R.drawable.ic_baseline_remove_24);
@@ -77,17 +74,17 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHold
         return mList.size();
     }
 
-    public class FilterHolder extends RecyclerView.ViewHolder{
+    public class FilterHolder extends RecyclerView.ViewHolder {
 
         public RecyclerView categoryView;
         public ImageButton plusSign;
         public TextView rowText;
         public RelativeLayout parentLayout;
 
-        public FilterHolder(View view){
+        public FilterHolder(View view) {
             super(view);
-            plusSign = (ImageButton)view.findViewById(R.id.plus_icon);
-            rowText = (TextView)view.findViewById(R.id.row_text);
+            plusSign = (ImageButton) view.findViewById(R.id.plus_icon);
+            rowText = (TextView) view.findViewById(R.id.row_text);
             parentLayout = (RelativeLayout) view.findViewById(R.id.parent_layout);
             categoryView = (RecyclerView) view.findViewById(R.id.category_recycler);
         }

@@ -1,11 +1,8 @@
 package com.levigo.levigoapp;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -34,8 +31,6 @@ public class FilterActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.filter_sort);
-        //LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        //View view = layoutInflater.inflate(R.layout.filter_sort, null );
 
         Intent intent = getIntent();
         entries = (HashMap<String, Object>)intent.getSerializableExtra("map");
@@ -57,7 +52,7 @@ public class FilterActivity extends AppCompatActivity {
     }
 
 
-    private void initPut() {
+    private void initPut () {
         Log.d(TAG, "initPut here");
         mTexts.add("Type of Equipment");
         mTexts.add("Specification");
@@ -69,7 +64,7 @@ public class FilterActivity extends AppCompatActivity {
         initFilter();
     }
 
-    private void initFilter() {
+    private void initFilter () {
         Log.d(TAG, "initSearch here");
         searchview = (RecyclerView) findViewById(R.id.search_recycler);
         searchview.setLayoutManager(new LinearLayoutManager(this));

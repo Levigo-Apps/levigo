@@ -125,21 +125,6 @@ public class MainActivity extends AppCompatActivity {
             key = null;
         }
 
-        /*
-        // Start of Crash button. Production only. Remove before publishing
-        Button crashButton = new Button(this);
-        crashButton.setText("Crash!");
-        crashButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                throw new RuntimeException("Test Crash"); // Force a crash
-            }
-        });
-        addContentView(crashButton, new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        // End of crash button
-         */
-
         mAuth = FirebaseAuth.getInstance();
         String userId = mAuth.getCurrentUser().getUid();
 
@@ -154,7 +139,6 @@ public class MainActivity extends AppCompatActivity {
                     if (document.exists()) {
                         try {
                             mNetworkId = document.get("network_id").toString();
-//                            mNetworkName = document.get("network_name").toString();
                             mHospitalId = document.get("hospital_id").toString();
                             mHospitalName = document.get("hospital_name").toString();
                             String inventoryRefUrl = "networks/" + mNetworkId + "/hospitals/" + mHospitalId + "/departments/default_department/dis";
@@ -383,13 +367,6 @@ public class MainActivity extends AppCompatActivity {
         fragment.setArguments(bundle);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-//        List<Fragment> fragments = fragmentManager.getFragments();
-//        //prevents creating more than one ItemDetailFragment
-//        for(Fragment f : fragments) {
-//            if(f instanceof ItemDetailFragment){
-//                return;
-//            }
-//        }
 
         //clears other fragments
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
