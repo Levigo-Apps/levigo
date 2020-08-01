@@ -16,8 +16,6 @@
     <string name="register_label">Don\'t have an account? Register here</string>
     <string name="scan_from_fragment">SCAN FROM FRAGMENT</string>
     <string name="title_activity_tabbed_scanning">Add Inventory</string>
-    <string name="physical_location_label">Physical Location</string>
-    <string name="hospital_name_label">Hospital Name</string>
     <string name="hospital_lbl">Hospital</string>
     <string name="notes_lbl">Notes</string>
     <string name="additional_remarks_lbl">Additional Remarks</string>
@@ -96,7 +94,6 @@
     <string name="type_of_equipment">Type of Equipment</string>
     <string name="add_procedure_info_lbl">Add Procedure Info</string>
     <string name="remove_procedure_info_lbl">Remove Procedure Info</string>
-    <string name="barcode_udi_label">Barcode | UDI</string>
     <string name="usage_label">Usage</string>
     <string name="name_label">Name</string>
     <string name="choose_site_label">Choose site</string>
@@ -107,5 +104,20 @@
     <string name="AccessionNumber_lbl">Accession Number</string>
     <string name="itemsUsed_lbl">Number of Items Used</string>
     <string name="procedureDate_lbl">Procedure Date</string>
+    <string name="item_name_product_description_label">Item Name Product Description</string>
+    <string name="barcode_udi_label">Barcode | UDI</string>
+    <string name="device_identifier_label">Device Identifier</string>
+    <string name="quantity_label">Quantity</string>
+    <string name="expiration_label">Expiration</string>
+    <string name="hospital_name_label">Hospital Name</string>
+    <string name="physical_location_label">Physical Location</string>
+    <string name="type_label">Type</string>
+    <string name="medical_specialty_label">Medical Specialty</string>
+    <string name="device_description_label">Device Description</string>
+    <string name="reference_number_label">Reference Number</string>
+    <string name="manufacturer_company_label">Manufacturer Company</string>
+    <string name="last_update_label">Last Update</string>
+    <string name="notes_label">Notes</string>
+    <string name="specification_label">Specification</string>
 
 </resources>

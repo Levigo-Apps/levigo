@@ -1,0 +1,13 @@
+<com.google.android.material.textfield.TextInputLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
+    android:layout_weight="1"
+    app:endIconMode="custom"
+    app:endIconTint="@color/colorPrimary"
+
+    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+    android:textAppearance="?android:attr/textAppearance"
+    app:chipBackgroundColor="@color/colorPrimary"
+    />

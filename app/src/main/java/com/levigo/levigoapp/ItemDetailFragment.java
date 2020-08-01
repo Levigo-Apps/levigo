@@ -33,9 +33,11 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -60,9 +62,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -165,7 +169,7 @@ public class ItemDetailFragment extends Fragment {
     private ArrayList<String> TYPES;
     private ArrayList<String> SITELOC;
     private ArrayList<String> PHYSICALLOC;
-    private List<Map<String,Object>> procedureMapList;
+    private List<Map<String, Object>> procedureMapList;
     private List<String> procedureDocuments;
     private List<List<String>> procedureDoc;
     private TextWatcher textWatcher;
@@ -240,8 +244,8 @@ public class ItemDetailFragment extends Fragment {
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
 
         siteConstrainLayout = rootView.findViewById(R.id.site_linearlayout);
-        physicalLocationConstrainLayout= rootView.findViewById(R.id.physicalLocationLinearLayout);
-        typeConstrainLayout= rootView.findViewById(R.id.typeLinearLayout);
+        physicalLocationConstrainLayout = rootView.findViewById(R.id.physicalLocationLinearLayout);
+        typeConstrainLayout = rootView.findViewById(R.id.typeLinearLayout);
         chosenType = false;
         chosenSite = false;
         chosenLocation = false;
@@ -285,7 +289,7 @@ public class ItemDetailFragment extends Fragment {
                             mHospitalId = document.get("hospital_id").toString();
 //                            mHospitalName = document.get("hospital_name").toString();
                             typeRef = db.collection("networks").document(mNetworkId).collection("hospitals")
-                            .document(mHospitalId).collection("types").document("type_options");
+                                    .document(mHospitalId).collection("types").document("type_options");
                             siteRef = db.collection("networks").document(mNetworkId)
                                     .collection("hospitals");
                             physLocRef = db.collection("networks").document(mNetworkId)
@@ -325,13 +329,11 @@ public class ItemDetailFragment extends Fragment {
         });
 
 
-
-
         // NumberPicker Dialog for NumberAdded field
         numberAdded.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showNumberPicker(rootView,numberAdded);
+                showNumberPicker(rootView, numberAdded);
             }
         });
 
@@ -354,7 +356,6 @@ public class ItemDetailFragment extends Fragment {
         });
 
 
-
         //set TextWatcher for required fields
         setTextWatcherRequired();
 
@@ -362,7 +363,7 @@ public class ItemDetailFragment extends Fragment {
         autoPopulateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                autoPopulate(siteDocRef,rootView);
+                autoPopulate(siteDocRef, rootView);
             }
         });
         addSizeButton.setOnClickListener(new View.OnClickListener() {
@@ -380,7 +381,6 @@ public class ItemDetailFragment extends Fragment {
                 timeInLayoutPicker(view);
             }
         });
-
 
 
         // going back to the scanner view
@@ -423,7 +423,8 @@ public class ItemDetailFragment extends Fragment {
                     itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addProcedure) - 1);
                     numberUsedList.remove(numberUsedList.size() - 1);
                     --procedureFieldAdded;
-                }if(procedureFieldAdded - procedureListCounter == 0){
+                }
+                if (procedureFieldAdded - procedureListCounter == 0) {
                     removeProcedure.setEnabled(false);
                 }
             }
@@ -447,7 +448,7 @@ public class ItemDetailFragment extends Fragment {
                     checkItemUsed = false;
                     numberAddedLayout.setVisibility(View.VISIBLE);
                     itemUsedFields.setVisibility(View.GONE);
-                    while (procedureFieldAdded  - procedureListCounter > 0) {
+                    while (procedureFieldAdded - procedureListCounter > 0) {
                         itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addProcedure) - 1);
                         --procedureFieldAdded;
                     }
@@ -512,7 +513,7 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-        if(getArguments() != null) {
+        if (getArguments() != null) {
             String barcode = getArguments().getString("barcode");
             udiEditText.setText(barcode);
             autoPopulate(siteDocRef, rootView);
@@ -520,7 +521,7 @@ public class ItemDetailFragment extends Fragment {
         return rootView;
     }
 
-    private void timeInLayoutPicker(View view){
+    private void timeInLayoutPicker(View view) {
         Calendar mcurrentTime = Calendar.getInstance();
         int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
         int minute = mcurrentTime.get(Calendar.MINUTE);
@@ -535,7 +536,7 @@ public class ItemDetailFragment extends Fragment {
         mTimePicker.show();
     }
 
-    private void updatePhysicalLocation(View view){
+    private void updatePhysicalLocation(View view) {
         physLocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
@@ -575,7 +576,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
 
-    private void updateSite(View view){
+    private void updateSite(View view) {
         siteRef.document("site_options").addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
@@ -615,7 +616,7 @@ public class ItemDetailFragment extends Fragment {
 
     }
 
-    private void updateEquipmentType(View view){
+    private void updateEquipmentType(View view) {
         typeRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
@@ -655,7 +656,8 @@ public class ItemDetailFragment extends Fragment {
             }
         });
     }
-    private void setTextWatcherRequired(){
+
+    private void setTextWatcherRequired() {
         textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -671,7 +673,7 @@ public class ItemDetailFragment extends Fragment {
 
                 for (AutoCompleteTextView editText : new AutoCompleteTextView[]{equipmentType,
                         hospitalName, physicalLocation}) {
-                    if(!(editText.getText().toString().trim().isEmpty())){
+                    if (!(editText.getText().toString().trim().isEmpty())) {
                         checkAutocompleteTexts = true;
                         continue;
                     }
@@ -681,14 +683,14 @@ public class ItemDetailFragment extends Fragment {
                     }
                 }
 
-                if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)){
+                if ((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
                     saveButton.setEnabled(true);
                 }
 
                 for (TextInputEditText editText : new TextInputEditText[]{udiEditText, nameEditText,
                         company, expiration, lotNumber, referenceNumber, numberAdded, deviceIdentifier,
                         dateIn, timeIn}) {
-                    if(!(Objects.requireNonNull(editText.getText()).toString().trim().isEmpty())){
+                    if (!(Objects.requireNonNull(editText.getText()).toString().trim().isEmpty())) {
                         checkEditTexts = true;
                         continue;
                     }
@@ -698,7 +700,7 @@ public class ItemDetailFragment extends Fragment {
                     }
                 }
 
-                if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)){
+                if ((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
                     saveButton.setEnabled(true);
                 }
 
@@ -707,7 +709,7 @@ public class ItemDetailFragment extends Fragment {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                         checkSingleUseButton = true;
-                        if((b && checkAutocompleteTexts) && checkEditTexts){
+                        if ((b && checkAutocompleteTexts) && checkEditTexts) {
                             saveButton.setEnabled(true);
                         }
                     }
@@ -717,7 +719,7 @@ public class ItemDetailFragment extends Fragment {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                         checkMultiUseButton = true;
-                        if((b && checkAutocompleteTexts) && checkEditTexts){
+                        if ((b && checkAutocompleteTexts) && checkEditTexts) {
 
                             saveButton.setEnabled(true);
                         }
@@ -726,7 +728,7 @@ public class ItemDetailFragment extends Fragment {
             }
         };
 
-        if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)){
+        if ((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
             saveButton.setEnabled(true);
         }
 
@@ -747,9 +749,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
 
-
-
-    private void setIconsAndDialogs(final TextInputEditText procedureDateEditText){
+    private void setIconsAndDialogs(final TextInputEditText procedureDateEditText) {
         final DatePickerDialog.OnDateSetListener date_proc = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
@@ -763,8 +763,7 @@ public class ItemDetailFragment extends Fragment {
         };
 
 
-
-         procedureDateLayout.setEndIconOnClickListener(new View.OnClickListener() {
+        procedureDateLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new DatePickerDialog(view.getContext(), date_proc, myCalendar
@@ -776,30 +775,30 @@ public class ItemDetailFragment extends Fragment {
 
     }
 
-    private void incrementNumberUsed(TextInputEditText numberUsed){
+    private void incrementNumberUsed(TextInputEditText numberUsed) {
         int newNumber = 0;
         try {
             newNumber = Integer.parseInt(Objects.requireNonNull(numberUsed.getText()).toString());
-        }catch (NumberFormatException e){
-            Log.d(TAG,e.toString());
-        }finally {
+        } catch (NumberFormatException e) {
+            Log.d(TAG, e.toString());
+        } finally {
             numberUsed.setText(String.valueOf(++newNumber));
         }
     }
 
-    private void incrementNumberAdded(){
+    private void incrementNumberAdded() {
         int newNumber = 0;
         try {
             newNumber = Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
-        }catch (NumberFormatException e){
-            Log.d(TAG,e.toString());
-        }finally {
+        } catch (NumberFormatException e) {
+            Log.d(TAG, e.toString());
+        } finally {
             numberAdded.setText(String.valueOf(++newNumber));
         }
     }
 
 
-    private void showNumberPicker(View view, final TextInputEditText editTextAdded){
+    private void showNumberPicker(View view, final TextInputEditText editTextAdded) {
 
         final Dialog d = new Dialog(view.getContext());
         d.setTitle("NumberPicker");
@@ -811,16 +810,14 @@ public class ItemDetailFragment extends Fragment {
         np.setMinValue(0);   // min value 0
 
         np.setWrapSelectorWheel(true);
-        b1.setOnClickListener(new View.OnClickListener()
-        {
+        b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 editTextAdded.setText(String.valueOf(np.getValue())); //set the value to textview
                 d.dismiss();
             }
         });
-        b2.setOnClickListener(new View.OnClickListener()
-        {
+        b2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 d.dismiss(); // dismiss the dialog
@@ -844,10 +841,10 @@ public class ItemDetailFragment extends Fragment {
         procedureInfoLayout.setGravity(Gravity.END);
 
         final TextView procedureNumber = new TextView(view.getContext());
-        procedureNumber.setPadding(0,10,0,0);
+        procedureNumber.setPadding(0, 10, 0, 0);
         procedureNumber.setTextSize(18);
         procedureNumber.setTypeface(procedureNumber.getTypeface(), Typeface.BOLD);
-        SpannableString content = new SpannableString(String.format(Locale.US,"Procedure #%d Description",
+        SpannableString content = new SpannableString(String.format(Locale.US, "Procedure #%d Description",
                 procedureFieldAdded));
         content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
         procedureNumber.setText(content);
@@ -910,12 +907,11 @@ public class ItemDetailFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         accessionNumberLayout.setHint("Enter Accession Number");
         accessionNumberLayout.setPadding(0, 10, 0, 10);
-        accessionNumberEditText= new TextInputEditText(procedureNameLayout.getContext());
+        accessionNumberEditText = new TextInputEditText(procedureNameLayout.getContext());
         accessionNumberEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
         accessionNumberLayout.setTag("accession");
         accessionNumberEditText.setTag("accession_text");
-        generateNewNumber(view,accessionNumberEditText);
-
+        generateNewNumber(view, accessionNumberEditText);
 
 
         TextInputLayout numberUsedLayout = (TextInputLayout) View.inflate(view.getContext(),
@@ -941,15 +937,12 @@ public class ItemDetailFragment extends Fragment {
         numberUsedEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showNumberPicker(view,numberUsedEditText);
+                showNumberPicker(view, numberUsedEditText);
             }
         });
         numberUsedEditText.setClickable(true);
         numberUsedEditText.setFocusable(false);
         numberUsedEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-
-
-
 
 
         TextWatcher newProcedureTextWatcher = new TextWatcher() {
@@ -974,11 +967,11 @@ public class ItemDetailFragment extends Fragment {
                         Objects.requireNonNull(accessionNumberEditText.getText()).toString());
                 procedureInfoMap.put(TIME_KEY,
                         Objects.requireNonNull(procedureTimeEditText.getText()).toString());
-                for(TextInputEditText text : new TextInputEditText[]{
-                        procedureDateEditText,procedureNameEditText,
-                        accessionNumberEditText,numberUsedEditText,
-                        procedureTimeEditText}){
-                    if(text.toString().trim().isEmpty()){
+                for (TextInputEditText text : new TextInputEditText[]{
+                        procedureDateEditText, procedureNameEditText,
+                        accessionNumberEditText, numberUsedEditText,
+                        procedureTimeEditText}) {
+                    if (text.toString().trim().isEmpty()) {
                         saveButton.setEnabled(false);
                         break;
                     }
@@ -998,12 +991,12 @@ public class ItemDetailFragment extends Fragment {
         procedureDateLayout.addView(procedureDateEditText);
         numberUsedLayout.addView(numberUsedEditText);
         accessionNumberLayout.addView(accessionNumberEditText);
-        procedureInfoLayout.addView(procedureNumber,0);
-        procedureInfoLayout.addView(procedureDateLayout,1);
-        procedureInfoLayout.addView(procedureTimeLayout,2);
-        procedureInfoLayout.addView(procedureNameLayout,3);
-        procedureInfoLayout.addView(accessionNumberLayout,4);
-        procedureInfoLayout.addView(numberUsedLayout,5);
+        procedureInfoLayout.addView(procedureNumber, 0);
+        procedureInfoLayout.addView(procedureDateLayout, 1);
+        procedureInfoLayout.addView(procedureTimeLayout, 2);
+        procedureInfoLayout.addView(procedureNameLayout, 3);
+        procedureInfoLayout.addView(accessionNumberLayout, 4);
+        procedureInfoLayout.addView(numberUsedLayout, 5);
 
         itemUsedFields.addView(procedureInfoLayout, itemUsedFields.indexOfChild(addProcedure));
     }
@@ -1019,9 +1012,9 @@ public class ItemDetailFragment extends Fragment {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        generateNewNumber(view,accessionNumberEditText);
+                        generateNewNumber(view, accessionNumberEditText);
                     } else {
-                        setAccessionNumber(accessionNumberEditText,accessionNum);
+                        setAccessionNumber(accessionNumberEditText, accessionNum);
                     }
                 } else {
                     Log.d(TAG, "Failed with: ", task.getException());
@@ -1031,24 +1024,26 @@ public class ItemDetailFragment extends Fragment {
     }
 
     // generates new number
-    public void generateNewNumber(View view, TextInputEditText accessionNumberEditText){
+    public void generateNewNumber(View view, TextInputEditText accessionNumberEditText) {
         Random rand = new Random();
         String randomAccessionNum = null;
-        String randomAccession = String.valueOf (1 + rand.nextInt(999999));
-        if(randomAccession.length() == 1){
+        String randomAccession = String.valueOf(1 + rand.nextInt(999999));
+        if (randomAccession.length() == 1) {
             randomAccessionNum = "TZ00000" + randomAccession;
-        }if(randomAccession.length() == 2){
+        }
+        if (randomAccession.length() == 2) {
             randomAccessionNum = "TZ0000" + randomAccession;
         }
-        if(randomAccession.length() == 3){
+        if (randomAccession.length() == 3) {
             randomAccessionNum = "TZ000" + randomAccession;
         }
-        if(randomAccession.length() == 4){
+        if (randomAccession.length() == 4) {
             randomAccessionNum = "TZ00" + randomAccession;
         }
-        if(randomAccession.length() == 5){
+        if (randomAccession.length() == 5) {
             randomAccessionNum = "TZ0" + randomAccession;
-        }if(randomAccession.length() == 6){
+        }
+        if (randomAccession.length() == 6) {
             randomAccessionNum = "TZ" + randomAccession;
         }
         checkAccessionNumber(view, randomAccessionNum, accessionNumberEditText);
@@ -1056,7 +1051,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
     //sets accession number and save it to the database
-    public void setAccessionNumber(TextInputEditText accessionNumberEditText, String accessionNumber){
+    public void setAccessionNumber(TextInputEditText accessionNumberEditText, String accessionNumber) {
         accessionNumberEditText.setText((accessionNumber));
         Map<String, Object> data = new HashMap<>();
         data.put("accession_number", accessionNumber);
@@ -1077,12 +1072,13 @@ public class ItemDetailFragment extends Fragment {
 
 
     }
+
     // removes the accession number from the database if users removes
     // newly added procedure info fields
-    private void removeAccessionNumber(LinearLayout itemUsedFields){
-        LinearLayout procedureInfo = (LinearLayout) itemUsedFields.getChildAt((itemUsedFields.indexOfChild(addProcedure))-1);
+    private void removeAccessionNumber(LinearLayout itemUsedFields) {
+        LinearLayout procedureInfo = (LinearLayout) itemUsedFields.getChildAt((itemUsedFields.indexOfChild(addProcedure)) - 1);
         TextInputLayout accessionNumLayout = procedureInfo.findViewWithTag("accession");
-        TextInputEditText accessionNumEditText =  accessionNumLayout.findViewWithTag("accession_text");
+        TextInputEditText accessionNumEditText = accessionNumLayout.findViewWithTag("accession_text");
         accessionNumberRef.document(String.valueOf(accessionNumEditText.getText()))
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -1102,6 +1098,7 @@ public class ItemDetailFragment extends Fragment {
     // adds new row of size text views if users clicks on a button
     int rowIndex = 1;
     int rowLoc = 1;
+
     private void addEmptySizeOption(View view) {
 
         Log.d(TAG, "Adding empty size option!");
@@ -1132,8 +1129,8 @@ public class ItemDetailFragment extends Fragment {
         TextInputLayout sizeKeyLayout = new TextInputLayout(view.getContext());
 //        sizeKeyLayout.setLayoutParams(paramSizeKey);
         sizeKeyLayout.setHint("Key");
-        LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(0,MATCH_PARENT,1f);
-        klp.setMargins( (int)(4*dp),(int)(4*dp), (int)(4*dp), (int)(4*dp));
+        LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(0, MATCH_PARENT, 1f);
+        klp.setMargins((int) (4 * dp), (int) (4 * dp), (int) (4 * dp), (int) (4 * dp));
         sizeKeyLayout.setLayoutParams(klp);
         TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
         sizeKey.setSingleLine();
@@ -1144,8 +1141,8 @@ public class ItemDetailFragment extends Fragment {
         TextInputLayout sizeValueLayout = new TextInputLayout(view.getContext());
 //        sizeValueLayout.setLayoutParams(paramSizeValue);
         sizeValueLayout.setHint("Value");
-        LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(0,MATCH_PARENT,1f);
-        vlp.setMargins( (int)(4*dp),(int)(4*dp), (int)(4*dp), (int)(4*dp));
+        LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(0, MATCH_PARENT, 1f);
+        vlp.setMargins((int) (4 * dp), (int) (4 * dp), (int) (4 * dp), (int) (4 * dp));
         sizeValueLayout.setLayoutParams(vlp);
         TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
         sizeValue.setSingleLine();
@@ -1172,10 +1169,10 @@ public class ItemDetailFragment extends Fragment {
                     null, R.attr.materialButtonOutlinedStyle);
             removeSizeButton.setText(R.string.removeSize_label);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-            lp.setMargins( (int)(4*dp),0, (int)(4*dp), 0);
+            lp.setMargins((int) (4 * dp), 0, (int) (4 * dp), 0);
             removeSizeButton.setLayoutParams(lp);
 
-            linearLayout.addView(removeSizeButton,  linearLayout.indexOfChild(addSizeButton));
+            linearLayout.addView(removeSizeButton, linearLayout.indexOfChild(addSizeButton));
 
         }
 
@@ -1190,6 +1187,7 @@ public class ItemDetailFragment extends Fragment {
         isAddSizeButtonClicked = false;
 
     }
+
     //removes one row of size text entry
     private void removeEmptySizeOption() {
         if (emptySizeFieldCounter > 0) {
@@ -1208,49 +1206,9 @@ public class ItemDetailFragment extends Fragment {
         System.out.println(allSizeOptions.size());
 
     }
-    private void addItemSpecs(String key,String value, View view){
+
+    private void addItemSpecs(String key, String value, View view) {
         Log.d(TAG, "Adding item specs!");
-
-
-//        GridLayout gridLayoutSize = new GridLayout(view.getContext());
-//        GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
-//        paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-//        paramSizeKey.width = WRAP_CONTENT;
-//        paramSizeKey.rowSpec = GridLayout.spec(rowIndex);
-//        paramSizeKey.columnSpec = GridLayout.spec(0);
-//        paramSizeKey.setMargins(0, 0, 0, 20);
-//
-//
-//        GridLayout.LayoutParams paramSizeValue = new GridLayout.LayoutParams();
-//        paramSizeValue.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-//        paramSizeValue.width = WRAP_CONTENT;
-//        paramSizeValue.rowSpec = GridLayout.spec(rowIndex);
-//        paramSizeValue.columnSpec = GridLayout.spec(1);
-//        paramSizeValue.setMargins(10, 0, 0, 20);
-//
-//
-//        TextInputLayout sizeKeyLayout = (TextInputLayout) View.inflate(view.getContext(),
-//                R.layout.activity_itemdetail_materialcomponent, null);
-//        sizeKeyLayout.setLayoutParams(paramSizeKey);
-//        sizeKeyLayout.setHint("Key");
-//        TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
-//        sizeKey.setText(key);
-//        sizeKey.setFocusable(false);
-//
-//        TextInputLayout sizeValueLayout = (TextInputLayout) View.inflate(view.getContext(),
-//                R.layout.activity_itemdetail_materialcomponent, null);
-//        sizeValueLayout.setLayoutParams(paramSizeValue);
-//        sizeValueLayout.setHint("Value");
-//        TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
-//        sizeValue.setText(value);
-//        sizeValue.setFocusable(false);
-//
-//        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
-//        sizeKeyLayout.addView(sizeKey);
-//        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
-//        sizeValueLayout.addView(sizeValue);
-//        gridLayoutSize.addView(sizeKeyLayout);
-//        gridLayoutSize.addView(sizeValueLayout);
 
         LinearLayout layoutSize = new LinearLayout(getContext());
         layoutSize.setOrientation(LinearLayout.HORIZONTAL);
@@ -1258,8 +1216,8 @@ public class ItemDetailFragment extends Fragment {
 
         TextInputLayout sizeKeyLayout = new TextInputLayout(view.getContext());
         sizeKeyLayout.setHint("Key");
-        LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(0,MATCH_PARENT,1f);
-        klp.setMargins( (int)(4*dp),(int)(4*dp), (int)(4*dp), (int)(4*dp));
+        LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(0, MATCH_PARENT, 1f);
+        klp.setMargins((int) (4 * dp), (int) (4 * dp), (int) (4 * dp), (int) (4 * dp));
         sizeKeyLayout.setLayoutParams(klp);
         TextInputEditText sizeKey = new TextInputEditText(sizeKeyLayout.getContext());
         sizeKey.setSingleLine();
@@ -1269,8 +1227,8 @@ public class ItemDetailFragment extends Fragment {
 
         TextInputLayout sizeValueLayout = new TextInputLayout(view.getContext());
         sizeValueLayout.setHint("Value");
-        LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(0,MATCH_PARENT,1f);
-        vlp.setMargins( (int)(4*dp),(int)(4*dp), (int)(4*dp), (int)(4*dp));
+        LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(0, MATCH_PARENT, 1f);
+        vlp.setMargins((int) (4 * dp), (int) (4 * dp), (int) (4 * dp), (int) (4 * dp));
         sizeValueLayout.setLayoutParams(vlp);
         TextInputEditText sizeValue = new TextInputEditText(sizeKeyLayout.getContext());
         sizeValue.setSingleLine();
@@ -1318,7 +1276,7 @@ public class ItemDetailFragment extends Fragment {
 
                 @Override
                 public void afterTextChanged(Editable editable) {
-                    if(!(otherType_text.toString().trim().isEmpty())){
+                    if (!(otherType_text.toString().trim().isEmpty())) {
                         saveButton.setEnabled(true);
                     }
                 }
@@ -1342,7 +1300,7 @@ public class ItemDetailFragment extends Fragment {
                     Toast.makeText(view.getContext(), Objects.requireNonNull(otherType_text.getText()).toString(), Toast.LENGTH_SHORT).show();
                     Map<String, Object> newType = new HashMap<>();
                     newType.put("type_" + (++typeCounter), otherType_text.getText().toString());
-                    if(typeCounter == 1){
+                    if (typeCounter == 1) {
                         typeRef.set(newType)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -1357,7 +1315,7 @@ public class ItemDetailFragment extends Fragment {
                                         Log.d(TAG, e.toString());
                                     }
                                 });
-                    }else{
+                    } else {
                         typeRef.update(newType)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -1379,7 +1337,7 @@ public class ItemDetailFragment extends Fragment {
             });
         } else if (chosenType) {
             chosenType = false;
-            if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
+            if ((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
                 saveButton.setEnabled(true);
             }
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeConstrainLayout));
@@ -1412,7 +1370,7 @@ public class ItemDetailFragment extends Fragment {
 
                 @Override
                 public void afterTextChanged(Editable editable) {
-                    if(!(otherSite_text.toString().trim().isEmpty())){
+                    if (!(otherSite_text.toString().trim().isEmpty())) {
                         saveButton.setEnabled(true);
                     }
 
@@ -1436,7 +1394,7 @@ public class ItemDetailFragment extends Fragment {
                     Toast.makeText(view.getContext(), Objects.requireNonNull(otherSite_text.getText()).toString(), Toast.LENGTH_SHORT).show();
                     Map<String, Object> newType = new HashMap<>();
                     newType.put("site_" + (++siteCounter), otherSite_text.getText().toString());
-                    if(siteCounter == 1){
+                    if (siteCounter == 1) {
                         siteRef.document("site_options").set(newType)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -1451,7 +1409,7 @@ public class ItemDetailFragment extends Fragment {
                                         Log.d(TAG, e.toString());
                                     }
                                 });
-                    }else{
+                    } else {
                         siteRef.document("site_options").update(newType)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -1471,11 +1429,11 @@ public class ItemDetailFragment extends Fragment {
                 }
             });
         } else if (chosenSite) {
-            if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
+            if ((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
                 saveButton.setEnabled(true);
             }
             chosenSite = false;
-            linearLayout.removeViewAt( 1 +  linearLayout.indexOfChild(siteConstrainLayout));
+            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(siteConstrainLayout));
         }
     }
 
@@ -1504,7 +1462,7 @@ public class ItemDetailFragment extends Fragment {
 
                 @Override
                 public void afterTextChanged(Editable editable) {
-                    if(!(otherPhysicalLoc_text.toString().trim().isEmpty())){
+                    if (!(otherPhysicalLoc_text.toString().trim().isEmpty())) {
                         saveButton.setEnabled(true);
                     }
 
@@ -1528,7 +1486,7 @@ public class ItemDetailFragment extends Fragment {
                     Toast.makeText(view.getContext(), Objects.requireNonNull(otherPhysicalLoc_text.getText()).toString(), Toast.LENGTH_SHORT).show();
                     Map<String, Object> newType = new HashMap<>();
                     newType.put("loc_" + (++locCounter), otherPhysicalLoc_text.getText().toString());
-                    if(locCounter == 1){
+                    if (locCounter == 1) {
                         physLocRef.set(newType)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -1543,7 +1501,7 @@ public class ItemDetailFragment extends Fragment {
                                         Log.d(TAG, e.toString());
                                     }
                                 });
-                    }else{
+                    } else {
                         physLocRef.update(newType)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -1563,7 +1521,7 @@ public class ItemDetailFragment extends Fragment {
                 }
             });
         } else if (chosenLocation) {
-            if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
+            if ((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
                 saveButton.setEnabled(true);
             }
             chosenLocation = false;
@@ -1591,7 +1549,7 @@ public class ItemDetailFragment extends Fragment {
         int quantity_int;
         String number_added_str = "0";
         int totalUsed = 0;
-        for(int i = 0; i < numberUsedList.size(); i++){
+        for (int i = 0; i < numberUsedList.size(); i++) {
             totalUsed += Integer.parseInt(Objects.requireNonNull(numberUsedList.get(i).getText()).toString());
         }
         if (itemUsed.isChecked()) {
@@ -1618,9 +1576,9 @@ public class ItemDetailFragment extends Fragment {
             physical_location_str = physicalLocation.getText().toString().trim();
         }
         String type_str;
-        if(chosenType){
+        if (chosenType) {
             type_str = otherType_text.getText().toString();
-        }else{
+        } else {
             type_str = equipmentType.getText().toString();
         }
         String currentTime_str = Objects.requireNonNull(timeIn.getText()).toString();
@@ -1631,9 +1589,6 @@ public class ItemDetailFragment extends Fragment {
         int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
         RadioButton radioButton = view.findViewById(radioButtonInt);
         String singleOrMultiUse = radioButton.getText().toString();
-
-
-
 
 
         // saving di-specific identifiers using HashMap
@@ -1647,7 +1602,7 @@ public class ItemDetailFragment extends Fragment {
         diDoc.put(DESCRIPTION_KEY, description_str);
         diDoc.put(SPECIALTY_KEY, medical_speciality_str);
         diDoc.put(USAGE_KEY, singleOrMultiUse);
-        diDoc.put(QUANTITY_KEY,diQuantity);
+        diDoc.put(QUANTITY_KEY, diQuantity);
 
         DocumentReference diRef = db.collection(NETWORKS).document(NETWORK)
                 .collection(SITES).document(SITE).collection(DEPARTMENTS)
@@ -1696,15 +1651,15 @@ public class ItemDetailFragment extends Fragment {
                 });
 
         Map<String, Object> procedureQuantity = new HashMap<>();
-        procedureQuantity.put("procedure_number",String.valueOf(procedureFieldAdded));
+        procedureQuantity.put("procedure_number", String.valueOf(procedureFieldAdded));
 
         if (checkItemUsed) {
-            for(int i = 0; i < procedureMapList.size(); i++){
+            for (int i = 0; i < procedureMapList.size(); i++) {
                 DocumentReference procedureDocRef = db.collection(NETWORKS).document(NETWORK)
                         .collection(SITES).document(SITE).collection(DEPARTMENTS)
                         .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str)
                         .collection("udis").document(barcode_str).collection("procedures")
-                        .document("procedure_" + (procedureListCounter+1));
+                        .document("procedure_" + (procedureListCounter + 1));
                 procedureListCounter++;
                 procedureDocRef.set(procedureMapList.get(i))
                         //in case of success
@@ -1734,12 +1689,11 @@ public class ItemDetailFragment extends Fragment {
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG,e.toString());
+                            Log.d(TAG, e.toString());
                         }
                     });
             procedureQuantity.clear();
         }
-
 
 
         if (allSizeOptions.size() > 0) {
@@ -1767,6 +1721,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
     String di = "";
+
     private void autoPopulate(final DocumentReference siteDocRef, final View view) {
 
 
@@ -1802,59 +1757,52 @@ public class ItemDetailFragment extends Fragment {
                             medicalSpecialties = new StringBuilder(medicalSpecialties.substring(0, medicalSpecialties.length() - 2));
 
                             lotNumber.setText(udi.getString("lotNumber"));
-//                            lotNumber.setFocusable(false);
                             lotNumber.setEnabled(false);
                             lotNumber.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
                             company.setText(deviceInfo.getString("companyName"));
-//                            company.setFocusable(false);
+
                             company.setEnabled(false);
                             company.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
                             expiration.setText(udi.getString("expirationDate"));
-//                            expiration.setFocusable(false);
                             expiration.setEnabled(false);
 
 
                             di = udi.getString("di");
                             deviceIdentifier.setText(udi.getString("di"));
-//                            deviceIdentifier.setFocusable(false);
                             deviceIdentifier.setEnabled(false);
 
                             updateProcedureFieldAdded(udiStr, di);
 
 
                             nameEditText.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
-//                            nameEditText.setFocusable(false);
                             nameEditText.setEnabled(false);
                             nameEditText.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
                             deviceDescription.setText(deviceInfo.getString("deviceDescription"));
-//                            deviceDescription.setFocusable(false);
                             deviceDescription.setEnabled(false);
                             deviceDescription.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
                             referenceNumber.setText(deviceInfo.getString("catalogNumber"));
-//                            referenceNumber.setFocusable(false);
                             referenceNumber.setEnabled(false);
 
                             medicalSpeciality.setText(medicalSpecialties.toString());
-//                            medicalSpeciality.setFocusable(false);
                             medicalSpeciality.setEnabled(false);
                             medicalSpeciality.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
                             numberAdded.setText(deviceInfo.getString("deviceCount"));
-                            autoPopulateFromDatabase(udi, siteDocRef,udiStr, view);
+                            autoPopulateFromDatabase(udi, siteDocRef, udiStr, view);
 
                             JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
 
-                            for (int i = 0; i < deviceSizeArray.length(); ++i){
+                            for (int i = 0; i < deviceSizeArray.length(); ++i) {
                                 String k;
                                 String v;
                                 JSONObject currentSizeObject = deviceSizeArray.getJSONObject(i);
                                 k = currentSizeObject.getString("sizeType");
                                 Log.d(TAG, "KEYS: " + k);
-                                if (k.equals("Device Size Text, specify")){
+                                if (k.equals("Device Size Text, specify")) {
                                     String customSizeText = currentSizeObject.getString("sizeText");
                                     // Key is usually substring before first number (e.g. "Co-Axial Introducer Needle: 17ga x 14.9cm")
                                     k = customSizeText.split("[0-9]+")[0];
@@ -1864,7 +1812,7 @@ public class ItemDetailFragment extends Fragment {
                                     // take off trailing whitespace
                                     try {
                                         k = k.substring(0, k.length() - 2);
-                                    } catch (StringIndexOutOfBoundsException e){ // if sizeText starts with number
+                                    } catch (StringIndexOutOfBoundsException e) { // if sizeText starts with number
                                         k = "Size";
                                     }
 
@@ -1879,7 +1827,7 @@ public class ItemDetailFragment extends Fragment {
                                             + currentSizeObject.getJSONObject("size").getString("unit");
                                     Log.d(TAG, "Value: " + v);
                                 }
-                                addItemSpecs(k,v,view);
+                                addItemSpecs(k, v, view);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -1896,12 +1844,9 @@ public class ItemDetailFragment extends Fragment {
         queue.add(stringRequest);
 
 
-
-
-
     }
 
-    private void updateProcedureFieldAdded(String udi, String di){
+    private void updateProcedureFieldAdded(String udi, String di) {
 
         DocumentReference UdiDocRef = db.collection("networks").document(mNetworkId)
                 .collection("hospitals").document(mHospitalId)
@@ -1916,13 +1861,13 @@ public class ItemDetailFragment extends Fragment {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        if(document.get("procedure_number") != null){
+                        if (document.get("procedure_number") != null) {
                             procedureFieldAdded = Integer.parseInt(
                                     Objects.requireNonNull(document.getString("procedure_number")));
                             procedureListCounter = procedureFieldAdded;
 
 
-                        }else{
+                        } else {
                             procedureFieldAdded = 0;
                             procedureListCounter = 0;
 
@@ -1966,11 +1911,10 @@ public class ItemDetailFragment extends Fragment {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        if(document.get("procedure_number") != null){
+                        if (document.get("procedure_number") != null) {
                             procedureCount = Integer.parseInt(
                                     Objects.requireNonNull(document.getString("procedure_number")));
-                            getProcedureInfo(procedureCount,siteDocRef,udi, udiStr, view);
-                        }else{
+                        } else {
                             procedureCount = 0;
                         }
 
@@ -1992,24 +1936,27 @@ public class ItemDetailFragment extends Fragment {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        if(document.get(TYPE_KEY) != null){
+                        if (document.get(TYPE_KEY) != null) {
                             equipmentType.setText(document.getString(TYPE_KEY));
 //                            equipmentType.setFocusable(false);
                             equipmentType.setEnabled(false);
-                        }if(document.get(SITE_KEY) != null){
+                        }
+                        if (document.get(SITE_KEY) != null) {
                             hospitalName.setText(document.getString(SITE_KEY));
                             hospitalName.setFocusable(false);
                             hospitalName.setEnabled(false);
-                        }if(document.get(QUANTITY_KEY) != null){
+                        }
+                        if (document.get(QUANTITY_KEY) != null) {
                             diQuantity = document.getString(QUANTITY_KEY);
-                        }else{
+                        } else {
                             diQuantity = "0";
-                        }if(document.get(USAGE_KEY) != null){
+                        }
+                        if (document.get(USAGE_KEY) != null) {
                             String usage = document.getString(USAGE_KEY);
                             System.out.println("usage is" + usage);
-                            if(usage.equals("Single Use")){
+                            if (usage.equals("Single Use")) {
                                 singleUseButton.setChecked(true);
-                            }else if(usage.equals("Ruesable")){
+                            } else if (usage.equals("Ruesable")) {
                                 multiUse.setChecked(true);
                             }
                         }
@@ -2030,13 +1977,14 @@ public class ItemDetailFragment extends Fragment {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        if(document.get("quantity") != null) {
+                        if (document.get("quantity") != null) {
                             itemQuantity = document.getString(QUANTITY_KEY);
                             quantity.setText(itemQuantity);
-                        }else{
+                        } else {
                             itemQuantity = "0";
                             quantity.setText("0");
-                        }if(document.get(PHYSICALLOC_KEY) != null){
+                        }
+                        if (document.get(PHYSICALLOC_KEY) != null) {
                             physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
                         }
                     } else {
@@ -2055,306 +2003,13 @@ public class ItemDetailFragment extends Fragment {
 
     }
 
-    private void getProcedureInfo(final int procedureCount, DocumentReference siteDocRef, JSONObject udi,
-                                  String udiStr, final View view){
-        final int[] check = {0};
-        DocumentReference procedureRef;
 
-        try {
-            for ( int i = 0; i < procedureCount; i++) {
-                procedureRef = siteDocRef
-                        .collection("departments").document("default_department")
-                        .collection("dis").document(udi.getString("di"))
-                        .collection("udis").document(udiStr).collection("procedures")
-                        .document("procedure_" + (i + 1));
-                procedureRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                Map<String, Object> map = document.getData();
-                                if (map != null) {
-                                    check[0]++;
-                                    procedureDocuments = new ArrayList<>();
-                                    for (Object entry : map.values()) {
-                                        procedureDocuments.add(entry.toString());
-                                    }
-                                    map.clear();
-                                }
-                            }
-                            procedureDoc.add(procedureDocuments);
-                            if(check[0] == procedureCount) {
-                                addProcedureInfoFields(procedureDoc,view);
-                            }
-                        }
-                    }
-                });
-            }
-        }catch(JSONException e){
-            Log.d(TAG, e.toString());
-        }
-    }
-
-    // need to create procedure info fields for each procedure.
-    // data is already queried.
-    private void addProcedureInfoFields(final List<List<String>> procedureDoc, View view){
-        int i;
-        System.out.println(procedureDoc);
-
-        final LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
-        procedureInfoLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        procedureInfoLayout.setOrientation(LinearLayout.VERTICAL);
-
-        for(i = 0; i < procedureDoc.size(); i++){
-            final GridLayout procedureInfo = new GridLayout(view.getContext());
-            GridLayout.LayoutParams procedureDateParams = new GridLayout.LayoutParams();
-            procedureDateParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            procedureDateParams.width = (((View) view.getParent()).getWidth())/2;
-            procedureDateParams.rowSpec = GridLayout.spec(i);
-            procedureDateParams.columnSpec = GridLayout.spec(0);
-            procedureDateParams.setMargins(0, 0, 0, 5);
-            TextInputLayout procedureDateHeader = (TextInputLayout) View.inflate(view.getContext(),
-                    R.layout.activity_itemdetail_materialcomponent, null);
-            procedureDateHeader.setLayoutParams(procedureDateParams);
-
-            TextInputEditText dateKey = new TextInputEditText(procedureDateHeader.getContext());
-            dateKey.setText(R.string.procedureDate_lbl);
-            dateKey.setClickable(false);
-            dateKey.setFocusable(false);
-            procedureDateHeader.addView(dateKey);
-
-
-            GridLayout.LayoutParams procedureParams = new GridLayout.LayoutParams();
-            procedureParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            procedureParams.width = (((View) view.getParent()).getWidth())/2;
-            procedureParams.rowSpec = GridLayout.spec(i);
-            procedureParams.columnSpec = GridLayout.spec(1);
-            procedureParams.setMargins(0, 0, 0, 5);
-            final TextInputLayout procedureDateText = (TextInputLayout) View.inflate(view.getContext(),
-                    R.layout.activity_itemdetail_materialcomponent, null);
-            procedureDateText.setLayoutParams(procedureParams);
-
-            TextInputEditText dateText = new TextInputEditText(procedureDateText.getContext());
-            dateText.setText(procedureDoc.get(i).get(3));
-
-            dateText.setFocusable(false);
-            procedureDateText.addView(dateText);
-            procedureDateText.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
-            procedureDateText.setEndIconDrawable(R.drawable.ic_baseline_plus);
-            procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
-                    getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
-
-            procedureInfo.addView(procedureDateHeader);
-            procedureInfo.addView(procedureDateText);
-            procedureInfoLayout.addView(procedureInfo);
-
-            final boolean[] isMaximized = {false};
-
-            final int finalI = i;
-            procedureDateText.setEndIconOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if(isMaximized[0]){
-                        procedureInfoLayout.getChildAt((procedureInfoLayout.indexOfChild(procedureInfo)) + 1).setVisibility(View.GONE);
-                        procedureDateText.setEndIconDrawable(R.drawable.ic_baseline_plus);
-                        procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
-                                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
-                        isMaximized[0] = false;
-
-
-                    }else{
-                        addProcedureSubFields(procedureInfoLayout,view,procedureDoc, finalI,procedureInfo);
-                        procedureDateText.setEndIconDrawable(R.drawable.ic_remove_minimize);
-                        procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
-                                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
-                        isMaximized[0] = true;
-
-                    }
-                }
-            });
-
-
-
-        }
-
-        linearLayout.addView(procedureInfoLayout,linearLayout.indexOfChild(usageHeader) +   1);
-
-    }
-
-    private void addProcedureSubFields(LinearLayout procedureInfoLayout, View view,
-                                       List<List<String>> procedureDoc, int item, GridLayout procedureInfo){
-        LinearLayout subFieldsLayout = new LinearLayout(view.getContext());
-        subFieldsLayout.setOrientation(LinearLayout.VERTICAL);
-
-        GridLayout procedureName = new GridLayout(view.getContext());
-        procedureName.setColumnCount(2);
-        procedureName.setRowCount(1);
-        GridLayout.LayoutParams procedureNameHeaderParams = new GridLayout.LayoutParams();
-        procedureNameHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureNameHeaderParams.width = linearLayout.getWidth()/2;
-        procedureNameHeaderParams.rowSpec = GridLayout.spec(0);
-        procedureNameHeaderParams.columnSpec = GridLayout.spec(0);
-        procedureNameHeaderParams.setMargins(0, 0, 0, 5);
-        TextInputLayout procedureNameHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureNameHeaderLayout.setLayoutParams(procedureNameHeaderParams);
-        TextInputEditText procedureNameHeaderEditText = new TextInputEditText(procedureNameHeaderLayout.getContext());
-        procedureNameHeaderEditText.setText(R.string.procedureName_lbl);
-        procedureNameHeaderLayout.addView(procedureNameHeaderEditText);
-        procedureNameHeaderEditText.setFocusable(false);
-
-
-        GridLayout.LayoutParams procedureNameParams = new GridLayout.LayoutParams();
-        procedureNameParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureNameParams.width = linearLayout.getWidth()/2;
-        procedureNameParams.rowSpec = GridLayout.spec(0);
-        procedureNameParams.columnSpec = GridLayout.spec(1);
-        procedureNameParams.setMargins(0, 0, 0, 5);
-        TextInputLayout procedureNameLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureNameLayout.setLayoutParams(procedureNameParams);
-        TextInputEditText procedureNameEditText = new TextInputEditText(procedureNameLayout.getContext());
-        procedureNameEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
-        procedureNameHeaderEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
-        procedureNameEditText.setText(procedureDoc.get(item).get(1));
-        procedureNameLayout.addView(procedureNameEditText);
-        procedureNameEditText.setFocusable(false);
-        procedureName.addView(procedureNameHeaderLayout);
-        procedureName.addView(procedureNameLayout);
-
-
-        GridLayout procedureTime = new GridLayout(view.getContext());
-        procedureTime.setColumnCount(2);
-        procedureTime.setRowCount(1);
-        GridLayout.LayoutParams procedureTimeHeaderParams = new GridLayout.LayoutParams();
-        procedureTimeHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureTimeHeaderParams.width = linearLayout.getWidth()/2;
-        procedureTimeHeaderParams.rowSpec = GridLayout.spec(0);
-        procedureTimeHeaderParams.columnSpec = GridLayout.spec(0);
-        procedureTimeHeaderParams.setMargins(0, 0, 0, 5);
-        TextInputLayout procedureTimeHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureTimeHeaderLayout.setLayoutParams(procedureTimeHeaderParams);
-        TextInputEditText procedureTimeHeaderEditText = new TextInputEditText(procedureTimeHeaderLayout.getContext());
-        procedureTimeHeaderEditText.setText(R.string.procedureTime_lbl);
-        procedureTimeHeaderLayout.addView(procedureTimeHeaderEditText);
-        procedureTimeHeaderEditText.setFocusable(false);
-
-        GridLayout.LayoutParams procedureTimeParams = new GridLayout.LayoutParams();
-        procedureTimeParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureTimeParams.width = linearLayout.getWidth()/2;
-        procedureTimeParams.rowSpec = GridLayout.spec(0);
-        procedureTimeParams.columnSpec = GridLayout.spec(1);
-        procedureTimeParams.setMargins(0, 0, 0, 5);
-
-        TextInputLayout procedureTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureTimeLayout.setLayoutParams(procedureTimeParams);
-        TextInputEditText procedureTimeEditText = new TextInputEditText(procedureTimeLayout.getContext());
-        procedureTimeEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
-        procedureTimeHeaderEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
-        procedureTimeEditText.setText(procedureDoc.get(item).get(4));
-        procedureTimeLayout.addView(procedureTimeEditText);
-        procedureTimeEditText.setFocusable(false);
-        procedureTime.addView(procedureTimeHeaderLayout);
-        procedureTime.addView(procedureTimeLayout);
-
-
-
-        GridLayout procedureAccession = new GridLayout(view.getContext());
-        procedureAccession.setColumnCount(2);
-        procedureAccession.setRowCount(1);
-        GridLayout.LayoutParams procedureAccessionHeaderParams = new GridLayout.LayoutParams();
-        procedureAccessionHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureAccessionHeaderParams.width = linearLayout.getWidth()/2;
-        procedureAccessionHeaderParams.rowSpec = GridLayout.spec(0);
-        procedureAccessionHeaderParams.columnSpec = GridLayout.spec(0);
-        procedureAccessionHeaderParams.setMargins(0, 0, 0, 5);
-        TextInputLayout accessionHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        accessionHeaderLayout.setLayoutParams(procedureAccessionHeaderParams);
-        TextInputEditText accessionHeaderEditText = new TextInputEditText(accessionHeaderLayout.getContext());
-        accessionHeaderEditText.setText(R.string.AccessionNumber_lbl);
-        accessionHeaderLayout.addView(accessionHeaderEditText);
-        accessionHeaderEditText.setFocusable(false);
-
-
-        GridLayout.LayoutParams procedureAccessionParams = new GridLayout.LayoutParams();
-        procedureAccessionParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureAccessionParams.width = linearLayout.getWidth()/2;
-        procedureAccessionParams.rowSpec = GridLayout.spec(0);
-        procedureAccessionParams.columnSpec = GridLayout.spec(1);
-        procedureAccessionParams.setMargins(0, 0, 0, 5);
-        TextInputLayout accessionLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        accessionLayout.setLayoutParams(procedureAccessionParams);
-        TextInputEditText accessionEditText = new TextInputEditText(accessionLayout.getContext());
-        accessionEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
-        accessionHeaderEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
-        accessionEditText.setText(procedureDoc.get(item).get(0));
-        accessionLayout.addView(accessionEditText);
-        accessionEditText.setFocusable(false);
-        procedureAccession.addView(accessionHeaderLayout);
-        procedureAccession.addView(accessionLayout);
-
-        GridLayout procedureItemUsed = new GridLayout(view.getContext());
-        procedureItemUsed.setColumnCount(2);
-        procedureItemUsed.setRowCount(1);
-
-        GridLayout.LayoutParams procedureItemUsedHeader = new GridLayout.LayoutParams();
-        procedureItemUsedHeader.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureItemUsedHeader.width = linearLayout.getWidth()/2;
-        procedureItemUsedHeader.rowSpec = GridLayout.spec(0);
-        procedureItemUsedHeader.columnSpec = GridLayout.spec(0);
-        procedureItemUsedHeader.setMargins(0, 0, 0, 5);
-        TextInputLayout itemUsedHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        itemUsedHeaderLayout.setLayoutParams(procedureItemUsedHeader);
-        TextInputEditText itemUsedHeaderEditText = new TextInputEditText(itemUsedHeaderLayout.getContext());
-        itemUsedHeaderEditText.setText(R.string.itemsUsed_lbl);
-        itemUsedHeaderLayout.addView(itemUsedHeaderEditText);
-        itemUsedHeaderEditText.setFocusable(false);
-
-
-        GridLayout.LayoutParams procedureItemUsedLayout = new GridLayout.LayoutParams();
-        procedureItemUsedLayout.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureItemUsedLayout.width = linearLayout.getWidth()/2;
-        procedureItemUsedLayout.rowSpec = GridLayout.spec(0);
-        procedureItemUsedLayout.columnSpec = GridLayout.spec(1);
-        procedureItemUsedLayout.setMargins(0, 0, 0, 5);
-        TextInputLayout itemUsedLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        TextInputEditText itemUsedEditText = new TextInputEditText(itemUsedLayout.getContext());
-        itemUsedEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
-        itemUsedHeaderEditText.setBackgroundColor(Color.parseColor("#A3E2F8"));
-        itemUsedLayout.setLayoutParams(procedureItemUsedLayout);
-        itemUsedEditText.setText(procedureDoc.get(item).get(2));
-        itemUsedLayout.addView(itemUsedEditText);
-        itemUsedEditText.setFocusable(false);
-
-        procedureItemUsed.addView(itemUsedHeaderLayout);
-        procedureItemUsed.addView(itemUsedLayout);
-
-
-        subFieldsLayout.addView(procedureName);
-        subFieldsLayout.addView(procedureTime);
-        subFieldsLayout.addView(procedureAccession);
-        subFieldsLayout.addView(procedureItemUsed);
-        procedureInfoLayout.addView(subFieldsLayout,(procedureInfoLayout.indexOfChild(procedureInfo))+1);
-
-
-
-
-    }
     private void autoPopulateFromDatabase(final View view, String di) {
 
         DocumentReference diDocRef = db.collection("networks").document(mNetworkId)
                 .collection("hospitals").document(mHospitalId)
                 .collection("departments").document("default_department")
                 .collection("dis").document(di);
-
 
 
         diDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
