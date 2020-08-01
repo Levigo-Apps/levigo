@@ -12,7 +12,6 @@
             android:id="@+id/row_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:text="title"
             android:textStyle="bold"
             android:textColor="#5e5e5e"
@@ -29,4 +28,11 @@
             android:background="@color/fui_transparent"
             android:src="@drawable/ic_baseline_add"
             />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/category_recycler"
+            android:layout_below="@+id/row_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+
 </RelativeLayout>

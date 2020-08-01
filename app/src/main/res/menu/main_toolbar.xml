@@ -31,8 +31,4 @@
         android:title="Settings"
         app:showAsAction="never"/>
 
-    <item
-        android:id="@+id/viewonly"
-        android:title="View Only"
-        app:showAsAction="never"/>
 </menu>

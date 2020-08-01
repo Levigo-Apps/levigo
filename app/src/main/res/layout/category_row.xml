@@ -28,4 +28,4 @@
         android:background="@color/fui_transparent"
         android:src="@drawable/ic_baseline_check_24"
         />
-</RelativeLayout>
+=</RelativeLayout>

@@ -17,14 +17,18 @@
 package com.levigo.levigoapp;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -55,11 +59,12 @@ import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 
-public class MainActivity extends AppCompatActivity implements Serializable {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int RC_HANDLE_CAMERA_PERM = 1;
@@ -76,6 +81,8 @@ public class MainActivity extends AppCompatActivity implements Serializable {
     private FloatingActionButton mAdd;
 
     private Query query;
+    private String key;
+    private String value;
 
     // authorized hospital based on user
     private FirebaseAuth mAuth;
@@ -90,6 +97,33 @@ public class MainActivity extends AppCompatActivity implements Serializable {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Bundle bundle = this.getIntent().getExtras();
+        if(bundle != null) {
+            if (bundle.getString("key") != null && (bundle.getString("key")).equals("equipment_type")) {
+                key = bundle.getString("key");
+                value = bundle.getString("value");
+            }
+            /*
+            else if (bundle.getString("key") != null && (bundle.getString("key")).equals("expiration")){
+                key = bundle.getString("key");
+                String mid = bundle.getString("value");
+                if(mid.equals("Expiration Date - New to Old")){
+                    value = null;
+                    Log.d(TAG, "here 1");
+                }
+                else{
+                    value = "here";
+                    Log.d(TAG, "here 2");
+                }
+                Log.d(TAG, "key and value returned in main are: " + key + " and " + value);
+            }
+            */
+        }
+        else{
+            value = null;
+            key = null;
+        }
 
         /*
         // Start of Crash button. Production only. Remove before publishing
@@ -130,9 +164,8 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                             mToolbar.setTitle(mHospitalName);
 
                             inventoryRef = levigoDb.collection(inventoryRefUrl);
-                            //query = inventoryRef.whereEqualTo("equipment_type", "Scalpel");
+                            initInventory(value, key);
 
-                            initInventory();
                         } catch (NullPointerException e) {
                             FirebaseCrashlytics.getInstance().recordException(e);
                             toastMessage = "Error retrieving user information; Please contact support";
@@ -178,14 +211,36 @@ public class MainActivity extends AppCompatActivity implements Serializable {
         }
     }
 
-    private void initInventory() {
+    private void initInventory(String key, String value) {
         iLayoutManager = new LinearLayoutManager(this);
         inventoryScroll.setLayoutManager(iLayoutManager);
 
         iAdapter = new InventoryViewAdapter(MainActivity.this, entries);
         inventoryScroll.setAdapter(iAdapter);
 
-        inventoryRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        if(value != null) {
+            if(value.equals("equipment_type")) {
+                Log.d(TAG, "IT GOT TO THE IF STATEMENT");
+                query = inventoryRef.whereEqualTo(value, key);
+                Log.d(TAG, "key and value returned in main areeeeee: " + key + " and " + value);
+            }
+            else if(key.equals("expiration")){
+                Log.d(TAG, "IT GOT TO THE ELSE IF STATEMENT");
+                if(key == null) {
+                    Log.d(TAG, "IT GOT TO THE ELSE IF IF STATEMENT");
+                    query = inventoryRef.orderBy("expiration");
+                }
+                else{
+                    Log.d(TAG, "IT GOT TO THE ELSE IF IF IF STATEMENT");
+                    query = inventoryRef.orderBy("expiration",Query.Direction.DESCENDING);
+                }
+            }
+        }
+        else{
+            query = inventoryRef;
+        }
+
+        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) throws NullPointerException {
                 if (e != null) {
@@ -405,22 +460,12 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                 //TODO next step
 //                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
                 return true;
-            case R.id.viewonly:
-                ItemDetailViewFragment fragment = new ItemDetailViewFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("barcode", "");
-                fragment.setArguments(bundle);
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
-                fragmentTransaction.add(R.id.activity_main, fragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
 
             case R.id.filter:
                 Log.d(TAG, "reached case filter");
                 Intent intent_filter = new Intent(getApplicationContext(), FilterActivity.class);
+                HashMap<String, Object> entries2 = (HashMap)entries;
+                intent_filter.putExtra("map", entries2);
                 startActivity(intent_filter);
                 finish();
                 return true;

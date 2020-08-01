@@ -17,25 +17,29 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHolder>{
     private static final String TAG = "FilterAdapter";
 
     private boolean sign = true;
-    private ArrayList<String> mTexts;
+    private ArrayList<String> mList;
     private Context mContext;
     private String text = "";
+    private HashMap<String, Object> mData;
+    private RecyclerView categoryView;
+    private MainActivity activity;
 
-    public FilterAdapter(Context context, ArrayList<String> text){
-        mTexts = text;
+    public FilterAdapter(Context context, HashMap<String, Object>  entries, ArrayList<String> list){
+        mList = list;
+        mData = entries;
         mContext = context;
     }
 
     @NonNull
     @Override
     public FilterHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.d(TAG, "onCreateViewHolder is called");
-
+        //Log.d(TAG, "onCreateViewHolder is called");
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.filter_row, parent, false);
         FilterHolder holder = new FilterHolder(view);
         return holder;
@@ -43,17 +47,14 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHold
 
     @Override
     public void onBindViewHolder(@NonNull final FilterHolder holder, final int position) {
-        Log.d(TAG, "onBindViewHolder is called");
+        //Log.d(TAG, "onBindViewHolder is called");
 
-
-        text = mTexts.get(position);
-        holder.rowText.setText(mTexts.get(position));
-        Log.d(TAG, "text1 is"+text);
+        holder.rowText.setText(mList.get(position));
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                Log.d(TAG, "clicked on: "+mTexts.get(position));
+                Log.d(TAG, "clicked on: "+mList.get(position));
 
                 if ((sign)) {
                     holder.plusSign.setImageResource(R.drawable.ic_baseline_remove_24);
@@ -62,39 +63,33 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHold
                     holder.plusSign.setImageResource(R.drawable.ic_baseline_add);
                     sign = true;
                 }
-                Toast.makeText(mContext, mTexts.get(position), Toast.LENGTH_SHORT).show();
-                
-
+                Toast.makeText(mContext, mList.get(position), Toast.LENGTH_SHORT).show();
             }
         });
-        //initCategory(holder,text);
-    }
-    public void initCategory(FilterHolder holder, String text){
-        CategoryAdapter categoryAdapter = new CategoryAdapter(mContext, text);
+        CategoryAdapter categoryAdapter = new CategoryAdapter(mContext, mList.get(position) , mData);
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
-        holder.categoryview.setHasFixedSize(true);
-        holder.categoryview.setLayoutManager(layoutManager);
-        holder.categoryview.setAdapter(categoryAdapter);
+        holder.categoryView.setLayoutManager(layoutManager);
+        holder.categoryView.setAdapter(categoryAdapter);
     }
 
     @Override
     public int getItemCount() {
-        return mTexts.size();
+        return mList.size();
     }
 
     public class FilterHolder extends RecyclerView.ViewHolder{
 
-        RecyclerView categoryview;
-        ImageButton plusSign;
-        TextView rowText;
-        RelativeLayout parentLayout;
+        public RecyclerView categoryView;
+        public ImageButton plusSign;
+        public TextView rowText;
+        public RelativeLayout parentLayout;
 
         public FilterHolder(View view){
             super(view);
             plusSign = (ImageButton)view.findViewById(R.id.plus_icon);
             rowText = (TextView)view.findViewById(R.id.row_text);
-            parentLayout = view.findViewById(R.id.parent_layout);
-            categoryview = view.findViewById(R.id.categorized);
+            parentLayout = (RelativeLayout) view.findViewById(R.id.parent_layout);
+            categoryView = (RecyclerView) view.findViewById(R.id.category_recycler);
         }
     }
 }
