@@ -691,7 +691,7 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureTimeHeaderLayout.setLayoutParams(procedureTimeInHeaderParams);
         TextInputEditText procedureTimeHeaderEditText = new TextInputEditText(procedureTimeHeaderLayout.getContext());
-        procedureTimeHeaderEditText.setText(R.string.procedureTime_lbl);
+        procedureTimeHeaderEditText.setText("Procedure time in");
         procedureTimeHeaderEditText.setTypeface(procedureNameHeaderEditText.getTypeface(), Typeface.BOLD);
         procedureTimeHeaderLayout.addView(procedureTimeHeaderEditText);
         procedureTimeHeaderEditText.setFocusable(false);
@@ -710,7 +710,6 @@ public class ItemDetailViewFragment extends Fragment {
         procedureTimeEditText.setText(procedureDoc.get(item).get(4));
         procedureTimeInLayout.addView(procedureTimeEditText);
         procedureTimeEditText.setFocusable(false);
-        procedureTimeInLayout.addView(procedureTimeEditText);
         procedureTimeIn.addView(procedureTimeHeaderLayout);
         procedureTimeIn.addView(procedureTimeInLayout);
 
@@ -728,9 +727,8 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureTimeOutHeaderLayout.setLayoutParams(procedureTimeOutHeaderParams);
         TextInputEditText procedureTimeOutHeaderEditText = new TextInputEditText(procedureTimeOutHeaderLayout.getContext());
-        procedureTimeOutHeaderEditText.setText(R.string.procedureTime_lbl);
+        procedureTimeOutHeaderEditText.setText("Procedure time out");
         procedureTimeOutHeaderEditText.setTypeface(procedureNameHeaderEditText.getTypeface(), Typeface.BOLD);
-        procedureTimeOutHeaderLayout.addView(procedureTimeHeaderEditText);
         procedureTimeOutHeaderEditText.setFocusable(false);
         procedureTimeOutHeaderLayout.addView(procedureTimeOutHeaderEditText);
 
@@ -746,7 +744,6 @@ public class ItemDetailViewFragment extends Fragment {
         procedureTimeOutLayout.setLayoutParams(procedureTimeParams);
         TextInputEditText procedureTimeOutEditText = new TextInputEditText(procedureTimeOutLayout.getContext());
         procedureTimeOutEditText.setText(procedureDoc.get(item).get(4));
-        procedureTimeOutLayout.addView(procedureTimeEditText);
         procedureTimeOutEditText.setFocusable(false);
         procedureTimeOutLayout.addView(procedureTimeOutEditText);
         procedureTimeOut.addView(procedureTimeOutHeaderLayout);
@@ -767,7 +764,7 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureFloorTimeHeaderLayout.setLayoutParams(procedureFloorTimeHeaderParams);
         TextInputEditText procedureFloorTimeHeaderEditText = new TextInputEditText(procedureFloorTimeHeaderLayout.getContext());
-        procedureFloorTimeHeaderEditText.setText(R.string.procedureTime_lbl);
+        procedureFloorTimeHeaderEditText.setText("Floor time");
         procedureFloorTimeHeaderEditText.setTypeface(procedureNameHeaderEditText.getTypeface(), Typeface.BOLD);
         procedureFloorTimeHeaderEditText.setFocusable(false);
         procedureFloorTimeHeaderLayout.addView(procedureFloorTimeHeaderEditText);
@@ -788,7 +785,7 @@ public class ItemDetailViewFragment extends Fragment {
         procedureFloorTimeEditText.setFocusable(false);
         procedureFloorTimeLayout.addView(procedureFloorTimeEditText);
         procedureFloorTime.addView(procedureFloorTimeHeaderLayout);
-        procedureTimeOut.addView(procedureFloorTimeLayout);
+        procedureFloorTime.addView(procedureFloorTimeLayout);
 
         GridLayout procedureAccession = new GridLayout(view.getContext());
         procedureAccession.setColumnCount(2);
