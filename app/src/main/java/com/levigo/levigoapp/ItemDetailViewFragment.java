@@ -1,6 +1,7 @@
 package com.levigo.levigoapp;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -14,6 +15,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -34,9 +38,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 public class ItemDetailViewFragment extends Fragment {
 
@@ -66,6 +73,7 @@ public class ItemDetailViewFragment extends Fragment {
     private TextInputLayout specificationLayout;
     private TextInputLayout usageLayout;
     private TextInputEditText itemName;
+    private TextInputLayout itemNameLayout;
     private TextInputEditText udi;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText quantity;
@@ -123,6 +131,7 @@ public class ItemDetailViewFragment extends Fragment {
         itemSpecsLinearLayout.setOrientation(LinearLayout.VERTICAL);
         itemSpecsLinearLayout.setVisibility(View.GONE);
         linearLayout.addView(itemSpecsLinearLayout,linearLayout.indexOfChild(specsLinearLayout) + 1);
+        itemNameLayout = rootView.findViewById(R.id.itemname_layout);
 
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -186,6 +195,33 @@ public class ItemDetailViewFragment extends Fragment {
                     isSpecsMaximized[0] = true;
 
                 }
+            }
+        });
+
+        itemNameLayout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                String toastMessage = "TestyTest";
+//                Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
+
+                //TODO double check what code does; does not autopopulate upon inflation
+                //TODO Jake copied from main.startItemView(String barcode). refactor function?
+
+                ItemDetailFragment fragment = new ItemDetailFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("barcode", udi.getText().toString());
+                fragment.setArguments(bundle);
+
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+
+                //clears other fragments
+                fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+                fragmentTransaction.add(R.id.activity_main, fragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
             }
         });
 
@@ -675,7 +711,6 @@ public class ItemDetailViewFragment extends Fragment {
         procedureTimeEditText.setFocusable(false);
         procedureTime.addView(procedureTimeHeaderLayout);
         procedureTime.addView(procedureTimeLayout);
-
 
 
         GridLayout procedureAccession = new GridLayout(view.getContext());

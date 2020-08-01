@@ -1,5 +1,3 @@
-
-
 package com.levigo.levigoapp;
 
 import android.content.Context;
@@ -18,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHolder>{
+public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHolder> {
     private static final String TAG = "FilterAdapter";
 
     private boolean sign = true;
@@ -26,7 +24,7 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHold
     private Context mContext;
     private String text = "";
 
-    public FilterAdapter(Context context, ArrayList<String> text){
+    public FilterAdapter(Context context, ArrayList<String> text) {
         mTexts = text;
         mContext = context;
     }
@@ -48,12 +46,12 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHold
 
         text = mTexts.get(position);
         holder.rowText.setText(mTexts.get(position));
-        Log.d(TAG, "text1 is"+text);
+        Log.d(TAG, "text1 is" + text);
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                Log.d(TAG, "clicked on: "+mTexts.get(position));
+                Log.d(TAG, "clicked on: " + mTexts.get(position));
 
                 if ((sign)) {
                     holder.plusSign.setImageResource(R.drawable.ic_baseline_remove_24);
@@ -63,13 +61,14 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHold
                     sign = true;
                 }
                 Toast.makeText(mContext, mTexts.get(position), Toast.LENGTH_SHORT).show();
-                
+
 
             }
         });
         //initCategory(holder,text);
     }
-    public void initCategory(FilterHolder holder, String text){
+
+    public void initCategory(FilterHolder holder, String text) {
         CategoryAdapter categoryAdapter = new CategoryAdapter(mContext, text);
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
         holder.categoryview.setHasFixedSize(true);
@@ -82,17 +81,17 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHold
         return mTexts.size();
     }
 
-    public class FilterHolder extends RecyclerView.ViewHolder{
+    public class FilterHolder extends RecyclerView.ViewHolder {
 
         RecyclerView categoryview;
         ImageButton plusSign;
         TextView rowText;
         RelativeLayout parentLayout;
 
-        public FilterHolder(View view){
+        public FilterHolder(View view) {
             super(view);
-            plusSign = (ImageButton)view.findViewById(R.id.plus_icon);
-            rowText = (TextView)view.findViewById(R.id.row_text);
+            plusSign = (ImageButton) view.findViewById(R.id.plus_icon);
+            rowText = (TextView) view.findViewById(R.id.row_text);
             parentLayout = view.findViewById(R.id.parent_layout);
             categoryview = view.findViewById(R.id.categorized);
         }

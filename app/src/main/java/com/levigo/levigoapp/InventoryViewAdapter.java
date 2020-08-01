@@ -1,6 +1,5 @@
 package com.levigo.levigoapp;
 
-import android.app.Activity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +15,10 @@ public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdap
 
     private static final String TAG = "ivadapter";
     private MainActivity activity;
-    private Map<String,Object> iDataset;
+    private Map<String, Object> iDataset;
 
     public static class InventoryViewHolder extends RecyclerView.ViewHolder {
-//        public TextView itemTitle;
+        //        public TextView itemTitle;
 //        public TextView itemDI;
 //    //    public TextView itemExpirationDate;
 //        public TextView itemType;
@@ -28,7 +27,7 @@ public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdap
         public RecyclerView itemTypes;
 
 
-        public InventoryViewHolder(View view){
+        public InventoryViewHolder(View view) {
             super(view);
 //            itemDI = view.findViewById(R.id.item_di);
 //            itemType = view.findViewById(R.id.item_type);
@@ -38,14 +37,14 @@ public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdap
         }
     }
 
-    public InventoryViewAdapter(MainActivity activity, Map<String,Object> iDataset) {
+    public InventoryViewAdapter(MainActivity activity, Map<String, Object> iDataset) {
         this.activity = activity;
         this.iDataset = iDataset;
     }
 
     @NonNull
     @Override
-    public InventoryViewAdapter.InventoryViewHolder onCreateViewHolder (ViewGroup parent, int viewType) {
+    public InventoryViewAdapter.InventoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.categories_item, parent, false);
         Log.d(TAG, "onCreate");
         InventoryViewHolder vh = new InventoryViewHolder(view);
@@ -53,16 +52,15 @@ public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdap
     }
 
     @Override
-    public void onBindViewHolder(InventoryViewHolder holder, int position){
+    public void onBindViewHolder(InventoryViewHolder holder, int position) {
 //        holder.itemTitle.setText(iDataset.get(position));
         Log.d(TAG, "bind");
         Object[] categories = iDataset.values().toArray();
         Object object = categories[position];
         Map<String, Object> types;
-        if(object instanceof Map) {
-            types = (Map<String,Object>) object;
-        }
-        else {
+        if (object instanceof Map) {
+            types = (Map<String, Object>) object;
+        } else {
             Log.d(TAG, "ERROR");
             return;
         }
@@ -96,11 +94,10 @@ public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdap
 //        }
 
 
-
-  //      if (iDataset.get(position).containsKey("expiration")){
-  //          Log.d(TAG, "ITEM EXPIRATION: " + iDataset.get(position).get("expiration").toString());
-   //         holder.itemExpirationDate.setText(iDataset.get(position).get("expiration").toString());
-   //     }
+        //      if (iDataset.get(position).containsKey("expiration")){
+        //          Log.d(TAG, "ITEM EXPIRATION: " + iDataset.get(position).get("expiration").toString());
+        //         holder.itemExpirationDate.setText(iDataset.get(position).get("expiration").toString());
+        //     }
 
 
 //        inventoryRef.whereEqualTo("udi", "0100886333006052172204101011174028")
@@ -120,7 +117,7 @@ public class InventoryViewAdapter extends RecyclerView.Adapter<InventoryViewAdap
     }
 
     @Override
-    public int getItemCount(){
+    public int getItemCount() {
         return iDataset.size();
     }
 }

@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 public class FilterActivity extends AppCompatActivity {
@@ -29,7 +28,7 @@ public class FilterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.filter_sort);
 
-        exitButton =  (ImageButton)findViewById(R.id.exit_filter);
+        exitButton = (ImageButton) findViewById(R.id.exit_filter);
         exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -42,7 +41,7 @@ public class FilterActivity extends AppCompatActivity {
     }
 
 
-    private void initPut(){
+    private void initPut() {
         Log.d(TAG, "initPut here");
         mTexts.add("Type of Equipment");
         mTexts.add("Specification");
@@ -54,7 +53,7 @@ public class FilterActivity extends AppCompatActivity {
         initFilter();
     }
 
-    private void initFilter(){
+    private void initFilter() {
         Log.d(TAG, "initSearch here");
         searchview = findViewById(R.id.search_recycler);
         searchview.setLayoutManager(new LinearLayoutManager(this));

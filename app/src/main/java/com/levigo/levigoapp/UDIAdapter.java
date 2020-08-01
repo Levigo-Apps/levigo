@@ -76,7 +76,6 @@ public class UDIAdapter extends RecyclerView.Adapter<UDIAdapter.UDIHolder> {
         }
         else {
             Log.d(TAG, "ERROR");
-            return;
         }
 
 
