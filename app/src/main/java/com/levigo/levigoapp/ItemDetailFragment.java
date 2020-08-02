@@ -5,7 +5,6 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -25,7 +24,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
-import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
@@ -85,20 +83,16 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class ItemDetailFragment extends Fragment {
 
-    private FirebaseAuth mAuth;
     private String mNetworkId;
-    private String mNetworkName;
     private String mHospitalId;
-    private String mHospitalName;
 
     // Firebase database
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference usersRef = db.collection("users");
+    private final CollectionReference usersRef = db.collection("users");
 
     private DocumentReference typeRef;
     private CollectionReference siteRef;
     private DocumentReference physLocRef;
-    private DocumentReference siteDocRef;
     private CollectionReference accessionNumberRef;
 
     InventoryTemplate udiDocument;
@@ -134,9 +128,7 @@ public class ItemDetailFragment extends Fragment {
     private TextInputLayout procedureDateLayout;
     private TextInputEditText procedureNameEditText;
     private TextInputEditText accessionNumberEditText;
-    private TextInputLayout dateInLayout;
     private TextInputLayout numberAddedLayout;
-    private TextView usageHeader;
 
     private Button saveButton;
     private MaterialButton addProcedure;
@@ -155,7 +147,6 @@ public class ItemDetailFragment extends Fragment {
     private int typeCounter;
     private int siteCounter;
     private int locCounter;
-    private int procedureCount;
     private int procedureListCounter;
     private long millsIn;
     private boolean chosenType;
@@ -175,9 +166,6 @@ public class ItemDetailFragment extends Fragment {
     private ArrayList<String> SITELOC;
     private ArrayList<String> PHYSICALLOC;
     private List<Map<String, Object>> procedureMapList;
-    private List<String> procedureDocuments;
-    private List<List<String>> procedureDoc;
-    private TextWatcher textWatcher;
     private List<TextInputEditText> numberUsedList;
 
     private LinearLayout siteConstrainLayout;
@@ -208,7 +196,7 @@ public class ItemDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        dp = getContext().getResources().getDisplayMetrics().density;
+        dp = Objects.requireNonNull(getContext()).getResources().getDisplayMetrics().density;
         // Inflate the layout for this fragment
         final View rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
         myCalendar = Calendar.getInstance();
@@ -234,7 +222,7 @@ public class ItemDetailFragment extends Fragment {
         dateIn.setText(dateFormat.format(new Date()));
         timeIn = rootView.findViewById(R.id.detail_in_time);
         TextInputLayout expirationTextLayout = rootView.findViewById(R.id.expiration_date_string);
-        dateInLayout = rootView.findViewById(R.id.in_date_layout);
+        TextInputLayout dateInLayout = rootView.findViewById(R.id.in_date_layout);
         final TextInputLayout timeInLayout = rootView.findViewById(R.id.in_time_layout);
         itemUsed = rootView.findViewById(R.id.detail_used_switch);
         saveButton = rootView.findViewById(R.id.detail_save_button);
@@ -269,17 +257,15 @@ public class ItemDetailFragment extends Fragment {
         itemUsedFields = rootView.findViewById(R.id.layout_itemused);
         itemUsedFields.setVisibility(View.GONE);
         specsTextView = rootView.findViewById(R.id.detail_specs_textview);
-        usageHeader = rootView.findViewById(R.id.detail_usage_textview);
         allSizeOptions = new ArrayList<>();
         TYPES = new ArrayList<>();
         SITELOC = new ArrayList<>();
         PHYSICALLOC = new ArrayList<>();
         procedureMapList = new ArrayList<>();
-        procedureDoc = new ArrayList<>();
         numberUsedList = new ArrayList<>();
 
-        mAuth = FirebaseAuth.getInstance();
-        String userId = mAuth.getCurrentUser().getUid();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
 
         // Get user information in "users" collection
         final DocumentReference currentUserRef = usersRef.document(userId);
@@ -291,8 +277,8 @@ public class ItemDetailFragment extends Fragment {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         try {
-                            mNetworkId = document.get("network_id").toString();
-                            mHospitalId = document.get("hospital_id").toString();
+                            mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
+                            mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
                             typeRef = db.collection("networks").document(mNetworkId).collection("hospitals")
                                     .document(mHospitalId).collection("types").document("type_options");
                             siteRef = db.collection("networks").document(mNetworkId)
@@ -300,8 +286,6 @@ public class ItemDetailFragment extends Fragment {
                             physLocRef = db.collection("networks").document(mNetworkId)
                                     .collection("hospitals").document(mHospitalId)
                                     .collection("physical_locations").document("locations");
-                            siteDocRef = db.collection("networks").document(mNetworkId)
-                                    .collection("hospitals").document(mHospitalId);
                             accessionNumberRef = db.collection("networks")
                                     .document(mNetworkId)
                                     .collection("hospitals").document(mHospitalId)
@@ -368,7 +352,7 @@ public class ItemDetailFragment extends Fragment {
         autoPopulateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                autoPopulate(siteDocRef, rootView);
+                autoPopulate(rootView);
             }
         });
         addSizeButton.setOnClickListener(new View.OnClickListener() {
@@ -458,7 +442,6 @@ public class ItemDetailFragment extends Fragment {
                     addProcedureField(rootView);
                     removeProcedure.setEnabled(true);
                     numberAdded.setText("0");
-                    numberAdded.removeTextChangedListener(textWatcher);
                     numberAddedLayout.setVisibility(View.GONE);
 
                 } else {
@@ -544,7 +527,7 @@ public class ItemDetailFragment extends Fragment {
         if (getArguments() != null) {
             String barcode = getArguments().getString("barcode");
             udiEditText.setText(barcode);
-            autoPopulate(siteDocRef, rootView);
+            autoPopulate(rootView);
         }
         return rootView;
     }
@@ -614,7 +597,7 @@ public class ItemDetailFragment extends Fragment {
                 }
                 if (documentSnapshot != null && documentSnapshot.exists()) {
                     Map<String, Object> typeObj = documentSnapshot.getData();
-                    siteCounter = typeObj.size();
+                    siteCounter = Objects.requireNonNull(typeObj).size();
                     for (Object value : typeObj.values()) {
                         if (!SITELOC.contains(value.toString())) {
                             SITELOC.add(value.toString());
@@ -654,7 +637,7 @@ public class ItemDetailFragment extends Fragment {
                 }
                 if (documentSnapshot != null && documentSnapshot.exists()) {
                     Map<String, Object> typeObj = documentSnapshot.getData();
-                    typeCounter = typeObj.size();
+                    typeCounter = Objects.requireNonNull(typeObj).size();
                     for (Object value : typeObj.values()) {
                         if (!TYPES.contains(value.toString())) {
                             TYPES.add(value.toString());
@@ -916,7 +899,7 @@ public class ItemDetailFragment extends Fragment {
 
                         try {
                             Date timeIn = format.parse(selectedHour + ":" + selectedMinute);
-                            millsIn = timeIn.getTime();
+                            millsIn = Objects.requireNonNull(timeIn).getTime();
 
                         } catch (ParseException e) {
                             e.printStackTrace();
@@ -970,7 +953,7 @@ public class ItemDetailFragment extends Fragment {
 
                             try {
                                 Date timeOut = format.parse(selectedHour + ":" + selectedMinute);
-                                long millsOut = timeOut.getTime();
+                                long millsOut = Objects.requireNonNull(timeOut).getTime();
                                 long millsDif = millsOut - millsIn;
                                 int hours = (int) millsDif/(1000 * 60 * 60);
                                 if(hours < 0){
@@ -1138,9 +1121,8 @@ public class ItemDetailFragment extends Fragment {
     }
 
     private boolean validateFields(TextInputEditText[] fields){
-        for(int i = 0; i < fields.length; i++){
-            TextInputEditText currentField = fields[i];
-            if(currentField.getText().toString().length() <= 0){
+        for (TextInputEditText currentField : fields) {
+            if (Objects.requireNonNull(currentField.getText()).toString().length() <= 0) {
                 return false;
             }
         }
@@ -1157,7 +1139,7 @@ public class ItemDetailFragment extends Fragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (Objects.requireNonNull(document).exists()) {
                         generateNewNumber(view, accessionNumberEditText);
                     } else {
                         setAccessionNumber(accessionNumberEditText, accessionNum);
@@ -1723,7 +1705,7 @@ public class ItemDetailFragment extends Fragment {
         }
         String type_str;
         if (chosenType) {
-            type_str = otherType_text.getText().toString();
+            type_str = Objects.requireNonNull(otherType_text.getText()).toString();
         } else {
             type_str = equipmentType.getText().toString();
         }
@@ -1868,7 +1850,7 @@ public class ItemDetailFragment extends Fragment {
 
     String di = "";
 
-    private void autoPopulate(final DocumentReference siteDocRef, final View view) {
+    private void autoPopulate(final View view) {
 
 
         final String udiStr = Objects.requireNonNull(udiEditText.getText()).toString();
@@ -1938,7 +1920,7 @@ public class ItemDetailFragment extends Fragment {
                             medicalSpeciality.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
                             numberAdded.setText(deviceInfo.getString("deviceCount"));
-                            autoPopulateFromDatabase(udi, siteDocRef, udiStr, view);
+                            autoPopulateFromDatabase(udiStr);
 
                             JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
 
@@ -2006,7 +1988,7 @@ public class ItemDetailFragment extends Fragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (Objects.requireNonNull(document).exists()) {
                         if (document.get("procedure_number") != null) {
                             procedureFieldAdded = Integer.parseInt(
                                     Objects.requireNonNull(document.getString("procedure_number")));
@@ -2037,9 +2019,9 @@ public class ItemDetailFragment extends Fragment {
     }
 
 
-    private void autoPopulateFromDatabase(final JSONObject udi, final DocumentReference siteDocRef, final String udiStr, final View view) {
-        DocumentReference udiDocRef = null;
-        DocumentReference diDocRef = null;
+    private void autoPopulateFromDatabase(final String udiStr) {
+        DocumentReference udiDocRef;
+        DocumentReference diDocRef;
 
         udiDocRef = db.collection("networks").document(mNetworkId)
                 .collection("hospitals").document(mHospitalId).collection("departments")
@@ -2051,37 +2033,13 @@ public class ItemDetailFragment extends Fragment {
                 .document("default_department").collection("dis").document(di);
 
 
-        udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        if (document.get("procedure_number") != null) {
-                            procedureCount = Integer.parseInt(
-                                    Objects.requireNonNull(document.getString("procedure_number")));
-                        } else {
-                            procedureCount = 0;
-                        }
-
-                    } else {
-                        procedureCount = 0;
-
-                        Log.d(TAG, "Document does not exist!");
-                    }
-                } else {
-                    procedureCount = 0;
-                    Log.d(TAG, "Failed with: ", task.getException());
-                }
-            }
-        });
 
         diDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (Objects.requireNonNull(document).exists()) {
                         if (document.get(TYPE_KEY) != null) {
                             equipmentType.setText(document.getString(TYPE_KEY));
 //                            equipmentType.setFocusable(false);
@@ -2099,7 +2057,7 @@ public class ItemDetailFragment extends Fragment {
                         }
                         if (document.get(USAGE_KEY) != null) {
                             String usage = document.getString(USAGE_KEY);
-                            if (usage.equalsIgnoreCase("Single Use")) {
+                            if (Objects.requireNonNull(usage).equalsIgnoreCase("Single Use")) {
                                 singleUseButton.setChecked(true);
                             } else if (usage.equalsIgnoreCase("Reusable")) {
                                 multiUse.setChecked(true);
@@ -2121,7 +2079,7 @@ public class ItemDetailFragment extends Fragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (Objects.requireNonNull(document).exists()) {
                         if (document.get("quantity") != null) {
                             itemQuantity = document.getString(QUANTITY_KEY);
                             quantity.setText(itemQuantity);
@@ -2162,7 +2120,7 @@ public class ItemDetailFragment extends Fragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (Objects.requireNonNull(document).exists()) {
                         quantity.setText("0");
                         company.setText(document.getString(COMPANY_KEY));
                         deviceDescription.setText(document.getString(DESCRIPTION_KEY));
