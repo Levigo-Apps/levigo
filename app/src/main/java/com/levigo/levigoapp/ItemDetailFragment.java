@@ -168,6 +168,7 @@ public class ItemDetailFragment extends Fragment {
     private boolean checkSingleUseButton;
     private boolean checkMultiUseButton;
     private boolean isTimeinSelected;
+    private boolean checkProcedureFields;
     private List<TextInputEditText> allSizeOptions;
     private ArrayList<String> TYPES;
     private ArrayList<String> SITELOC;
@@ -260,8 +261,8 @@ public class ItemDetailFragment extends Fragment {
         checkMultiUseButton = false;
         isAddSizeButtonClicked = true;
         isTimeinSelected = false;
+        checkProcedureFields = false;
         itemUsed.setChecked(false);
-        saveButton.setEnabled(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
         itemUsedFields = rootView.findViewById(R.id.layout_itemused);
         itemUsedFields.setVisibility(View.GONE);
@@ -288,11 +289,8 @@ public class ItemDetailFragment extends Fragment {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         try {
-                            //TODO Davit update database paths with these variables
                             mNetworkId = document.get("network_id").toString();
-//                            mNetworkName = document.get("network_name").toString();
                             mHospitalId = document.get("hospital_id").toString();
-//                            mHospitalName = document.get("hospital_name").toString();
                             typeRef = db.collection("networks").document(mNetworkId).collection("hospitals")
                                     .document(mHospitalId).collection("types").document("type_options");
                             siteRef = db.collection("networks").document(mNetworkId)
@@ -414,7 +412,6 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 removeProcedure.setEnabled(true);
-                saveButton.setEnabled(false);
                 addProcedureField(view);
             }
         });
@@ -440,7 +437,6 @@ public class ItemDetailFragment extends Fragment {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
                     checkItemUsed = true;
-                    saveButton.setEnabled(false);
                     itemUsedFields.setVisibility(View.VISIBLE);
                     numberAdded.setText("0");
                     numberAdded.removeTextChangedListener(textWatcher);
@@ -449,7 +445,6 @@ public class ItemDetailFragment extends Fragment {
 
                 } else {
                     // enable saveButton
-                    saveButton.setEnabled(true);
                     checkItemUsed = false;
                     numberAddedLayout.setVisibility(View.VISIBLE);
                     itemUsedFields.setVisibility(View.GONE);
@@ -507,14 +502,24 @@ public class ItemDetailFragment extends Fragment {
         });
 
         // saves data into database
-        //TODO determine hospital based on user
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //hardcoded
-                saveData(rootView, "networks", mNetworkId, "hospitals",
-                        mHospitalId, "departments",
-                        "default_department", "dis");
+                if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
+                    if(checkItemUsed){
+                        if(!checkProcedureFields){
+                            Toast.makeText(rootView.getContext(), "Please enter procedure information", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                    }
+                    saveData(rootView, "networks", mNetworkId, "hospitals",
+                            mHospitalId, "departments",
+                            "default_department", "dis");
+                }else{
+                    Toast.makeText(rootView.getContext(), "Please fill out all required fields", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -663,7 +668,8 @@ public class ItemDetailFragment extends Fragment {
     }
 
     private void setTextWatcherRequired() {
-        textWatcher = new TextWatcher() {
+
+        TextWatcher autoCompleteTextWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
@@ -678,79 +684,72 @@ public class ItemDetailFragment extends Fragment {
 
                 for (AutoCompleteTextView editText : new AutoCompleteTextView[]{equipmentType,
                         hospitalName, physicalLocation}) {
-                    if (!(editText.getText().toString().trim().isEmpty())) {
-                        checkAutocompleteTexts = true;
-                        continue;
-                    }
-                    if (editText.getText().toString().trim().isEmpty()) {
+                    if ((editText.getText().toString().trim().isEmpty())) {
                         checkAutocompleteTexts = false;
-                        break;
+                        return;
                     }
                 }
 
-                if ((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
-                    saveButton.setEnabled(true);
-                }
+                checkAutocompleteTexts = true;
+            }
+        };
+        equipmentType.addTextChangedListener(autoCompleteTextWatcher);
+        hospitalName.addTextChangedListener(autoCompleteTextWatcher);
+        physicalLocation.addTextChangedListener(autoCompleteTextWatcher);
+
+
+        TextWatcher editTextWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
 
                 for (TextInputEditText editText : new TextInputEditText[]{udiEditText, nameEditText,
                         company, expiration, lotNumber, referenceNumber, numberAdded, deviceIdentifier,
                         dateIn, timeIn}) {
-                    if (!(Objects.requireNonNull(editText.getText()).toString().trim().isEmpty())) {
-                        checkEditTexts = true;
-                        continue;
-                    }
                     if (Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()) {
                         checkEditTexts = false;
-                        break;
+                        return;
                     }
+
                 }
 
-                if ((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
-                    saveButton.setEnabled(true);
-                }
-
-
-                singleUseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                        checkSingleUseButton = true;
-                        if ((b && checkAutocompleteTexts) && checkEditTexts) {
-                            saveButton.setEnabled(true);
-                        }
-                    }
-                });
-
-                multiUse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                        checkMultiUseButton = true;
-                        if ((b && checkAutocompleteTexts) && checkEditTexts) {
-
-                            saveButton.setEnabled(true);
-                        }
-                    }
-                });
+                checkEditTexts = true;
             }
         };
 
-        if ((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
-            saveButton.setEnabled(true);
-        }
+        udiEditText.addTextChangedListener(editTextWatcher);
+        nameEditText.addTextChangedListener(editTextWatcher);
+        company.addTextChangedListener(editTextWatcher);
+        expiration.addTextChangedListener(editTextWatcher);
+        lotNumber.addTextChangedListener(editTextWatcher);
+        referenceNumber.addTextChangedListener(editTextWatcher);
+        numberAdded.addTextChangedListener(editTextWatcher);
+        deviceIdentifier.addTextChangedListener(editTextWatcher);
+        dateIn.addTextChangedListener(editTextWatcher);
+        timeIn.addTextChangedListener(editTextWatcher);
 
+        singleUseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                checkSingleUseButton = true;
+            }
 
-        equipmentType.addTextChangedListener(textWatcher);
-        hospitalName.addTextChangedListener(textWatcher);
-        physicalLocation.addTextChangedListener(textWatcher);
-        udiEditText.addTextChangedListener(textWatcher);
-        nameEditText.addTextChangedListener(textWatcher);
-        company.addTextChangedListener(textWatcher);
-        expiration.addTextChangedListener(textWatcher);
-        lotNumber.addTextChangedListener(textWatcher);
-        referenceNumber.addTextChangedListener(textWatcher);
-        numberAdded.addTextChangedListener(textWatcher);
-        deviceIdentifier.addTextChangedListener(textWatcher);
-        dateIn.addTextChangedListener(textWatcher);
-        timeIn.addTextChangedListener(textWatcher);
+        });
+
+        multiUse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                checkMultiUseButton = true;
+            }
+        });
     }
 
 
@@ -834,8 +833,8 @@ public class ItemDetailFragment extends Fragment {
 
     // when clicked adds one more additional field for Patient ID
     private void addProcedureField(View view) {
+        checkProcedureFields = false;
         final SimpleDateFormat format = new SimpleDateFormat("HH:mm",Locale.US);
-        saveButton.setEnabled(false);
         final Map<String, Object> procedureInfoMap = new HashMap<>();
         procedureFieldAdded++;
 
@@ -981,9 +980,6 @@ public class ItemDetailFragment extends Fragment {
         procedureTimeOutLayout.addView(procedureTimeOutEditText);
 
 
-
-
-
         TextInputLayout procedureNameLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureNameLayout.setHint("Enter procedure name");
@@ -1062,16 +1058,11 @@ public class ItemDetailFragment extends Fragment {
                 procedureInfoMap.put("floor_time",
                         Objects.requireNonNull(procedureFloorTimeEditText.getText()).toString());
 
-                for (TextInputEditText text : new TextInputEditText[]{
-                        procedureDateEditText, procedureNameEditText,
+                checkProcedureFields = validateFields(new TextInputEditText[] {procedureDateEditText, procedureNameEditText,
                         accessionNumberEditText, numberUsedEditText,
-                        procedureTimeInEditText,procedureTimeOutEditText,procedureFloorTimeEditText}) {
-                    if (text.toString().trim().isEmpty()) {
-                        saveButton.setEnabled(false);
-                        break;
-                    }
-                    saveButton.setEnabled(true);
-                }
+                        procedureTimeInEditText,procedureTimeOutEditText,procedureFloorTimeEditText});
+
+
             }
         };
         procedureMapList.add(procedureInfoMap);
@@ -1099,6 +1090,16 @@ public class ItemDetailFragment extends Fragment {
         procedureInfoLayout.addView(numberUsedLayout, 7);
 
         itemUsedFields.addView(procedureInfoLayout, itemUsedFields.indexOfChild(addProcedure));
+    }
+
+    private boolean validateFields(TextInputEditText[] fields){
+        for(int i = 0; i < fields.length; i++){
+            TextInputEditText currentField = fields[i];
+            if(currentField.getText().toString().length() <= 0){
+                return false;
+            }
+        }
+        return true;
     }
 
     //checks whether or not the accession number is unique
