@@ -416,9 +416,11 @@ public class ItemDetailFragment extends Fragment {
 
                 if(checkProcedureFields) {
                     removeProcedure.setEnabled(true);
+                    checkProcedureFields = false;
                     addProcedureField(view);
                 }else{
-                    Toast.makeText(rootView.getContext(), "Please fill out  info first", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(rootView.getContext(), "Please fill out added procedue " +
+                            "information fields before adding a new one", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -427,8 +429,11 @@ public class ItemDetailFragment extends Fragment {
         removeProcedure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                checkProcedureFields = true;
                 if (procedureFieldAdded - procedureListCounter > 0) {
+                    if(checkProcedureFields) {
+                        procedureMapList.remove(procedureMapList.size() - 1);
+                        System.out.println(procedureMapList);
+                    }
                     if(accessionNumberGenerated) {
                         removeAccessionNumber(itemUsedFields);
                     }
@@ -438,7 +443,9 @@ public class ItemDetailFragment extends Fragment {
                 }
                 if (procedureFieldAdded - procedureListCounter == 0) {
                     removeProcedure.setEnabled(false);
+                    itemUsed.setChecked(false);
                 }
+                checkProcedureFields = true;
             }
         });
 
@@ -449,6 +456,7 @@ public class ItemDetailFragment extends Fragment {
                     checkItemUsed = true;
                     itemUsedFields.setVisibility(View.VISIBLE);
                     addProcedureField(rootView);
+                    removeProcedure.setEnabled(true);
                     numberAdded.setText("0");
                     numberAdded.removeTextChangedListener(textWatcher);
                     numberAddedLayout.setVisibility(View.GONE);
@@ -845,6 +853,7 @@ public class ItemDetailFragment extends Fragment {
     private void addProcedureField(View view) {
         checkProcedureFields = false;
         accessionNumberGenerated = false;
+        final boolean[] procedureInfoAdded = {false};
         final SimpleDateFormat format = new SimpleDateFormat("HH:mm",Locale.US);
         final Map<String, Object> procedureInfoMap = new HashMap<>();
         procedureFieldAdded++;
@@ -1085,11 +1094,23 @@ public class ItemDetailFragment extends Fragment {
                 checkProcedureFields = validateFields(new TextInputEditText[] {procedureDateEditText, procedureNameEditText,
                         accessionNumberEditText, numberUsedEditText,
                         procedureTimeInEditText,procedureTimeOutEditText,procedureFloorTimeEditText});
+                if(checkProcedureFields && (!(procedureInfoAdded[0]))){
+                    procedureMapList.add(procedureInfoMap);
+                    procedureInfoAdded[0] = true;
+                    System.out.println("added " + procedureMapList);
+                }
+                if(checkProcedureFields && procedureInfoAdded[0]) {
+                    procedureMapList.get(procedureMapList.size() - 1).put(AMOUNTUSED_KEY, numberUsedEditText.getText().toString());
+                    System.out.println("changed " + procedureMapList);
+                }
+
 
 
             }
         };
-        procedureMapList.add(procedureInfoMap);
+
+
+
         procedureNameEditText.addTextChangedListener(newProcedureTextWatcher);
         procedureDateEditText.addTextChangedListener(newProcedureTextWatcher);
         numberUsedEditText.addTextChangedListener(newProcedureTextWatcher);
@@ -2078,10 +2099,9 @@ public class ItemDetailFragment extends Fragment {
                         }
                         if (document.get(USAGE_KEY) != null) {
                             String usage = document.getString(USAGE_KEY);
-                            System.out.println("usage is" + usage);
-                            if (usage.equals("Single Use")) {
+                            if (usage.equalsIgnoreCase("Single Use")) {
                                 singleUseButton.setChecked(true);
-                            } else if (usage.equals("Ruesable")) {
+                            } else if (usage.equalsIgnoreCase("Reusable")) {
                                 multiUse.setChecked(true);
                             }
                         }
