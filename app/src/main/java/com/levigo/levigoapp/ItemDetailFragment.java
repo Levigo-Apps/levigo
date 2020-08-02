@@ -196,7 +196,8 @@ public class ItemDetailFragment extends Fragment {
     private final String AMOUNTUSED_KEY = "amount_used";
     private final String ACCESSION_KEY = "accession_number";
     private final String PHYSICALLOC_KEY = "physical_location";
-    private final String TIME_KEY = "current_time";
+    private final String TIMEIN_KEY = "time_in";
+    private final String TIMEOUT_KEY = "time_out";
     private final String QUANTITY_KEY = "quantity";
     private final String SINGLEORMULTI_KEY = "single_multi";
 
@@ -879,6 +880,7 @@ public class ItemDetailFragment extends Fragment {
                 getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
         procedureTimeInLayout.setPadding(0, 10, 0, 0);
         final TextInputEditText procedureTimeInEditText = new TextInputEditText(procedureTimeInLayout.getContext());
+        procedureTimeInEditText.setFocusable(false);
         procedureTimeInEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
         procedureTimeInLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
@@ -891,6 +893,7 @@ public class ItemDetailFragment extends Fragment {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
                         procedureTimeInEditText.setText(String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute));
+                        isTimeinSelected = true;
 
                         try {
                             Date timeIn = format.parse(selectedHour + ":" + selectedMinute);
@@ -904,11 +907,21 @@ public class ItemDetailFragment extends Fragment {
                 }, hour, minute, true);
                 mTimePicker.setTitle("Select Time");
                 mTimePicker.show();
-                isTimeinSelected = true;
+
 
             }
         });
         procedureTimeInLayout.addView(procedureTimeInEditText);
+
+        TextInputLayout procedureFloorTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureFloorTimeLayout.setHint("Floor time");
+        procedureFloorTimeLayout.setPadding(0, 10, 0, 0);
+        final TextInputEditText procedureFloorTimeEditText = new TextInputEditText(procedureFloorTimeLayout.getContext());
+        procedureFloorTimeEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+        procedureFloorTimeEditText.setClickable(false);
+        procedureFloorTimeLayout.addView(procedureFloorTimeEditText);
+
 
 
 
@@ -921,6 +934,7 @@ public class ItemDetailFragment extends Fragment {
                 getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
         procedureTimeOutLayout.setPadding(0, 10, 0, 0);
         final TextInputEditText procedureTimeOutEditText = new TextInputEditText(procedureTimeOutLayout.getContext());
+        procedureTimeOutEditText.setFocusable(false);
         procedureTimeOutEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
         procedureTimeOutLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
@@ -944,8 +958,9 @@ public class ItemDetailFragment extends Fragment {
                                     hours = hours + 24;
                                 }
                                 int mins = (int) (millsDif/(1000*60)) % 60;
-                                String totalTime = String.valueOf(hours*60 + mins);
-                                System.out.println(totalTime + " minutes");
+                                String totalTime = String.valueOf(hours*60 + mins) + " minutes";
+                                procedureFloorTimeEditText.setText(totalTime);
+
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
@@ -966,13 +981,6 @@ public class ItemDetailFragment extends Fragment {
         procedureTimeOutLayout.addView(procedureTimeOutEditText);
 
 
-        TextInputLayout procedureFloorTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureFloorTimeLayout.setHint("Floor time");
-        procedureFloorTimeLayout.setPadding(0, 10, 0, 0);
-        TextInputEditText procedureFloorTimeEditText = new TextInputEditText(procedureFloorTimeLayout.getContext());
-        procedureFloorTimeEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-        procedureFloorTimeLayout.addView(procedureFloorTimeEditText);
 
 
 
@@ -992,7 +1000,7 @@ public class ItemDetailFragment extends Fragment {
         accessionNumberEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
         accessionNumberLayout.setTag("accession");
         accessionNumberEditText.setTag("accession_text");
-      //  generateNewNumber(view, accessionNumberEditText);
+        generateNewNumber(view, accessionNumberEditText);
 
 
         TextInputLayout numberUsedLayout = (TextInputLayout) View.inflate(view.getContext(),
@@ -1038,6 +1046,7 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable editable) {
                 // saving string to HashMap to save it to database
+
                 procedureInfoMap.put(PROCEDURE_KEY,
                         Objects.requireNonNull(procedureNameEditText.getText()).toString());
                 procedureInfoMap.put(PROCEDUREDATE_KEY,
@@ -1046,12 +1055,17 @@ public class ItemDetailFragment extends Fragment {
                         Objects.requireNonNull(numberUsedEditText.getText()).toString());
                 procedureInfoMap.put(ACCESSION_KEY,
                         Objects.requireNonNull(accessionNumberEditText.getText()).toString());
-                procedureInfoMap.put(TIME_KEY,
+                procedureInfoMap.put(TIMEIN_KEY,
                         Objects.requireNonNull(procedureTimeInEditText.getText()).toString());
+                procedureInfoMap.put(TIMEOUT_KEY,
+                        Objects.requireNonNull(procedureTimeOutEditText.getText()).toString());
+                procedureInfoMap.put("floor_time",
+                        Objects.requireNonNull(procedureFloorTimeEditText.getText()).toString());
+
                 for (TextInputEditText text : new TextInputEditText[]{
                         procedureDateEditText, procedureNameEditText,
                         accessionNumberEditText, numberUsedEditText,
-                        procedureTimeInEditText}) {
+                        procedureTimeInEditText,procedureTimeOutEditText,procedureFloorTimeEditText}) {
                     if (text.toString().trim().isEmpty()) {
                         saveButton.setEnabled(false);
                         break;
@@ -1066,6 +1080,9 @@ public class ItemDetailFragment extends Fragment {
         numberUsedEditText.addTextChangedListener(newProcedureTextWatcher);
         accessionNumberEditText.addTextChangedListener(newProcedureTextWatcher);
         procedureTimeInEditText.addTextChangedListener(newProcedureTextWatcher);
+        procedureFloorTimeEditText.addTextChangedListener(newProcedureTextWatcher);
+        procedureTimeInEditText.addTextChangedListener(newProcedureTextWatcher);
+        procedureTimeOutEditText.addTextChangedListener(newProcedureTextWatcher);
 
 
         procedureNameLayout.addView(procedureNameEditText);
