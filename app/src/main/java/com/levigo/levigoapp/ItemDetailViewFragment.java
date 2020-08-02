@@ -1,7 +1,6 @@
 package com.levigo.levigoapp;
 
 import android.app.Activity;
-import android.app.DatePickerDialog;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -38,12 +37,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 public class ItemDetailViewFragment extends Fragment {
 
@@ -73,7 +69,6 @@ public class ItemDetailViewFragment extends Fragment {
     private TextInputLayout specificationLayout;
     private TextInputLayout usageLayout;
     private TextInputEditText itemName;
-    private TextInputLayout itemNameLayout;
     private TextInputEditText udi;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText quantity;
@@ -131,7 +126,7 @@ public class ItemDetailViewFragment extends Fragment {
         itemSpecsLinearLayout.setOrientation(LinearLayout.VERTICAL);
         itemSpecsLinearLayout.setVisibility(View.GONE);
         linearLayout.addView(itemSpecsLinearLayout,linearLayout.indexOfChild(specsLinearLayout) + 1);
-        itemNameLayout = rootView.findViewById(R.id.itemname_layout);
+        TextInputLayout itemNameLayout = rootView.findViewById(R.id.itemname_layout);
 
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -204,7 +199,7 @@ public class ItemDetailViewFragment extends Fragment {
 
                 ItemDetailFragment fragment = new ItemDetailFragment();
                 Bundle bundle = new Bundle();
-                bundle.putString("barcode", udi.getText().toString());
+                bundle.putString("barcode", Objects.requireNonNull(udi.getText()).toString());
                 fragment.setArguments(bundle);
 
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
@@ -686,7 +681,7 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureTimeHeaderLayout.setLayoutParams(procedureTimeInHeaderParams);
         TextInputEditText procedureTimeHeaderEditText = new TextInputEditText(procedureTimeHeaderLayout.getContext());
-        procedureTimeHeaderEditText.setText("Procedure time in");
+        procedureTimeHeaderEditText.setText(R.string.procedureTimeIn_label);
         procedureTimeHeaderEditText.setTypeface(procedureTimeHeaderEditText.getTypeface(), Typeface.BOLD);
         procedureTimeHeaderLayout.addView(procedureTimeHeaderEditText);
         procedureTimeHeaderEditText.setFocusable(false);
@@ -722,7 +717,7 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureTimeOutHeaderLayout.setLayoutParams(procedureTimeOutHeaderParams);
         TextInputEditText procedureTimeOutHeaderEditText = new TextInputEditText(procedureTimeOutHeaderLayout.getContext());
-        procedureTimeOutHeaderEditText.setText("Procedure time out");
+        procedureTimeOutHeaderEditText.setText(R.string.procedureTimeOut_label);
         procedureTimeOutHeaderEditText.setTypeface(procedureTimeOutHeaderEditText.getTypeface(), Typeface.BOLD);
         procedureTimeOutHeaderEditText.setFocusable(false);
         procedureTimeOutHeaderLayout.addView(procedureTimeOutHeaderEditText);
@@ -759,7 +754,7 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureFloorTimeHeaderLayout.setLayoutParams(procedureFloorTimeHeaderParams);
         TextInputEditText procedureFloorTimeHeaderEditText = new TextInputEditText(procedureFloorTimeHeaderLayout.getContext());
-        procedureFloorTimeHeaderEditText.setText("Floor time");
+        procedureFloorTimeHeaderEditText.setText(R.string.FloorTimeLabel);
         procedureFloorTimeHeaderEditText.setTypeface(procedureFloorTimeHeaderEditText.getTypeface(), Typeface.BOLD);
         procedureFloorTimeHeaderEditText.setFocusable(false);
         procedureFloorTimeHeaderLayout.addView(procedureFloorTimeHeaderEditText);
