@@ -169,6 +169,7 @@ public class ItemDetailFragment extends Fragment {
     private boolean checkMultiUseButton;
     private boolean isTimeinSelected;
     private boolean checkProcedureFields;
+    private boolean accessionNumberGenerated;
     private List<TextInputEditText> allSizeOptions;
     private ArrayList<String> TYPES;
     private ArrayList<String> SITELOC;
@@ -262,6 +263,7 @@ public class ItemDetailFragment extends Fragment {
         isAddSizeButtonClicked = true;
         isTimeinSelected = false;
         checkProcedureFields = false;
+        accessionNumberGenerated = false;
         itemUsed.setChecked(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
         itemUsedFields = rootView.findViewById(R.id.layout_itemused);
@@ -411,8 +413,13 @@ public class ItemDetailFragment extends Fragment {
         addProcedure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                removeProcedure.setEnabled(true);
-                addProcedureField(view);
+
+                if(checkProcedureFields) {
+                    removeProcedure.setEnabled(true);
+                    addProcedureField(view);
+                }else{
+                    Toast.makeText(rootView.getContext(), "Please fill out  info first", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -420,8 +427,11 @@ public class ItemDetailFragment extends Fragment {
         removeProcedure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                checkProcedureFields = true;
                 if (procedureFieldAdded - procedureListCounter > 0) {
-                    removeAccessionNumber(itemUsedFields);
+                    if(accessionNumberGenerated) {
+                        removeAccessionNumber(itemUsedFields);
+                    }
                     itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addProcedure) - 1);
                     numberUsedList.remove(numberUsedList.size() - 1);
                     --procedureFieldAdded;
@@ -438,10 +448,10 @@ public class ItemDetailFragment extends Fragment {
                 if (b) {
                     checkItemUsed = true;
                     itemUsedFields.setVisibility(View.VISIBLE);
+                    addProcedureField(rootView);
                     numberAdded.setText("0");
                     numberAdded.removeTextChangedListener(textWatcher);
                     numberAddedLayout.setVisibility(View.GONE);
-                    removeProcedure.setEnabled(false);
 
                 } else {
                     // enable saveButton
@@ -834,6 +844,7 @@ public class ItemDetailFragment extends Fragment {
     // when clicked adds one more additional field for Patient ID
     private void addProcedureField(View view) {
         checkProcedureFields = false;
+        accessionNumberGenerated = false;
         final SimpleDateFormat format = new SimpleDateFormat("HH:mm",Locale.US);
         final Map<String, Object> procedureInfoMap = new HashMap<>();
         procedureFieldAdded++;
@@ -918,7 +929,7 @@ public class ItemDetailFragment extends Fragment {
         procedureFloorTimeLayout.setPadding(0, 10, 0, 0);
         final TextInputEditText procedureFloorTimeEditText = new TextInputEditText(procedureFloorTimeLayout.getContext());
         procedureFloorTimeEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-        procedureFloorTimeEditText.setClickable(false);
+        procedureFloorTimeEditText.setFocusable(false);
         procedureFloorTimeLayout.addView(procedureFloorTimeEditText);
 
 
@@ -957,14 +968,12 @@ public class ItemDetailFragment extends Fragment {
                                     hours = hours + 24;
                                 }
                                 int mins = (int) (millsDif/(1000*60)) % 60;
-                                String totalTime = String.valueOf(hours*60 + mins) + " minutes";
+                                String totalTime = (hours * 60 + mins) + " minutes";
                                 procedureFloorTimeEditText.setText(totalTime);
 
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
-
-
 
                         }
                     }, hour, minute, true);
@@ -988,15 +997,30 @@ public class ItemDetailFragment extends Fragment {
         procedureNameEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
 
-        TextInputLayout accessionNumberLayout = (TextInputLayout) View.inflate(view.getContext(),
+        final TextInputLayout accessionNumberLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
-        accessionNumberLayout.setHint("Accession number");
+
         accessionNumberLayout.setPadding(0, 10, 0, 10);
         accessionNumberEditText = new TextInputEditText(procedureNameLayout.getContext());
         accessionNumberEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+        accessionNumberEditText.setClickable(true);
+        accessionNumberEditText.setFocusable(false);
+        accessionNumberEditText.setHint("Tap here to generate accession number");
         accessionNumberLayout.setTag("accession");
         accessionNumberEditText.setTag("accession_text");
-        generateNewNumber(view, accessionNumberEditText);
+        accessionNumberEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                accessionNumberGenerated = true;
+                generateNewNumber(view, accessionNumberEditText);
+                accessionNumberLayout.setHint("Accession number");
+                accessionNumberEditText.setHint("");
+            }
+        });
+
+
+
+
 
 
         TextInputLayout numberUsedLayout = (TextInputLayout) View.inflate(view.getContext(),
