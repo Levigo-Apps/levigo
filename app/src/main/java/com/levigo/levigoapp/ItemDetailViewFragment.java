@@ -555,7 +555,6 @@ public class ItemDetailViewFragment extends Fragment {
 
 
     private void addProcedureInfoFields(final List<List<String>> procedureDoc, View view){
-        System.out.println(procedureDoc);
         int i;
         final LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
         procedureInfoLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -605,7 +604,7 @@ public class ItemDetailViewFragment extends Fragment {
 
 
             final boolean[] isMaximized = {false};
-            final int finalI = i;
+            addProcedureSubFields(procedureInfoLayout,view,procedureDoc, i,eachProcedureLayout);
             procedureDateText.setEndIconOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -618,7 +617,7 @@ public class ItemDetailViewFragment extends Fragment {
 
 
                     } else {
-                        addProcedureSubFields(procedureInfoLayout,view,procedureDoc, finalI,eachProcedureLayout);
+                        procedureInfoLayout.getChildAt((procedureInfoLayout.indexOfChild(eachProcedureLayout)) + 1).setVisibility(View.VISIBLE);
                         procedureDateText.setEndIconDrawable(R.drawable.ic_remove_minimize);
                         procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
                                 getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
@@ -861,6 +860,8 @@ public class ItemDetailViewFragment extends Fragment {
         subFieldsLayout.addView(procedureAccession);
         subFieldsLayout.addView(procedureItemUsed);
         procedureInfoLayout.addView(subFieldsLayout,(procedureInfoLayout.indexOfChild(procedureInfo))+1);
+        procedureInfoLayout.getChildAt(procedureInfoLayout.indexOfChild(procedureInfo)+1).setVisibility(View.GONE);
+
 
     }
 }
