@@ -67,6 +67,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -156,6 +157,7 @@ public class ItemDetailFragment extends Fragment {
     private int locCounter;
     private int procedureCount;
     private int procedureListCounter;
+    private long millsIn;
     private boolean chosenType;
     private boolean chosenLocation;
     private boolean isAddSizeButtonClicked;
@@ -165,6 +167,7 @@ public class ItemDetailFragment extends Fragment {
     private boolean checkItemUsed;
     private boolean checkSingleUseButton;
     private boolean checkMultiUseButton;
+    private boolean isTimeinSelected;
     private List<TextInputEditText> allSizeOptions;
     private ArrayList<String> TYPES;
     private ArrayList<String> SITELOC;
@@ -255,6 +258,7 @@ public class ItemDetailFragment extends Fragment {
         checkSingleUseButton = false;
         checkMultiUseButton = false;
         isAddSizeButtonClicked = true;
+        isTimeinSelected = false;
         itemUsed.setChecked(false);
         saveButton.setEnabled(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
@@ -829,6 +833,7 @@ public class ItemDetailFragment extends Fragment {
 
     // when clicked adds one more additional field for Patient ID
     private void addProcedureField(View view) {
+        final SimpleDateFormat format = new SimpleDateFormat("HH:mm",Locale.US);
         saveButton.setEnabled(false);
         final Map<String, Object> procedureInfoMap = new HashMap<>();
         procedureFieldAdded++;
@@ -851,7 +856,7 @@ public class ItemDetailFragment extends Fragment {
 
         procedureDateLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
-        procedureDateLayout.setHint("Enter Procedure Date");
+        procedureDateLayout.setHint("Enter procedure date");
         procedureDateLayout.setEndIconTintList(ColorStateList.valueOf(getResources().
                 getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
         procedureDateLayout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
@@ -864,40 +869,116 @@ public class ItemDetailFragment extends Fragment {
         procedureDateEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
 
-        TextInputLayout procedureTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
+
+        TextInputLayout procedureTimeInLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
-        procedureTimeLayout.setHint("Enter Time");
-        procedureTimeLayout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
-        procedureTimeLayout.setEndIconDrawable(R.drawable.clock);
-        procedureTimeLayout.setEndIconTintList(ColorStateList.valueOf(getResources().
+        procedureTimeInLayout.setHint("Enter time in");
+        procedureTimeInLayout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
+        procedureTimeInLayout.setEndIconDrawable(R.drawable.clock);
+        procedureTimeInLayout.setEndIconTintList(ColorStateList.valueOf(getResources().
                 getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
-        procedureTimeLayout.setPadding(0, 10, 0, 0);
-        final TextInputEditText procedureTimeEditText = new TextInputEditText(procedureTimeLayout.getContext());
-        procedureTimeEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-        procedureTimeLayout.setEndIconOnClickListener(new View.OnClickListener() {
+        procedureTimeInLayout.setPadding(0, 10, 0, 0);
+        final TextInputEditText procedureTimeInEditText = new TextInputEditText(procedureTimeInLayout.getContext());
+        procedureTimeInEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+        procedureTimeInLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Calendar mcurrentTime = Calendar.getInstance();
                 int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-                int minute = mcurrentTime.get(Calendar.MINUTE);
+                final int minute = mcurrentTime.get(Calendar.MINUTE);
                 TimePickerDialog mTimePicker;
                 mTimePicker = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                        procedureTimeEditText.setText(String.format(Locale.US, "%02d:%02d:00", selectedHour, selectedMinute));
+                        procedureTimeInEditText.setText(String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute));
+
+                        try {
+                            Date timeIn = format.parse(selectedHour + ":" + selectedMinute);
+                            millsIn = timeIn.getTime();
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
                     }
                 }, hour, minute, true);
                 mTimePicker.setTitle("Select Time");
                 mTimePicker.show();
+                isTimeinSelected = true;
 
             }
         });
-        procedureTimeLayout.addView(procedureTimeEditText);
+        procedureTimeInLayout.addView(procedureTimeInEditText);
+
+
+
+        TextInputLayout procedureTimeOutLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureTimeOutLayout.setHint("Enter time out");
+        procedureTimeOutLayout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
+        procedureTimeOutLayout.setEndIconDrawable(R.drawable.clock);
+        procedureTimeOutLayout.setEndIconTintList(ColorStateList.valueOf(getResources().
+                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
+        procedureTimeOutLayout.setPadding(0, 10, 0, 0);
+        final TextInputEditText procedureTimeOutEditText = new TextInputEditText(procedureTimeOutLayout.getContext());
+        procedureTimeOutEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+        procedureTimeOutLayout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isTimeinSelected) {
+                    Calendar mcurrentTime = Calendar.getInstance();
+                    int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+                    int minute = mcurrentTime.get(Calendar.MINUTE);
+                    TimePickerDialog mTimePicker;
+                    mTimePicker = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
+                        @Override
+                        public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                            procedureTimeOutEditText.setText(String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute));
+
+                            try {
+                                Date timeOut = format.parse(selectedHour + ":" + selectedMinute);
+                                long millsOut = timeOut.getTime();
+                                long millsDif = millsOut - millsIn;
+                                int hours = (int) millsDif/(1000 * 60 * 60);
+                                if(hours < 0){
+                                    hours = hours + 24;
+                                }
+                                int mins = (int) (millsDif/(1000*60)) % 60;
+                                String totalTime = String.valueOf(hours*60 + mins);
+                                System.out.println(totalTime + " minutes");
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+
+
+
+                        }
+                    }, hour, minute, true);
+                    mTimePicker.setTitle("Select Time");
+                    mTimePicker.show();
+
+                }else{
+                    Toast.makeText(view.getContext(), "Please select time in first, please", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        procedureTimeOutLayout.addView(procedureTimeOutEditText);
+
+
+        TextInputLayout procedureFloorTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureFloorTimeLayout.setHint("Floor time");
+        procedureFloorTimeLayout.setPadding(0, 10, 0, 0);
+        TextInputEditText procedureFloorTimeEditText = new TextInputEditText(procedureFloorTimeLayout.getContext());
+        procedureFloorTimeEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+        procedureFloorTimeLayout.addView(procedureFloorTimeEditText);
+
 
 
         TextInputLayout procedureNameLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
-        procedureNameLayout.setHint("Enter Procedure");
+        procedureNameLayout.setHint("Enter procedure name");
         procedureNameLayout.setPadding(0, 10, 0, 0);
         procedureNameEditText = new TextInputEditText(procedureNameLayout.getContext());
         procedureNameEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
@@ -905,18 +986,18 @@ public class ItemDetailFragment extends Fragment {
 
         TextInputLayout accessionNumberLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
-        accessionNumberLayout.setHint("Enter Accession Number");
+        accessionNumberLayout.setHint("Accession number");
         accessionNumberLayout.setPadding(0, 10, 0, 10);
         accessionNumberEditText = new TextInputEditText(procedureNameLayout.getContext());
         accessionNumberEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
         accessionNumberLayout.setTag("accession");
         accessionNumberEditText.setTag("accession_text");
-        generateNewNumber(view, accessionNumberEditText);
+      //  generateNewNumber(view, accessionNumberEditText);
 
 
         TextInputLayout numberUsedLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
-        numberUsedLayout.setHint("Enter Number of Items Used");
+        numberUsedLayout.setHint("Enter number of items used");
         numberUsedLayout.setPadding(0, 10, 0, 10);
         numberUsedLayout.setClickable(true);
         numberUsedLayout.setFocusable(false);
@@ -966,11 +1047,11 @@ public class ItemDetailFragment extends Fragment {
                 procedureInfoMap.put(ACCESSION_KEY,
                         Objects.requireNonNull(accessionNumberEditText.getText()).toString());
                 procedureInfoMap.put(TIME_KEY,
-                        Objects.requireNonNull(procedureTimeEditText.getText()).toString());
+                        Objects.requireNonNull(procedureTimeInEditText.getText()).toString());
                 for (TextInputEditText text : new TextInputEditText[]{
                         procedureDateEditText, procedureNameEditText,
                         accessionNumberEditText, numberUsedEditText,
-                        procedureTimeEditText}) {
+                        procedureTimeInEditText}) {
                     if (text.toString().trim().isEmpty()) {
                         saveButton.setEnabled(false);
                         break;
@@ -984,7 +1065,7 @@ public class ItemDetailFragment extends Fragment {
         procedureDateEditText.addTextChangedListener(newProcedureTextWatcher);
         numberUsedEditText.addTextChangedListener(newProcedureTextWatcher);
         accessionNumberEditText.addTextChangedListener(newProcedureTextWatcher);
-        procedureTimeEditText.addTextChangedListener(newProcedureTextWatcher);
+        procedureTimeInEditText.addTextChangedListener(newProcedureTextWatcher);
 
 
         procedureNameLayout.addView(procedureNameEditText);
@@ -993,10 +1074,12 @@ public class ItemDetailFragment extends Fragment {
         accessionNumberLayout.addView(accessionNumberEditText);
         procedureInfoLayout.addView(procedureNumber, 0);
         procedureInfoLayout.addView(procedureDateLayout, 1);
-        procedureInfoLayout.addView(procedureTimeLayout, 2);
-        procedureInfoLayout.addView(procedureNameLayout, 3);
-        procedureInfoLayout.addView(accessionNumberLayout, 4);
-        procedureInfoLayout.addView(numberUsedLayout, 5);
+        procedureInfoLayout.addView(procedureNameLayout, 2);
+        procedureInfoLayout.addView(procedureTimeInLayout, 3);
+        procedureInfoLayout.addView(procedureTimeOutLayout, 4);
+        procedureInfoLayout.addView(procedureFloorTimeLayout, 5);
+        procedureInfoLayout.addView(accessionNumberLayout, 6);
+        procedureInfoLayout.addView(numberUsedLayout, 7);
 
         itemUsedFields.addView(procedureInfoLayout, itemUsedFields.indexOfChild(addProcedure));
     }
