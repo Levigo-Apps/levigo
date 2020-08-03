@@ -28,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -52,6 +53,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -129,6 +131,7 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText procedureNameEditText;
     private TextInputEditText accessionNumberEditText;
     private TextInputLayout numberAddedLayout;
+    private TextInputLayout udiLayout;
 
     private Button saveButton;
     private MaterialButton addProcedure;
@@ -139,6 +142,7 @@ public class ItemDetailFragment extends Fragment {
     private RadioButton singleUseButton;
     private RadioButton multiUse;
     private Button addSizeButton;
+    private Switch useBarcodeSwitch;
 
     private String itemQuantity;
     private String diQuantity;
@@ -229,13 +233,15 @@ public class ItemDetailFragment extends Fragment {
         Button rescanButton = rootView.findViewById(R.id.detail_rescan_button);
         addProcedure = rootView.findViewById(R.id.button_addpatient);
         removeProcedure = rootView.findViewById(R.id.button_removepatient);
-        Button autoPopulateButton = rootView.findViewById(R.id.detail_autopop_button);
+        final Button autoPopulateButton = rootView.findViewById(R.id.detail_autopop_button);
         useRadioGroup = rootView.findViewById(R.id.RadioGroup_id);
-        TextInputLayout diLayout = rootView.findViewById(R.id.TextInputLayout_di);
+        final TextInputLayout diLayout = rootView.findViewById(R.id.TextInputLayout_di);
         singleUseButton = rootView.findViewById(R.id.RadioButton_single);
         multiUse = rootView.findViewById(R.id.radio_multiuse);
         numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
+        useBarcodeSwitch = rootView.findViewById(R.id.itemdetail_barcode_switch);
+        udiLayout = rootView.findViewById(R.id.itemdetail_udi_layout);
 
         siteConstrainLayout = rootView.findViewById(R.id.site_linearlayout);
         physicalLocationConstrainLayout = rootView.findViewById(R.id.physicalLocationLinearLayout);
@@ -313,6 +319,21 @@ public class ItemDetailFragment extends Fragment {
                     toastMessage = "User lookup failed; Please try again and contact support if issue persists";
                     Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+        useBarcodeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    udiLayout.setVisibility(View.VISIBLE);
+                    autoPopulateButton.setVisibility(View.VISIBLE);
+                    diLayout.setVisibility(View.VISIBLE);
+                } else {
+                    // TODO Davit make sure these DI + UDI not saved if "use barcode?" switch is off
+                    udiLayout.setVisibility(View.GONE);
+                    autoPopulateButton.setVisibility(View.GONE);
+                    diLayout.setVisibility(View.GONE);
                 }
             }
         });
@@ -398,11 +419,11 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                if(checkProcedureFields) {
+                if (checkProcedureFields) {
                     removeProcedure.setEnabled(true);
                     checkProcedureFields = false;
                     addProcedureField(view);
-                }else{
+                } else {
                     Toast.makeText(rootView.getContext(), "Please fill out added procedue " +
                             "information fields before adding a new one", Toast.LENGTH_LONG).show();
                 }
@@ -414,11 +435,11 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (procedureFieldAdded - procedureListCounter > 0) {
-                    if(checkProcedureFields) {
+                    if (checkProcedureFields) {
                         procedureMapList.remove(procedureMapList.size() - 1);
                         System.out.println(procedureMapList);
                     }
-                    if(accessionNumberGenerated) {
+                    if (accessionNumberGenerated) {
                         removeAccessionNumber(itemUsedFields);
                     }
                     itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addProcedure) - 1);
@@ -507,9 +528,9 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //hardcoded
-                if((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
-                    if(checkItemUsed){
-                        if(!checkProcedureFields){
+                if ((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
+                    if (checkItemUsed) {
+                        if (!checkProcedureFields) {
                             Toast.makeText(rootView.getContext(), "Please enter procedure information", Toast.LENGTH_SHORT).show();
                             return;
                         }
@@ -518,7 +539,7 @@ public class ItemDetailFragment extends Fragment {
                     saveData(rootView, "networks", mNetworkId, "hospitals",
                             mHospitalId, "departments",
                             "default_department", "dis");
-                }else{
+                } else {
                     Toast.makeText(rootView.getContext(), "Please fill out all required fields", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -837,7 +858,7 @@ public class ItemDetailFragment extends Fragment {
         checkProcedureFields = false;
         accessionNumberGenerated = false;
         final boolean[] procedureInfoAdded = {false};
-        final SimpleDateFormat format = new SimpleDateFormat("HH:mm",Locale.US);
+        final SimpleDateFormat format = new SimpleDateFormat("HH:mm", Locale.US);
         final Map<String, Object> procedureInfoMap = new HashMap<>();
         procedureFieldAdded++;
 
@@ -870,7 +891,6 @@ public class ItemDetailFragment extends Fragment {
         procedureDateEditText.setFocusable(false);
         procedureDateEditText.setClickable(true);
         procedureDateEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-
 
 
         TextInputLayout procedureTimeInLayout = (TextInputLayout) View.inflate(view.getContext(),
@@ -925,8 +945,6 @@ public class ItemDetailFragment extends Fragment {
         procedureFloorTimeLayout.addView(procedureFloorTimeEditText);
 
 
-
-
         TextInputLayout procedureTimeOutLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureTimeOutLayout.setHint("Enter time out");
@@ -955,11 +973,11 @@ public class ItemDetailFragment extends Fragment {
                                 Date timeOut = format.parse(selectedHour + ":" + selectedMinute);
                                 long millsOut = Objects.requireNonNull(timeOut).getTime();
                                 long millsDif = millsOut - millsIn;
-                                int hours = (int) millsDif/(1000 * 60 * 60);
-                                if(hours < 0){
+                                int hours = (int) millsDif / (1000 * 60 * 60);
+                                if (hours < 0) {
                                     hours = hours + 24;
                                 }
-                                int mins = (int) (millsDif/(1000*60)) % 60;
+                                int mins = (int) (millsDif / (1000 * 60)) % 60;
                                 String totalTime = (hours * 60 + mins) + " minutes";
                                 procedureFloorTimeEditText.setText(totalTime);
 
@@ -972,7 +990,7 @@ public class ItemDetailFragment extends Fragment {
                     mTimePicker.setTitle("Select Time");
                     mTimePicker.show();
 
-                }else{
+                } else {
                     Toast.makeText(view.getContext(), "Please select time in first, please", Toast.LENGTH_LONG).show();
                 }
             }
@@ -1009,10 +1027,6 @@ public class ItemDetailFragment extends Fragment {
                 accessionNumberEditText.setHint("");
             }
         });
-
-
-
-
 
 
         TextInputLayout numberUsedLayout = (TextInputLayout) View.inflate(view.getContext(),
@@ -1074,24 +1088,22 @@ public class ItemDetailFragment extends Fragment {
                 procedureInfoMap.put("floor_time",
                         Objects.requireNonNull(procedureFloorTimeEditText.getText()).toString());
 
-                checkProcedureFields = validateFields(new TextInputEditText[] {procedureDateEditText, procedureNameEditText,
+                checkProcedureFields = validateFields(new TextInputEditText[]{procedureDateEditText, procedureNameEditText,
                         accessionNumberEditText, numberUsedEditText,
-                        procedureTimeInEditText,procedureTimeOutEditText,procedureFloorTimeEditText});
-                if(checkProcedureFields && (!(procedureInfoAdded[0]))){
+                        procedureTimeInEditText, procedureTimeOutEditText, procedureFloorTimeEditText});
+                if (checkProcedureFields && (!(procedureInfoAdded[0]))) {
                     procedureMapList.add(procedureInfoMap);
                     procedureInfoAdded[0] = true;
                     System.out.println("added " + procedureMapList);
                 }
-                if(checkProcedureFields && procedureInfoAdded[0]) {
+                if (checkProcedureFields && procedureInfoAdded[0]) {
                     procedureMapList.get(procedureMapList.size() - 1).put(AMOUNTUSED_KEY, numberUsedEditText.getText().toString());
                     System.out.println("changed " + procedureMapList);
                 }
 
 
-
             }
         };
-
 
 
         procedureNameEditText.addTextChangedListener(newProcedureTextWatcher);
@@ -1120,7 +1132,7 @@ public class ItemDetailFragment extends Fragment {
         itemUsedFields.addView(procedureInfoLayout, itemUsedFields.indexOfChild(addProcedure));
     }
 
-    private boolean validateFields(TextInputEditText[] fields){
+    private boolean validateFields(TextInputEditText[] fields) {
         for (TextInputEditText currentField : fields) {
             if (Objects.requireNonNull(currentField.getText()).toString().length() <= 0) {
                 return false;
@@ -1851,10 +1863,11 @@ public class ItemDetailFragment extends Fragment {
     String di = "";
 
     private void autoPopulate(final View view) {
-
-
         final String udiStr = Objects.requireNonNull(udiEditText.getText()).toString();
-        Log.d(TAG, udiStr);
+
+        if (udiStr.equals("")) {
+            return;
+        }
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(parent);
@@ -1925,53 +1938,52 @@ public class ItemDetailFragment extends Fragment {
                             JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
 
                             for (int i = 0; i < deviceSizeArray.length(); ++i) {
+                                int colonIndex;
                                 String k;
                                 String v;
                                 JSONObject currentSizeObject = deviceSizeArray.getJSONObject(i);
                                 k = currentSizeObject.getString("sizeType");
-                                Log.d(TAG, "KEYS: " + k);
+//                                Log.d(TAG, "KEYS: " + k);
                                 if (k.equals("Device Size Text, specify")) {
                                     String customSizeText = currentSizeObject.getString("sizeText");
-                                    // Key is usually substring before first number (e.g. "Co-Axial Introducer Needle: 17ga x 14.9cm")
-                                    k = customSizeText.split("[0-9]+")[0];
-
-                                    // needs remember the cutoff to retrieve the rest of the string
-                                    int cutoff = k.length();
-                                    // take off trailing whitespace
-                                    try {
-                                        k = k.substring(0, k.length() - 2);
-                                    } catch (StringIndexOutOfBoundsException e) { // if sizeText starts with number
-                                        k = "Size";
+                                    // Key, Value usually separated by colon
+                                    colonIndex = customSizeText.indexOf(":");
+                                    if (colonIndex == -1) {
+                                        // If no colon, save whole field as "value"
+                                        //TODO what if more than one????
+                                        //TODO Davit: Can we leave k blank for now, assign value during save?
+                                        k = "Custom Key";
+                                        v = customSizeText;
+                                    } else {
+                                        k = customSizeText.substring(0, colonIndex);
+                                        v = customSizeText.substring(colonIndex + 1).trim();
                                     }
-
-                                    // Value is assumed to be the substring starting with the number
-                                    v = customSizeText.substring(cutoff);
-                                    Log.d(TAG, "Custom Key: " + k);
-                                    Log.d(TAG, "Custom Value: " + v);
+//                                    Log.d(TAG, "Custom Key: " + k);
+//                                    Log.d(TAG, "Custom Value: " + v);
 
                                 } else {
                                     v = currentSizeObject.getJSONObject("size").getString("value")
                                             + " "
                                             + currentSizeObject.getJSONObject("size").getString("unit");
-                                    Log.d(TAG, "Value: " + v);
+//                                    Log.d(TAG, "Value: " + v);
                                 }
                                 addItemSpecs(k, v, view);
                             }
                         } catch (JSONException e) {
+                            FirebaseCrashlytics.getInstance().recordException(e);
                             e.printStackTrace();
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                FirebaseCrashlytics.getInstance().recordException(error);
                 Log.d(TAG, "Error in parsing barcode");
             }
         });
 
-// Add the request to the RequestQueue.
+        // Add the request to the RequestQueue.
         queue.add(stringRequest);
-
-
     }
 
     private void updateProcedureFieldAdded(String udi, String di) {
@@ -2031,7 +2043,6 @@ public class ItemDetailFragment extends Fragment {
         diDocRef = db.collection("networks").document(mNetworkId)
                 .collection("hospitals").document(mHospitalId).collection("departments")
                 .document("default_department").collection("dis").document(di);
-
 
 
         diDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
