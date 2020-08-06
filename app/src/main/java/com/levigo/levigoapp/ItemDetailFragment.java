@@ -295,6 +295,16 @@ public class ItemDetailFragment extends Fragment {
                                     .collection("hospitals").document(mHospitalId)
                                     .collection("accession_numbers");
 
+                            //get pending equipment info
+                            if (getArguments() != null) {
+                                String barcode = getArguments().getString("barcode");
+                                boolean isPending = getArguments().getBoolean("pending_udi");
+                                if(isPending){
+                                    getPendingSpecs(barcode,rootView);
+                                }
+                                udiEditText.setText(barcode);
+                            }
+
                             //get realtime update for Equipment Type field from database
                             updateEquipmentType(rootView);
 
@@ -531,10 +541,69 @@ public class ItemDetailFragment extends Fragment {
 
         if (getArguments() != null) {
             String barcode = getArguments().getString("barcode");
+            boolean isPending = getArguments().getBoolean("pending_udi");
+            if(!isPending){
+
+            }
             udiEditText.setText(barcode);
             autoPopulate(rootView);
+
         }
         return rootView;
+    }
+
+    private void getPendingSpecs(final String barcode, final View view){
+        DocumentReference docRef = db.collection("networks").document(mNetworkId)
+                .collection("hospitals").document(mHospitalId).collection("departments")
+                .document("default_department").collection("pending_udis").document(barcode);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        List<Map> list = new ArrayList<>();
+                        Map<String, Object> map = document.getData();
+                        if (map != null) {
+                                list.add(map);
+                            }
+                        autopopulatePendingData(list, view);
+                        deletePendingUdi(barcode, view);
+                    }
+                }
+            }
+        });
+    }
+
+    private void deletePendingUdi(String barcode, View view){
+        CollectionReference CollectionRef = db.collection("networks").document(mNetworkId)
+                .collection("hospitals").document(mHospitalId).collection("departments")
+                .document("default_department").collection("pending_udis");
+
+        CollectionRef.document(barcode)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error deleting document", e);
+                    }
+                });
+    }
+
+    private void autopopulatePendingData(List<Map> list, View view){
+        hospitalName.setText(Objects.requireNonNull(list.get(0).get("site_name")).toString());
+        dateIn.setText(Objects.requireNonNull(list.get(0).get("date_in")).toString());
+        notes.setText(Objects.requireNonNull(list.get(0).get("notes")).toString());
+        timeIn.setText(Objects.requireNonNull(list.get(0).get("time_in")).toString());
+        udiEditText.setText(Objects.requireNonNull(list.get(0).get("udi")).toString());
+        numberAdded.setText(Objects.requireNonNull(list.get(0).get("number_added")).toString());
+        physicalLocation.setText(Objects.requireNonNull(list.get(0).get("physical_location")).toString());
     }
 
     private void timeInLayoutPicker(View view) {
