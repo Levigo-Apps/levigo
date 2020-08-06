@@ -71,12 +71,12 @@ public class ItemDetailOfflineFragment extends Fragment {
     private TextInputEditText otherSite_text;
 
     private TextInputLayout siteLocationLayout;
-    private TextInputLayout numberAddedLayout;
-    private TextInputLayout dateInLayout;
-    private TextInputLayout timeInLayout;
     private ArrayList<String> SITELOC;
 
     private boolean chosenSite;
+    private boolean checkProcedureFields;
+    private boolean checkAutoComplete;
+    private boolean chosenItem;
     MaterialButton rescanButton;
     MaterialButton saveButton;
 
@@ -99,14 +99,54 @@ public class ItemDetailOfflineFragment extends Fragment {
         dateIn = rootView.findViewById(R.id.detail_in_date);
         timeIn = rootView.findViewById(R.id.detail_in_time);
         siteLocationLayout = rootView.findViewById(R.id.siteLocationLayout);
-        numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
-        dateInLayout= rootView.findViewById(R.id.in_date_layout);
-        timeInLayout = rootView.findViewById(R.id.in_time_layout);
+        TextInputLayout numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
+        TextInputLayout dateInLayout = rootView.findViewById(R.id.in_date_layout);
+        TextInputLayout timeInLayout = rootView.findViewById(R.id.in_time_layout);
         rescanButton = rootView.findViewById(R.id.detail_rescan_button);
         saveButton = rootView.findViewById(R.id.detail_save_button);
         SITELOC = new ArrayList<>();
         chosenSite = false;
+        checkAutoComplete = false;
+        checkProcedureFields = false;
+        chosenItem = false;
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
+
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+                checkProcedureFields = validateFields(new TextInputEditText[]{udi, physicalLocation,
+                        numberAdded, notes, dateIn, timeIn});
+
+                for(TextInputEditText textInputEditText : new TextInputEditText[]{udi, physicalLocation,
+                        numberAdded, dateIn, timeIn}){
+                    TextInputLayout textInputLayout = (TextInputLayout) textInputEditText.getParent().getParent();
+                    if(Objects.requireNonNull(textInputEditText.getText()).toString().length() > 0){
+                        textInputLayout.setHelperText(null);
+                        textInputLayout.setBoxStrokeColor(getResources().getColor(R.color.colorPrimary,parent.getTheme()));
+                    }
+                }
+
+                if(!(siteLocation.getText().toString().isEmpty())){
+                    checkAutoComplete = true;
+                    siteLocationLayout.setHelperText(null);
+                    siteLocationLayout.setBoxStrokeColor(getResources().getColor(R.color.colorPrimary,parent.getTheme()));
+                }
+            }
+        };
+        udi.addTextChangedListener(textWatcher);
+        physicalLocation.addTextChangedListener(textWatcher);
+        numberAdded.addTextChangedListener(textWatcher);
+        dateIn.addTextChangedListener(textWatcher);
+        timeIn.addTextChangedListener(textWatcher);
+        siteLocation.addTextChangedListener(textWatcher);
+
 
         topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -214,9 +254,22 @@ public class ItemDetailOfflineFragment extends Fragment {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveData(rootView, "networks", mNetworkId, "hospitals",
-                        mHospitalId, "departments",
-                        "default_department", "pending_udis");
+                if(checkProcedureFields && checkAutoComplete) {
+                    if (chosenSite) {
+                        if (chosenItem) {
+                            saveData("networks", mNetworkId, "hospitals",
+                                    mHospitalId, "departments",
+                                    "default_department", "pending_udis");
+                        }else{
+                            Toast.makeText(parent, "Please enter hospital name", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                }else{
+                    changeBoxStroke(new TextInputEditText[]{udi, physicalLocation,
+                            numberAdded, dateIn, timeIn}, siteLocation);
+                    Toast.makeText(parent, "Please fill out all fields", Toast.LENGTH_LONG).show();
+                }
 
                 }
         });
@@ -224,7 +277,35 @@ public class ItemDetailOfflineFragment extends Fragment {
         return rootView;
     }
 
-    public void saveData(View view, String NETWORKS, String NETWORK, String SITES, String SITE,
+    private boolean validateFields(TextInputEditText[] fields) {
+        for (TextInputEditText currentField : fields) {
+            if (Objects.requireNonNull(currentField.getText()).toString().length() <= 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void changeBoxStroke(TextInputEditText[] fields, AutoCompleteTextView autoCompleteTextView) {
+        for (TextInputEditText currentField : fields) {
+            if (Objects.requireNonNull(currentField.getText()).toString().length() <= 0) {
+                TextInputLayout textInputLayout = (TextInputLayout) currentField.getParent().getParent();
+                textInputLayout.setBoxStrokeColor(getResources().getColor(R.color.design_default_color_error,parent.getTheme()));
+                textInputLayout.setHelperText(textInputLayout.getHint() + " is required");
+                textInputLayout.setHelperTextTextAppearance(R.style.error_appearance);
+            }
+        }
+
+        if (autoCompleteTextView.getText().toString().isEmpty()) {
+            checkAutoComplete = false;
+            siteLocationLayout.setBoxStrokeColor(getResources().getColor(R.color.design_default_color_error,parent.getTheme()));
+            siteLocationLayout.setHelperText(siteLocationLayout.getHint() + " is required");
+            siteLocationLayout.setHelperTextTextAppearance(R.style.error_appearance);
+        }
+
+    }
+
+    public void saveData(String NETWORKS, String NETWORK, String SITES, String SITE,
                          String DEPARTMENTS, String DEPARTMENT, String PENDING) {
 
 
@@ -321,9 +402,8 @@ public class ItemDetailOfflineFragment extends Fragment {
                 @Override
                 public void afterTextChanged(Editable editable) {
                     if (!(otherSite_text.toString().trim().isEmpty())) {
-                     //   saveButton.setEnabled(true);
+                     chosenItem = true;
                     }
-
                 }
             };
             otherSite_text.addTextChangedListener(siteTextWatcher);
