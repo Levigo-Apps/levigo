@@ -43,7 +43,7 @@ import java.util.Objects;
 
 public class ItemDetailViewFragment extends Fragment {
 
-    private static final String TAG = ItemDetailFragment.class.getSimpleName();
+    private static final String TAG = ItemDetailViewFragment.class.getSimpleName();
     private Activity parent;
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();

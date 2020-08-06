@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,6 +15,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -38,7 +41,7 @@ import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 public class PendingUdiFragment extends Fragment {
 
-    private static final String TAG = ItemDetailFragment.class.getSimpleName();
+    private static final String TAG = PendingUdiFragment.class.getSimpleName();
     private Activity parent;
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -134,7 +137,7 @@ public class PendingUdiFragment extends Fragment {
         });
     }
 
-    private void addUdis(View rootView, List<String> list){
+    private void addUdis(final View rootView, final List<String> list){
         for(int i = 0; i < list.size(); i++){
             LayoutInflater inflater = (LayoutInflater) rootView.getContext().getSystemService
                     (Context.LAYOUT_INFLATER_SERVICE);
@@ -142,9 +145,32 @@ public class PendingUdiFragment extends Fragment {
             TextView udi = view.findViewById(R.id.pending_udi);
             udi.setText(list.get(i));
             linearLayout.addView(view);
+            ImageView resaveIcon = view.findViewById(R.id.resave_icon);
+            final int finalI = i;
+            resaveIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    openEditView(rootView, list.get(finalI));
+                }
+            });
 
         }
+    }
 
+    private void openEditView(View rootView,String udi){
+        ItemDetailFragment fragment = new ItemDetailFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("barcode", udi);
+        bundle.putBoolean("pending_udi",true);
+        fragment.setArguments(bundle);
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
 
+        //clears other fragments
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+        fragmentTransaction.add(R.id.activity_main, fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 }

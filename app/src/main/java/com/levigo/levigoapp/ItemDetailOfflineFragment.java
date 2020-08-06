@@ -51,7 +51,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class ItemDetailOfflineFragment extends Fragment {
 
-    private static final String TAG = ItemDetailFragment.class.getSimpleName();
+    private static final String TAG = ItemDetailOfflineFragment.class.getSimpleName();
     private Activity parent;
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
