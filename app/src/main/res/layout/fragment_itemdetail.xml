@@ -30,7 +30,7 @@
             app:liftOnScroll="true"
             app:menu="@menu/fragment_topbar"
             app:navigationIcon="@drawable/ic_baseline_arrow_back"
-            app:title="Edit Item Detail"
+            app:title="Edit equipment specifications"
             app:titleTextColor="@android:color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -58,13 +58,6 @@
                 android:orientation="vertical"
                 android:paddingTop="32dp"
                 android:visibility="visible">
-
-                <Switch
-                    android:id="@+id/itemdetail_barcode_switch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:text="Use Barcode\?" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/itemdetail_udi_layout"

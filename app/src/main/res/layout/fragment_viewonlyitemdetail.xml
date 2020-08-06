@@ -29,7 +29,7 @@
             app:liftOnScroll="true"
             app:menu="@menu/fragment_topbar"
             app:navigationIcon="@drawable/ic_baseline_arrow_back"
-            app:title="Item Detail"
+            app:title="Equipment specifications"
             app:titleTextColor="@android:color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -736,35 +736,7 @@
                     android:orientation="horizontal"
                     android:visibility="gone">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/isitemused_header"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:focusable="false"
-                            android:text="@string/item_used_label"
-                            android:textStyle="bold" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/isitemused_text"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/isitemused_edittext"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:focusable="false"
-                            android:text="" />
-                    </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

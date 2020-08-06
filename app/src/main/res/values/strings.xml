@@ -122,5 +122,6 @@
     <string name="procedureTimeIn_label">Procedure time in</string>
     <string name="procedureTimeOut_label">Procedure time out</string>
     <string name="FloorTimeLabel">Floor time</string>
+    <string name="fluoroTime_label">Fluoro time</string>
 
 </resources>
