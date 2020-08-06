@@ -736,7 +736,6 @@
                     android:orientation="horizontal"
                     android:visibility="gone">
 
-
                 </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

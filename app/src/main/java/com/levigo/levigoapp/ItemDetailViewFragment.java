@@ -85,8 +85,6 @@ public class ItemDetailViewFragment extends Fragment {
     private TextInputEditText notes;
     private TextInputEditText deviceDescription;
     private TextInputLayout usageHeader;
-
-    private List<Map> procedureDocuments;
     private List<Map> procedureDoc;
 
 
@@ -501,7 +499,6 @@ public class ItemDetailViewFragment extends Fragment {
                                 Map<String, Object> map = document.getData();
                                 if (map != null) {
                                     check[0]++;
-                                    procedureDocuments = new ArrayList<>();
                                     procedureDoc.add(map);
                                 }
                             }

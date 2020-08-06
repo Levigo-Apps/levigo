@@ -31,4 +31,9 @@
         android:title="Settings"
         app:showAsAction="never"/>
 
+    <item
+        android:id="@+id/offlineFragment"
+        android:title="Offline View"
+        app:showAsAction="never"/>
+
 </menu>

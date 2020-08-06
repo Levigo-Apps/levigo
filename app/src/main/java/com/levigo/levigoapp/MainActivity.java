@@ -21,6 +21,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -178,6 +180,18 @@ public class MainActivity extends AppCompatActivity {
         });
 
         getPermissions();
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager manager =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+        boolean isAvailable = false;
+        if (networkInfo != null && networkInfo.isConnected()) {
+            // Network is present and connected
+            isAvailable = true;
+        }
+        return isAvailable;
     }
 
     private void startScanner() {
@@ -397,6 +411,25 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    public void startItemOffline(String barcode){
+        ItemDetailOfflineFragment fragment = new ItemDetailOfflineFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("barcode", barcode);
+        fragment.setArguments(bundle);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        //clears other fragments
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+        fragmentTransaction.add(R.id.activity_main, fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -419,7 +452,13 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.manual_entry:
-                startItemView("");
+                // if device has an access to the network regular manual entry opens
+                if(isNetworkAvailable()) {
+                    startItemView("");
+                    // if device does not have an access to the network, offline manual entry opens
+                }else{
+                    startItemOffline("");
+                }
                 return true;
             case R.id.logout:
                 FirebaseAuth.getInstance().signOut();
@@ -433,6 +472,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent_network);
                 finish();
                 return true;
+            case R.id.offlineFragment:
+                startItemOffline("");
+                return true;
+
             case R.id.settings:
                 //TODO next step
 //                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
