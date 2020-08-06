@@ -1,0 +1,150 @@
+package com.levigo.levigoapp;
+
+import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.firebase.ui.auth.AuthUI.getApplicationContext;
+
+public class PendingUdiFragment extends Fragment {
+
+    private static final String TAG = ItemDetailFragment.class.getSimpleName();
+    private Activity parent;
+
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final CollectionReference usersRef = db.collection("users");
+    private LinearLayout linearLayout;
+
+    private String mNetworkId;
+    private String mHospitalId;
+    private String mHospitalName;
+    public String udi;
+
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState) {
+        final View rootView = inflater.inflate(R.layout.fragment_pendingudis, container, false);
+        parent = getActivity();
+        linearLayout = rootView.findViewById(R.id.pendingudi_linearlayout);
+        MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
+
+
+
+
+        topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (parent != null)
+                    parent.onBackPressed();
+            }
+        });
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
+        final DocumentReference currentUserRef = usersRef.document(userId);
+        currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                String toastMessage;
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (Objects.requireNonNull(document).exists()) {
+                        try {
+                            mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
+                            mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
+                            mHospitalName = Objects.requireNonNull(document.get("hospital_name")).toString();
+                            getPendingData(rootView);
+                        } catch (NullPointerException e) {
+                            toastMessage = "Error retrieving user information; Please contact support";
+                            Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        // document for user doesn't exist
+                        toastMessage = "User not found; Please contact support";
+                        Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    toastMessage = "User lookup failed; Please try again and contact support if issue persists";
+                    Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+
+
+
+        return rootView;
+    }
+
+
+    private void getPendingData(final View rootView){
+        final List<String> list = new ArrayList<>();
+        System.out.println(mNetworkId);
+        System.out.println(mHospitalId);
+        CollectionReference pendingRef = db.collection("networks").document(mNetworkId)
+                .collection("hospitals").document(mHospitalId).collection("departments")
+                .document("default_department").collection("pending_udis");
+
+        pendingRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        if(document.exists()) {
+                            list.add(document.getId());
+                        }
+                    }
+                    addUdis(rootView,list);
+                } else {
+                    Log.d(TAG, "Error getting documents: ", task.getException());
+                }
+            }
+        });
+    }
+
+    private void addUdis(View rootView, List<String> list){
+        for(int i = 0; i < list.size(); i++){
+            LayoutInflater inflater = (LayoutInflater) rootView.getContext().getSystemService
+                    (Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.pending_udis,null);
+            TextView udi = view.findViewById(R.id.pending_udi);
+            udi.setText(list.get(i));
+            linearLayout.addView(view);
+
+        }
+
+
+    }
+}

@@ -1230,28 +1230,8 @@ public class ItemDetailFragment extends Fragment {
         LinearLayout layoutSize = new LinearLayout(getContext());
         layoutSize.setOrientation(LinearLayout.HORIZONTAL);
         layoutSize.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-//        GridLayout gridLayoutSize = new GridLayout(view.getContext());
-//
-//        GridLayout.LayoutParams paramSizeKey = new GridLayout.LayoutParams();
-//        paramSizeKey.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-//        paramSizeKey.width = WRAP_CONTENT;
-//        paramSizeKey.rowSpec = GridLayout.spec(rowIndex);
-//        paramSizeKey.columnSpec = GridLayout.spec(0);
-//        paramSizeKey.setMargins(0, 0, 0, 20);
-//
-//
-//        GridLayout.LayoutParams paramSizeValue = new GridLayout.LayoutParams();
-//        paramSizeValue.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-//        paramSizeValue.width = WRAP_CONTENT;
-//        paramSizeValue.rowSpec = GridLayout.spec(rowIndex);
-//        paramSizeValue.columnSpec = GridLayout.spec(1);
-//        paramSizeValue.setMargins(10, 0, 0, 20);
 
-
-//        TextInputLayout sizeKeyLayout = (TextInputLayout) View.inflate(view.getContext(),
-//                R.layout.activity_itemdetail_materialcomponent, null);
         TextInputLayout sizeKeyLayout = new TextInputLayout(view.getContext());
-//        sizeKeyLayout.setLayoutParams(paramSizeKey);
         sizeKeyLayout.setHint("Key");
         LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(0, MATCH_PARENT, 1f);
         klp.setMargins((int) (4 * dp), (int) (4 * dp), (int) (4 * dp), (int) (4 * dp));
@@ -1260,10 +1240,8 @@ public class ItemDetailFragment extends Fragment {
         sizeKey.setSingleLine();
         sizeKey.setEllipsize(TextUtils.TruncateAt.END);
 
-//        TextInputLayout sizeValueLayout = (TextInputLayout) View.inflate(view.getContext(),
-//                R.layout.activity_itemdetail_materialcomponent, null);
+
         TextInputLayout sizeValueLayout = new TextInputLayout(view.getContext());
-//        sizeValueLayout.setLayoutParams(paramSizeValue);
         sizeValueLayout.setHint("Value");
         LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(0, MATCH_PARENT, 1f);
         vlp.setMargins((int) (4 * dp), (int) (4 * dp), (int) (4 * dp), (int) (4 * dp));
@@ -1273,14 +1251,11 @@ public class ItemDetailFragment extends Fragment {
         sizeValue.setEllipsize(TextUtils.TruncateAt.END);
 
 
-//        sizeKey.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
         sizeKeyLayout.addView(sizeKey);
-//        sizeValue.setLayoutParams(new LinearLayout.LayoutParams(430, WRAP_CONTENT));
         sizeValueLayout.addView(sizeValue);
         layoutSize.addView(sizeKeyLayout);
         layoutSize.addView(sizeValueLayout);
-//        gridLayoutSize.addView(sizeKeyLayout);
-//        gridLayoutSize.addView(sizeValueLayout);
+
 
 
         allSizeOptions.add(sizeKey);

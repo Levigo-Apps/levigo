@@ -430,6 +430,25 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void startPendingEquipment(String barcode){
+        PendingUdiFragment fragment = new PendingUdiFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("barcode", barcode);
+        fragment.setArguments(bundle);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        //clears other fragments
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+        fragmentTransaction.add(R.id.activity_main, fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -475,7 +494,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.offlineFragment:
                 startItemOffline("");
                 return true;
-
+            case R.id.pendingUdiFragment:
+                startPendingEquipment("");
+                return true;
             case R.id.settings:
                 //TODO next step
 //                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
