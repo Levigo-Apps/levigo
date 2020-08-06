@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
+import android.widget.RadioButton;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -39,6 +40,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
@@ -60,7 +62,6 @@ public class ItemDetailOfflineFragment extends Fragment {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final CollectionReference usersRef = db.collection("users");
-
     private LinearLayout linearLayout;
 
     private String mNetworkId;
@@ -90,6 +91,10 @@ public class ItemDetailOfflineFragment extends Fragment {
 
         final View rootView = inflater.inflate(R.layout.fragment_itemdetailoffline, container, false);
         parent = getActivity();
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build();
+        db.setFirestoreSettings(settings);
         final Calendar myCalendar = Calendar.getInstance();
         linearLayout = rootView.findViewById(R.id.itemdetailoffline_linearlayout);
         udi = rootView.findViewById(R.id.detail_udi);
@@ -210,7 +215,70 @@ public class ItemDetailOfflineFragment extends Fragment {
             }
         });
 
+
+        // saves data into database
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveData(rootView, "networks", mNetworkId, "hospitals",
+                        mHospitalId, "departments",
+                        "default_department", "pending_udis");
+
+                }
+        });
+
         return rootView;
+    }
+
+    public void saveData(View view, String NETWORKS, String NETWORK, String SITES, String SITE,
+                         String DEPARTMENTS, String DEPARTMENT, String PENDING) {
+
+
+        Log.d(TAG, "SAVING");
+        String udiStr = Objects.requireNonNull(udi.getText()).toString();
+        String dateInStr = Objects.requireNonNull(dateIn.getText()).toString();
+        String timeInStr = Objects.requireNonNull(timeIn.getText()).toString();
+        String numberAddedStr = Objects.requireNonNull(numberAdded.getText()).toString();
+
+        String siteNameStr;
+        if (chosenSite) {
+            siteNameStr = Objects.requireNonNull(otherSite_text.getText()).toString();
+        } else {
+            siteNameStr = siteLocation.getText().toString();
+        }
+        String physicalLocationStr = Objects.requireNonNull(physicalLocation.getText()).toString().trim();
+
+        String notesStr = Objects.requireNonNull(notes.getText()).toString();
+
+
+        // saving data
+        Map<String, Object> equipmentMap = new HashMap<>();
+        equipmentMap.put("udi", udiStr);
+        equipmentMap.put("date_in", dateInStr);
+        equipmentMap.put("time_in", timeInStr);
+        equipmentMap.put("number_added", numberAddedStr);
+        equipmentMap.put("site_name", siteNameStr);
+        equipmentMap.put("physical_location", physicalLocationStr);
+        equipmentMap.put("notes", notesStr);
+
+
+        CollectionReference pendingRef = db.collection(NETWORKS).document(NETWORK)
+                .collection(SITES).document(SITE).collection(DEPARTMENTS)
+                .document(DEPARTMENT).collection(PENDING);
+        pendingRef.add(equipmentMap)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
+                        Toast.makeText(parent, "equipment saved for approval", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e);
+                    }
+                });
     }
 
     // Dropdown menu for Site Location field
