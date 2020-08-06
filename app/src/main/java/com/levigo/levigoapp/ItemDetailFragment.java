@@ -142,7 +142,6 @@ public class ItemDetailFragment extends Fragment {
     private RadioButton singleUseButton;
     private RadioButton multiUse;
     private Button addSizeButton;
-    private Switch useBarcodeSwitch;
 
     private String itemQuantity;
     private String diQuantity;
@@ -240,7 +239,6 @@ public class ItemDetailFragment extends Fragment {
         multiUse = rootView.findViewById(R.id.radio_multiuse);
         numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
-        useBarcodeSwitch = rootView.findViewById(R.id.itemdetail_barcode_switch);
         udiLayout = rootView.findViewById(R.id.itemdetail_udi_layout);
 
         siteConstrainLayout = rootView.findViewById(R.id.site_linearlayout);
@@ -323,20 +321,6 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-        useBarcodeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    udiLayout.setVisibility(View.VISIBLE);
-                    autoPopulateButton.setVisibility(View.VISIBLE);
-                    diLayout.setVisibility(View.VISIBLE);
-                } else {
-                    // TODO Davit make sure these DI + UDI not saved if "use barcode?" switch is off
-                    udiLayout.setVisibility(View.GONE);
-                    autoPopulateButton.setVisibility(View.GONE);
-                    diLayout.setVisibility(View.GONE);
-                }
-            }
-        });
 
 
         // NumberPicker Dialog for NumberAdded field
@@ -937,7 +921,7 @@ public class ItemDetailFragment extends Fragment {
 
         TextInputLayout procedureFloorTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
-        procedureFloorTimeLayout.setHint("Floor time");
+        procedureFloorTimeLayout.setHint("Fluoro time");
         procedureFloorTimeLayout.setPadding(0, 10, 0, 0);
         final TextInputEditText procedureFloorTimeEditText = new TextInputEditText(procedureFloorTimeLayout.getContext());
         procedureFloorTimeEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
@@ -1085,7 +1069,7 @@ public class ItemDetailFragment extends Fragment {
                         Objects.requireNonNull(procedureTimeInEditText.getText()).toString());
                 procedureInfoMap.put(TIMEOUT_KEY,
                         Objects.requireNonNull(procedureTimeOutEditText.getText()).toString());
-                procedureInfoMap.put("floor_time",
+                procedureInfoMap.put("fluoro_time",
                         Objects.requireNonNull(procedureFloorTimeEditText.getText()).toString());
 
                 checkProcedureFields = validateFields(new TextInputEditText[]{procedureDateEditText, procedureNameEditText,
