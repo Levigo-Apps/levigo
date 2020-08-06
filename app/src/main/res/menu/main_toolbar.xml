@@ -36,4 +36,9 @@
         android:title="Offline View"
         app:showAsAction="never"/>
 
+    <item
+        android:id="@+id/pendingUdiFragment"
+        android:title="Pending equipment"
+        app:showAsAction="never"/>
+
 </menu>

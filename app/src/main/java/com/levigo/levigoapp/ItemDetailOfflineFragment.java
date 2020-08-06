@@ -19,14 +19,10 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
-import android.widget.RadioButton;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -43,7 +39,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -51,7 +46,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
@@ -262,23 +256,24 @@ public class ItemDetailOfflineFragment extends Fragment {
         equipmentMap.put("notes", notesStr);
 
 
-        CollectionReference pendingRef = db.collection(NETWORKS).document(NETWORK)
+        DocumentReference pendingRef = db.collection(NETWORKS).document(NETWORK)
                 .collection(SITES).document(SITE).collection(DEPARTMENTS)
-                .document(DEPARTMENT).collection(PENDING);
-        pendingRef.add(equipmentMap)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                .document(DEPARTMENT).collection(PENDING).document(udi.getText().toString());
+        pendingRef.set(equipmentMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
-                        Toast.makeText(parent, "equipment saved for approval", Toast.LENGTH_SHORT).show();
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(parent, "Equipment has been stored for later approval", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "DocumentSnapshot successfully written!");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding document", e);
+                        Log.w(TAG, "Error writing document", e);
                     }
                 });
+
     }
 
     // Dropdown menu for Site Location field
@@ -335,13 +330,6 @@ public class ItemDetailOfflineFragment extends Fragment {
             otherSite_text.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
             other_site_layout.addView(otherSite_text);
             linearLayout.addView(other_site_layout, 1 + linearLayout.indexOfChild(siteLocationLayout));
-
-            MaterialButton submitOtherSite = new MaterialButton(view.getContext(),
-                    null, R.attr.materialButtonOutlinedStyle);
-            submitOtherSite.setText(R.string.submitSite_lbl);
-            submitOtherSite.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT,
-                    WRAP_CONTENT));
-            other_site_layout.addView(submitOtherSite);
         } else if (chosenSite) {
 
             chosenSite = false;
