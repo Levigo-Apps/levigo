@@ -121,8 +121,8 @@ public class ItemDetailOfflineFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable editable) {
 
-                checkProcedureFields = validateFields(new TextInputEditText[]{udi, physicalLocation,
-                        numberAdded, notes, dateIn, timeIn});
+                checkProcedureFields = validateFields(new TextInputEditText[]{udi,
+                        numberAdded, dateIn, timeIn});
 
                 for(TextInputEditText textInputEditText : new TextInputEditText[]{udi, physicalLocation,
                         numberAdded, dateIn, timeIn}){
@@ -255,7 +255,7 @@ public class ItemDetailOfflineFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(checkProcedureFields && checkAutoComplete) {
-                    if (chosenSite && !chosenItem) {
+                    if (chosenSite && !(chosenItem)) {
                             Toast.makeText(parent, "Please enter hospital name", Toast.LENGTH_SHORT).show();
                             return;
                     }
@@ -264,7 +264,7 @@ public class ItemDetailOfflineFragment extends Fragment {
                             "default_department", "pending_udis");
 
                 }else{
-                    changeBoxStroke(new TextInputEditText[]{udi, physicalLocation,
+                    changeBoxStroke(new TextInputEditText[]{udi,
                             numberAdded, dateIn, timeIn}, siteLocation);
                     Toast.makeText(parent, "Please fill out all fields", Toast.LENGTH_LONG).show();
                 }
@@ -378,7 +378,7 @@ public class ItemDetailOfflineFragment extends Fragment {
     private void addNewSite(final AdapterView<?> adapterView, View view, int i) {
         String selected = (String) adapterView.getItemAtPosition(i);
         TextInputLayout other_site_layout;
-        if (selected.equals("Other")) {
+        if (selected.equals("Other") && !chosenSite) {
             chosenSite = true;
             other_site_layout = (TextInputLayout) View.inflate(view.getContext(),
                     R.layout.activity_itemdetail_materialcomponent, null);
@@ -409,8 +409,7 @@ public class ItemDetailOfflineFragment extends Fragment {
             other_site_layout.addView(otherSite_text);
             linearLayout.addView(other_site_layout, 1 + linearLayout.indexOfChild(siteLocationLayout));
         } else if (chosenSite) {
-
-            chosenSite = true;
+            chosenSite = false;
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(siteLocationLayout));
         }
     }
