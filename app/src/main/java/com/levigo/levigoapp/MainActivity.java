@@ -160,6 +160,9 @@ public class MainActivity extends AppCompatActivity {
                             inventoryRef = levigoDb.collection(inventoryRefUrl);
                             initInventory(value, key);
 
+                            subscribeUser(mHospitalId);
+                            getToken(currentUserRef);
+
                         } catch (NullPointerException e) {
                             FirebaseCrashlytics.getInstance().recordException(e);
                             toastMessage = "Error retrieving user information; Please contact support";
@@ -188,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         getPermissions();
+        createNotificationChannel();
     }
 
     private void subscribeUser(final String hospitalId){
