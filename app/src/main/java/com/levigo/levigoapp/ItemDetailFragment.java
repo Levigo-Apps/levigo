@@ -531,6 +531,8 @@ public class ItemDetailFragment extends Fragment {
                     saveData(rootView, "networks", mNetworkId, "hospitals",
                             mHospitalId, "departments",
                             "default_department", "dis");
+
+                    deletePendingUdi(udiEditText.getText().toString().trim());
                 } else {
                     Toast.makeText(rootView.getContext(), "Please fill out all required fields", Toast.LENGTH_SHORT).show();
                 }
@@ -562,7 +564,6 @@ public class ItemDetailFragment extends Fragment {
                                 list.add(map);
                             }
                         autopopulatePendingData(list);
-                        deletePendingUdi(barcode);
                     }
                 }
             }
