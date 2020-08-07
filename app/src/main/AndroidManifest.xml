@@ -17,34 +17,44 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.levigo.levigoapp.MainActivity" />
-        <activity
-            android:name=".LoginActivity">
-
+         <service
+                android:name=".MyFirebaseMessagingService"
+                android:enabled="true"
+                android:exported="true">
+         <intent-filter>
+            <action android:name="com.google.firebase.MESSAGING_EVENT" />
+         </intent-filter>
+         </service>
+         <meta-data
+                android:name="com.google.firebase.messaging.default_notification_color"
+                android:resource="@color/colorAccent" />
+         <meta-data
+                android:name="com.google.firebase.messaging.default_notification_channel_id"
+                android:value="@string/default_notification_channel_id" />
+        <activity android:name=".MainActivity" />
+        <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".SignUpActivity">
-            <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".LoginActivity"/>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".LoginActivity" />
         </activity>
-
         <activity android:name=".ResetActivity">
-            <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".LoginActivity"/>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".LoginActivity" />
         </activity>
-
         <activity android:name=".NetworkActivity">
-            <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
         </activity>
-
-        <activity android:name=".FilterActivity">
-
-        </activity>
+        <activity android:name=".FilterActivity" />
     </application>
+
 </manifest>

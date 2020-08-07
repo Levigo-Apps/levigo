@@ -124,5 +124,9 @@
     <string name="FloorTimeLabel">Floor time</string>
     <string name="fluoroTime_label">Fluoro time</string>
     <string name="offlineHeader_string">Currently your device is offline and you have limited capabilities.\nPlease fill out given fields to save equipment information.\nOnce you are online, please, verify and save it</string>
+    <string name="default_notification_channel_id">levigo</string>
+    <string name="channel_name">levigo</string>
+    <string name="channel_description">levigo</string>
+    <string name="msg_token_fmt">\"%s\"</string>
 
 </resources>
