@@ -2,6 +2,8 @@ package com.levigo.levigoapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -150,7 +152,17 @@ public class PendingUdiFragment extends Fragment {
             resaveIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    openEditView(rootView, list.get(finalI));
+                    ConnectivityManager manager =
+                            (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+                    if (networkInfo != null && networkInfo.isConnected()) {
+                        // Network is present and connected
+                        openEditView(rootView, list.get(finalI));
+                    }else{
+                        Toast.makeText(parent, "Your device is offline", Toast.LENGTH_SHORT).show();
+                    }
+
+
                 }
             });
 
