@@ -255,15 +255,13 @@ public class ItemDetailOfflineFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(checkProcedureFields && checkAutoComplete) {
-                    if (chosenSite) {
-                        if (chosenItem) {
-                            saveData("networks", mNetworkId, "hospitals",
-                                    mHospitalId, "departments",
-                                    "default_department", "pending_udis");
-                        }else{
+                    if (chosenSite && !chosenItem) {
                             Toast.makeText(parent, "Please enter hospital name", Toast.LENGTH_SHORT).show();
-                        }
+                            return;
                     }
+                    saveData("networks", mNetworkId, "hospitals",
+                            mHospitalId, "departments",
+                            "default_department", "pending_udis");
 
                 }else{
                     changeBoxStroke(new TextInputEditText[]{udi, physicalLocation,
@@ -412,7 +410,7 @@ public class ItemDetailOfflineFragment extends Fragment {
             linearLayout.addView(other_site_layout, 1 + linearLayout.indexOfChild(siteLocationLayout));
         } else if (chosenSite) {
 
-            chosenSite = false;
+            chosenSite = true;
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(siteLocationLayout));
         }
     }
