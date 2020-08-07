@@ -1702,7 +1702,7 @@ public class ItemDetailFragment extends Fragment {
 
 
             }
-            
+
         } else {
             number_added_str = Objects.requireNonNull(numberAdded.getText()).toString();
             quantity_int = Integer.parseInt(itemQuantity) +
