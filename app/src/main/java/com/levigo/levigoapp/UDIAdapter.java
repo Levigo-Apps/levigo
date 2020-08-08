@@ -83,6 +83,11 @@ public class UDIAdapter extends RecyclerView.Adapter<UDIAdapter.UDIHolder> {
 
     @Override
     public int getItemCount(){
-        return iDataset.size();
+        if(iDataset.isEmpty()) {
+            return 0;
+        }
+        else {
+            return iDataset.size();
+        }
     }
 }
