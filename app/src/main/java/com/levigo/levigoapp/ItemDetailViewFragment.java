@@ -2,6 +2,7 @@ package com.levigo.levigoapp;
 
 import android.app.Activity;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,7 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -36,6 +39,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -66,32 +71,34 @@ public class ItemDetailViewFragment extends Fragment {
     private LinearLayout usageLinearLayout;
     private LinearLayout itemSpecsLinearLayout;
 
-    private TextInputLayout specificationLayout;
-    private TextInputLayout usageLayout;
-    private TextInputEditText itemName;
-    private TextInputEditText udi;
-    private TextInputEditText deviceIdentifier;
-    private TextInputEditText quantity;
-    private TextInputEditText expiration;
-    private TextInputEditText hospitalName;
-    private TextInputEditText physicalLocation;
-    private TextInputEditText type;
-    private TextInputEditText usage;
-    private TextInputEditText medicalSpecialty;
-    private TextInputEditText referenceNumber;
-    private TextInputEditText lotNumber;
-    private TextInputEditText manufacturer;
-    private TextInputEditText lastUpdate;
-    private TextInputEditText notes;
-    private TextInputEditText deviceDescription;
-    private TextInputLayout usageHeader;
+    private ImageView specificationLayout;
+    private ImageView usageLayout;
+    private TextView itemName;
+    private TextView udi;
+    private TextView deviceIdentifier;
+    private TextView quantity;
+    private TextView expiration;
+    private TextView hospitalName;
+    private TextView physicalLocation;
+    private TextView type;
+    private TextView usage;
+    private TextView medicalSpecialty;
+    private TextView referenceNumber;
+    private TextView lotNumber;
+    private TextView manufacturer;
+    private TextView lastUpdate;
+    private TextView notes;
+    private TextView deviceDescription;
+    private TextView usageHeader;
     private List<Map> procedureDoc;
+
+    private float dp;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        dp = Objects.requireNonNull(getContext()).getResources().getDisplayMetrics().density;
         final View rootView = inflater.inflate(R.layout.fragment_viewonlyitemdetail, container, false);
         parent = getActivity();
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
@@ -111,8 +118,8 @@ public class ItemDetailViewFragment extends Fragment {
         lastUpdate = rootView.findViewById(R.id.lasteupdate_edittext);
         notes = rootView.findViewById(R.id.notes_edittext);
         deviceDescription = rootView.findViewById(R.id.devicedescription_edittext);
-        specificationLayout = rootView.findViewById(R.id.specifications_header);
-        usageLayout = rootView.findViewById(R.id.usageicon_header);
+        specificationLayout = rootView.findViewById(R.id.specifications_plus);
+        usageLayout = rootView.findViewById(R.id.usage_plus);
         procedureDoc = new ArrayList<>();
         usageHeader = rootView.findViewById(R.id.usage_header);
         linearLayout = rootView.findViewById(R.id.itemdetailviewonly_linearlayout);
@@ -124,7 +131,7 @@ public class ItemDetailViewFragment extends Fragment {
         itemSpecsLinearLayout.setOrientation(LinearLayout.VERTICAL);
         itemSpecsLinearLayout.setVisibility(View.GONE);
         linearLayout.addView(itemSpecsLinearLayout,linearLayout.indexOfChild(specsLinearLayout) + 1);
-        TextInputLayout itemNameLayout = rootView.findViewById(R.id.itemname_layout);
+        ImageView itemNameEdit = rootView.findViewById(R.id.itemname_edit);
 
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -163,6 +170,7 @@ public class ItemDetailViewFragment extends Fragment {
             String barcode = getArguments().getString("barcode");
             udi.setText(barcode);
             autoPopulate(rootView);
+            Log.d(TAG, "auto");
         }
 
         topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -174,42 +182,41 @@ public class ItemDetailViewFragment extends Fragment {
         });
 
         final boolean[] isSpecsMaximized = {false};
-        specificationLayout.setEndIconOnClickListener(new View.OnClickListener() {
+        specificationLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(isSpecsMaximized[0]){
                     isSpecsMaximized[0] = false;
                     itemSpecsLinearLayout.setVisibility(View.GONE);
-                    specificationLayout.setEndIconDrawable(R.drawable.ic_baseline_plus);
+                    specificationLayout.setImageResource(R.drawable.ic_baseline_plus);
 
                 }else{
                     itemSpecsLinearLayout.setVisibility(View.VISIBLE);
-                    specificationLayout.setEndIconDrawable(R.drawable.ic_remove_minimize);
+                    specificationLayout.setImageResource(R.drawable.ic_remove_minimize);
                     isSpecsMaximized[0] = true;
 
                 }
             }
         });
 
-        itemNameLayout.setEndIconOnClickListener(new View.OnClickListener() {
+        itemNameEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+            ItemDetailFragment fragment = new ItemDetailFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("barcode", Objects.requireNonNull(udi.getText()).toString());
+            fragment.setArguments(bundle);
 
-                ItemDetailFragment fragment = new ItemDetailFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("barcode", Objects.requireNonNull(udi.getText()).toString());
-                fragment.setArguments(bundle);
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
 
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//            //clears other fragments
+//            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
-                //clears other fragments
-                fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
-                fragmentTransaction.add(R.id.activity_main, fragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+            fragmentTransaction.add(R.id.activity_main, fragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
             }
         });
 
@@ -334,38 +341,38 @@ public class ItemDetailViewFragment extends Fragment {
         eachItemSpecsLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         eachItemSpecsLayout.setOrientation(LinearLayout.HORIZONTAL);
-        eachItemSpecsLayout.setBaselineAligned(false);
+        eachItemSpecsLayout.setBackgroundColor(Color.WHITE);
 
-        LinearLayout.LayoutParams editTextParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-
-        final TextInputLayout itemSpecsHeader = new TextInputLayout(view.getContext());
         LinearLayout.LayoutParams itemSpecsParams = new LinearLayout.LayoutParams(0,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         itemSpecsParams.weight = (float) 1.0;
-        itemSpecsHeader.setLayoutParams(itemSpecsParams);
+        itemSpecsParams.setMargins(0, (int) (1 * dp), 0, (int) (1 * dp));
 
-        TextInputEditText headerKey = new TextInputEditText(itemSpecsHeader.getContext());
-        headerKey.setLayoutParams(editTextParams);
+
+        TextView headerKey = new TextView(view.getContext());
+        headerKey.setLayoutParams(itemSpecsParams);
+        headerKey.setPadding((int) (8 * dp),(int) (8 * dp),(int) (8 * dp),(int) (8 * dp));
         headerKey.setText(key);
         headerKey.setFocusable(false);
         headerKey.setTypeface(headerKey.getTypeface(), Typeface.BOLD);
-        itemSpecsHeader.addView(headerKey);
+        headerKey.setTextSize(16);
+        headerKey.setTextColor(Color.BLACK);
 
 
-        final TextInputLayout itemSpecsValue = new TextInputLayout(view.getContext());
         LinearLayout.LayoutParams specValueParams = new LinearLayout.LayoutParams(0,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         specValueParams.weight = (float) 1.0;
-        itemSpecsValue.setLayoutParams(specValueParams);
+        specValueParams.setMargins(0, (int) (1 * dp), 0, (int) (1 * dp));
 
-        TextInputEditText specsValue = new TextInputEditText(itemSpecsValue.getContext());
-        specsValue.setLayoutParams(editTextParams);
+        TextView specsValue = new TextView(view.getContext());
+        specsValue.setLayoutParams(specValueParams);
+        specsValue.setPadding((int) (8 * dp),(int) (8 * dp),(int) (8 * dp),(int) (8 * dp));
         specsValue.setText(value);
-        specsValue.setFocusable(false);
-        itemSpecsValue.addView(specsValue);
+        specsValue.setTextSize(16);
+        specsValue.setTextColor(Color.BLACK);
 
-        eachItemSpecsLayout.addView(itemSpecsHeader);
-        eachItemSpecsLayout.addView(itemSpecsValue);
+        eachItemSpecsLayout.addView(headerKey);
+        eachItemSpecsLayout.addView(specsValue);
 
         itemSpecsLinearLayout.addView(eachItemSpecsLayout);
     }
@@ -505,25 +512,25 @@ public class ItemDetailViewFragment extends Fragment {
                             final boolean[] isUsageMaximized = {false};
                             final LinearLayout isItemUsedLinearLayout = view.findViewById(R.id.isitemused_linear);
                             if(check[0] == procedureCount) {
-                                usageLayout.setEndIconOnClickListener(new View.OnClickListener() {
+                                usageLayout.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
                                         if(isUsageMaximized[0]){
-                                            usageLayout.setEndIconDrawable(R.drawable.ic_baseline_plus);
+                                            usageLayout.setImageResource(R.drawable.ic_baseline_plus);
                                             isItemUsedLinearLayout.setVisibility(View.GONE);
                                             linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout)+ 1)
                                                     .setVisibility(View.GONE);
                                             linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout)+ 2)
                                                     .setVisibility(View.GONE);
                                             isUsageMaximized[0] = false;
-                                            usageHeader.setEndIconDrawable(R.drawable.ic_baseline_plus);
+//                                            usageHeader.setEndIconDrawable(R.drawable.ic_baseline_plus);
 
                                         }else{
-                                            usageLayout.setEndIconDrawable(R.drawable.ic_remove_minimize);
+                                            usageLayout.setImageResource(R.drawable.ic_remove_minimize);
                                             isItemUsedLinearLayout.setVisibility(View.VISIBLE);
                                             addProcedureInfoFields(procedureDoc,view);
                                             isUsageMaximized[0] = true;
-                                            usageHeader.setEndIconDrawable(R.drawable.ic_remove_minimize);
+//                                            usageHeader.setEndIconDrawable(R.drawable.ic_remove_minimize);
 
                                         }
                                     }
