@@ -494,6 +494,7 @@ public class MainActivity extends AppCompatActivity {
         ItemDetailOfflineFragment fragment = new ItemDetailOfflineFragment();
         Bundle bundle = new Bundle();
         bundle.putString("barcode", barcode);
+        bundle.putBoolean("editingExisting", false);
         fragment.setArguments(bundle);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
