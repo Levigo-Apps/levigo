@@ -297,10 +297,15 @@ public class ItemDetailFragment extends Fragment {
                             if (getArguments() != null) {
                                 String barcode = getArguments().getString("barcode");
                                 boolean isPending = getArguments().getBoolean("pending_udi");
-                                if(isPending){
+                                boolean editingExisting = getArguments().getBoolean("editingExisting");
+                                if(isPending) {
                                     getPendingSpecs(barcode);
                                 }
                                 udiEditText.setText(barcode);
+                                if(editingExisting){
+                                    udiEditText.setEnabled(false);
+                                    autoPopulateButton.setEnabled(false);
+                                }
                             }
 
                             //get realtime update for Equipment Type field from database
