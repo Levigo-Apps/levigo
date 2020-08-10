@@ -3,7 +3,6 @@ package com.levigo.levigoapp;
 public class InventoryTemplate {
 
     private String udi;
-    private boolean is_used;
     private String number_added;
     private String lot_number;
     private String reference_number;
@@ -18,13 +17,12 @@ public class InventoryTemplate {
         // empty Constructor
     }
 
-    public InventoryTemplate(String udi, boolean is_used, String number_added,
+    public InventoryTemplate(String udi, String number_added,
     String lot_number, String expiration, String quantity,
     String current_time,  String physical_location, String reference_number,
     String notes,String current_date) {
 
         this.udi = udi;
-        this.is_used = is_used;
         this.number_added = number_added;
         this.lot_number = lot_number;
         this.expiration = expiration;
@@ -37,16 +35,12 @@ public class InventoryTemplate {
     }
 
 
-    //TODO remove unused methods??
     public String getUdi() {
         return udi;
     }
     public void setUdi(String udi) {
         this.udi = udi;
     }
-
-    public boolean getIsUsed(){ return is_used;}
-    public void setUsed(boolean is_used){ this.is_used = is_used;}
 
     public String getExpiration() {
         return expiration;
@@ -62,8 +56,8 @@ public class InventoryTemplate {
         this.quantity = quantity;
     }
 
-    public String getCurrent_date_time() { return current_time; }
-    public void setCurrent_date_time(String current_date_time) { this.current_time = current_date_time; }
+    public String getCurrent_time() { return current_time; }
+    public void setCurrent_time(String current_time) { this.current_time = current_time; }
 
     public String getPhysical_location() { return physical_location; }
     public void setPhysical_location(String physical_location) { this.physical_location = physical_location; }
@@ -75,11 +69,11 @@ public class InventoryTemplate {
     public void setNumber_added(String number_added){ this.number_added = number_added;}
 
 
-    public String getLotNumber() { return lot_number;}
-    public void setLotNumber(String lot_number) { this.lot_number = lot_number;}
+    public String getLot_number() { return lot_number;}
+    public void setLot_number(String lot_number) { this.lot_number = lot_number;}
 
-    public String getReferenceNumber() { return reference_number;}
-    public void setReferenceNumber(String reference_number) { this.reference_number = reference_number;}
+    public String getReference_number() { return reference_number;}
+    public void setReference_number(String reference_number) { this.reference_number = reference_number;}
 
     public String getCurrent_date() { return current_date;}
     public void setCurrent_date(String current_date){ this.current_date = current_date;}

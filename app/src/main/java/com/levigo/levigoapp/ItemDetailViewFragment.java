@@ -463,8 +463,8 @@ public class ItemDetailViewFragment extends Fragment {
                             physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
                         }if(document.get("current_date") != null){
                             currentDate = document.getString("current_date");
-                        }if(document.get("current_date_time") != null){
-                            currentTime = document.getString("current_date_time");
+                        }if(document.get("current_time") != null){
+                            currentTime = document.getString("current_time");
                             lastUpdate.setText(String.format("%s\n%s", currentDate, currentTime));
                         }
                         if(document.get("notes") != null){

@@ -18,32 +18,20 @@
         android:icon="@android:drawable/ic_menu_add"
         app:showAsAction="always"/>
     <item
-        android:id="@+id/network"
-        android:title="Network View"
+        android:id="@+id/procedureInfo"
+        android:title="Add procedure information"
         app:showAsAction="never"/>
-
-    <item
-        android:id="@+id/logout"
-        android:title="Log out"
-        app:showAsAction="never"/>
-    <item
-        android:id="@+id/settings"
-        android:title="Settings"
-        app:showAsAction="never"/>
-
-    <item
-        android:id="@+id/offlineFragment"
-        android:title="Offline View"
-        app:showAsAction="never"/>
-
     <item
         android:id="@+id/pendingUdiFragment"
         android:title="Pending equipment"
         app:showAsAction="never"/>
-
     <item
-        android:id="@+id/procedureInfo"
-        android:title="Add Procedure Information"
+        android:id="@+id/offlineFragment"
+        android:title="Offline View"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/logout"
+        android:title="Log out"
         app:showAsAction="never"/>
 
 </menu>
