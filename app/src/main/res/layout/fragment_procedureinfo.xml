@@ -163,33 +163,6 @@
                         android:clickable="true"
                         />
                 </com.google.android.material.textfield.TextInputLayout>
-            <LinearLayout
-                android:id="@+id/specs_linearlayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:baselineAligned="false"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="5"
-                    android:gravity="center_vertical"
-                    android:text="Equipments used"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/black"
-                    android:padding="8dp"/>
-
-                <Button
-                    android:id="@+id/procedure_addUdi_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="4dp"
-                    android:paddingTop="5dp"
-                    android:text="Add a new equipment" />
-            </LinearLayout>
-
 
                 <LinearLayout
                     android:id="@+id/item_bottom"
@@ -209,12 +182,12 @@
                         android:text="Cancel" />
 
                     <Button
-                        android:id="@+id/procedure_save_button"
+                        android:id="@+id/procedure_next_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="4dp"
                         android:layout_weight="1"
-                        android:text="Save" />
+                        android:text="Next" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
