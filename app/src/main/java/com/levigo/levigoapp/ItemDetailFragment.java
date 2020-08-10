@@ -59,6 +59,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.SetOptions;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
@@ -130,6 +131,8 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText procedureNameEditText;
     private TextInputEditText accessionNumberEditText;
     private TextInputLayout numberAddedLayout;
+    private TextInputLayout dateInLayout;
+    private TextInputLayout timeInLayout;
 
     private Button saveButton;
     private MaterialButton addProcedure;
@@ -224,8 +227,8 @@ public class ItemDetailFragment extends Fragment {
         dateIn.setText(dateFormat.format(new Date()));
         timeIn = rootView.findViewById(R.id.detail_in_time);
         TextInputLayout expirationTextLayout = rootView.findViewById(R.id.expiration_date_string);
-        TextInputLayout dateInLayout = rootView.findViewById(R.id.in_date_layout);
-        final TextInputLayout timeInLayout = rootView.findViewById(R.id.in_time_layout);
+        dateInLayout = rootView.findViewById(R.id.in_date_layout);
+        timeInLayout = rootView.findViewById(R.id.in_time_layout);
         itemUsed = rootView.findViewById(R.id.detail_used_switch);
         saveButton = rootView.findViewById(R.id.detail_save_button);
         Button rescanButton = rootView.findViewById(R.id.detail_rescan_button);
@@ -1679,10 +1682,13 @@ public class ItemDetailFragment extends Fragment {
         int quantity_int;
         String number_added_str = "0";
         int totalUsed = 0;
-        for (int i = 0; i < numberUsedList.size(); i++) {
-            totalUsed += Integer.parseInt(Objects.requireNonNull(numberUsedList.get(i).getText()).toString());
-        }
+
         if (itemUsed.isChecked()) {
+
+            for (int i = 0; i < numberUsedList.size(); i++) {
+                totalUsed += Integer.parseInt(Objects.requireNonNull(numberUsedList.get(i).getText()).toString());
+            }
+
             quantity_int = Integer.parseInt(itemQuantity) - totalUsed;
             diQuantity = String.valueOf(Integer.parseInt(diQuantity) - totalUsed);
 
@@ -1785,7 +1791,7 @@ public class ItemDetailFragment extends Fragment {
                 });
 
         // saving udi-specific identifiers using InventoryTemplate class to store multiple items at once
-        udiDocument = new InventoryTemplate(barcode_str, is_used, number_added_str, lotNumber_str,
+        udiDocument = new InventoryTemplate(barcode_str, number_added_str, lotNumber_str,
                 expiration_str, quantity_str, currentTime_str, physical_location_str, referenceNumber_str,
                 notes_str, currentDate_str);
 
@@ -1795,7 +1801,7 @@ public class ItemDetailFragment extends Fragment {
                 .collection("udis").document(barcode_str);
 
         //saving data of InventoryTemplate to database
-        udiRef.set(udiDocument)
+        udiRef.set(udiDocument, SetOptions.merge())
                 //in case of success
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -1815,7 +1821,9 @@ public class ItemDetailFragment extends Fragment {
 
         Map<String, Object> procedureQuantity = new HashMap<>();
         procedureQuantity.put("procedure_number", String.valueOf(procedureFieldAdded));
-        if (checkItemUsed) {
+
+        if (itemUsed.isChecked()) {
+            System.out.println("checkItemUsedTrue");
             for (int i = 0; i < procedureMapList.size(); i++) {
                 DocumentReference procedureDocRef = db.collection(NETWORKS).document(NETWORK)
                         .collection(SITES).document(SITE).collection(DEPARTMENTS)
@@ -1829,7 +1837,6 @@ public class ItemDetailFragment extends Fragment {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 successful_save();
-//                                Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
                             }
                         })
                         // in case of failure
@@ -1853,7 +1860,7 @@ public class ItemDetailFragment extends Fragment {
                             Log.d(TAG, e.toString());
                         }
                     });
-            procedureQuantity.clear();
+         //   procedureQuantity.clear();
         }
         if (allSizeOptions.size() > 0) {
             int i = 0;
@@ -2097,8 +2104,15 @@ public class ItemDetailFragment extends Fragment {
                         }
                         if (document.get(PHYSICALLOC_KEY) != null) {
                             physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
-                        } if(document.get("current_date_time") != null){
-                            timeIn.setText(document.getString("current_date_time"));
+                        } if(document.get("current_time") != null){
+                            timeIn.setText(document.getString("current_time"));
+                            timeIn.setEnabled(false);
+                            timeInLayout.setEndIconOnClickListener(null);
+
+                        } if(document.get("current_date") != null){
+                            dateIn.setText(document.getString("current_date"));
+                            dateIn.setEnabled(false);
+                            dateInLayout.setEndIconOnClickListener(null);
                         }
                     } else {
                         itemQuantity = "0";

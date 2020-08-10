@@ -583,11 +583,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
                 return true;
-            case R.id.network:
-                Intent intent_network = new Intent(getApplicationContext(), NetworkActivity.class);
-                startActivity(intent_network);
-                finish();
-                return true;
             case R.id.offlineFragment:
                 startItemOffline("");
                 return true;
@@ -597,10 +592,10 @@ public class MainActivity extends AppCompatActivity {
             case R.id.procedureInfo:
                 startProcedureInfo("");
                 return true;
-            case R.id.settings:
+          //  case R.id.settings:
                 //TODO next step
 //                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
-                return true;
+             //   return true;
 
             case R.id.filter:
                 Log.d(TAG, "reached case filter");
