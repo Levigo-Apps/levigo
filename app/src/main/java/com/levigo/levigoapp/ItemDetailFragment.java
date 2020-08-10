@@ -2097,6 +2097,8 @@ public class ItemDetailFragment extends Fragment {
                         }
                         if (document.get(PHYSICALLOC_KEY) != null) {
                             physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
+                        } if(document.get("current_date_time") != null){
+                            timeIn.setText(document.getString("current_date_time"));
                         }
                     } else {
                         itemQuantity = "0";

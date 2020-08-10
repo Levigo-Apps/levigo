@@ -17,6 +17,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -32,6 +34,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -67,7 +70,7 @@ public class ProcedureInfoFragment extends Fragment {
     private TextInputEditText fluoroTimeEditText;
     private TextInputEditText accessionNumberEditText;
 
-    private MaterialButton saveButton;
+    private MaterialButton addUdisButton;
     private MaterialButton cancelButton;
 
     @Override
@@ -85,9 +88,25 @@ public class ProcedureInfoFragment extends Fragment {
         fluoroTimeEditText = rootView.findViewById(R.id.procedure_fluoroTime);
         accessionNumberEditText = rootView.findViewById(R.id.procedure_accessionNumber);
         accessionNumber = rootView.findViewById(R.id.procedureinfo_accessionNumber_layout);
-        saveButton = rootView.findViewById(R.id.procedure_save_button);
+        addUdisButton = rootView.findViewById(R.id.procedure_next_button);
         cancelButton = rootView.findViewById(R.id.procedure_cancel_button);
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
+
+        if (getArguments() != null) {
+            HashMap<String, Object> procedureInfo;
+            Bundle procedureInfoBundle = this.getArguments();
+            if(procedureInfoBundle.get("procedureMap") != null){
+                procedureInfo = (HashMap<String, Object>) procedureInfoBundle.getSerializable("procedureMap");
+                if(procedureInfo != null) {
+                    procedureDateEditText.setText((String) procedureInfo.get("procedure_date"));
+                    procedureNameEditText.setText((String) procedureInfo.get("procedure_used"));
+                    timeInEditText.setText((String) procedureInfo.get("time_in"));
+                    timeOutEditText.setText((String) procedureInfo.get("time_out"));
+                    fluoroTimeEditText.setText((String) procedureInfo.get("fluoro_time"));
+                    accessionNumberEditText.setText((String) procedureInfo.get("accession_number"));
+                }
+            }
+        }
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
@@ -208,7 +227,41 @@ public class ProcedureInfoFragment extends Fragment {
         timeInEditText.addTextChangedListener(timeTextWatcher);
         timeOutEditText.addTextChangedListener(timeTextWatcher);
 
+        addUdisButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveAndSend(view);
+            }
+        });
+
+
+
         return rootView;
+    }
+
+    private void saveAndSend(View view){
+        AddEquipmentFragment fragment = new AddEquipmentFragment();
+        Bundle bundle = new Bundle();
+        HashMap<String, Object> procedureInfo = new HashMap<>();
+        procedureInfo.put("procedure_used", procedureNameEditText.getText().toString());
+        procedureInfo.put("procedure_date", procedureDateEditText.getText().toString());
+        procedureInfo.put("time_in", timeInEditText.getText().toString());
+        procedureInfo.put("time_out", timeOutEditText.getText().toString());
+        procedureInfo.put("fluoro_time", fluoroTimeEditText.getText().toString());
+        procedureInfo.put("accession_number", accessionNumberEditText.getText().toString());
+
+        bundle.putSerializable("procedureMap", (Serializable) procedureInfo);
+        fragment.setArguments(bundle);
+
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        //clears other fragments
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+        fragmentTransaction.add(R.id.activity_main, fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+
     }
 
     private void calculateFluoroTime(String timeIn, String timeOut){
@@ -216,11 +269,9 @@ public class ProcedureInfoFragment extends Fragment {
         try {
             Date timeInFormat = format.parse(timeIn);
             long millsIn = Objects.requireNonNull(timeInFormat).getTime();
-            System.out.println("mills in " + millsIn);
 
             Date timeOutFormat = format.parse(timeOut);
             long millsOut = Objects.requireNonNull(timeOutFormat).getTime();
-            System.out.println("mills in " + millsOut);
 
             long millsDif = millsOut - millsIn;
             int hours = (int) millsDif / (1000 * 60 * 60);
