@@ -1258,8 +1258,7 @@ public class ItemDetailFragment extends Fragment {
                 });
     }
 
-    // removes the accession number from the database if users removes
-    // newly added procedure info fields
+    // removes the accession number from the database if users clicks cancel removes
     private void removeAccessionNumber(LinearLayout itemUsedFields) {
         LinearLayout procedureInfo = (LinearLayout) itemUsedFields.getChildAt((itemUsedFields.indexOfChild(addProcedure)) - 1);
         TextInputLayout accessionNumLayout = procedureInfo.findViewWithTag("accession");
