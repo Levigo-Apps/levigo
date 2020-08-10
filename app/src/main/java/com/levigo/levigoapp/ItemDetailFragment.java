@@ -141,6 +141,7 @@ public class ItemDetailFragment extends Fragment {
     private RadioButton multiUse;
     private Button addSizeButton;
 
+    String di = "";
     private String itemQuantity = "0";
     private String diQuantity = "0";
     private int procedureFieldAdded;
@@ -298,11 +299,11 @@ public class ItemDetailFragment extends Fragment {
                                 String barcode = getArguments().getString("barcode");
                                 boolean isPending = getArguments().getBoolean("pending_udi");
                                 boolean editingExisting = getArguments().getBoolean("editingExisting");
-                                if(isPending) {
+                                if (isPending) {
                                     getPendingSpecs(barcode);
                                 }
                                 udiEditText.setText(barcode);
-                                if(editingExisting){
+                                if (editingExisting) {
                                     udiEditText.setEnabled(false);
                                     autoPopulateButton.setEnabled(false);
                                 }
@@ -333,7 +334,6 @@ public class ItemDetailFragment extends Fragment {
                 }
             }
         });
-
 
 
         // NumberPicker Dialog for NumberAdded field
@@ -553,7 +553,7 @@ public class ItemDetailFragment extends Fragment {
         return rootView;
     }
 
-    private void getPendingSpecs(final String barcode){
+    private void getPendingSpecs(final String barcode) {
         DocumentReference docRef = db.collection("networks").document(mNetworkId)
                 .collection("hospitals").document(mHospitalId).collection("departments")
                 .document("default_department").collection("pending_udis").document(barcode);
@@ -566,8 +566,8 @@ public class ItemDetailFragment extends Fragment {
                         List<Map> list = new ArrayList<>();
                         Map<String, Object> map = document.getData();
                         if (map != null) {
-                                list.add(map);
-                            }
+                            list.add(map);
+                        }
                         autopopulatePendingData(list);
                     }
                 }
@@ -575,7 +575,7 @@ public class ItemDetailFragment extends Fragment {
         });
     }
 
-    private void deletePendingUdi(String barcode){
+    private void deletePendingUdi(String barcode) {
         CollectionReference CollectionRef = db.collection("networks").document(mNetworkId)
                 .collection("hospitals").document(mHospitalId).collection("departments")
                 .document("default_department").collection("pending_udis");
@@ -596,7 +596,7 @@ public class ItemDetailFragment extends Fragment {
                 });
     }
 
-    private void autopopulatePendingData(List<Map> list){
+    private void autopopulatePendingData(List<Map> list) {
         hospitalName.setText(Objects.requireNonNull(list.get(0).get("site_name")).toString());
         dateIn.setText(Objects.requireNonNull(list.get(0).get("date_in")).toString());
         notes.setText(Objects.requireNonNull(list.get(0).get("notes")).toString());
@@ -1188,6 +1188,7 @@ public class ItemDetailFragment extends Fragment {
         }
         return true;
     }
+
     //checks whether or not the accession number is unique
     private void checkAccessionNumber(final View view, final String accessionNum, final TextInputEditText accessionNumberEditText) {
         final DocumentReference docRef = accessionNumberRef.document(accessionNum);
@@ -1282,6 +1283,7 @@ public class ItemDetailFragment extends Fragment {
     // adds new row of size text views if users clicks on a button
     int rowIndex = 1;
     int rowLoc = 1;
+
     private void addEmptySizeOption(View view) {
 
         Log.d(TAG, "Adding empty size option!");
@@ -1488,6 +1490,7 @@ public class ItemDetailFragment extends Fragment {
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeConstrainLayout));
         }
     }
+
     private void addNewSite(final AdapterView<?> adapterView, View view, int i) {
         String selected = (String) adapterView.getItemAtPosition(i);
         TextInputLayout other_site_layout;
@@ -1504,9 +1507,11 @@ public class ItemDetailFragment extends Fragment {
                 @Override
                 public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 }
+
                 @Override
                 public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 }
+
                 @Override
                 public void afterTextChanged(Editable editable) {
                     if (!(otherSite_text.toString().trim().isEmpty())) {
@@ -1570,6 +1575,7 @@ public class ItemDetailFragment extends Fragment {
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(siteConstrainLayout));
         }
     }
+
     private void addNewLoc(final AdapterView<?> adapterView, View view, int i) {
         String selectedLoc = (String) adapterView.getItemAtPosition(i);
         final TextInputLayout other_physicaloc_layout;
@@ -1586,9 +1592,11 @@ public class ItemDetailFragment extends Fragment {
                 @Override
                 public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 }
+
                 @Override
                 public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 }
+
                 @Override
                 public void afterTextChanged(Editable editable) {
                     if (!(otherPhysicalLoc_text.toString().trim().isEmpty())) {
@@ -1682,7 +1690,7 @@ public class ItemDetailFragment extends Fragment {
             //Create notification if value of diQuantity is below a certain number
             int diQuantity_int = Integer.parseInt(diQuantity);
 
-            if(diQuantity_int <= 8){
+            if (diQuantity_int <= 8) {
                 String messageHeader = name_str + " are running low.";
                 String messageBody = "There are " + diQuantity + " " + name_str + " remaining.";
 
@@ -1765,7 +1773,8 @@ public class ItemDetailFragment extends Fragment {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+                        successful_save();
+//                        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -1792,7 +1801,8 @@ public class ItemDetailFragment extends Fragment {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+                        successful_save();
+//                        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
                     }
                 })
                 // in case of failure
@@ -1819,7 +1829,8 @@ public class ItemDetailFragment extends Fragment {
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+                                successful_save();
+//                                Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
                             }
                         })
                         // in case of failure
@@ -1856,7 +1867,8 @@ public class ItemDetailFragment extends Fragment {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+                            successful_save();
+//                            Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -1869,7 +1881,16 @@ public class ItemDetailFragment extends Fragment {
         }
     }
 
-    String di = "";
+    private void successful_save() {
+
+        // quit out fragment
+//        getActivity().getSupportFragmentManager().popBackStack();
+//        getFragmentManager().popBackStack();
+//        getActivity().onBackPressed();
+        getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+    }
+
     private void autoPopulate(final View view) {
         final String udiStr = Objects.requireNonNull(udiEditText.getText()).toString();
         if (udiStr.equals("")) {
@@ -2012,6 +2033,7 @@ public class ItemDetailFragment extends Fragment {
             }
         });
     }
+
     private void autoPopulateFromDatabase(final String udiStr) {
         DocumentReference udiDocRef;
         DocumentReference diDocRef;
