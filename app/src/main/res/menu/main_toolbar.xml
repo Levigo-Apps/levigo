@@ -41,4 +41,9 @@
         android:title="Pending equipment"
         app:showAsAction="never"/>
 
+    <item
+        android:id="@+id/procedureInfo"
+        android:title="Add Procedure Information"
+        app:showAsAction="never"/>
+
 </menu>
