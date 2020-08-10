@@ -205,6 +205,7 @@ public class ItemDetailViewFragment extends Fragment {
             ItemDetailFragment fragment = new ItemDetailFragment();
             Bundle bundle = new Bundle();
             bundle.putString("barcode", Objects.requireNonNull(udi.getText()).toString());
+            bundle.putBoolean("editingExisting", true);
             fragment.setArguments(bundle);
 
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
