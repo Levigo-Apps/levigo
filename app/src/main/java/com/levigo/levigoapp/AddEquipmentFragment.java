@@ -26,6 +26,12 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -33,6 +39,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -41,8 +48,14 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -65,6 +78,7 @@ public class AddEquipmentFragment extends Fragment {
     private String fluoroTime;
     private String accessionNumber;
     private String udiQuantity;
+    
 
     private MaterialButton cancelButton;
     private MaterialButton saveButton;
@@ -194,7 +208,7 @@ public class AddEquipmentFragment extends Fragment {
         if (result != null) {
             String contents = result.getContents();
             if (contents != null) {
-                addUdi(contents, getView());
+                checkUdi(contents);
             }
             if (result.getBarcodeImagePath() != null) {
                 Log.d(TAG, "" + result.getBarcodeImagePath());
@@ -202,6 +216,89 @@ public class AddEquipmentFragment extends Fragment {
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    private void checkUdi(final String contents){
+        if (contents.equals("")) {
+            return;
+        }
+
+        final View view = getView();
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(parent);
+        String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
+        url = url + contents;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONObject responseJson;
+                        try {
+                            responseJson = new JSONObject(response);
+                            Log.d(TAG, "RESPONSE: " + response);
+                            JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
+                            JSONObject udi = responseJson.getJSONObject("udi");
+
+                            String di = udi.getString("di");
+
+                            DocumentReference docRef = db.collection("networks").document(mNetworkId)
+                                    .collection("hospitals").document(mHospitalId).collection("departments")
+                                    .document("default_department").collection("dis").document(di)
+                                    .collection("udis").document(contents);
+                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot document = task.getResult();
+                                        if (document.exists()) {
+                                            addUdi(contents, view);
+                                        }else{
+                                            offerEquipmentScan(contents, view);
+                                        }
+                                    }else{
+                                        Log.d(TAG, "Failed with: ", task.getException());
+
+                                    }
+                                }
+                            });
+
+                        } catch (JSONException e) {
+                            FirebaseCrashlytics.getInstance().recordException(e);
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                FirebaseCrashlytics.getInstance().recordException(error);
+                Log.d(TAG, "Error in parsing barcode");
+                offerEquipmentScan(contents, view);
+            }
+        });
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+
+    public void offerEquipmentScan(String content, View view){
+        new MaterialAlertDialogBuilder(view.getContext())
+                .setTitle("Scan equipment")
+                .setMessage("The equipment could not be found in inventory.\nWould you like to scan it now?")
+
+        .setNegativeButton("Scan", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        })
+        .setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        })
+        .show();
     }
 
     public void addUdi(String barcode, View view){
@@ -221,14 +318,13 @@ public class AddEquipmentFragment extends Fragment {
 
     private void addNumberPicker(View view, final TextView quantity){
         final Dialog d = new Dialog(view.getContext());
-        d.setTitle("Enter quantity");
+        //d.setTitle("Enter quantity");
         d.setContentView(R.layout.dialog);
         Button b1 =  d.findViewById(R.id.button1);
         Button b2 =  d.findViewById(R.id.button2);
         final NumberPicker np =  d.findViewById(R.id.numberPicker1);
         np.setMaxValue(1000);
         np.setMinValue(0);
-        np.setWrapSelectorWheel(false);
         np.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker numberPicker, int i, int i1) {
