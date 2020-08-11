@@ -1,36 +1,65 @@
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:rowCount="3"
-    android:columnCount="2"
     android:layout_gravity="center">
 
-    <NumberPicker
-        android:id="@+id/numberPicker1"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_row="1"
-        android:layout_columnSpan="2"
-        android:layout_gravity="center_horizontal"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/numberpicker"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enter equipment quantity"
+            android:textSize="18sp"
+            android:textColor="@color/colorPrimary"
+            android:paddingVertical="10dp"
+            android:fontFamily="sans-serif-condensed" />
+
+
+        <NumberPicker
+            android:id="@+id/numberPicker1"
+            android:layout_width="wrap_content"
+            android:layout_height="250dp"
         />
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginEnd="10dp"
-        android:layout_row="2"
-        android:layout_column="0"
-        android:text="@string/setButton_label" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/numberpicker"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        >
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_row="2"
-        android:layout_column="1"
-        android:text="@string/cancelButton_label" />
+        <Button
+            android:id="@+id/button1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+           android:layout_marginEnd="10dp"
+            android:text="@string/setButton_label" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/cancelButton_label"
+            android:layout_weight="1"/>
+    </LinearLayout>
 
 
-</GridLayout>
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
