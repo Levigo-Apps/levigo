@@ -440,7 +440,11 @@ public class MainActivity extends AppCompatActivity {
         if (result != null) {
             String contents = result.getContents();
             if (contents != null) {
-               startItemView(contents);
+                if(isNetworkAvailable()) {
+                    startItemView(contents);
+                }else{
+                    startItemOffline(contents);
+                }
 
             }
             if (result.getBarcodeImagePath() != null) {

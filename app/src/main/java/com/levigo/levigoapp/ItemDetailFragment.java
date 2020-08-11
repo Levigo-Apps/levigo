@@ -1355,8 +1355,6 @@ public class ItemDetailFragment extends Fragment {
         }
         allSizeOptions.remove(allSizeOptions.size() - 1);
         allSizeOptions.remove(allSizeOptions.size() - 1);
-        System.out.println(allSizeOptions.size());
-
     }
 
     private void addItemSpecs(String key, String value, View view) {

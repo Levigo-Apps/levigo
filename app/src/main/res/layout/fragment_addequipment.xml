@@ -96,5 +96,5 @@
         android:elevation="0dp"
         app:elevation="0dp"
         android:layout_gravity="end|bottom"
-        app:srcCompat="@drawable/ic_baseline_photo_camera_24"/>
+        app:srcCompat="@drawable/ic_baseline_plus"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
