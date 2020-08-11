@@ -271,6 +271,10 @@ public class ItemDetailOfflineFragment extends Fragment {
 
                 }
         });
+        if (getArguments() != null) {
+            String barcode = getArguments().getString("barcode");
+            udi.setText(barcode);
+        }
 
         return rootView;
     }

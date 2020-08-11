@@ -14,7 +14,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/pending">
         <TextView
-            android:id="@+id/pending_udi"
+            android:id="@+id/scanned_udi"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:padding="8dp"
@@ -30,17 +30,17 @@
             android:layout_marginBottom="2dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="@id/resave_icon"
+            app:layout_constraintEnd_toEndOf="@id/udi_quantity"
             app:layout_constraintBottom_toBottomOf="parent"/>
-        <ImageView
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:padding="8dp"
-            android:id="@+id/resave_icon"
-            android:src="@drawable/ic_baseline_photo_camera_24"
+            android:id="@+id/udi_quantity"
             android:tint="@android:color/white"
             android:scaleType="fitXY"
             android:adjustViewBounds="true"
+            android:textColor="@android:color/white"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>

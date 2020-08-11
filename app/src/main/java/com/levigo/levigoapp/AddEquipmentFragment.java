@@ -2,18 +2,26 @@ package com.levigo.levigoapp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -29,9 +37,13 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+import com.journeyapps.barcodescanner.CaptureActivity;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -52,10 +64,11 @@ public class AddEquipmentFragment extends Fragment {
     private String procedureTimeOut;
     private String fluoroTime;
     private String accessionNumber;
+    private String udiQuantity;
 
     private MaterialButton cancelButton;
     private MaterialButton saveButton;
-    private FloatingActionButton addManually;
+    private FloatingActionButton addBarcode;
 
 
     @Override
@@ -64,6 +77,8 @@ public class AddEquipmentFragment extends Fragment {
         parent = getActivity();
         cancelButton = rootView.findViewById(R.id.equipment_cancel_button);
         saveButton = rootView.findViewById(R.id.equipment_save_button);
+        addBarcode = rootView.findViewById(R.id.fragment_addScan);
+        linearLayout = rootView.findViewById(R.id.equipment_linearlayout);
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
 
 
@@ -123,8 +138,6 @@ public class AddEquipmentFragment extends Fragment {
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
 
-
-
             }
         });
 
@@ -153,9 +166,89 @@ public class AddEquipmentFragment extends Fragment {
 
 
 
+        addBarcode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startScanner();
+            }
+        });
+
 
 
 
         return rootView;
+    }
+
+    private void startScanner() {
+        IntentIntegrator.forSupportFragment(AddEquipmentFragment.this)
+                .setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES)
+                .setBarcodeImageEnabled(true)
+                .setCaptureActivity(CaptureActivity.class)
+                .initiateScan();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result != null) {
+            String contents = result.getContents();
+            if (contents != null) {
+                addUdi(contents, getView());
+            }
+            if (result.getBarcodeImagePath() != null) {
+                Log.d(TAG, "" + result.getBarcodeImagePath());
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    public void addUdi(String barcode, View view){
+        LayoutInflater viewInflater = (LayoutInflater) view.getContext().getSystemService
+                (Context.LAYOUT_INFLATER_SERVICE);
+        View textView = viewInflater.inflate(R.layout.procedures_item,null);
+        TextView udi = textView.findViewById(R.id.scanned_udi);
+        TextView quantity = textView.findViewById(R.id.udi_quantity);
+        udi.setText(barcode);
+
+        addNumberPicker(view,quantity);
+
+        LinearLayout buttonsLayout = view.findViewById(R.id.item_bottom);
+        linearLayout.addView(textView,linearLayout.indexOfChild(buttonsLayout));
+
+    }
+
+    private void addNumberPicker(View view, final TextView quantity){
+        final Dialog d = new Dialog(view.getContext());
+        d.setTitle("Enter quantity");
+        d.setContentView(R.layout.dialog);
+        Button b1 =  d.findViewById(R.id.button1);
+        Button b2 =  d.findViewById(R.id.button2);
+        final NumberPicker np =  d.findViewById(R.id.numberPicker1);
+        np.setMaxValue(1000);
+        np.setMinValue(0);
+        np.setWrapSelectorWheel(false);
+        np.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+            }
+        });
+        b1.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                quantity.setText(String.format(Locale.US,"%d units", np.getValue()));
+                d.dismiss();
+            }
+        });
+        b2.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+        d.show();
     }
 }
