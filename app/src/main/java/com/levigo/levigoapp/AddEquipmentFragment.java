@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
@@ -337,20 +338,28 @@ public class AddEquipmentFragment extends Fragment {
 
     }
 
-    public void addUdi(String barcode, View view){
+    public void addUdi(final String barcode, View view){
         LayoutInflater viewInflater = (LayoutInflater) view.getContext().getSystemService
                 (Context.LAYOUT_INFLATER_SERVICE);
         View textView = viewInflater.inflate(R.layout.procedures_item,null);
         TextView udi = textView.findViewById(R.id.scanned_udi);
-        TextView quantity = textView.findViewById(R.id.udi_quantity);
-        addNumberPicker(view,quantity, barcode);
+        final TextView quantity = textView.findViewById(R.id.udi_quantity);
+        final ImageView plusIcon = textView.findViewById(R.id.increment_icon);
+        plusIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addNumberPicker(view, quantity,barcode,plusIcon);
+            }
+        });
+
+        addNumberPicker(view,quantity, barcode, plusIcon);
         udi.setText(barcode);
         buttonsLayout.setVisibility(View.VISIBLE);
         linearLayout.addView(textView,linearLayout.indexOfChild(buttonsLayout));
 
     }
 
-    private void addNumberPicker(View view, final TextView quantity, final String barcode){
+    private void addNumberPicker(View view, final TextView quantity, final String barcode, final ImageView plusIcon){
         final Dialog d = new Dialog(view.getContext());
         //d.setTitle("Enter quantity");
         d.setContentView(R.layout.dialog);
@@ -369,6 +378,9 @@ public class AddEquipmentFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 quantity.setText(String.format(Locale.US,"%d units", np.getValue()));
+                plusIcon.setVisibility(View.GONE);
+                quantity.setVisibility(View.VISIBLE);
+
                 d.dismiss();
                 HashMap<String, Object> eachUdi = new HashMap<>();
                 eachUdi.put("udi",barcode);
