@@ -47,7 +47,7 @@ import java.util.Random;
 
 public class ProcedureInfoFragment extends Fragment {
 
-    private static final String TAG = ItemDetailOfflineFragment.class.getSimpleName();
+    private static final String TAG = ProcedureInfoFragment.class.getSimpleName();
     private Activity parent;
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -57,6 +57,7 @@ public class ProcedureInfoFragment extends Fragment {
     private String mNetworkId;
     private String mHospitalId;
     private String mHospitalName;
+    private boolean checkAllFields;
 
     private TextInputLayout dateLayout;
     private TextInputLayout timeInLayout;
@@ -90,12 +91,14 @@ public class ProcedureInfoFragment extends Fragment {
         accessionNumber = rootView.findViewById(R.id.procedureinfo_accessionNumber_layout);
         addUdisButton = rootView.findViewById(R.id.procedure_next_button);
         cancelButton = rootView.findViewById(R.id.procedure_cancel_button);
+        checkAllFields = false;
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
 
         if (getArguments() != null) {
             HashMap<String, Object> procedureInfo;
             Bundle procedureInfoBundle = this.getArguments();
             if(procedureInfoBundle.get("procedureMap") != null){
+                checkAllFields = true;
                 procedureInfo = (HashMap<String, Object>) procedureInfoBundle.getSerializable("procedureMap");
                 if(procedureInfo != null) {
                     procedureDateEditText.setText((String) procedureInfo.get("procedure_date"));
@@ -205,7 +208,19 @@ public class ProcedureInfoFragment extends Fragment {
             }
         });
 
-        TextWatcher timeTextWatcher = new TextWatcher() {
+        addUdisButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(checkAllFields){
+                    saveAndSend(rootView);
+                }else{
+                    Toast.makeText(view.getContext(), "Please fill out all fields", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+
+        TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
@@ -221,25 +236,29 @@ public class ProcedureInfoFragment extends Fragment {
                     calculateFluoroTime(timeInEditText.getText().toString(),
                             timeOutEditText.getText().toString());
                 }
+
+                checkAllFields = validateFields(new TextInputEditText[]{timeInEditText
+                        ,timeOutEditText,procedureNameEditText,procedureDateEditText,
+                accessionNumberEditText});
+
+                    
+
             }
         };
 
-        timeInEditText.addTextChangedListener(timeTextWatcher);
-        timeOutEditText.addTextChangedListener(timeTextWatcher);
+        timeInEditText.addTextChangedListener(textWatcher);
+        timeOutEditText.addTextChangedListener(textWatcher);
+        procedureNameEditText.addTextChangedListener(textWatcher);
+        procedureDateEditText.addTextChangedListener(textWatcher);
+        accessionNumberEditText.addTextChangedListener(textWatcher);
 
-        addUdisButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                saveAndSend(view);
-            }
-        });
-
-
-
+        
         return rootView;
     }
 
     private void saveAndSend(View view){
+
+
         AddEquipmentFragment fragment = new AddEquipmentFragment();
         Bundle bundle = new Bundle();
         HashMap<String, Object> procedureInfo = new HashMap<>();
@@ -261,7 +280,6 @@ public class ProcedureInfoFragment extends Fragment {
         fragmentTransaction.add(R.id.activity_main, fragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-
     }
 
     private void calculateFluoroTime(String timeIn, String timeOut){
