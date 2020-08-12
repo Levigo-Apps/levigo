@@ -57,6 +57,7 @@ public class ProcedureInfoFragment extends Fragment {
     private TextInputEditText procedureDateEditText;
     private TextInputEditText timeInEditText;
     private TextInputEditText timeOutEditText;
+    private TextInputEditText roomTimeEditText;
     private TextInputEditText fluoroTimeEditText;
     private TextInputEditText accessionNumberEditText;
 
@@ -72,6 +73,7 @@ public class ProcedureInfoFragment extends Fragment {
         procedureDateEditText = rootView.findViewById(R.id.procedure_date);
         timeInEditText = rootView.findViewById(R.id.procedure_timeIn);
         timeOutEditText = rootView.findViewById(R.id.procedure_timeOut);
+        roomTimeEditText = rootView.findViewById(R.id.procedure_roomTime);
         fluoroTimeEditText = rootView.findViewById(R.id.procedure_fluoroTime);
         accessionNumberEditText = rootView.findViewById(R.id.procedure_accessionNumber);
         accessionNumber = rootView.findViewById(R.id.procedureinfo_accessionNumber_layout);
@@ -91,6 +93,7 @@ public class ProcedureInfoFragment extends Fragment {
                     procedureNameEditText.setText((String) procedureInfo.get("procedure_used"));
                     timeInEditText.setText((String) procedureInfo.get("time_in"));
                     timeOutEditText.setText((String) procedureInfo.get("time_out"));
+                    roomTimeEditText.setText((String) procedureInfo.get("room_time"));
                     fluoroTimeEditText.setText((String) procedureInfo.get("fluoro_time"));
                     accessionNumberEditText.setText((String) procedureInfo.get("accession_number"));
                 }
@@ -218,13 +221,13 @@ public class ProcedureInfoFragment extends Fragment {
                         ,timeOutEditText});
                 
                 if(checkProcedureTime){
-                    calculateFluoroTime(Objects.requireNonNull(timeInEditText.getText()).toString(),
+                    calculateRoomTime(Objects.requireNonNull(timeInEditText.getText()).toString(),
                             Objects.requireNonNull(timeOutEditText.getText()).toString());
                 }
 
                 checkAllFields = validateFields(new TextInputEditText[]{timeInEditText
                         ,timeOutEditText,procedureNameEditText,procedureDateEditText,
-                accessionNumberEditText});
+                accessionNumberEditText,fluoroTimeEditText});
 
                     
 
@@ -236,6 +239,7 @@ public class ProcedureInfoFragment extends Fragment {
         procedureNameEditText.addTextChangedListener(textWatcher);
         procedureDateEditText.addTextChangedListener(textWatcher);
         accessionNumberEditText.addTextChangedListener(textWatcher);
+        fluoroTimeEditText.addTextChangedListener(textWatcher);
 
         
         return rootView;
@@ -251,6 +255,7 @@ public class ProcedureInfoFragment extends Fragment {
         procedureInfo.put("procedure_date", Objects.requireNonNull(procedureDateEditText.getText()).toString());
         procedureInfo.put("time_in", Objects.requireNonNull(timeInEditText.getText()).toString());
         procedureInfo.put("time_out", Objects.requireNonNull(timeOutEditText.getText()).toString());
+        procedureInfo.put("room_time", Objects.requireNonNull(roomTimeEditText.getText()).toString());
         procedureInfo.put("fluoro_time", Objects.requireNonNull(fluoroTimeEditText.getText()).toString());
         procedureInfo.put("accession_number", Objects.requireNonNull(accessionNumberEditText.getText()).toString());
 
@@ -267,7 +272,7 @@ public class ProcedureInfoFragment extends Fragment {
         fragmentTransaction.commit();
     }
 
-    private void calculateFluoroTime(String timeIn, String timeOut){
+    private void calculateRoomTime(String timeIn, String timeOut){
         final SimpleDateFormat format = new SimpleDateFormat("HH:mm", Locale.US);
         try {
             Date timeInFormat = format.parse(timeIn);
@@ -283,7 +288,7 @@ public class ProcedureInfoFragment extends Fragment {
             }
             int mins = (int) (millsDif / (1000 * 60)) % 60;
             String totalTime = (hours * 60 + mins) + " minutes";
-            fluoroTimeEditText.setText(totalTime);
+            roomTimeEditText.setText(totalTime);
         }catch(ParseException e){
             e.printStackTrace();
         }

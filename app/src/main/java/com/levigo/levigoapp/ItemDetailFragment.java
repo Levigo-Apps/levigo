@@ -998,14 +998,23 @@ public class ItemDetailFragment extends Fragment {
         });
         procedureTimeInLayout.addView(procedureTimeInEditText);
 
-        TextInputLayout procedureFloorTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
+        TextInputLayout procedureRoomTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
-        procedureFloorTimeLayout.setHint("Fluoro time");
-        procedureFloorTimeLayout.setPadding(0, 10, 0, 0);
-        final TextInputEditText procedureFloorTimeEditText = new TextInputEditText(procedureFloorTimeLayout.getContext());
-        procedureFloorTimeEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-        procedureFloorTimeEditText.setFocusable(false);
-        procedureFloorTimeLayout.addView(procedureFloorTimeEditText);
+        procedureRoomTimeLayout.setHint("Room time");
+        procedureRoomTimeLayout.setPadding(0, 10, 0, 0);
+        final TextInputEditText procedureRoomTimeEditText = new TextInputEditText(procedureRoomTimeLayout.getContext());
+        procedureRoomTimeEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+        procedureRoomTimeEditText.setFocusable(false);
+        procedureRoomTimeLayout.addView(procedureRoomTimeEditText);
+
+        TextInputLayout procedureFluoroTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureFluoroTimeLayout.setHint("Fluoro time");
+        procedureFluoroTimeLayout.setPadding(0, 10, 0, 0);
+        final TextInputEditText procedureFluoroTimeEditText = new TextInputEditText(procedureFluoroTimeLayout.getContext());
+        procedureFluoroTimeEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+        procedureFluoroTimeEditText.setFocusable(true);
+        procedureFluoroTimeLayout.addView(procedureFluoroTimeEditText);
 
 
         TextInputLayout procedureTimeOutLayout = (TextInputLayout) View.inflate(view.getContext(),
@@ -1042,7 +1051,7 @@ public class ItemDetailFragment extends Fragment {
                                 }
                                 int mins = (int) (millsDif / (1000 * 60)) % 60;
                                 String totalTime = (hours * 60 + mins) + " minutes";
-                                procedureFloorTimeEditText.setText(totalTime);
+                                procedureRoomTimeEditText.setText(totalTime);
 
                             } catch (ParseException e) {
                                 e.printStackTrace();
@@ -1148,12 +1157,14 @@ public class ItemDetailFragment extends Fragment {
                         Objects.requireNonNull(procedureTimeInEditText.getText()).toString());
                 procedureInfoMap.put(TIMEOUT_KEY,
                         Objects.requireNonNull(procedureTimeOutEditText.getText()).toString());
+                procedureInfoMap.put("room_time",
+                        Objects.requireNonNull(procedureRoomTimeEditText.getText()).toString());
                 procedureInfoMap.put("fluoro_time",
-                        Objects.requireNonNull(procedureFloorTimeEditText.getText()).toString());
+                        Objects.requireNonNull(procedureFluoroTimeEditText.getText()).toString());
 
                 checkProcedureFields = validateFields(new TextInputEditText[]{procedureDateEditText, procedureNameEditText,
                         accessionNumberEditText, numberUsedEditText,
-                        procedureTimeInEditText, procedureTimeOutEditText, procedureFloorTimeEditText});
+                        procedureTimeInEditText, procedureTimeOutEditText, procedureRoomTimeEditText,procedureFluoroTimeEditText});
                 if (checkProcedureFields && (!(procedureInfoAdded[0]))) {
                     procedureMapList.add(procedureInfoMap);
                     procedureInfoAdded[0] = true;
@@ -1171,9 +1182,11 @@ public class ItemDetailFragment extends Fragment {
         numberUsedEditText.addTextChangedListener(newProcedureTextWatcher);
         accessionNumberEditText.addTextChangedListener(newProcedureTextWatcher);
         procedureTimeInEditText.addTextChangedListener(newProcedureTextWatcher);
-        procedureFloorTimeEditText.addTextChangedListener(newProcedureTextWatcher);
+        procedureRoomTimeEditText.addTextChangedListener(newProcedureTextWatcher);
+        procedureFluoroTimeEditText.addTextChangedListener(newProcedureTextWatcher);
         procedureTimeInEditText.addTextChangedListener(newProcedureTextWatcher);
         procedureTimeOutEditText.addTextChangedListener(newProcedureTextWatcher);
+
 
         procedureNameLayout.addView(procedureNameEditText);
         procedureDateLayout.addView(procedureDateEditText);
@@ -1184,9 +1197,10 @@ public class ItemDetailFragment extends Fragment {
         procedureInfoLayout.addView(procedureNameLayout, 2);
         procedureInfoLayout.addView(procedureTimeInLayout, 3);
         procedureInfoLayout.addView(procedureTimeOutLayout, 4);
-        procedureInfoLayout.addView(procedureFloorTimeLayout, 5);
-        procedureInfoLayout.addView(accessionNumberLayout, 6);
-        procedureInfoLayout.addView(numberUsedLayout, 7);
+        procedureInfoLayout.addView(procedureRoomTimeLayout, 5);
+        procedureInfoLayout.addView(procedureFluoroTimeLayout, 6);
+        procedureInfoLayout.addView(accessionNumberLayout, 7);
+        procedureInfoLayout.addView(numberUsedLayout, 8);
         itemUsedFields.addView(procedureInfoLayout, itemUsedFields.indexOfChild(addProcedure));
     }
 
