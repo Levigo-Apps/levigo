@@ -63,7 +63,7 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Procedure date"
+                    android:hint="@string/procedure_date_lbl"
                     app:endIconMode="custom"
                     app:endIconDrawable="@drawable/calendar"
                     app:endIconTint="@color/colorPrimary"
@@ -81,7 +81,7 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Procedure name"
+                    android:hint="@string/procedure_name_label"
                     app:boxStrokeColor="@color/colorPrimary">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -97,7 +97,7 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Room time in"
+                    android:hint="@string/room_time_in_label"
                     app:endIconMode="custom"
                     app:endIconDrawable="@drawable/clock"
                     app:endIconTint="@color/colorPrimary"
@@ -116,7 +116,7 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Room time out"
+                    android:hint="@string/room_time_out_label"
                     app:endIconMode="custom"
                     app:endIconDrawable="@drawable/clock"
                     app:endIconTint="@color/colorPrimary"
@@ -135,7 +135,7 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Fluoro time"
+                    android:hint="@string/fluoro_time_label"
                     app:boxStrokeColor="@color/colorPrimary">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -152,7 +152,7 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Tap to generate a new accession number"
+                    android:hint="@string/tap_to_generate_a_new_accession_number_label"
                     app:boxStrokeColor="@color/colorPrimary">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -166,6 +166,7 @@
 
                 <LinearLayout
                     android:id="@+id/item_bottom"
+                    style="?android:attr/buttonBarStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
@@ -175,19 +176,21 @@
 
                     <Button
                         android:id="@+id/procedure_cancel_button"
+                        style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="4dp"
                         android:layout_weight="1"
-                        android:text="Cancel" />
+                        android:text="@string/cancel_label" />
 
                     <Button
                         android:id="@+id/procedure_next_button"
+                        style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="4dp"
                         android:layout_weight="1"
-                        android:text="Next" />
+                        android:text="@string/next_label" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

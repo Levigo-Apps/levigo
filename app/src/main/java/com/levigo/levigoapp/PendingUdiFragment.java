@@ -23,8 +23,6 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -37,10 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static com.firebase.ui.auth.AuthUI.getApplicationContext;
-
 public class PendingUdiFragment extends Fragment {
 
     private static final String TAG = PendingUdiFragment.class.getSimpleName();
@@ -52,8 +46,6 @@ public class PendingUdiFragment extends Fragment {
 
     private String mNetworkId;
     private String mHospitalId;
-    private String mHospitalName;
-    public String udi;
 
 
     @Nullable
@@ -66,12 +58,17 @@ public class PendingUdiFragment extends Fragment {
 
 
 
-
         topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (parent != null)
-                    parent.onBackPressed();
+                FragmentManager fragmentManager = getFragmentManager();
+                if(Objects.requireNonNull(fragmentManager).getBackStackEntryCount() > 0) {
+                    fragmentManager.popBackStack();
+                }else{
+                    if(parent != null){
+                        parent.onBackPressed();
+                    }
+                }
             }
         });
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -87,7 +84,6 @@ public class PendingUdiFragment extends Fragment {
                         try {
                             mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
                             mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
-                            mHospitalName = Objects.requireNonNull(document.get("hospital_name")).toString();
                             getPendingData(rootView);
                         } catch (NullPointerException e) {
                             toastMessage = "Error retrieving user information; Please contact support";
@@ -126,7 +122,7 @@ public class PendingUdiFragment extends Fragment {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
 
-                    for (QueryDocumentSnapshot document : task.getResult()) {
+                    for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                         if(document.exists()) {
                             list.add(document.getId());
                         }
@@ -141,9 +137,7 @@ public class PendingUdiFragment extends Fragment {
 
     private void addUdis(final View rootView, final List<String> list){
         for(int i = 0; i < list.size(); i++){
-            LayoutInflater inflater = (LayoutInflater) rootView.getContext().getSystemService
-                    (Context.LAYOUT_INFLATER_SERVICE);
-            View view = inflater.inflate(R.layout.pending_udis,null);
+            View view = View.inflate(rootView.getContext(),R.layout.pending_udis,null);
             TextView udi = view.findViewById(R.id.pending_udi);
             udi.setText(list.get(i));
             linearLayout.addView(view);
@@ -153,11 +147,11 @@ public class PendingUdiFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     ConnectivityManager manager =
-                            (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+                            (ConnectivityManager) Objects.requireNonNull(getActivity()).getSystemService(Context.CONNECTIVITY_SERVICE);
                     NetworkInfo networkInfo = manager.getActiveNetworkInfo();
                     if (networkInfo != null && networkInfo.isConnected()) {
                         // Network is present and connected
-                        openEditView(rootView, list.get(finalI));
+                        openEditView(list.get(finalI));
                     }else{
                         Toast.makeText(parent, "Your device is offline", Toast.LENGTH_SHORT).show();
                     }
@@ -169,16 +163,16 @@ public class PendingUdiFragment extends Fragment {
         }
     }
 
-    private void openEditView(View rootView,String udi){
+    private void openEditView(String udi){
         ItemDetailFragment fragment = new ItemDetailFragment();
         Bundle bundle = new Bundle();
         bundle.putString("barcode", udi);
         bundle.putBoolean("pending_udi",true);
         fragment.setArguments(bundle);
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
 
         //clears other fragments
-        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+      //  fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
         fragmentTransaction.add(R.id.activity_main, fragment);

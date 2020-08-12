@@ -10,19 +10,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
-import android.widget.LinearLayout;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -34,14 +30,12 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
@@ -52,16 +46,11 @@ public class ProcedureInfoFragment extends Fragment {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final CollectionReference usersRef = db.collection("users");
-    private LinearLayout linearLayout;
 
     private String mNetworkId;
     private String mHospitalId;
-    private String mHospitalName;
     private boolean checkAllFields;
 
-    private TextInputLayout dateLayout;
-    private TextInputLayout timeInLayout;
-    private TextInputLayout timeoutLayout;
     private TextInputLayout accessionNumber;
 
     private TextInputEditText procedureNameEditText;
@@ -71,17 +60,14 @@ public class ProcedureInfoFragment extends Fragment {
     private TextInputEditText fluoroTimeEditText;
     private TextInputEditText accessionNumberEditText;
 
-    private MaterialButton addUdisButton;
-    private MaterialButton cancelButton;
-
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_procedureinfo, container, false);
         parent = getActivity();
         final Calendar myCalendar = Calendar.getInstance();
-        dateLayout = rootView.findViewById(R.id.procedureinfo_date_layout);
-        timeInLayout = rootView.findViewById(R.id.procedureinfo_timeIn_layout);
-        timeoutLayout = rootView.findViewById(R.id.procedureinfo_timeOut_layout);
+        TextInputLayout dateLayout = rootView.findViewById(R.id.procedureinfo_date_layout);
+        TextInputLayout timeInLayout = rootView.findViewById(R.id.procedureinfo_timeIn_layout);
+        TextInputLayout timeoutLayout = rootView.findViewById(R.id.procedureinfo_timeOut_layout);
         procedureNameEditText = rootView.findViewById(R.id.procedure_name);
         procedureDateEditText = rootView.findViewById(R.id.procedure_date);
         timeInEditText = rootView.findViewById(R.id.procedure_timeIn);
@@ -89,8 +75,8 @@ public class ProcedureInfoFragment extends Fragment {
         fluoroTimeEditText = rootView.findViewById(R.id.procedure_fluoroTime);
         accessionNumberEditText = rootView.findViewById(R.id.procedure_accessionNumber);
         accessionNumber = rootView.findViewById(R.id.procedureinfo_accessionNumber_layout);
-        addUdisButton = rootView.findViewById(R.id.procedure_next_button);
-        cancelButton = rootView.findViewById(R.id.procedure_cancel_button);
+        MaterialButton addUdisButton = rootView.findViewById(R.id.procedure_next_button);
+        MaterialButton cancelButton = rootView.findViewById(R.id.procedure_cancel_button);
         checkAllFields = false;
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
 
@@ -125,7 +111,6 @@ public class ProcedureInfoFragment extends Fragment {
                         try {
                             mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
                             mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
-                            mHospitalName = Objects.requireNonNull(document.get("hospital_name")).toString();
                         } catch (NullPointerException e) {
                             toastMessage = "Error retrieving user information; Please contact support";
                             Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
@@ -212,7 +197,7 @@ public class ProcedureInfoFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if(checkAllFields){
-                    saveAndSend(rootView);
+                    saveAndSend();
                 }else{
                     Toast.makeText(view.getContext(), "Please fill out all fields", Toast.LENGTH_SHORT).show();
                 }
@@ -233,8 +218,8 @@ public class ProcedureInfoFragment extends Fragment {
                         ,timeOutEditText});
                 
                 if(checkProcedureTime){
-                    calculateFluoroTime(timeInEditText.getText().toString(),
-                            timeOutEditText.getText().toString());
+                    calculateFluoroTime(Objects.requireNonNull(timeInEditText.getText()).toString(),
+                            Objects.requireNonNull(timeOutEditText.getText()).toString());
                 }
 
                 checkAllFields = validateFields(new TextInputEditText[]{timeInEditText
@@ -256,23 +241,23 @@ public class ProcedureInfoFragment extends Fragment {
         return rootView;
     }
 
-    private void saveAndSend(View view){
+    private void saveAndSend(){
 
 
         AddEquipmentFragment fragment = new AddEquipmentFragment();
         Bundle bundle = new Bundle();
         HashMap<String, Object> procedureInfo = new HashMap<>();
-        procedureInfo.put("procedure_used", procedureNameEditText.getText().toString());
-        procedureInfo.put("procedure_date", procedureDateEditText.getText().toString());
-        procedureInfo.put("time_in", timeInEditText.getText().toString());
-        procedureInfo.put("time_out", timeOutEditText.getText().toString());
-        procedureInfo.put("fluoro_time", fluoroTimeEditText.getText().toString());
-        procedureInfo.put("accession_number", accessionNumberEditText.getText().toString());
+        procedureInfo.put("procedure_used", Objects.requireNonNull(procedureNameEditText.getText()).toString());
+        procedureInfo.put("procedure_date", Objects.requireNonNull(procedureDateEditText.getText()).toString());
+        procedureInfo.put("time_in", Objects.requireNonNull(timeInEditText.getText()).toString());
+        procedureInfo.put("time_out", Objects.requireNonNull(timeOutEditText.getText()).toString());
+        procedureInfo.put("fluoro_time", Objects.requireNonNull(fluoroTimeEditText.getText()).toString());
+        procedureInfo.put("accession_number", Objects.requireNonNull(accessionNumberEditText.getText()).toString());
 
-        bundle.putSerializable("procedureMap", (Serializable) procedureInfo);
+        bundle.putSerializable("procedureMap", procedureInfo);
         fragment.setArguments(bundle);
 
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
         //clears other fragments
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -382,7 +367,7 @@ public class ProcedureInfoFragment extends Fragment {
         });
     }
 
-    //sets accession number and save it to the database
+    //sets accession number
     public void setAccessionNumber(TextInputEditText accessionNumberEditText, String accessionNumberStr) {
         accessionNumberEditText.setText((accessionNumberStr));
         accessionNumber.setHint("Accession number");
