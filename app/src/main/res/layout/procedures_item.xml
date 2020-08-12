@@ -40,7 +40,19 @@
             android:tint="@android:color/white"
             android:scaleType="fitXY"
             android:adjustViewBounds="true"
+            android:visibility="gone"
             android:textColor="@android:color/white"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            android:id="@+id/increment_icon"
+            android:src="@drawable/ic_baseline_plus"
+            android:tint="@android:color/white"
+            android:scaleType="fitXY"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
