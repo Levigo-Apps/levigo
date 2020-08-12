@@ -33,6 +33,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -44,6 +46,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
@@ -61,12 +64,14 @@ import java.util.Map;
 import java.util.Objects;
 
 public class AddEquipmentFragment extends Fragment {
-    private static final String TAG = ItemDetailOfflineFragment.class.getSimpleName();
+    private static final String TAG = AddEquipmentFragment.class.getSimpleName();
     private Activity parent;
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final CollectionReference usersRef = db.collection("users");
     private LinearLayout linearLayout;
+    private LinearLayout buttonsLayout;
+    private List<HashMap<String, Object>> procedureInfo;
 
     private String mNetworkId;
     private String mHospitalId;
@@ -78,6 +83,7 @@ public class AddEquipmentFragment extends Fragment {
     private String fluoroTime;
     private String accessionNumber;
     private String udiQuantity;
+    private String di;
     
 
     private MaterialButton cancelButton;
@@ -93,6 +99,9 @@ public class AddEquipmentFragment extends Fragment {
         saveButton = rootView.findViewById(R.id.equipment_save_button);
         addBarcode = rootView.findViewById(R.id.fragment_addScan);
         linearLayout = rootView.findViewById(R.id.equipment_linearlayout);
+        buttonsLayout = rootView.findViewById(R.id.item_bottom);
+        procedureInfo = new ArrayList<>();
+        di = "";
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
 
 
@@ -187,8 +196,12 @@ public class AddEquipmentFragment extends Fragment {
             }
         });
 
-
-
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveProcedureInfo(procedureInfo,di);
+            }
+        });
 
         return rootView;
     }
@@ -241,7 +254,7 @@ public class AddEquipmentFragment extends Fragment {
                             JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
                             JSONObject udi = responseJson.getJSONObject("udi");
 
-                            String di = udi.getString("di");
+                            di = udi.getString("di");
 
                             DocumentReference docRef = db.collection("networks").document(mNetworkId)
                                     .collection("hospitals").document(mHospitalId).collection("departments")
@@ -259,7 +272,6 @@ public class AddEquipmentFragment extends Fragment {
                                         }
                                     }else{
                                         Log.d(TAG, "Failed with: ", task.getException());
-
                                     }
                                 }
                             });
@@ -274,7 +286,8 @@ public class AddEquipmentFragment extends Fragment {
             public void onErrorResponse(VolleyError error) {
                 FirebaseCrashlytics.getInstance().recordException(error);
                 Log.d(TAG, "Error in parsing barcode");
-                offerEquipmentScan(contents, view);
+               // parseBarcodeError(view);
+                addUdi(contents,view);
             }
         });
         // Add the request to the RequestQueue.
@@ -301,22 +314,43 @@ public class AddEquipmentFragment extends Fragment {
         .show();
     }
 
+    public void parseBarcodeError(View view){
+        new MaterialAlertDialogBuilder(view.getContext())
+                .setTitle("Error reading barcode")
+                .setMessage("The barcode could not be read/parsed.\n" +
+                        "Would you like to add a new equipment to the procedure?")
+
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        startScanner();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (parent != null)
+                            parent.onBackPressed();
+                    }
+                })
+                .show();
+
+    }
+
     public void addUdi(String barcode, View view){
         LayoutInflater viewInflater = (LayoutInflater) view.getContext().getSystemService
                 (Context.LAYOUT_INFLATER_SERVICE);
         View textView = viewInflater.inflate(R.layout.procedures_item,null);
         TextView udi = textView.findViewById(R.id.scanned_udi);
         TextView quantity = textView.findViewById(R.id.udi_quantity);
+        addNumberPicker(view,quantity, barcode);
         udi.setText(barcode);
-
-        addNumberPicker(view,quantity);
-
-        LinearLayout buttonsLayout = view.findViewById(R.id.item_bottom);
+        buttonsLayout.setVisibility(View.VISIBLE);
         linearLayout.addView(textView,linearLayout.indexOfChild(buttonsLayout));
 
     }
 
-    private void addNumberPicker(View view, final TextView quantity){
+    private void addNumberPicker(View view, final TextView quantity, final String barcode){
         final Dialog d = new Dialog(view.getContext());
         //d.setTitle("Enter quantity");
         d.setContentView(R.layout.dialog);
@@ -336,6 +370,10 @@ public class AddEquipmentFragment extends Fragment {
             public void onClick(View v) {
                 quantity.setText(String.format(Locale.US,"%d units", np.getValue()));
                 d.dismiss();
+                HashMap<String, Object> eachUdi = new HashMap<>();
+                eachUdi.put("udi",barcode);
+                eachUdi.put("amount_used",String.valueOf(np.getValue()));
+                procedureInfo.add(eachUdi);
             }
         });
         b2.setOnClickListener(new View.OnClickListener()
@@ -346,5 +384,101 @@ public class AddEquipmentFragment extends Fragment {
             }
         });
         d.show();
+    }
+
+    private void saveProcedureInfo(final List<HashMap<String, Object>> procedureInfo, final String di){
+        for(int i = 0; i < procedureInfo.size(); i++){
+            procedureInfo.get(i).put("accession_number",accessionNumber);
+            procedureInfo.get(i).put("fluoro_time",fluoroTime);
+            procedureInfo.get(i).put("procedure_date",procedureDate);
+            procedureInfo.get(i).put("time_in",procedureTimeIn);
+            procedureInfo.get(i).put("time_out",procedureTimeOut);
+            procedureInfo.get(i).put("procedure_used",procedureName);
+        }
+
+        for(int i = 0; i < procedureInfo.size(); i++){
+            DocumentReference procedureCounterRef = db.collection("networks").document(mNetworkId)
+                    .collection("hospitals").document(mHospitalId).collection("departments")
+                    .document("default_department").collection("dis").document("100")
+                    .collection("udis").document(procedureInfo.get(i).get("udi").toString());
+            System.out.println(procedureInfo.get(i).get("udi"));
+
+            final int finalI = i;
+            procedureCounterRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            if(document.get("procedure_number") != null){
+                                String procedureCounter = document.getString("procedure_number");
+                                saveData(procedureInfo.get(finalI),di,procedureCounter );
+                            }else{
+                                saveData(procedureInfo.get(finalI),di,"0");
+                            }
+                        } else {
+                            Toast.makeText(getView().getContext(), "Procedure information for " + procedureInfo.get(finalI).get("udi") +
+                                    " has not been saved", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "No such document");
+                        }
+                    } else {
+                        Log.d(TAG, "get failed with ", task.getException());
+                    }
+                }
+            });
+        }
+
+        Toast.makeText(parent,"Procedure information saved",Toast.LENGTH_LONG).show();
+
+    }
+
+    private void saveData(HashMap<String, Object> procedureInfo, String di,String procedureCounter){
+
+        String udi = procedureInfo.get("udi").toString();
+        procedureInfo.remove("udi");
+
+        DocumentReference procedureDocRef = db.collection("networks").document(mNetworkId)
+                .collection("hospitals").document(mHospitalId).collection("departments")
+                .document("default_department").collection("dis").document("100")
+                .collection("udis").document(udi);
+
+
+        procedureDocRef.collection("procedures")
+                .document("procedure_0" + (Integer.parseInt(procedureCounter) + 1)).set(procedureInfo)
+                //in case of success
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "procedure info saved");
+                    }
+                })
+                // in case of failure
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, e.toString());
+                    }
+                });
+
+        HashMap<String, Object> procedureCounterMap = new HashMap<>();
+        int procedureCount = Integer.parseInt(procedureCounter);
+        procedureCount++;
+        procedureCounterMap.put("procedure_number",String.valueOf(procedureCount));
+        procedureDocRef.set(procedureCounterMap, SetOptions.merge())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG,"Procedure counter has been saved");
+                    }
+
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, e.toString());
+                    }
+                });
     }
 }

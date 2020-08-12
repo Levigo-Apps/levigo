@@ -65,6 +65,7 @@
                     android:layout_gravity="bottom"
                     android:orientation="horizontal"
                     android:paddingTop="22dp"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent">
 
                     <Button
