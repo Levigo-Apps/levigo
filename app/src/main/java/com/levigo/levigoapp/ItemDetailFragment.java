@@ -35,6 +35,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -281,7 +282,7 @@ public class ItemDetailFragment extends Fragment {
                 String toastMessage;
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (Objects.requireNonNull(document).exists()) {
                         try {
                             mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
                             mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
@@ -409,8 +410,14 @@ public class ItemDetailFragment extends Fragment {
         topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (parent != null)
-                    parent.onBackPressed();
+                FragmentManager fragmentManager = getFragmentManager();
+                if(Objects.requireNonNull(fragmentManager).getBackStackEntryCount() > 0) {
+                    fragmentManager.popBackStack();
+                }else{
+                    if(parent != null){
+                        parent.onBackPressed();
+                    }
+                }
             }
         });
 
@@ -540,7 +547,7 @@ public class ItemDetailFragment extends Fragment {
                             mHospitalId, "departments",
                             "default_department", "dis");
 
-                    deletePendingUdi(udiEditText.getText().toString().trim());
+                    deletePendingUdi(Objects.requireNonNull(udiEditText.getText()).toString().trim());
                 } else {
                     Toast.makeText(rootView.getContext(), "Please fill out all required fields", Toast.LENGTH_SHORT).show();
                 }
@@ -565,7 +572,7 @@ public class ItemDetailFragment extends Fragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (Objects.requireNonNull(document).exists()) {
                         List<Map> list = new ArrayList<>();
                         Map<String, Object> map = document.getData();
                         if (map != null) {
@@ -634,7 +641,7 @@ public class ItemDetailFragment extends Fragment {
                 }
                 if (documentSnapshot != null && documentSnapshot.exists()) {
                     Map<String, Object> typeObj = documentSnapshot.getData();
-                    locCounter = typeObj.size();
+                    locCounter = Objects.requireNonNull(typeObj).size();
                     for (Object value : typeObj.values()) {
                         if (!PHYSICALLOC.contains(value.toString())) {
                             PHYSICALLOC.add(value.toString());
@@ -1360,7 +1367,7 @@ public class ItemDetailFragment extends Fragment {
     private void addItemSpecs(String key, String value, View view) {
         Log.d(TAG, "Adding item specs!");
 
-        LinearLayout layoutSize = new LinearLayout(getContext());
+        LinearLayout layoutSize = new LinearLayout(view.getContext());
         layoutSize.setOrientation(LinearLayout.HORIZONTAL);
         layoutSize.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
@@ -1750,7 +1757,6 @@ public class ItemDetailFragment extends Fragment {
         String notes_str = Objects.requireNonNull(notes.getText()).toString();
 
 
-        boolean is_used = itemUsed.isChecked();
         int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
         RadioButton radioButton = view.findViewById(radioButtonInt);
         String singleOrMultiUse = radioButton.getText().toString();
@@ -1891,7 +1897,7 @@ public class ItemDetailFragment extends Fragment {
 //        getActivity().getSupportFragmentManager().popBackStack();
 //        getFragmentManager().popBackStack();
 //        getActivity().onBackPressed();
-        getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+        Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().remove(this).commit();
         Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
     }
 
