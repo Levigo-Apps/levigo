@@ -73,6 +73,7 @@ public class AddEquipmentFragment extends Fragment {
     private String procedureName;
     private String procedureTimeIn;
     private String procedureTimeOut;
+    private String roomTime;
     private String fluoroTime;
     private String accessionNumber;
     private String di;
@@ -133,6 +134,7 @@ public class AddEquipmentFragment extends Fragment {
                 procedureInfo.put("procedure_date", procedureDate);
                 procedureInfo.put("time_in", procedureTimeIn);
                 procedureInfo.put("time_out", procedureTimeOut);
+                procedureInfo.put("room_time", roomTime);
                 procedureInfo.put("fluoro_time", fluoroTime);
                 procedureInfo.put("accession_number", accessionNumber);
                 bundle.putSerializable("procedureMap", procedureInfo);
@@ -160,6 +162,7 @@ public class AddEquipmentFragment extends Fragment {
                 procedureName = (String) procedureInfo.get("procedure_used");
                 procedureTimeIn = (String) procedureInfo.get("time_in");
                 procedureTimeOut = (String) procedureInfo.get("time_out");
+                roomTime = (String) procedureInfo.get("room_time");
                 fluoroTime = (String) procedureInfo.get("fluoro_time");
                 accessionNumber= (String) procedureInfo.get("accession_number");
             }
@@ -272,8 +275,8 @@ public class AddEquipmentFragment extends Fragment {
             public void onErrorResponse(VolleyError error) {
                 FirebaseCrashlytics.getInstance().recordException(error);
                 Log.d(TAG, "Error in parsing barcode");
-                parseBarcodeError(Objects.requireNonNull(view));
-               // addUdi(contents,view);
+               // parseBarcodeError(Objects.requireNonNull(view));
+                addUdi(contents,view);
             }
         });
         // Add the request to the RequestQueue.
@@ -390,7 +393,7 @@ public class AddEquipmentFragment extends Fragment {
     private void saveProcedureInfo(final List<HashMap<String, Object>> procedureInfo, final String di){
         for(int i = 0; i < procedureInfo.size(); i++){
             procedureInfo.get(i).put("accession_number",accessionNumber);
-            procedureInfo.get(i).put("fluoro_time",fluoroTime);
+            procedureInfo.get(i).put("room_time",roomTime);
             procedureInfo.get(i).put("procedure_date",procedureDate);
             procedureInfo.get(i).put("time_in",procedureTimeIn);
             procedureInfo.get(i).put("time_out",procedureTimeOut);
