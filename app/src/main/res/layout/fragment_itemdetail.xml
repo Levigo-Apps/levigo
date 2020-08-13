@@ -87,9 +87,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/device_identifier_lbl"
                     app:boxStrokeColor="@color/colorPrimary"
-                    app:endIconDrawable="@drawable/search"
-                    app:endIconMode="custom"
-                    app:endIconTint="@color/colorPrimary">
+                    >
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_di"

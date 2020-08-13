@@ -68,6 +68,10 @@ public class AddEquipmentFragment extends Fragment {
     private List<HashMap<String, Object>> procedureInfo;
     HashMap<String, Object> procedureInfoHashMap;
 
+    private TextView procedureInfoName;
+    private TextView procedureInfoDate;
+    private TextView procedureAccessionNumber;
+
     private String mNetworkId;
     private String mHospitalId;
     private String procedureDate;
@@ -88,6 +92,9 @@ public class AddEquipmentFragment extends Fragment {
         MaterialButton cancelButton = rootView.findViewById(R.id.equipment_cancel_button);
         MaterialButton saveButton = rootView.findViewById(R.id.equipment_save_button);
         FloatingActionButton addBarcode = rootView.findViewById(R.id.fragment_addScan);
+        procedureInfoName = rootView.findViewById(R.id.procedureinfoName_edittext);
+        procedureInfoDate = rootView.findViewById(R.id.procedureinfoDate_edittext);
+        procedureAccessionNumber = rootView.findViewById(R.id.procedureinfoAccessionNumber_edittext);
         linearLayout = rootView.findViewById(R.id.equipment_linearlayout);
         buttonsLayout = rootView.findViewById(R.id.item_bottom);
         procedureInfo = new ArrayList<>();
@@ -167,11 +174,12 @@ public class AddEquipmentFragment extends Fragment {
                 roomTime = (String) returnedProcedureInfo.get("room_time");
                 fluoroTime = (String) returnedProcedureInfo.get("fluoro_time");
                 accessionNumber= (String) returnedProcedureInfo.get("accession_number");
+                setProcedureSummary(returnedProcedureInfo);
 
             }
             if(procedureInfoBundle.get("procedureMap") != null){
                 procedureInfoHashMap = (HashMap<String, Object>) procedureInfoBundle.getSerializable("procedureMap");
-
+                setProcedureSummary(procedureInfoHashMap);
                 procedureDate = (String) Objects.requireNonNull(procedureInfoHashMap).get("procedure_date");
                 procedureName = (String) procedureInfoHashMap.get("procedure_used");
                 procedureTimeIn = (String) procedureInfoHashMap.get("time_in");
@@ -192,12 +200,20 @@ public class AddEquipmentFragment extends Fragment {
         });
 
 
+        final boolean[] notclicked = {true};
 
         addBarcode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                // startScanner();
-                checkUdi("(01)00886333006052(17)220410(10)11174028");
+
+                if(notclicked[0]){
+                    checkUdi("(01)00886333006052(17)22313");
+                    notclicked[0] = false;
+                }else if(!notclicked[0]){
+                    checkUdi("(01)00389701007632(17)22063");
+                }
+
             }
         });
 
@@ -209,6 +225,12 @@ public class AddEquipmentFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    private void setProcedureSummary(HashMap<String, Object> procedureInformation){
+        procedureInfoName.setText(procedureInformation.get("procedure_used").toString());
+        procedureInfoDate.setText(procedureInformation.get("procedure_date").toString());
+        procedureAccessionNumber.setText(procedureInformation.get("accession_number").toString());
     }
 
     private void startScanner() {
@@ -356,11 +378,20 @@ public class AddEquipmentFragment extends Fragment {
 
     }
 
-    public void addUdi(final String barcode, View view){
-        View textView = View.inflate(view.getContext(),R.layout.procedures_item,null);
+    private void addUdi(final String barcode, View view){
+        final View textView = View.inflate(view.getContext(),R.layout.procedure_item,null);
+        textView.setId(View.generateViewId());
+
         TextView udi = textView.findViewById(R.id.scanned_udi);
         final TextView quantity = textView.findViewById(R.id.udi_quantity);
         final ImageView plusIcon = textView.findViewById(R.id.increment_icon);
+        ImageView deleteIcon = textView.findViewById(R.id.delete_icon);
+        deleteIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteUdiView(view,textView.getId(),barcode);
+            }
+        });
         plusIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -373,6 +404,16 @@ public class AddEquipmentFragment extends Fragment {
         buttonsLayout.setVisibility(View.VISIBLE);
         linearLayout.addView(textView,linearLayout.indexOfChild(buttonsLayout));
 
+
+    }
+
+    private void deleteUdiView(View view, int elementId, String barcode){
+        linearLayout.removeView(linearLayout.findViewById(elementId));
+        for(int i = 0; i < procedureInfo.size(); i++){
+            if(procedureInfo.get(i).get("udi").toString().equals(barcode)){
+                procedureInfo.remove(i);
+            }
+        }
     }
 
     private void addNumberPicker(View view, final TextView quantity, final String barcode, final ImageView plusIcon){
@@ -393,21 +434,20 @@ public class AddEquipmentFragment extends Fragment {
         {
             @Override
             public void onClick(View v) {
-                quantity.setText(String.format(Locale.US,"%d units", np.getValue()));
-                plusIcon.setVisibility(View.GONE);
-                quantity.setVisibility(View.VISIBLE);
-                quantity.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        addNumberPicker(view, quantity,barcode,plusIcon);
-                    }
-                });
+                int quantityInt = np.getValue();
+                if(quantityInt > 1){
+                    quantity.setText(String.format(Locale.US,"%d units have been used", quantityInt));
+                }else{
+                    quantity.setText(String.format(Locale.US,"%d unit has been used", quantityInt));
+                }
 
+                quantity.setVisibility(View.VISIBLE);
                 d.dismiss();
                 HashMap<String, Object> eachUdi = new HashMap<>();
                 eachUdi.put("udi",barcode);
                 eachUdi.put("amount_used",String.valueOf(np.getValue()));
                 procedureInfo.add(eachUdi);
+                System.out.println(procedureInfo);
             }
         });
         b2.setOnClickListener(new View.OnClickListener()
@@ -423,8 +463,6 @@ public class AddEquipmentFragment extends Fragment {
     private void saveProcedureInfo(final List<HashMap<String, Object>> procedureInfo, final String di){
 
         for(int i = 0; i < procedureInfo.size(); i++){
-
-
             procedureInfo.get(i).put("accession_number",accessionNumber);
             procedureInfo.get(i).put("room_time",roomTime);
             procedureInfo.get(i).put("procedure_date",procedureDate);
@@ -435,7 +473,6 @@ public class AddEquipmentFragment extends Fragment {
         }
 
         for(int i = 0; i < procedureInfo.size(); i++){
-            System.out.println(procedureInfo.get(i).get("udi"));
             DocumentReference procedureCounterRef = db.collection("networks").document(mNetworkId)
                     .collection("hospitals").document(mHospitalId).collection("departments")
                     .document("default_department").collection("dis").document(di)

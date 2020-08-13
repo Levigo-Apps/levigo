@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -32,7 +34,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -50,10 +54,12 @@ public class ProcedureInfoFragment extends Fragment {
     private String mNetworkId;
     private String mHospitalId;
     private boolean checkAllFields;
+    private boolean checkAutoComplete;
+    private ArrayList<String> procedureNames;
 
     private TextInputLayout accessionNumber;
 
-    private TextInputEditText procedureNameEditText;
+    private AutoCompleteTextView procedureNameEditText;
     private TextInputEditText procedureDateEditText;
     private TextInputEditText timeInEditText;
     private TextInputEditText timeOutEditText;
@@ -79,7 +85,9 @@ public class ProcedureInfoFragment extends Fragment {
         accessionNumber = rootView.findViewById(R.id.procedureinfo_accessionNumber_layout);
         MaterialButton addUdisButton = rootView.findViewById(R.id.procedure_next_button);
         MaterialButton cancelButton = rootView.findViewById(R.id.procedure_cancel_button);
+        procedureNames = new ArrayList<>();
         checkAllFields = false;
+        checkAutoComplete = false;
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
 
         if (getArguments() != null) {
@@ -199,13 +207,24 @@ public class ProcedureInfoFragment extends Fragment {
         addUdisButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(checkAllFields){
+                if(checkAllFields && checkAutoComplete){
                     saveAndSend();
                 }else{
                     Toast.makeText(view.getContext(), "Please fill out all fields", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
+        final ArrayAdapter<String> procedureNamesAdapter =
+                new ArrayAdapter<>(
+                        rootView.getContext(),
+                        R.layout.dropdown_menu_popup_item,
+                        procedureNames);
+        procedureNamesAdapter.add("Other");
+        procedureNamesAdapter.add("Upper Endoscopy");
+        procedureNamesAdapter.add("Lower Endoscopy");
+        Collections.sort(procedureNames);
+        procedureNameEditText.setAdapter(procedureNamesAdapter);
 
 
         TextWatcher textWatcher = new TextWatcher() {
@@ -226,10 +245,10 @@ public class ProcedureInfoFragment extends Fragment {
                 }
 
                 checkAllFields = validateFields(new TextInputEditText[]{timeInEditText
-                        ,timeOutEditText,procedureNameEditText,procedureDateEditText,
+                        ,timeOutEditText,procedureDateEditText,
                 accessionNumberEditText,fluoroTimeEditText});
 
-                    
+                checkAutoComplete = validateAutoComplete(new AutoCompleteTextView[]{procedureNameEditText});
 
             }
         };
@@ -303,6 +322,15 @@ public class ProcedureInfoFragment extends Fragment {
         return true;
     }
 
+    private boolean validateAutoComplete(AutoCompleteTextView[] fields)
+    {
+        for(AutoCompleteTextView currentField : fields){
+            if(currentField.getText().toString().length() <= 0){
+                return false;
+            }
+        }
+        return true;
+    }
 
 
     private void timeLayoutPicker(View view, final TextInputEditText editText) {
