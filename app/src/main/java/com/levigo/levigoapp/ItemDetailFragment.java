@@ -36,6 +36,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -173,6 +174,7 @@ public class ItemDetailFragment extends Fragment {
     private ArrayList<String> PHYSICALLOC;
     private List<Map<String, Object>> procedureMapList;
     private List<TextInputEditText> numberUsedList;
+    HashMap<String, Object> procedureInfoHashMap;
 
     private LinearLayout siteConstrainLayout;
     private LinearLayout physicalLocationConstrainLayout;
@@ -239,6 +241,7 @@ public class ItemDetailFragment extends Fragment {
         useRadioGroup = rootView.findViewById(R.id.RadioGroup_id);
         final TextInputLayout diLayout = rootView.findViewById(R.id.TextInputLayout_di);
         singleUseButton = rootView.findViewById(R.id.RadioButton_single);
+        singleUseButton.setChecked(true);
         multiUse = rootView.findViewById(R.id.radio_multiuse);
         numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
@@ -535,7 +538,7 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //hardcoded
-                if ((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
+                if ((checkAutocompleteTexts && checkEditTexts)) {
                     if (checkItemUsed) {
                         if (!checkProcedureFields) {
                             Toast.makeText(rootView.getContext(), "Please enter procedure information", Toast.LENGTH_SHORT).show();
@@ -556,6 +559,8 @@ public class ItemDetailFragment extends Fragment {
 
         if (getArguments() != null) {
             String barcode = getArguments().getString("barcode");
+            procedureInfoHashMap = (HashMap<String, Object>) getArguments().getSerializable("procedure_info");
+            System.out.println(procedureInfoHashMap);
             udiEditText.setText(barcode);
             autoPopulate(rootView);
 
@@ -821,20 +826,7 @@ public class ItemDetailFragment extends Fragment {
         dateIn.addTextChangedListener(editTextWatcher);
         timeIn.addTextChangedListener(editTextWatcher);
 
-        singleUseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                checkSingleUseButton = true;
-            }
 
-        });
-
-        multiUse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                checkMultiUseButton = true;
-            }
-        });
     }
 
 
@@ -1688,7 +1680,7 @@ public class ItemDetailFragment extends Fragment {
                          String DEPARTMENTS, String DEPARTMENT, String PRODUCTDIS) {
 
         Log.d(TAG, "SAVING");
-        String barcode_str = Objects.requireNonNull(udiEditText.getText()).toString();
+        final String barcode_str = Objects.requireNonNull(udiEditText.getText()).toString();
         String name_str = Objects.requireNonNull(nameEditText.getText()).toString();
         String company_str = Objects.requireNonNull(company.getText()).toString();
         String medical_speciality_str = Objects.requireNonNull(medicalSpeciality.getText()).toString();
@@ -1891,8 +1883,23 @@ public class ItemDetailFragment extends Fragment {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            successful_save();
-//                            Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+
+                            AddEquipmentFragment fragment = new AddEquipmentFragment();
+                            Bundle bundle = new Bundle();
+                            bundle.putBoolean("added", true);
+                            bundle.putString("barcode",barcode_str);
+                            bundle.putSerializable("procedure_info",procedureInfoHashMap);
+                            fragment.setArguments(bundle);
+                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+
+                            //clears other fragments
+                            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                            fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+                            fragmentTransaction.add(R.id.activity_main, fragment);
+                            fragmentTransaction.addToBackStack(null);
+                            fragmentTransaction.commit();
+
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {

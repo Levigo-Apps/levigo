@@ -66,6 +66,7 @@ public class AddEquipmentFragment extends Fragment {
     private LinearLayout linearLayout;
     private LinearLayout buttonsLayout;
     private List<HashMap<String, Object>> procedureInfo;
+    HashMap<String, Object> procedureInfoHashMap;
 
     private String mNetworkId;
     private String mHospitalId;
@@ -77,6 +78,7 @@ public class AddEquipmentFragment extends Fragment {
     private String fluoroTime;
     private String accessionNumber;
     private String di;
+    private String udiStr;
 
 
     @Override
@@ -129,15 +131,15 @@ public class AddEquipmentFragment extends Fragment {
             public void onClick(View view) {
                 ProcedureInfoFragment fragment = new ProcedureInfoFragment();
                 Bundle bundle = new Bundle();
-                HashMap<String, Object> procedureInfo = new HashMap<>();
-                procedureInfo.put("procedure_used", procedureName);
-                procedureInfo.put("procedure_date", procedureDate);
-                procedureInfo.put("time_in", procedureTimeIn);
-                procedureInfo.put("time_out", procedureTimeOut);
-                procedureInfo.put("room_time", roomTime);
-                procedureInfo.put("fluoro_time", fluoroTime);
-                procedureInfo.put("accession_number", accessionNumber);
-                bundle.putSerializable("procedureMap", procedureInfo);
+                HashMap<String, Object> procedureInfoMap = new HashMap<>();
+                procedureInfoMap.put("procedure_used", procedureName);
+                procedureInfoMap.put("procedure_date", procedureDate);
+                procedureInfoMap.put("time_in", procedureTimeIn);
+                procedureInfoMap.put("time_out", procedureTimeOut);
+                procedureInfoMap.put("room_time", roomTime);
+                procedureInfoMap.put("fluoro_time", fluoroTime);
+                procedureInfoMap.put("accession_number", accessionNumber);
+                bundle.putSerializable("procedureMap", procedureInfoMap);
                 fragment.setArguments(bundle);
 
                 FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
@@ -153,18 +155,30 @@ public class AddEquipmentFragment extends Fragment {
         });
 
         if (getArguments() != null) {
-            HashMap<String, Object> procedureInfo;
-            Bundle procedureInfoBundle = this.getArguments();
-            if(procedureInfoBundle.get("procedureMap") != null){
-                procedureInfo = (HashMap<String, Object>) procedureInfoBundle.getSerializable("procedureMap");
 
-                procedureDate = (String) Objects.requireNonNull(procedureInfo).get("procedure_date");
-                procedureName = (String) procedureInfo.get("procedure_used");
-                procedureTimeIn = (String) procedureInfo.get("time_in");
-                procedureTimeOut = (String) procedureInfo.get("time_out");
-                roomTime = (String) procedureInfo.get("room_time");
-                fluoroTime = (String) procedureInfo.get("fluoro_time");
-                accessionNumber= (String) procedureInfo.get("accession_number");
+            Bundle procedureInfoBundle = this.getArguments();
+            if(procedureInfoBundle.getBoolean("added")){
+                HashMap<String, Object> returnedProcedureInfo = (HashMap<String, Object>) procedureInfoBundle.getSerializable("procedure_info");
+                checkUdi(Objects.requireNonNull(procedureInfoBundle.getString("barcode")));
+                procedureDate = (String) Objects.requireNonNull(returnedProcedureInfo).get("procedure_date");
+                procedureName = (String) returnedProcedureInfo.get("procedure_used");
+                procedureTimeIn = (String) returnedProcedureInfo.get("time_in");
+                procedureTimeOut = (String) returnedProcedureInfo.get("time_out");
+                roomTime = (String) returnedProcedureInfo.get("room_time");
+                fluoroTime = (String) returnedProcedureInfo.get("fluoro_time");
+                accessionNumber= (String) returnedProcedureInfo.get("accession_number");
+
+            }
+            if(procedureInfoBundle.get("procedureMap") != null){
+                procedureInfoHashMap = (HashMap<String, Object>) procedureInfoBundle.getSerializable("procedureMap");
+
+                procedureDate = (String) Objects.requireNonNull(procedureInfoHashMap).get("procedure_date");
+                procedureName = (String) procedureInfoHashMap.get("procedure_used");
+                procedureTimeIn = (String) procedureInfoHashMap.get("time_in");
+                procedureTimeOut = (String) procedureInfoHashMap.get("time_out");
+                roomTime = (String) procedureInfoHashMap.get("room_time");
+                fluoroTime = (String) procedureInfoHashMap.get("fluoro_time");
+                accessionNumber= (String) procedureInfoHashMap.get("accession_number");
             }
 
         }
@@ -182,7 +196,8 @@ public class AddEquipmentFragment extends Fragment {
         addBarcode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startScanner();
+               // startScanner();
+                checkUdi("(01)00886333006052(17)220410(10)11174028");
             }
         });
 
@@ -244,6 +259,7 @@ public class AddEquipmentFragment extends Fragment {
                             JSONObject udi = responseJson.getJSONObject("udi");
 
                             di = udi.getString("di");
+                            udiStr = contents;
 
                             DocumentReference docRef = db.collection("networks").document(mNetworkId)
                                     .collection("hospitals").document(mHospitalId).collection("departments")
@@ -255,9 +271,10 @@ public class AddEquipmentFragment extends Fragment {
                                     if (task.isSuccessful()) {
                                         DocumentSnapshot document = task.getResult();
                                         if (Objects.requireNonNull(document).exists()) {
-                                            addUdi(contents, Objects.requireNonNull(view));
+                                            System.out.println(contents);
+                                            addUdi(contents, getView());
                                         }else{
-                                            offerEquipmentScan(Objects.requireNonNull(view));
+                                            offerEquipmentScan(Objects.requireNonNull(view), contents);
                                         }
                                     }else{
                                         Log.d(TAG, "Failed with: ", task.getException());
@@ -275,15 +292,14 @@ public class AddEquipmentFragment extends Fragment {
             public void onErrorResponse(VolleyError error) {
                 FirebaseCrashlytics.getInstance().recordException(error);
                 Log.d(TAG, "Error in parsing barcode");
-               // parseBarcodeError(Objects.requireNonNull(view));
-                addUdi(contents,view);
+                parseBarcodeError(Objects.requireNonNull(view));
             }
         });
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
 
-    public void offerEquipmentScan(View view){
+    public void offerEquipmentScan(View view, final String udi){
         new MaterialAlertDialogBuilder(view.getContext())
                 .setTitle("Scan equipment")
                 .setMessage("The equipment could not be found in inventory.\nWould you like to scan it now?")
@@ -291,6 +307,20 @@ public class AddEquipmentFragment extends Fragment {
         .setNegativeButton("Scan", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                ItemDetailFragment fragment = new ItemDetailFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("barcode", udi);
+                bundle.putSerializable("procedure_info",procedureInfoHashMap);
+                fragment.setArguments(bundle);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+
+                //clears other fragments
+               // fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+                fragmentTransaction.add(R.id.activity_main, fragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
 
             }
         })
@@ -391,21 +421,26 @@ public class AddEquipmentFragment extends Fragment {
     }
 
     private void saveProcedureInfo(final List<HashMap<String, Object>> procedureInfo, final String di){
+
         for(int i = 0; i < procedureInfo.size(); i++){
+
+
             procedureInfo.get(i).put("accession_number",accessionNumber);
             procedureInfo.get(i).put("room_time",roomTime);
             procedureInfo.get(i).put("procedure_date",procedureDate);
             procedureInfo.get(i).put("time_in",procedureTimeIn);
             procedureInfo.get(i).put("time_out",procedureTimeOut);
             procedureInfo.get(i).put("procedure_used",procedureName);
+            procedureInfo.get(i).put("fluoro_time",fluoroTime);
         }
 
         for(int i = 0; i < procedureInfo.size(); i++){
+            System.out.println(procedureInfo.get(i).get("udi"));
             DocumentReference procedureCounterRef = db.collection("networks").document(mNetworkId)
                     .collection("hospitals").document(mHospitalId).collection("departments")
                     .document("default_department").collection("dis").document(di)
                     .collection("udis").document(Objects.requireNonNull(procedureInfo.get(i).get("udi")).toString());
-            System.out.println(procedureInfo.get(i).get("udi"));
+
 
             final int finalI = i;
             procedureCounterRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -431,8 +466,11 @@ public class AddEquipmentFragment extends Fragment {
                 }
             });
         }
+        if(parent != null){
+            Toast.makeText(getActivity(), "Procedure information saved", Toast.LENGTH_SHORT).show();
+            parent.onBackPressed();
+        }
 
-        Toast.makeText(parent,"Procedure information saved",Toast.LENGTH_LONG).show();
 
     }
 
@@ -449,7 +487,7 @@ public class AddEquipmentFragment extends Fragment {
 
         // saves procedure information for each udi
         procedureDocRef.collection("procedures")
-                .document("procedure_0" + (Integer.parseInt(procedureCounter) + 1)).set(procedureInfo)
+                .document("procedure_" + (Integer.parseInt(procedureCounter) + 1)).set(procedureInfo)
                 //in case of success
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
