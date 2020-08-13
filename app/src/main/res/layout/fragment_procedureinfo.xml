@@ -78,13 +78,13 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/procedureinfo_name_layout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/procedure_name_label"
                     app:boxStrokeColor="@color/colorPrimary">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <AutoCompleteTextView
                         android:id="@+id/procedure_name"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
