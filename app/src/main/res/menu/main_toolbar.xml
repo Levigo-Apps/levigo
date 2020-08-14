@@ -5,7 +5,7 @@
     <item
         android:id="@+id/manual_entry"
         android:title="Add entry manually"
-        android:icon="@drawable/ic_baseline_plus"
+        android:icon="@drawable/ic_add_white_24dp"
         android:iconTint="@android:color/white"
         app:showAsAction="always"/>
 
