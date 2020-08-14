@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -50,6 +51,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -168,6 +170,7 @@ public class ItemDetailFragment extends Fragment {
     private boolean isTimeinSelected;
     private boolean checkProcedureFields;
     private boolean accessionNumberGenerated;
+    private boolean editingExisting;
     private List<TextInputEditText> allSizeOptions;
     private ArrayList<String> TYPES;
     private ArrayList<String> SITELOC;
@@ -239,7 +242,6 @@ public class ItemDetailFragment extends Fragment {
         removeProcedure = rootView.findViewById(R.id.button_removepatient);
         final Button autoPopulateButton = rootView.findViewById(R.id.detail_autopop_button);
         useRadioGroup = rootView.findViewById(R.id.RadioGroup_id);
-        final TextInputLayout diLayout = rootView.findViewById(R.id.TextInputLayout_di);
         singleUseButton = rootView.findViewById(R.id.RadioButton_single);
         singleUseButton.setChecked(true);
         multiUse = rootView.findViewById(R.id.radio_multiuse);
@@ -262,6 +264,7 @@ public class ItemDetailFragment extends Fragment {
         isTimeinSelected = false;
         checkProcedureFields = false;
         accessionNumberGenerated = false;
+        editingExisting =false;
         itemUsed.setChecked(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
         itemUsedFields = rootView.findViewById(R.id.layout_itemused);
@@ -305,7 +308,7 @@ public class ItemDetailFragment extends Fragment {
                             if (getArguments() != null) {
                                 String barcode = getArguments().getString("barcode");
                                 boolean isPending = getArguments().getBoolean("pending_udi");
-                                boolean editingExisting = getArguments().getBoolean("editingExisting");
+                                editingExisting = getArguments().getBoolean("editingExisting");
                                 if (isPending) {
                                     getPendingSpecs(barcode);
                                 }
@@ -313,6 +316,7 @@ public class ItemDetailFragment extends Fragment {
                                 if (editingExisting) {
                                     udiEditText.setEnabled(false);
                                     autoPopulateButton.setEnabled(false);
+                                    autopopulateNonGudid(barcode,getArguments().getString("di"));
                                 }
                             }
 
@@ -1923,6 +1927,7 @@ public class ItemDetailFragment extends Fragment {
         String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
         url = url + udiStr;
 
+
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
@@ -1977,7 +1982,7 @@ public class ItemDetailFragment extends Fragment {
                             medicalSpeciality.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
                             numberAdded.setText(deviceInfo.getString("deviceCount"));
-                            autoPopulateFromDatabase(udiStr);
+                            autoPopulateFromDatabase(udiStr,di);
                             JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
                             for (int i = 0; i < deviceSizeArray.length(); ++i) {
                                 int colonIndex;
@@ -2016,10 +2021,81 @@ public class ItemDetailFragment extends Fragment {
             public void onErrorResponse(VolleyError error) {
                 FirebaseCrashlytics.getInstance().recordException(error);
                 Log.d(TAG, "Error in parsing barcode");
+                nonGudidUdi(udiStr,view);
             }
         });
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
+    }
+    
+    private void nonGudidUdi(final String udiStr, final View view){
+
+        if(deviceIdentifier.getText().toString().length() <= 0 && (!editingExisting)) {
+            Toast.makeText(parent, "Please enter Device Identifier and click on Autopopulate again", Toast.LENGTH_LONG).show();
+            deviceIdentifier.setError("Enter device identifier (DI)");
+        }else if(deviceIdentifier.getText().toString().length() > 0 && (!editingExisting)){
+            final String di = deviceIdentifier.getText().toString();
+            DocumentReference udiDocRef = db.collection("networks").document(mNetworkId)
+                    .collection("hospitals").document(mHospitalId).collection("departments")
+                    .document("default_department").collection("dis")
+                    .document(di).collection("udis").document(udiStr);
+
+
+            udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            autoPopulateFromDatabase(udiStr,di );
+                            Toast.makeText(parent, "Equipment already exists in inventory, " +
+                                    "please fill out remaining fields", Toast.LENGTH_SHORT).show();
+                        } else {
+                            new MaterialAlertDialogBuilder(view.getContext())
+                                    .setTitle("Equipment status")
+                                    .setMessage("Equipment has not been stored in inventory yet.\n" +
+                                            "Please fill out all fields carefully")
+                                    .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                        }
+                                    })
+                        .show();
+
+                            Log.d(TAG, "No such document");
+                        }
+                    } else {
+                        Log.d(TAG, "get failed with ", task.getException());
+                    }
+                }
+            });
+
+        }
+
+        TextWatcher deviceIdentifierWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(deviceIdentifier.getText().toString().length() > 0){
+                    deviceIdentifier.setError(null);
+                }
+
+            }
+        };
+        deviceIdentifier.addTextChangedListener(deviceIdentifierWatcher);
+
+
+
+
     }
 
     private void updateProcedureFieldAdded(String udi, String di) {
@@ -2056,7 +2132,11 @@ public class ItemDetailFragment extends Fragment {
         });
     }
 
-    private void autoPopulateFromDatabase(final String udiStr) {
+    private void autopopulateNonGudid(String barcode, String di){
+        autoPopulateFromDatabase(barcode, di);
+    }
+
+    private void autoPopulateFromDatabase(final String udiStr, String di) {
         DocumentReference udiDocRef;
         DocumentReference diDocRef;
         udiDocRef = db.collection("networks").document(mNetworkId)
@@ -2073,13 +2153,38 @@ public class ItemDetailFragment extends Fragment {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (Objects.requireNonNull(document).exists()) {
-                        if (document.get(TYPE_KEY) != null) {
+                        if(document.get(COMPANY_KEY) != null && company.getText().toString().length() <= 0){
+                            company.setText(document.getString(COMPANY_KEY));
+                            company.setEnabled(false);
+                        }
+                        if(document.get(SITE_KEY) != null && hospitalName.getText().toString().length() <= 0){
+                            hospitalName.setText(document.getString(SITE_KEY));
+                            hospitalName.setEnabled(false);
+                        }
+                        if(document.get("di") != null && deviceIdentifier.getText().toString().length() <= 0){
+                            deviceIdentifier.setText(document.getString("di"));
+                            deviceIdentifier.setEnabled(false);
+                        }
+
+                        if(document.get(DESCRIPTION_KEY) != null){
+                            deviceDescription.setText(document.getString(DESCRIPTION_KEY));
+                            deviceDescription.setEnabled(false);
+                        }
+                        if(document.get(SPECIALTY_KEY) != null && medicalSpeciality.getText().toString().length() <= 0){
+                            medicalSpeciality.setText(document.getString(SPECIALTY_KEY));
+                            medicalSpeciality.setEnabled(false);
+                        }
+                        if(document.get(NAME_KEY) != null && nameEditText.getText().toString().length() <= 0){
+                            nameEditText.setText(document.getString(NAME_KEY));
+                            nameEditText.setEnabled(false);
+                        }
+
+                        if (document.get(TYPE_KEY) != null && equipmentType.getText().toString().length() <= 0) {
                             equipmentType.setText(document.getString(TYPE_KEY));
                             equipmentType.setEnabled(false);
                         }
-                        if (document.get(SITE_KEY) != null) {
+                        if (document.get(SITE_KEY) != null && hospitalName.getText().toString().length() <= 0) {
                             hospitalName.setText(document.getString(SITE_KEY));
-                            hospitalName.setFocusable(false);
                             hospitalName.setEnabled(false);
                         }
                         if (document.get(QUANTITY_KEY) != null) {
@@ -2120,16 +2225,29 @@ public class ItemDetailFragment extends Fragment {
                         }
                         if (document.get(PHYSICALLOC_KEY) != null) {
                             physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
+
                         } if(document.get("current_time") != null){
                             timeIn.setText(document.getString("current_time"));
-                            timeIn.setEnabled(false);
-                            timeInLayout.setEndIconOnClickListener(null);
 
                         } if(document.get("current_date") != null){
                             dateIn.setText(document.getString("current_date"));
-                            dateIn.setEnabled(false);
-                            dateInLayout.setEndIconOnClickListener(null);
                         }
+                        if(document.get("reference_number") != null && referenceNumber.getText().toString().length() <= 0){
+                            referenceNumber.setText(document.getString("reference_number"));
+                            referenceNumber.setEnabled(false);
+                        }
+                        if(document.get("expiration") != null && expiration.getText().toString().length() <= 0){
+                            expiration.setText(document.getString("expiration"));
+                            expiration.setEnabled(false);
+                        }
+                        if(document.get("lot_number") != null && lotNumber.getText().toString().length() <=0){
+                            lotNumber.setText(document.getString("lot_number"));
+                            lotNumber.setEnabled(false);
+                        }
+                        if(document.get("notes") != null){
+                            notes.setText(document.getString("notes"));
+                        }
+
                     } else {
                         itemQuantity = "0";
                         quantity.setText("0");
