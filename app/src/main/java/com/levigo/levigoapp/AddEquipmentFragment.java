@@ -81,7 +81,6 @@ public class AddEquipmentFragment extends Fragment {
     private String roomTime;
     private String fluoroTime;
     private String accessionNumber;
-    private String di;
     private String udiStr;
 
 
@@ -98,7 +97,6 @@ public class AddEquipmentFragment extends Fragment {
         linearLayout = rootView.findViewById(R.id.equipment_linearlayout);
         buttonsLayout = rootView.findViewById(R.id.item_bottom);
         procedureInfo = new ArrayList<>();
-        di = "";
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
 
 
@@ -208,10 +206,10 @@ public class AddEquipmentFragment extends Fragment {
                // startScanner();
 
                 if(notclicked[0]){
-                    checkUdi("(01)00886333006052(17)22313");
+                    checkUdi("(01)00886333006052(17)220410(10)11174028");
                     notclicked[0] = false;
                 }else if(!notclicked[0]){
-                    checkUdi("(01)00389701007632(17)22063");
+                    checkUdi("(01)00827002048775(17)250212(10)10325877");
                 }
 
             }
@@ -220,7 +218,7 @@ public class AddEquipmentFragment extends Fragment {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveProcedureInfo(procedureInfo,di);
+                saveProcedureInfo(procedureInfo);
             }
         });
 
@@ -280,7 +278,7 @@ public class AddEquipmentFragment extends Fragment {
                             Log.d(TAG, "RESPONSE: " + response);
                             JSONObject udi = responseJson.getJSONObject("udi");
 
-                            di = udi.getString("di");
+                            final String di = udi.getString("di");
                             udiStr = contents;
 
                             DocumentReference docRef = db.collection("networks").document(mNetworkId)
@@ -293,8 +291,7 @@ public class AddEquipmentFragment extends Fragment {
                                     if (task.isSuccessful()) {
                                         DocumentSnapshot document = task.getResult();
                                         if (Objects.requireNonNull(document).exists()) {
-                                            System.out.println(contents);
-                                            addUdi(contents, getView());
+                                            addUdi(contents, getView(), di);
                                         }else{
                                             offerEquipmentScan(Objects.requireNonNull(view), contents);
                                         }
@@ -378,7 +375,7 @@ public class AddEquipmentFragment extends Fragment {
 
     }
 
-    private void addUdi(final String barcode, View view){
+    private void addUdi(final String barcode, View view, final String di){
         final View textView = View.inflate(view.getContext(),R.layout.procedure_item,null);
         textView.setId(View.generateViewId());
 
@@ -395,11 +392,11 @@ public class AddEquipmentFragment extends Fragment {
         plusIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addNumberPicker(view, quantity,barcode,plusIcon);
+                addNumberPicker(view, quantity,barcode,plusIcon, di);
             }
         });
 
-        addNumberPicker(view,quantity, barcode, plusIcon);
+        addNumberPicker(view,quantity, barcode, plusIcon, di);
         udi.setText(barcode);
         buttonsLayout.setVisibility(View.VISIBLE);
         linearLayout.addView(textView,linearLayout.indexOfChild(buttonsLayout));
@@ -416,7 +413,7 @@ public class AddEquipmentFragment extends Fragment {
         }
     }
 
-    private void addNumberPicker(View view, final TextView quantity, final String barcode, final ImageView plusIcon){
+    private void addNumberPicker(View view, final TextView quantity, final String barcode, final ImageView plusIcon, final String di){
         final Dialog d = new Dialog(view.getContext());
         //d.setTitle("Enter quantity");
         d.setContentView(R.layout.dialog);
@@ -446,8 +443,9 @@ public class AddEquipmentFragment extends Fragment {
                 HashMap<String, Object> eachUdi = new HashMap<>();
                 eachUdi.put("udi",barcode);
                 eachUdi.put("amount_used",String.valueOf(np.getValue()));
+                eachUdi.put("di",di);
                 procedureInfo.add(eachUdi);
-                System.out.println(procedureInfo);
+
             }
         });
         b2.setOnClickListener(new View.OnClickListener()
@@ -460,7 +458,7 @@ public class AddEquipmentFragment extends Fragment {
         d.show();
     }
 
-    private void saveProcedureInfo(final List<HashMap<String, Object>> procedureInfo, final String di){
+    private void saveProcedureInfo(final List<HashMap<String, Object>> procedureInfo){
 
         for(int i = 0; i < procedureInfo.size(); i++){
             procedureInfo.get(i).put("accession_number",accessionNumber);
@@ -472,12 +470,16 @@ public class AddEquipmentFragment extends Fragment {
             procedureInfo.get(i).put("fluoro_time",fluoroTime);
         }
 
+
+
         for(int i = 0; i < procedureInfo.size(); i++){
             DocumentReference procedureCounterRef = db.collection("networks").document(mNetworkId)
                     .collection("hospitals").document(mHospitalId).collection("departments")
-                    .document("default_department").collection("dis").document(di)
-                    .collection("udis").document(Objects.requireNonNull(procedureInfo.get(i).get("udi")).toString());
+                    .document("default_department").collection("dis")
+                    .document(Objects.requireNonNull(procedureInfo.get(i).get("di")).toString()).collection("udis")
+                    .document(Objects.requireNonNull(procedureInfo.get(i).get("udi")).toString());
 
+            final int quantityUsed = Integer.parseInt(Objects.requireNonNull(procedureInfo.get(i).get("amount_used")).toString());
 
             final int finalI = i;
             procedureCounterRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -488,12 +490,12 @@ public class AddEquipmentFragment extends Fragment {
                         if (Objects.requireNonNull(document).exists()) {
                             if(document.get("procedure_number") != null){
                                 String procedureCounter = document.getString("procedure_number");
-                                saveData(procedureInfo.get(finalI),di,procedureCounter );
+                                saveData(procedureInfo.get(finalI),procedureCounter ,quantityUsed);
                             }else{
-                                saveData(procedureInfo.get(finalI),di,"0");
+                                saveData(procedureInfo.get(finalI),"0",quantityUsed);
                             }
                         } else {
-                            Toast.makeText(Objects.requireNonNull(getView()).getContext(), "Procedure information for " + procedureInfo.get(finalI).get("udi") +
+                            Toast.makeText(parent, "Procedure information for " + procedureInfo.get(finalI).get("udi") +
                                     " has not been saved", Toast.LENGTH_SHORT).show();
                             Log.d(TAG, "No such document");
                         }
@@ -511,15 +513,71 @@ public class AddEquipmentFragment extends Fragment {
 
     }
 
-    private void saveData(HashMap<String, Object> procedureInfo, String di,String procedureCounter){
+    private void saveData(HashMap<String, Object> procedureInfo, String procedureCounter, final int quantityUsed){
 
-        String udi = Objects.requireNonNull(procedureInfo.get("udi")).toString();
+        final String udi = Objects.requireNonNull(procedureInfo.get("udi")).toString();
+        final String di = Objects.requireNonNull(procedureInfo.get("di")).toString();
         procedureInfo.remove("udi");
+        procedureInfo.remove("di");
+        final String[] udiQuantity = new String[1];
+        final String[] diQuantity = new String[1];
 
         DocumentReference procedureDocRef = db.collection("networks").document(mNetworkId)
                 .collection("hospitals").document(mHospitalId).collection("departments")
                 .document("default_department").collection("dis").document(di)
                 .collection("udis").document(udi);
+
+        final DocumentReference quantityRef = db.collection("networks").document(mNetworkId)
+                .collection("hospitals").document(mHospitalId).collection("departments")
+                .document("default_department").collection("dis").document(di);
+
+        quantityRef.collection("udis").document(udi).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        if(document.get("quantity") != null){
+                            udiQuantity[0] = document.getString("quantity");
+                        }else{
+                            udiQuantity[0] = "0";
+                        }
+                        updateUdiQuantity(udiQuantity[0],quantityUsed, quantityRef, udi);
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+
+
+
+
+        quantityRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        if(document.get("quantity") != null){
+                            diQuantity[0] = document.getString("quantity");
+                        }else{
+                            diQuantity[0] = "0";
+                        }
+                        updateDiQuantity(diQuantity[0],quantityUsed,quantityRef);
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
 
 
         // saves procedure information for each udi
@@ -580,5 +638,40 @@ public class AddEquipmentFragment extends Fragment {
                         Log.d(TAG, e.toString());
                     }
                 });
+    }
+    private void updateUdiQuantity(String currentQuantity, int quantityUsed, DocumentReference quantityRef, String udi){
+
+        quantityRef.collection("udis").document(udi)
+                .update("quantity", String.valueOf(Integer.parseInt(currentQuantity) - quantityUsed))
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully updated!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error updating document", e);
+                    }
+                });
+    }
+
+    private void updateDiQuantity(String currentQuantity, int quantityUsed, DocumentReference quantityRef){
+        quantityRef
+                .update("quantity", String.valueOf(Integer.parseInt(currentQuantity) - quantityUsed))
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully updated!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error updating document", e);
+                    }
+                });
+
     }
 }

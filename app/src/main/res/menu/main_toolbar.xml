@@ -17,10 +17,11 @@
     <item
         android:id="@+id/pendingUdiFragment"
         android:title="Pending equipment"
-        app:showAsAction="never"/>
+        app:showAsAction="always"
+        android:icon="@drawable/ic_pending_actions_white_24dp"/>
     <item
         android:id="@+id/offlineFragment"
-        android:title="Offline View"
+        android:title="Offline View (Temporarily)"
         app:showAsAction="never"/>
     <item
         android:id="@+id/logout"
