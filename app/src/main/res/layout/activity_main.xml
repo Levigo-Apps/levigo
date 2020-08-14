@@ -24,7 +24,10 @@
             app:contentScrim="@color/colorPrimary"
             app:statusBarScrim="@color/colorPrimary"
             android:minHeight="120dp"
-            android:fitsSystemWindows="true">
+            app:titleTextColor="@android:color/white"
+            android:fitsSystemWindows="true"
+            app:collapsedTitleTextAppearance="@style/TitleAppBarStyle"
+            app:expandedTitleTextAppearance="@style/TitleAppBarStyle">
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="150dp"/>
@@ -33,8 +36,9 @@
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
                 android:id="@+id/main_toolbar"
+                app:titleTextColor="@android:color/white"
                 android:background="@android:color/transparent"
-                app:navigationIcon="@android:drawable/ic_menu_sort_by_size" />
+                app:navigationIcon="@drawable/icon_camera"/>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
     <androidx.recyclerview.widget.RecyclerView
@@ -46,24 +50,14 @@
         android:background="@color/colorBackground"
         android:nestedScrollingEnabled="true"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"/>
-
-<!--    <ExpandableListView-->
-<!--        android:id="@+id/inventory_scroll"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:layout_marginTop="70sp"-->
-<!--        android:layout_marginBottom="35sp"-->
-<!--        android:divider="@android:color/white"-->
-<!--        android:dividerHeight="2dp"-->
-<!--        android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft" />-->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/main_add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:elevation="0dp"
-        app:elevation="0dp"
-        android:layout_gravity="end|bottom"
-        app:srcCompat="@android:drawable/ic_input_add"/>
+<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--        android:id="@+id/main_add"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_margin="20dp"-->
+<!--        android:elevation="0dp"-->
+<!--        app:elevation="0dp"-->
+<!--        android:layout_gravity="end|bottom"-->
+<!--        app:srcCompat="@android:drawable/ic_input_add"/>-->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

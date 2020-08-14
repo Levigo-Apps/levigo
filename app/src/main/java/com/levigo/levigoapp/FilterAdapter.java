@@ -54,7 +54,7 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHold
                 Log.d(TAG, "clicked on: " + mList.get(position));
 
                 if ((sign)) {
-                    holder.plusSign.setImageResource(R.drawable.ic_baseline_remove_24);
+                    holder.plusSign.setImageResource(R.drawable.icon_minimize);
                     sign = false;
                 } else {
                     holder.plusSign.setImageResource(R.drawable.ic_baseline_add);

@@ -29,7 +29,7 @@
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:liftOnScroll="true"
             app:menu="@menu/fragment_topbar"
-            app:navigationIcon="@drawable/ic_baseline_arrow_back"
+            app:navigationIcon="@drawable/icon_back"
             app:title="Offline Mode"
             app:titleTextColor="@android:color/white" />
 
@@ -121,7 +121,7 @@
                     android:layout_height="wrap_content"
                     android:clickable="true"
                     android:hint="@string/number_added_label"
-                    app:endIconDrawable="@drawable/plusone"
+                    app:endIconDrawable="@drawable/icon_add_one"
                     app:endIconMode="custom"
                     app:endIconTint="@color/colorPrimary"
                     android:focusable="true">
