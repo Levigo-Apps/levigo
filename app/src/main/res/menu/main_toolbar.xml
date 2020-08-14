@@ -1,44 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/search"
-        android:icon="@android:drawable/ic_menu_search"
-        app:showAsAction="always|collapseActionView"
-        app:actionViewClass="androidx.appcompat.widget.SearchView"
-        android:title="Search"/>
-    <item
-        android:id="@+id/filter"
-        android:title="filter button"
-        android:icon="@android:drawable/ic_menu_sort_by_size"
-        app:showAsAction="always"/>
+<!--    <item-->
+<!--        android:id="@+id/icon_search"-->
+<!--        android:icon="@android:drawable/ic_menu_search"-->
+<!--        app:showAsAction="always|collapseActionView"-->
+<!--        app:actionViewClass="androidx.appcompat.widget.SearchView"-->
+<!--        android:title="Search"/>-->
+<!--    <item-->
+<!--        android:id="@+id/filter"-->
+<!--        android:title="filter button"-->
+<!--        android:icon="@android:drawable/ic_menu_sort_by_size"-->
+<!--        app:showAsAction="always"/>-->
     <item
         android:id="@+id/manual_entry"
         android:title="Add entry manually"
-        android:icon="@android:drawable/ic_menu_add"
+        android:icon="@drawable/ic_baseline_plus"
+        android:iconTint="@android:color/white"
         app:showAsAction="always"/>
-    <item
-        android:id="@+id/network"
-        android:title="Network View"
-        app:showAsAction="never"/>
+<!--    <item-->
+<!--        android:id="@+id/network"-->
+<!--        android:title="Network View"-->
+<!--        app:showAsAction="never"/>-->
+
+
+
+
+
 
     <item
-        android:id="@+id/logout"
-        android:title="Log out"
-        app:showAsAction="never"/>
-    <item
-        android:id="@+id/settings"
-        android:title="Settings"
+        android:id="@+id/pendingUdiFragment"
+        android:title="Pending equipment"
         app:showAsAction="never"/>
 
+<!--    <item-->
+<!--        android:id="@+id/settings"-->
+<!--        android:title="Settings"-->
+<!--        app:showAsAction="never"/>-->
     <item
         android:id="@+id/offlineFragment"
         android:title="Offline View"
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/pendingUdiFragment"
-        android:title="Pending equipment"
+        android:id="@+id/logout"
+        android:title="Log out"
         app:showAsAction="never"/>
 
 </menu>

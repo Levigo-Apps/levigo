@@ -29,7 +29,7 @@
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:liftOnScroll="true"
             app:menu="@menu/fragment_topbar"
-            app:navigationIcon="@drawable/ic_baseline_arrow_back"
+            app:navigationIcon="@drawable/icon_back"
             app:title="Pending equipment"
             app:titleTextColor="@android:color/white" />
 

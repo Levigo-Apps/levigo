@@ -39,7 +39,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -192,7 +191,7 @@ public class ItemDetailViewFragment extends Fragment {
 
                 }else{
                     itemSpecsLinearLayout.setVisibility(View.VISIBLE);
-                    specificationLayout.setImageResource(R.drawable.ic_remove_minimize);
+                    specificationLayout.setImageResource(R.drawable.icon_minimize);
                     isSpecsMaximized[0] = true;
 
                 }
@@ -355,7 +354,7 @@ public class ItemDetailViewFragment extends Fragment {
         headerKey.setText(key);
         headerKey.setFocusable(false);
         headerKey.setTypeface(headerKey.getTypeface(), Typeface.BOLD);
-        headerKey.setTextSize(16);
+        headerKey.setTextSize(14);
         headerKey.setTextColor(Color.BLACK);
 
 
@@ -368,7 +367,7 @@ public class ItemDetailViewFragment extends Fragment {
         specsValue.setLayoutParams(specValueParams);
         specsValue.setPadding((int) (8 * dp),(int) (8 * dp),(int) (8 * dp),(int) (8 * dp));
         specsValue.setText(value);
-        specsValue.setTextSize(16);
+        specsValue.setTextSize(14);
         specsValue.setTextColor(Color.BLACK);
 
         eachItemSpecsLayout.addView(headerKey);
@@ -526,11 +525,11 @@ public class ItemDetailViewFragment extends Fragment {
 //                                            usageHeader.setEndIconDrawable(R.drawable.ic_baseline_plus);
 
                                         }else{
-                                            usageLayout.setImageResource(R.drawable.ic_remove_minimize);
+                                            usageLayout.setImageResource(R.drawable.icon_minimize);
                                             isItemUsedLinearLayout.setVisibility(View.VISIBLE);
                                             addProcedureInfoFields(procedureDoc,view);
                                             isUsageMaximized[0] = true;
-//                                            usageHeader.setEndIconDrawable(R.drawable.ic_remove_minimize);
+//                                            usageHeader.setEndIconDrawable(R.drawable.icon_minimize);
 
                                         }
                                     }
@@ -613,7 +612,7 @@ public class ItemDetailViewFragment extends Fragment {
 
                     } else {
                         procedureInfoLayout.getChildAt((procedureInfoLayout.indexOfChild(eachProcedureLayout)) + 1).setVisibility(View.VISIBLE);
-                        procedureDateText.setEndIconDrawable(R.drawable.ic_remove_minimize);
+                        procedureDateText.setEndIconDrawable(R.drawable.icon_minimize);
                         procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
                                 getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
                         isMaximized[0] = true;

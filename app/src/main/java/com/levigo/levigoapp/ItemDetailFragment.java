@@ -349,7 +349,7 @@ public class ItemDetailFragment extends Fragment {
         });
 
 
-        // icon listener to search di in database to autopopulate di-specific fields
+        // icon listener to icon_search di in database to autopopulate di-specific fields
         diLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1084,7 +1084,7 @@ public class ItemDetailFragment extends Fragment {
         numberUsedLayout.setClickable(true);
         numberUsedLayout.setFocusable(false);
         numberUsedLayout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
-        numberUsedLayout.setEndIconDrawable(R.drawable.plusone);
+        numberUsedLayout.setEndIconDrawable(R.drawable.icon_add_one);
         numberUsedLayout.setEndIconTintList(ColorStateList.valueOf(getResources().
                 getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
         final TextInputEditText numberUsedEditText = new TextInputEditText(procedureNameLayout.getContext());
