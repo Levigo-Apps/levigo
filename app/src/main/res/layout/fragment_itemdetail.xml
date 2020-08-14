@@ -309,46 +309,6 @@
                         android:layout_height="wrap_content" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <TextView
-                    android:id="@+id/detail_usage_textview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:text="@string/usage_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="20sp" />
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/detail_used_switch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:checked="true"
-                    android:paddingHorizontal="8dp"
-                    android:text="@string/item_used_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp" />
-
-                <LinearLayout
-                    android:id="@+id/layout_itemused"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/button_addpatient"
-                        style="?attr/materialButtonOutlinedStyle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/add_procedure_info_lbl" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/button_removepatient"
-                        style="?attr/materialButtonOutlinedStyle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/remove_procedure_info_lbl" />
-                </LinearLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/numberAddedLayout"

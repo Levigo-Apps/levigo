@@ -71,6 +71,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -129,7 +130,6 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText numberAdded;
     private TextInputEditText medicalSpeciality;
     private TextView specsTextView;
-    private LinearLayout itemUsedFields;
     private LinearLayout linearLayout;
     private TextInputLayout procedureDateLayout;
     private TextInputEditText procedureNameEditText;
@@ -139,10 +139,7 @@ public class ItemDetailFragment extends Fragment {
     private TextInputLayout timeInLayout;
 
     private Button saveButton;
-    private MaterialButton addProcedure;
-    private MaterialButton removeProcedure;
     private MaterialButton removeSizeButton;
-    private SwitchMaterial itemUsed;
     private RadioGroup useRadioGroup;
     private RadioButton singleUseButton;
     private RadioButton multiUse;
@@ -164,6 +161,8 @@ public class ItemDetailFragment extends Fragment {
     private boolean chosenSite;
     private boolean checkEditTexts;
     private boolean checkAutocompleteTexts;
+    private boolean isProcedureInfoReturned;
+    private boolean isUdisReturned;
     private boolean checkItemUsed;
     private boolean checkSingleUseButton;
     private boolean checkMultiUseButton;
@@ -178,6 +177,7 @@ public class ItemDetailFragment extends Fragment {
     private List<Map<String, Object>> procedureMapList;
     private List<TextInputEditText> numberUsedList;
     HashMap<String, Object> procedureInfoHashMap;
+    private List<HashMap<String, Object>>procedureUdisList;
 
     private LinearLayout siteConstrainLayout;
     private LinearLayout physicalLocationConstrainLayout;
@@ -235,11 +235,8 @@ public class ItemDetailFragment extends Fragment {
         TextInputLayout expirationTextLayout = rootView.findViewById(R.id.expiration_date_string);
         dateInLayout = rootView.findViewById(R.id.in_date_layout);
         timeInLayout = rootView.findViewById(R.id.in_time_layout);
-        itemUsed = rootView.findViewById(R.id.detail_used_switch);
         saveButton = rootView.findViewById(R.id.detail_save_button);
         Button rescanButton = rootView.findViewById(R.id.detail_rescan_button);
-        addProcedure = rootView.findViewById(R.id.button_addpatient);
-        removeProcedure = rootView.findViewById(R.id.button_removepatient);
         final Button autoPopulateButton = rootView.findViewById(R.id.detail_autopop_button);
         useRadioGroup = rootView.findViewById(R.id.RadioGroup_id);
         singleUseButton = rootView.findViewById(R.id.RadioButton_single);
@@ -254,10 +251,12 @@ public class ItemDetailFragment extends Fragment {
         typeConstrainLayout = rootView.findViewById(R.id.typeLinearLayout);
         chosenType = false;
         chosenSite = false;
+        isProcedureInfoReturned = false;
         chosenLocation = false;
         checkAutocompleteTexts = false;
         checkEditTexts = false;
         checkItemUsed = false;
+        isUdisReturned = false;
         checkSingleUseButton = false;
         checkMultiUseButton = false;
         isAddSizeButtonClicked = true;
@@ -265,10 +264,7 @@ public class ItemDetailFragment extends Fragment {
         checkProcedureFields = false;
         accessionNumberGenerated = false;
         editingExisting =false;
-        itemUsed.setChecked(false);
         addSizeButton = rootView.findViewById(R.id.button_addsize);
-        itemUsedFields = rootView.findViewById(R.id.layout_itemused);
-        itemUsedFields.setVisibility(View.GONE);
         specsTextView = rootView.findViewById(R.id.detail_specs_textview);
         allSizeOptions = new ArrayList<>();
         TYPES = new ArrayList<>();
@@ -420,68 +416,6 @@ public class ItemDetailFragment extends Fragment {
         });
 
 
-        addProcedure.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (checkProcedureFields) {
-                    removeProcedure.setEnabled(true);
-                    checkProcedureFields = false;
-                    addProcedureField(view);
-                } else {
-                    Toast.makeText(rootView.getContext(), "Please fill out added procedue " +
-                            "information fields before adding a new one", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-
-        // when clicked remove one added field "Patient ID"
-        removeProcedure.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (procedureFieldAdded - procedureListCounter > 0) {
-                    if (checkProcedureFields) {
-                        procedureMapList.remove(procedureMapList.size() - 1);
-                        System.out.println(procedureMapList);
-                    }
-                    if (accessionNumberGenerated) {
-                        removeAccessionNumber(itemUsedFields);
-                    }
-                    itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addProcedure) - 1);
-                    numberUsedList.remove(numberUsedList.size() - 1);
-                    --procedureFieldAdded;
-                }
-                if (procedureFieldAdded - procedureListCounter == 0) {
-                    removeProcedure.setEnabled(false);
-                    itemUsed.setChecked(false);
-                }
-                checkProcedureFields = true;
-            }
-        });
-
-        itemUsed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    checkItemUsed = true;
-                    itemUsedFields.setVisibility(View.VISIBLE);
-                    addProcedureField(rootView);
-                    removeProcedure.setEnabled(true);
-                    numberAdded.setText("0");
-                    numberAddedLayout.setVisibility(View.GONE);
-
-                } else {
-                    // enable saveButton
-                    checkItemUsed = false;
-                    numberAddedLayout.setVisibility(View.VISIBLE);
-                    itemUsedFields.setVisibility(View.GONE);
-                    while (procedureFieldAdded - procedureListCounter > 0) {
-                        itemUsedFields.removeViewAt(itemUsedFields.indexOfChild(addProcedure) - 1);
-                        --procedureFieldAdded;
-                    }
-                }
-            }
-        });
 
 
         // date picker for expiration date if entered manually
@@ -534,13 +468,6 @@ public class ItemDetailFragment extends Fragment {
             public void onClick(View v) {
                 //hardcoded
                 if ((checkAutocompleteTexts && checkEditTexts)) {
-                    if (checkItemUsed) {
-                        if (!checkProcedureFields) {
-                            Toast.makeText(rootView.getContext(), "Please enter procedure information", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                    }
                     saveData(rootView, "networks", mNetworkId, "hospitals",
                             mHospitalId, "departments",
                             "default_department", "dis");
@@ -555,7 +482,13 @@ public class ItemDetailFragment extends Fragment {
         if (getArguments() != null) {
             String barcode = getArguments().getString("barcode");
             procedureInfoHashMap = (HashMap<String, Object>) getArguments().getSerializable("procedure_info");
-            System.out.println(procedureInfoHashMap);
+            procedureUdisList = (List<HashMap<String, Object>>) getArguments().getSerializable("udi_quantity");
+            if(procedureInfoHashMap != null){
+                isProcedureInfoReturned = true;
+            }
+            if(procedureUdisList != null && procedureUdisList.size() > 0){
+                isUdisReturned = true;
+            }
             udiEditText.setText(barcode);
             autoPopulate(rootView);
 
@@ -903,293 +836,7 @@ public class ItemDetailFragment extends Fragment {
 
     }
 
-    // when clicked adds one more additional field for Patient ID
-    private void addProcedureField(View view) {
-        checkProcedureFields = false;
-        accessionNumberGenerated = false;
-        final boolean[] procedureInfoAdded = {false};
-        final SimpleDateFormat format = new SimpleDateFormat("HH:mm", Locale.US);
-        final Map<String, Object> procedureInfoMap = new HashMap<>();
-        procedureFieldAdded++;
 
-        LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
-        procedureInfoLayout.setTag("procedure_info");
-        procedureInfoLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        procedureInfoLayout.setOrientation(LinearLayout.VERTICAL);
-        procedureInfoLayout.setGravity(Gravity.END);
-
-        final TextView procedureNumber = new TextView(view.getContext());
-        procedureNumber.setPadding(0, 10, 0, 0);
-        procedureNumber.setTextSize(18);
-        procedureNumber.setTypeface(procedureNumber.getTypeface(), Typeface.BOLD);
-        SpannableString content = new SpannableString(String.format(Locale.US, "Procedure #%d Description",
-                procedureFieldAdded));
-        content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
-        procedureNumber.setText(content);
-
-        procedureDateLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureDateLayout.setHint("Enter procedure date");
-        procedureDateLayout.setEndIconTintList(ColorStateList.valueOf(getResources().
-                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
-        procedureDateLayout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
-        procedureDateLayout.setEndIconDrawable(R.drawable.calendar);
-        procedureDateLayout.setPadding(0, 10, 0, 0);
-        final TextInputEditText procedureDateEditText = new TextInputEditText(procedureDateLayout.getContext());
-        setIconsAndDialogs(procedureDateEditText);
-        procedureDateEditText.setFocusable(false);
-        procedureDateEditText.setClickable(true);
-        procedureDateEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-
-
-        TextInputLayout procedureTimeInLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureTimeInLayout.setHint("Enter time in");
-        procedureTimeInLayout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
-        procedureTimeInLayout.setEndIconDrawable(R.drawable.clock);
-        procedureTimeInLayout.setEndIconTintList(ColorStateList.valueOf(getResources().
-                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
-        procedureTimeInLayout.setPadding(0, 10, 0, 0);
-        final TextInputEditText procedureTimeInEditText = new TextInputEditText(procedureTimeInLayout.getContext());
-        procedureTimeInEditText.setFocusable(false);
-        procedureTimeInEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-        procedureTimeInLayout.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Calendar mcurrentTime = Calendar.getInstance();
-                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-                final int minute = mcurrentTime.get(Calendar.MINUTE);
-                TimePickerDialog mTimePicker;
-                mTimePicker = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                        procedureTimeInEditText.setText(String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute));
-                        isTimeinSelected = true;
-
-                        try {
-                            Date timeIn = format.parse(selectedHour + ":" + selectedMinute);
-                            millsIn = Objects.requireNonNull(timeIn).getTime();
-
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                }, hour, minute, true);
-                mTimePicker.setTitle("Select Time");
-                mTimePicker.show();
-
-
-            }
-        });
-        procedureTimeInLayout.addView(procedureTimeInEditText);
-
-        TextInputLayout procedureRoomTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureRoomTimeLayout.setHint("Room time");
-        procedureRoomTimeLayout.setPadding(0, 10, 0, 0);
-        final TextInputEditText procedureRoomTimeEditText = new TextInputEditText(procedureRoomTimeLayout.getContext());
-        procedureRoomTimeEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-        procedureRoomTimeEditText.setFocusable(false);
-        procedureRoomTimeLayout.addView(procedureRoomTimeEditText);
-
-        TextInputLayout procedureFluoroTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureFluoroTimeLayout.setHint("Fluoro time");
-        procedureFluoroTimeLayout.setPadding(0, 10, 0, 0);
-        final TextInputEditText procedureFluoroTimeEditText = new TextInputEditText(procedureFluoroTimeLayout.getContext());
-        procedureFluoroTimeEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-        procedureFluoroTimeEditText.setFocusable(true);
-        procedureFluoroTimeLayout.addView(procedureFluoroTimeEditText);
-
-
-        TextInputLayout procedureTimeOutLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureTimeOutLayout.setHint("Enter time out");
-        procedureTimeOutLayout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
-        procedureTimeOutLayout.setEndIconDrawable(R.drawable.clock);
-        procedureTimeOutLayout.setEndIconTintList(ColorStateList.valueOf(getResources().
-                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
-        procedureTimeOutLayout.setPadding(0, 10, 0, 0);
-        final TextInputEditText procedureTimeOutEditText = new TextInputEditText(procedureTimeOutLayout.getContext());
-        procedureTimeOutEditText.setFocusable(false);
-        procedureTimeOutEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-        procedureTimeOutLayout.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (isTimeinSelected) {
-                    Calendar mcurrentTime = Calendar.getInstance();
-                    int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-                    int minute = mcurrentTime.get(Calendar.MINUTE);
-                    TimePickerDialog mTimePicker;
-                    mTimePicker = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
-                        @Override
-                        public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                            procedureTimeOutEditText.setText(String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute));
-
-                            try {
-                                Date timeOut = format.parse(selectedHour + ":" + selectedMinute);
-                                long millsOut = Objects.requireNonNull(timeOut).getTime();
-                                long millsDif = millsOut - millsIn;
-                                int hours = (int) millsDif / (1000 * 60 * 60);
-                                if (hours < 0) {
-                                    hours = hours + 24;
-                                }
-                                int mins = (int) (millsDif / (1000 * 60)) % 60;
-                                String totalTime = (hours * 60 + mins) + " minutes";
-                                procedureRoomTimeEditText.setText(totalTime);
-
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-                    }, hour, minute, true);
-                    mTimePicker.setTitle("Select Time");
-                    mTimePicker.show();
-
-                } else {
-                    Toast.makeText(view.getContext(), "Please select time in first, please", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-
-        procedureTimeOutLayout.addView(procedureTimeOutEditText);
-
-
-        TextInputLayout procedureNameLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureNameLayout.setHint("Enter procedure name");
-        procedureNameLayout.setPadding(0, 10, 0, 0);
-        procedureNameEditText = new TextInputEditText(procedureNameLayout.getContext());
-        procedureNameEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-
-
-        final TextInputLayout accessionNumberLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-
-        accessionNumberLayout.setPadding(0, 10, 0, 10);
-        accessionNumberEditText = new TextInputEditText(procedureNameLayout.getContext());
-        accessionNumberEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-        accessionNumberEditText.setClickable(true);
-        accessionNumberEditText.setFocusable(false);
-        accessionNumberEditText.setHint("Tap here to generate accession number");
-        accessionNumberLayout.setTag("accession");
-        accessionNumberEditText.setTag("accession_text");
-        accessionNumberEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                accessionNumberGenerated = true;
-                generateNewNumber(view, accessionNumberEditText);
-                accessionNumberLayout.setHint("Accession number");
-                accessionNumberEditText.setHint("");
-            }
-        });
-
-
-        TextInputLayout numberUsedLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        numberUsedLayout.setHint("Enter number of items used");
-        numberUsedLayout.setPadding(0, 10, 0, 10);
-        numberUsedLayout.setClickable(true);
-        numberUsedLayout.setFocusable(false);
-        numberUsedLayout.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
-        numberUsedLayout.setEndIconDrawable(R.drawable.icon_add_one);
-        numberUsedLayout.setEndIconTintList(ColorStateList.valueOf(getResources().
-                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
-        final TextInputEditText numberUsedEditText = new TextInputEditText(procedureNameLayout.getContext());
-        numberUsedEditText.setId(View.generateViewId());
-        numberUsedList.add(numberUsedEditText);
-        // incrementing number by 1 when clicked on the end icon
-        numberUsedLayout.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                incrementNumberUsed(numberUsedEditText);
-            }
-        });
-        numberUsedEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showNumberPicker(view, numberUsedEditText);
-            }
-        });
-        numberUsedEditText.setClickable(true);
-        numberUsedEditText.setFocusable(false);
-        numberUsedEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-
-
-        TextWatcher newProcedureTextWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                // saving string to HashMap to save it to database
-
-                procedureInfoMap.put(PROCEDURE_KEY,
-                        Objects.requireNonNull(procedureNameEditText.getText()).toString());
-                procedureInfoMap.put(PROCEDUREDATE_KEY,
-                        Objects.requireNonNull(procedureDateEditText.getText()).toString());
-                procedureInfoMap.put(AMOUNTUSED_KEY,
-                        Objects.requireNonNull(numberUsedEditText.getText()).toString());
-                procedureInfoMap.put(ACCESSION_KEY,
-                        Objects.requireNonNull(accessionNumberEditText.getText()).toString());
-                procedureInfoMap.put(TIMEIN_KEY,
-                        Objects.requireNonNull(procedureTimeInEditText.getText()).toString());
-                procedureInfoMap.put(TIMEOUT_KEY,
-                        Objects.requireNonNull(procedureTimeOutEditText.getText()).toString());
-                procedureInfoMap.put("room_time",
-                        Objects.requireNonNull(procedureRoomTimeEditText.getText()).toString());
-                procedureInfoMap.put("fluoro_time",
-                        Objects.requireNonNull(procedureFluoroTimeEditText.getText()).toString());
-
-                checkProcedureFields = validateFields(new TextInputEditText[]{procedureDateEditText, procedureNameEditText,
-                        accessionNumberEditText, numberUsedEditText,
-                        procedureTimeInEditText, procedureTimeOutEditText, procedureRoomTimeEditText,procedureFluoroTimeEditText});
-                if (checkProcedureFields && (!(procedureInfoAdded[0]))) {
-                    procedureMapList.add(procedureInfoMap);
-                    procedureInfoAdded[0] = true;
-                    System.out.println("added " + procedureMapList);
-                }
-                if (checkProcedureFields && procedureInfoAdded[0]) {
-                    procedureMapList.get(procedureMapList.size() - 1).put(AMOUNTUSED_KEY, numberUsedEditText.getText().toString());
-                    System.out.println("changed " + procedureMapList);
-                }
-            }
-        };
-
-        procedureNameEditText.addTextChangedListener(newProcedureTextWatcher);
-        procedureDateEditText.addTextChangedListener(newProcedureTextWatcher);
-        numberUsedEditText.addTextChangedListener(newProcedureTextWatcher);
-        accessionNumberEditText.addTextChangedListener(newProcedureTextWatcher);
-        procedureTimeInEditText.addTextChangedListener(newProcedureTextWatcher);
-        procedureRoomTimeEditText.addTextChangedListener(newProcedureTextWatcher);
-        procedureFluoroTimeEditText.addTextChangedListener(newProcedureTextWatcher);
-        procedureTimeInEditText.addTextChangedListener(newProcedureTextWatcher);
-        procedureTimeOutEditText.addTextChangedListener(newProcedureTextWatcher);
-
-
-        procedureNameLayout.addView(procedureNameEditText);
-        procedureDateLayout.addView(procedureDateEditText);
-        numberUsedLayout.addView(numberUsedEditText);
-        accessionNumberLayout.addView(accessionNumberEditText);
-        procedureInfoLayout.addView(procedureNumber, 0);
-        procedureInfoLayout.addView(procedureDateLayout, 1);
-        procedureInfoLayout.addView(procedureNameLayout, 2);
-        procedureInfoLayout.addView(procedureTimeInLayout, 3);
-        procedureInfoLayout.addView(procedureTimeOutLayout, 4);
-        procedureInfoLayout.addView(procedureRoomTimeLayout, 5);
-        procedureInfoLayout.addView(procedureFluoroTimeLayout, 6);
-        procedureInfoLayout.addView(accessionNumberLayout, 7);
-        procedureInfoLayout.addView(numberUsedLayout, 8);
-        itemUsedFields.addView(procedureInfoLayout, itemUsedFields.indexOfChild(addProcedure));
-    }
 
     private boolean validateFields(TextInputEditText[] fields) {
         for (TextInputEditText currentField : fields) {
@@ -1200,95 +847,6 @@ public class ItemDetailFragment extends Fragment {
         return true;
     }
 
-    //checks whether or not the accession number is unique
-    private void checkAccessionNumber(final View view, final String accessionNum, final TextInputEditText accessionNumberEditText) {
-        final DocumentReference docRef = accessionNumberRef.document(accessionNum);
-        System.out.println(docRef);
-
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        generateNewNumber(view, accessionNumberEditText);
-                    } else {
-                        setAccessionNumber(accessionNumberEditText, accessionNum);
-                    }
-                } else {
-                    Log.d(TAG, "Failed with: ", task.getException());
-                }
-            }
-        });
-    }
-
-    // generates new number
-    public void generateNewNumber(View view, TextInputEditText accessionNumberEditText) {
-        Random rand = new Random();
-        String randomAccessionNum = null;
-        String randomAccession = String.valueOf(1 + rand.nextInt(999999));
-        if (randomAccession.length() == 1) {
-            randomAccessionNum = "TZ00000" + randomAccession;
-        }
-        if (randomAccession.length() == 2) {
-            randomAccessionNum = "TZ0000" + randomAccession;
-        }
-        if (randomAccession.length() == 3) {
-            randomAccessionNum = "TZ000" + randomAccession;
-        }
-        if (randomAccession.length() == 4) {
-            randomAccessionNum = "TZ00" + randomAccession;
-        }
-        if (randomAccession.length() == 5) {
-            randomAccessionNum = "TZ0" + randomAccession;
-        }
-        if (randomAccession.length() == 6) {
-            randomAccessionNum = "TZ" + randomAccession;
-        }
-        checkAccessionNumber(view, randomAccessionNum, accessionNumberEditText);
-    }
-
-    //sets accession number and save it to the database
-    public void setAccessionNumber(TextInputEditText accessionNumberEditText, String accessionNumber) {
-        accessionNumberEditText.setText((accessionNumber));
-        Map<String, Object> data = new HashMap<>();
-        data.put("accession_number", accessionNumber);
-        accessionNumberRef.document(accessionNumber)
-                .set(data)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing document", e);
-                    }
-                });
-    }
-
-    // removes the accession number from the database if users clicks cancel removes
-    private void removeAccessionNumber(LinearLayout itemUsedFields) {
-        LinearLayout procedureInfo = (LinearLayout) itemUsedFields.getChildAt((itemUsedFields.indexOfChild(addProcedure)) - 1);
-        TextInputLayout accessionNumLayout = procedureInfo.findViewWithTag("accession");
-        TextInputEditText accessionNumEditText = accessionNumLayout.findViewWithTag("accession_text");
-        accessionNumberRef.document(String.valueOf(accessionNumEditText.getText()))
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error deleting document", e);
-                    }
-                });
-    }
 
     // adds new row of size text views if users clicks on a button
     int rowIndex = 1;
@@ -1685,57 +1243,16 @@ public class ItemDetailFragment extends Fragment {
         String referenceNumber_str = Objects.requireNonNull(referenceNumber.getText()).toString();
         String expiration_str = Objects.requireNonNull(expiration.getText()).toString();
         String currentDate_str = Objects.requireNonNull(dateIn.getText()).toString();
-        int quantity_int;
-        String number_added_str = "0";
-        int totalUsed = 0;
 
-        if (itemUsed.isChecked()) {
+        String numberAddedStr = Objects.requireNonNull(numberAdded.getText()).toString();
+        int newTotalQuantity = Integer.parseInt(itemQuantity) +
+                Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
 
-            for (int i = 0; i < numberUsedList.size(); i++) {
-                totalUsed += Integer.parseInt(Objects.requireNonNull(numberUsedList.get(i).getText()).toString());
-            }
-
-            quantity_int = Integer.parseInt(itemQuantity) - totalUsed;
-            diQuantity = String.valueOf(Integer.parseInt(diQuantity) - totalUsed);
-
-            //Create notification if value of diQuantity is below a certain number
-            int diQuantity_int = Integer.parseInt(diQuantity);
-
-            if (diQuantity_int <= 8) {
-                String messageHeader = name_str + " are running low.";
-                String messageBody = "There are " + diQuantity + " " + name_str + " remaining.";
-
-                HashMap<String, Object> notificationMessage = new HashMap<>();
-                notificationMessage.put("header", messageHeader);
-                notificationMessage.put("body", messageBody);
-                notificationMessage.put("hospital_id", mHospitalId);
-
-                CollectionReference notifRef = db.collection("networks").document(mNetworkId)
-                        .collection("hospitals").document(mHospitalId).collection("notifications");
-
-                notifRef.add(notificationMessage).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Toast.makeText(getActivity(), "Notification Added", Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+        diQuantity = String.valueOf(Integer.parseInt(diQuantity) +
+                Integer.parseInt(numberAdded.getText().toString()));
 
 
-            }
-
-        } else {
-            number_added_str = Objects.requireNonNull(numberAdded.getText()).toString();
-            quantity_int = Integer.parseInt(itemQuantity) +
-                    Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
-            diQuantity = String.valueOf(Integer.parseInt(diQuantity) +
-                    Integer.parseInt(numberAdded.getText().toString()));
-        }
-        String quantity_str = String.valueOf(quantity_int);
+        String quantityStr = String.valueOf(newTotalQuantity);
         String site_name_str;
         if (chosenSite) {
             site_name_str = Objects.requireNonNull(otherSite_text.getText()).toString();
@@ -1796,8 +1313,8 @@ public class ItemDetailFragment extends Fragment {
                 });
 
         // saving udi-specific identifiers using InventoryTemplate class to store multiple items at once
-        udiDocument = new InventoryTemplate(barcode_str, number_added_str, lotNumber_str,
-                expiration_str, quantity_str, currentTime_str, physical_location_str, referenceNumber_str,
+        udiDocument = new InventoryTemplate(barcode_str, numberAddedStr, lotNumber_str,
+                expiration_str, quantityStr, currentTime_str, physical_location_str, referenceNumber_str,
                 notes_str, currentDate_str);
 
         DocumentReference udiRef = db.collection(NETWORKS).document(NETWORK)
@@ -1811,6 +1328,26 @@ public class ItemDetailFragment extends Fragment {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        if(isProcedureInfoReturned) {
+                            AddEquipmentFragment fragment = new AddEquipmentFragment();
+                            Bundle bundle = new Bundle();
+                            bundle.putBoolean("added", true);
+                            bundle.putString("barcode", barcode_str);
+                            bundle.putSerializable("procedure_info", procedureInfoHashMap);
+                            if(isUdisReturned){
+                                bundle.putSerializable("procedure_udi", (Serializable) procedureUdisList);
+                            }
+                            fragment.setArguments(bundle);
+                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+
+                            //clears other fragments
+                            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                            fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+                            fragmentTransaction.add(R.id.activity_main, fragment);
+                            fragmentTransaction.addToBackStack(null);
+                            fragmentTransaction.commit();
+                        }
                         successful_save();
 //                        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
                     }
@@ -1827,46 +1364,6 @@ public class ItemDetailFragment extends Fragment {
         Map<String, Object> procedureQuantity = new HashMap<>();
         procedureQuantity.put("procedure_number", String.valueOf(procedureFieldAdded));
 
-        if (itemUsed.isChecked()) {
-            System.out.println("checkItemUsedTrue");
-            for (int i = 0; i < procedureMapList.size(); i++) {
-                DocumentReference procedureDocRef = db.collection(NETWORKS).document(NETWORK)
-                        .collection(SITES).document(SITE).collection(DEPARTMENTS)
-                        .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str)
-                        .collection("udis").document(barcode_str).collection("procedures")
-                        .document("procedure_" + (procedureListCounter + 1));
-                procedureListCounter++;
-                procedureDocRef.set(procedureMapList.get(i))
-                        //in case of success
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                successful_save();
-                            }
-                        })
-                        // in case of failure
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
-                                Log.d(TAG, e.toString());
-                            }
-                        });
-            }
-            udiRef.update(procedureQuantity)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, e.toString());
-                        }
-                    });
-         //   procedureQuantity.clear();
-        }
         if (allSizeOptions.size() > 0) {
             int i = 0;
             Map<String, Object> sizeOptions = new HashMap<>();
@@ -1878,22 +1375,6 @@ public class ItemDetailFragment extends Fragment {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-
-                            AddEquipmentFragment fragment = new AddEquipmentFragment();
-                            Bundle bundle = new Bundle();
-                            bundle.putBoolean("added", true);
-                            bundle.putString("barcode",barcode_str);
-                            bundle.putSerializable("procedure_info",procedureInfoHashMap);
-                            fragment.setArguments(bundle);
-                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-
-                            //clears other fragments
-                            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                            fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
-                            fragmentTransaction.add(R.id.activity_main, fragment);
-                            fragmentTransaction.addToBackStack(null);
-                            fragmentTransaction.commit();
 
                         }
                     })
