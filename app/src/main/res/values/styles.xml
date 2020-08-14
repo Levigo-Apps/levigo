@@ -31,6 +31,7 @@
         <item name="android:textColor">#ff0033</item>
         <item name="android:textSize">12sp</item>
     </style>
+
 </resources>
 
 

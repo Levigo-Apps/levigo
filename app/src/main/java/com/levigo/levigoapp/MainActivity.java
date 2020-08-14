@@ -487,6 +487,7 @@ public class MainActivity extends AppCompatActivity {
         ItemDetailOfflineFragment fragment = new ItemDetailOfflineFragment();
         Bundle bundle = new Bundle();
         bundle.putString("barcode", barcode);
+        bundle.putBoolean("editingExisting", false);
         fragment.setArguments(bundle);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -520,6 +521,23 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
 
     }
+
+    public void startProcedureInfo(String barcode){
+        ProcedureInfoFragment fragment = new ProcedureInfoFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("barcode", barcode);
+        fragment.setArguments(bundle);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        //clears other fragments
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+        fragmentTransaction.add(R.id.activity_main, fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
 
 
     @Override
@@ -572,19 +590,11 @@ public class MainActivity extends AppCompatActivity {
             case R.id.pendingUdiFragment:
                 startPendingEquipment("");
                 return true;
-//            case R.id.settings:
-//                //TODO next step
-////                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
-//                return true;
 
-//            case R.id.filter:
-//                Log.d(TAG, "reached case filter");
-//                Intent intent_filter = new Intent(getApplicationContext(), FilterActivity.class);
-//                HashMap<String, Object> entries2 = (HashMap)entries;
-//                intent_filter.putExtra("map", entries2);
-//                startActivity(intent_filter);
-//                finish();
-//                return true;
+            case R.id.procedureInfo:
+                startProcedureInfo("");
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

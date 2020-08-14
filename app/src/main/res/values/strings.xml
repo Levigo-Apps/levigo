@@ -128,5 +128,15 @@
     <string name="channel_name">levigo</string>
     <string name="channel_description">levigo</string>
     <string name="msg_token_fmt">\"%s\"</string>
+    <string name="increment_button_description">increment button</string>
+    <string name="udi_label">UDI</string>
+    <string name="tap_to_generate_a_new_accession_number_label">Tap to generate a new accession number</string>
+    <string name="fluoro_time_label">Fluoro time</string>
+    <string name="room_time_out_label">Room time out</string>
+    <string name="room_time_in_label">Room time in</string>
+    <string name="procedure_name_label">Procedure name</string>
+    <string name="procedure_date_lbl">Procedure date</string>
+    <string name="cancel_label">Cancel</string>
+    <string name="next_label">Next</string>
 
 </resources>

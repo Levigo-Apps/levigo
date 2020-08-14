@@ -204,6 +204,7 @@ public class ItemDetailViewFragment extends Fragment {
             ItemDetailFragment fragment = new ItemDetailFragment();
             Bundle bundle = new Bundle();
             bundle.putString("barcode", Objects.requireNonNull(udi.getText()).toString());
+            bundle.putBoolean("editingExisting", true);
             fragment.setArguments(bundle);
 
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
@@ -461,8 +462,8 @@ public class ItemDetailViewFragment extends Fragment {
                             physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
                         }if(document.get("current_date") != null){
                             currentDate = document.getString("current_date");
-                        }if(document.get("current_date_time") != null){
-                            currentTime = document.getString("current_date_time");
+                        }if(document.get("current_time") != null){
+                            currentTime = document.getString("current_time");
                             lastUpdate.setText(String.format("%s\n%s", currentDate, currentTime));
                         }
                         if(document.get("notes") != null){
@@ -554,6 +555,7 @@ public class ItemDetailViewFragment extends Fragment {
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         procedureInfoLayout.setOrientation(LinearLayout.VERTICAL);
 
+
         for(i = 0; i < procedureDoc.size(); i++) {
 
             final LinearLayout eachProcedureLayout = new LinearLayout(view.getContext());
@@ -569,6 +571,7 @@ public class ItemDetailViewFragment extends Fragment {
             procedureHeaderParams.weight = (float) 1.0;
             procedureDateHeader.setLayoutParams(procedureHeaderParams);
             TextInputEditText dateKey = new TextInputEditText(procedureDateHeader.getContext());
+            dateKey.setBackgroundColor(Color.WHITE);
             dateKey.setText(R.string.procedureDate_lbl);
             dateKey.setTypeface(dateKey.getTypeface(), Typeface.BOLD);
             dateKey.setFocusable(false);
@@ -584,6 +587,7 @@ public class ItemDetailViewFragment extends Fragment {
 
             TextInputEditText dateText = new TextInputEditText(procedureDateText.getContext());
             Object dateObject = procedureDoc.get(i).get("procedure_date");
+            dateText.setBackgroundColor(Color.WHITE);
             dateText.setText(dateObject.toString());
             dateText.setFocusable(false);
             procedureDateText.addView(dateText);
@@ -627,7 +631,6 @@ public class ItemDetailViewFragment extends Fragment {
 
     private void addProcedureSubFields(LinearLayout procedureInfoLayout, View view,
                                        List<Map> procedureDoc, int item, LinearLayout procedureInfo){
-        System.out.println(procedureDoc);
         LinearLayout subFieldsLayout = new LinearLayout(view.getContext());
         subFieldsLayout.setOrientation(LinearLayout.VERTICAL);
 
@@ -644,6 +647,7 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureNameHeaderLayout.setLayoutParams(procedureNameHeaderParams);
         TextInputEditText procedureNameHeaderEditText = new TextInputEditText(procedureNameHeaderLayout.getContext());
+        procedureNameHeaderEditText.setBackgroundColor(Color.WHITE);
         procedureNameHeaderEditText.setText(R.string.procedureName_lbl);
         procedureNameHeaderEditText.setTypeface(procedureNameHeaderEditText.getTypeface(), Typeface.BOLD);
         procedureNameHeaderLayout.addView(procedureNameHeaderEditText);
@@ -660,6 +664,7 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureNameLayout.setLayoutParams(procedureNameParams);
         TextInputEditText procedureNameEditText = new TextInputEditText(procedureNameLayout.getContext());
+        procedureNameEditText.setBackgroundColor(Color.WHITE);
         procedureNameEditText.setText(Objects.requireNonNull(procedureDoc.get(item).get("procedure_used")).toString());
         procedureNameLayout.addView(procedureNameEditText);
         procedureNameEditText.setFocusable(false);
@@ -681,6 +686,7 @@ public class ItemDetailViewFragment extends Fragment {
         procedureTimeHeaderLayout.setLayoutParams(procedureTimeInHeaderParams);
         TextInputEditText procedureTimeHeaderEditText = new TextInputEditText(procedureTimeHeaderLayout.getContext());
         procedureTimeHeaderEditText.setText(R.string.procedureTimeIn_label);
+        procedureTimeHeaderEditText.setBackgroundColor(Color.WHITE);
         procedureTimeHeaderEditText.setTypeface(procedureTimeHeaderEditText.getTypeface(), Typeface.BOLD);
         procedureTimeHeaderLayout.addView(procedureTimeHeaderEditText);
         procedureTimeHeaderEditText.setFocusable(false);
@@ -696,7 +702,9 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureTimeInLayout.setLayoutParams(procedureTimeParams);
         TextInputEditText procedureTimeEditText = new TextInputEditText(procedureTimeInLayout.getContext());
+        procedureTimeEditText.setBackgroundColor(Color.WHITE);
         procedureTimeEditText.setText(Objects.requireNonNull(procedureDoc.get(item).get("time_in")).toString());
+
         procedureTimeInLayout.addView(procedureTimeEditText);
         procedureTimeEditText.setFocusable(false);
         procedureTimeIn.addView(procedureTimeHeaderLayout);
@@ -717,6 +725,7 @@ public class ItemDetailViewFragment extends Fragment {
         procedureTimeOutHeaderLayout.setLayoutParams(procedureTimeOutHeaderParams);
         TextInputEditText procedureTimeOutHeaderEditText = new TextInputEditText(procedureTimeOutHeaderLayout.getContext());
         procedureTimeOutHeaderEditText.setText(R.string.procedureTimeOut_label);
+        procedureTimeOutHeaderEditText.setBackgroundColor(Color.WHITE);
         procedureTimeOutHeaderEditText.setTypeface(procedureTimeOutHeaderEditText.getTypeface(), Typeface.BOLD);
         procedureTimeOutHeaderEditText.setFocusable(false);
         procedureTimeOutHeaderLayout.addView(procedureTimeOutHeaderEditText);
@@ -732,49 +741,91 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureTimeOutLayout.setLayoutParams(procedureTimeParams);
         TextInputEditText procedureTimeOutEditText = new TextInputEditText(procedureTimeOutLayout.getContext());
+        procedureTimeOutEditText.setBackgroundColor(Color.WHITE);
         procedureTimeOutEditText.setText(Objects.requireNonNull(procedureDoc.get(item).get("time_out")).toString());
         procedureTimeOutEditText.setFocusable(false);
         procedureTimeOutLayout.addView(procedureTimeOutEditText);
         procedureTimeOut.addView(procedureTimeOutHeaderLayout);
         procedureTimeOut.addView(procedureTimeOutLayout);
 
-
-
-        GridLayout procedureFloorTime = new GridLayout(view.getContext());
-        procedureFloorTime.setColumnCount(2);
-        procedureFloorTime.setRowCount(1);
-        GridLayout.LayoutParams procedureFloorTimeHeaderParams = new GridLayout.LayoutParams();
-        procedureFloorTimeHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureFloorTimeHeaderParams.width = linearLayout.getWidth()/2;
-        procedureFloorTimeHeaderParams.rowSpec = GridLayout.spec(0);
-        procedureFloorTimeHeaderParams.columnSpec = GridLayout.spec(0);
-        procedureFloorTimeHeaderParams.setMargins(0, 0, 0, 5);
-        TextInputLayout procedureFloorTimeHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
+        GridLayout procedureFluoroTime = new GridLayout(view.getContext());
+        procedureFluoroTime.setColumnCount(2);
+        procedureFluoroTime.setRowCount(1);
+        GridLayout.LayoutParams procedureFluoroTimeHeaderParams = new GridLayout.LayoutParams();
+        procedureFluoroTimeHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureFluoroTimeHeaderParams.width = linearLayout.getWidth()/2;
+        procedureFluoroTimeHeaderParams.rowSpec = GridLayout.spec(0);
+        procedureFluoroTimeHeaderParams.columnSpec = GridLayout.spec(0);
+        procedureFluoroTimeHeaderParams.setMargins(0, 0, 0, 5);
+        TextInputLayout procedureFluoroTimeHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
-        procedureFloorTimeHeaderLayout.setLayoutParams(procedureFloorTimeHeaderParams);
-        TextInputEditText procedureFloorTimeHeaderEditText = new TextInputEditText(procedureFloorTimeHeaderLayout.getContext());
-        procedureFloorTimeHeaderEditText.setText(R.string.fluoroTime_label);
-        procedureFloorTimeHeaderEditText.setTypeface(procedureFloorTimeHeaderEditText.getTypeface(), Typeface.BOLD);
-        procedureFloorTimeHeaderEditText.setFocusable(false);
-        procedureFloorTimeHeaderLayout.addView(procedureFloorTimeHeaderEditText);
+        procedureFluoroTimeHeaderLayout.setLayoutParams(procedureFluoroTimeHeaderParams);
+        TextInputEditText procedureFluoroTimeHeaderEditText = new TextInputEditText(procedureFluoroTimeHeaderLayout.getContext());
+        procedureFluoroTimeHeaderEditText.setText("Fluoro time");
+        procedureFluoroTimeHeaderEditText.setBackgroundColor(Color.WHITE);
+        procedureFluoroTimeHeaderEditText.setTypeface(procedureFluoroTimeHeaderEditText.getTypeface(), Typeface.BOLD);
+        procedureFluoroTimeHeaderEditText.setFocusable(false);
+        procedureFluoroTimeHeaderLayout.addView(procedureFluoroTimeHeaderEditText);
 
 
-        GridLayout.LayoutParams procedureFloorTimeParams = new GridLayout.LayoutParams();
-        procedureFloorTimeParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureFloorTimeParams.width = linearLayout.getWidth()/2;
-        procedureFloorTimeParams.rowSpec = GridLayout.spec(0);
-        procedureFloorTimeParams.columnSpec = GridLayout.spec(1);
-        procedureFloorTimeParams.setMargins(0, 0, 0, 5);
-
-        TextInputLayout procedureFloorTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
+        GridLayout.LayoutParams procedureFluoroTimeParams = new GridLayout.LayoutParams();
+        procedureFluoroTimeParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureFluoroTimeParams.width = linearLayout.getWidth()/2;
+        procedureFluoroTimeParams.rowSpec = GridLayout.spec(0);
+        procedureFluoroTimeParams.columnSpec = GridLayout.spec(1);
+        procedureFluoroTimeParams.setMargins(0, 0, 0, 5);
+        TextInputLayout procedureFluoroTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
-        procedureFloorTimeLayout.setLayoutParams(procedureFloorTimeParams);
-        TextInputEditText procedureFloorTimeEditText = new TextInputEditText(procedureFloorTimeLayout.getContext());
-        procedureFloorTimeEditText.setText(Objects.requireNonNull(procedureDoc.get(item).get("fluoro_time")).toString());
-        procedureFloorTimeEditText.setFocusable(false);
-        procedureFloorTimeLayout.addView(procedureFloorTimeEditText);
-        procedureFloorTime.addView(procedureFloorTimeHeaderLayout);
-        procedureFloorTime.addView(procedureFloorTimeLayout);
+        procedureFluoroTimeLayout.setLayoutParams(procedureFluoroTimeParams);
+        TextInputEditText procedureFluoroTimeEditText = new TextInputEditText(procedureFluoroTimeLayout.getContext());
+        procedureFluoroTimeEditText.setBackgroundColor(Color.WHITE);
+        procedureFluoroTimeEditText.setText(Objects.requireNonNull(procedureDoc.get(item).get("fluoro_time")).toString());
+        procedureFluoroTimeEditText.setFocusable(false);
+        procedureFluoroTimeLayout.addView(procedureFluoroTimeEditText);
+        procedureFluoroTime.addView(procedureFluoroTimeHeaderLayout);
+        procedureFluoroTime.addView(procedureFluoroTimeLayout);
+
+
+
+
+
+        GridLayout procedureRoomTime = new GridLayout(view.getContext());
+        procedureRoomTime.setColumnCount(2);
+        procedureRoomTime.setRowCount(1);
+        GridLayout.LayoutParams procedureRoomTimeHeaderParams = new GridLayout.LayoutParams();
+        procedureRoomTimeHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureRoomTimeHeaderParams.width = linearLayout.getWidth()/2;
+        procedureRoomTimeHeaderParams.rowSpec = GridLayout.spec(0);
+        procedureRoomTimeHeaderParams.columnSpec = GridLayout.spec(0);
+        procedureRoomTimeHeaderParams.setMargins(0, 0, 0, 5);
+        TextInputLayout procedureRoomTimeHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureRoomTimeHeaderLayout.setLayoutParams(procedureRoomTimeHeaderParams);
+        TextInputEditText procedureRoomTimeHeaderEditText = new TextInputEditText(procedureRoomTimeHeaderLayout.getContext());
+        procedureRoomTimeHeaderEditText.setText("Room time");
+        procedureRoomTimeHeaderEditText.setBackgroundColor(Color.WHITE);
+        procedureRoomTimeHeaderEditText.setTypeface(procedureRoomTimeHeaderEditText.getTypeface(), Typeface.BOLD);
+        procedureRoomTimeHeaderEditText.setFocusable(false);
+        procedureRoomTimeHeaderLayout.addView(procedureRoomTimeHeaderEditText);
+
+
+        GridLayout.LayoutParams procedureRoomTimeParams = new GridLayout.LayoutParams();
+        procedureRoomTimeParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        procedureRoomTimeParams.width = linearLayout.getWidth()/2;
+        procedureRoomTimeParams.rowSpec = GridLayout.spec(0);
+        procedureRoomTimeParams.columnSpec = GridLayout.spec(1);
+        procedureRoomTimeParams.setMargins(0, 0, 0, 5);
+        TextInputLayout procedureRoomTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureRoomTimeLayout.setLayoutParams(procedureRoomTimeParams);
+        TextInputEditText procedureRoomTimeEditText = new TextInputEditText(procedureRoomTimeLayout.getContext());
+        procedureRoomTimeEditText.setBackgroundColor(Color.WHITE);
+        procedureRoomTimeEditText.setText(Objects.requireNonNull(procedureDoc.get(item).get("room_time")).toString());
+        procedureRoomTimeEditText.setFocusable(false);
+        procedureRoomTimeLayout.addView(procedureRoomTimeEditText);
+        procedureRoomTime.addView(procedureRoomTimeHeaderLayout);
+        procedureRoomTime.addView(procedureRoomTimeLayout);
+
 
         GridLayout procedureAccession = new GridLayout(view.getContext());
         procedureAccession.setColumnCount(2);
@@ -789,6 +840,7 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         accessionHeaderLayout.setLayoutParams(procedureAccessionHeaderParams);
         TextInputEditText accessionHeaderEditText = new TextInputEditText(accessionHeaderLayout.getContext());
+        accessionHeaderEditText.setBackgroundColor(Color.WHITE);
         accessionHeaderEditText.setText(R.string.AccessionNumber_lbl);
         accessionHeaderEditText.setTypeface(accessionHeaderEditText.getTypeface(), Typeface.BOLD);
         accessionHeaderLayout.addView(accessionHeaderEditText);
@@ -805,6 +857,7 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         accessionLayout.setLayoutParams(procedureAccessionParams);
         TextInputEditText accessionEditText = new TextInputEditText(accessionLayout.getContext());
+        accessionEditText.setBackgroundColor(Color.WHITE);
         accessionEditText.setText(Objects.requireNonNull(procedureDoc.get(item).get("accession_number")).toString());
         accessionLayout.addView(accessionEditText);
         accessionEditText.setFocusable(false);
@@ -825,6 +878,7 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         itemUsedHeaderLayout.setLayoutParams(procedureItemUsedHeader);
         TextInputEditText itemUsedHeaderEditText = new TextInputEditText(itemUsedHeaderLayout.getContext());
+        itemUsedHeaderEditText.setBackgroundColor(Color.WHITE);
         itemUsedHeaderEditText.setText(R.string.itemsUsed_lbl);
         itemUsedHeaderEditText.setTypeface(itemUsedHeaderEditText.getTypeface(), Typeface.BOLD);
         itemUsedHeaderLayout.addView(itemUsedHeaderEditText);
@@ -840,6 +894,7 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         TextInputEditText itemUsedEditText = new TextInputEditText(itemUsedLayout.getContext());
         itemUsedLayout.setLayoutParams(procedureItemUsedLayout);
+        itemUsedEditText.setBackgroundColor(Color.WHITE);
         itemUsedEditText.setText(Objects.requireNonNull(procedureDoc.get(item).get("amount_used")).toString());
         itemUsedLayout.addView(itemUsedEditText);
         itemUsedEditText.setFocusable(false);
@@ -850,12 +905,12 @@ public class ItemDetailViewFragment extends Fragment {
         subFieldsLayout.addView(procedureName);
         subFieldsLayout.addView(procedureTimeIn);
         subFieldsLayout.addView(procedureTimeOut);
-        subFieldsLayout.addView(procedureFloorTime);
+        subFieldsLayout.addView(procedureRoomTime);
+        subFieldsLayout.addView(procedureFluoroTime);
         subFieldsLayout.addView(procedureAccession);
         subFieldsLayout.addView(procedureItemUsed);
         procedureInfoLayout.addView(subFieldsLayout,(procedureInfoLayout.indexOfChild(procedureInfo))+1);
         procedureInfoLayout.getChildAt(procedureInfoLayout.indexOfChild(procedureInfo)+1).setVisibility(View.GONE);
-
 
     }
 }
