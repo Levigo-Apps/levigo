@@ -37,7 +37,7 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
                 public void onClick(View view) {
                     if(itemDIs.getVisibility() == View.GONE){
                         itemDIs.setVisibility(View.VISIBLE);
-                        itemIcon.setImageResource(R.drawable.ic_remove_minimize);
+                        itemIcon.setImageResource(R.drawable.icon_minimize);
                     }
                     else {
                         itemDIs.setVisibility(View.GONE);

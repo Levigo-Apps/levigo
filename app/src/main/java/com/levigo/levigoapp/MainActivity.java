@@ -87,8 +87,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager iLayoutManager;
     private Map<String, Object> entries = new HashMap<String, Object>();
 
-    private FloatingActionButton mAdd;
-
     private Query query;
     private String key;
     private String value;
@@ -181,13 +179,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         inventoryScroll = findViewById(R.id.main_categories);
-        mAdd = findViewById(R.id.main_add);
-        mAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startScanner();
-            }
-        });
 
         getPermissions();
         createNotificationChannel();
@@ -440,8 +431,10 @@ public class MainActivity extends AppCompatActivity {
         if (result != null) {
             String contents = result.getContents();
             if (contents != null) {
-               startItemView(contents);
-
+                if(isNetworkAvailable())
+                    startItemView(contents);
+                else
+                    startItemOffline(contents);
             }
             if (result.getBarcodeImagePath() != null) {
                 Log.d(TAG, "" + result.getBarcodeImagePath());
@@ -549,6 +542,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                startScanner();
+                return true;
             case R.id.manual_entry:
                 // if device has an access to the network regular manual entry opens
                 if(isNetworkAvailable()) {
@@ -565,30 +561,30 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
                 return true;
-            case R.id.network:
-                Intent intent_network = new Intent(getApplicationContext(), NetworkActivity.class);
-                startActivity(intent_network);
-                finish();
-                return true;
+//            case R.id.network:
+//                Intent intent_network = new Intent(getApplicationContext(), NetworkActivity.class);
+//                startActivity(intent_network);
+//                finish();
+//                return true;
             case R.id.offlineFragment:
                 startItemOffline("");
                 return true;
             case R.id.pendingUdiFragment:
                 startPendingEquipment("");
                 return true;
-            case R.id.settings:
-                //TODO next step
-//                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
-                return true;
+//            case R.id.settings:
+//                //TODO next step
+////                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
+//                return true;
 
-            case R.id.filter:
-                Log.d(TAG, "reached case filter");
-                Intent intent_filter = new Intent(getApplicationContext(), FilterActivity.class);
-                HashMap<String, Object> entries2 = (HashMap)entries;
-                intent_filter.putExtra("map", entries2);
-                startActivity(intent_filter);
-                finish();
-                return true;
+//            case R.id.filter:
+//                Log.d(TAG, "reached case filter");
+//                Intent intent_filter = new Intent(getApplicationContext(), FilterActivity.class);
+//                HashMap<String, Object> entries2 = (HashMap)entries;
+//                intent_filter.putExtra("map", entries2);
+//                startActivity(intent_filter);
+//                finish();
+//                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
