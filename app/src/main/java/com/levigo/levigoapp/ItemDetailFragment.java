@@ -35,6 +35,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -59,6 +61,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.SetOptions;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
@@ -130,6 +133,8 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText procedureNameEditText;
     private TextInputEditText accessionNumberEditText;
     private TextInputLayout numberAddedLayout;
+    private TextInputLayout dateInLayout;
+    private TextInputLayout timeInLayout;
 
     private Button saveButton;
     private MaterialButton addProcedure;
@@ -141,6 +146,7 @@ public class ItemDetailFragment extends Fragment {
     private RadioButton multiUse;
     private Button addSizeButton;
 
+    String di = "";
     private String itemQuantity = "0";
     private String diQuantity = "0";
     private int procedureFieldAdded;
@@ -168,6 +174,7 @@ public class ItemDetailFragment extends Fragment {
     private ArrayList<String> PHYSICALLOC;
     private List<Map<String, Object>> procedureMapList;
     private List<TextInputEditText> numberUsedList;
+    HashMap<String, Object> procedureInfoHashMap;
 
     private LinearLayout siteConstrainLayout;
     private LinearLayout physicalLocationConstrainLayout;
@@ -223,8 +230,8 @@ public class ItemDetailFragment extends Fragment {
         dateIn.setText(dateFormat.format(new Date()));
         timeIn = rootView.findViewById(R.id.detail_in_time);
         TextInputLayout expirationTextLayout = rootView.findViewById(R.id.expiration_date_string);
-        TextInputLayout dateInLayout = rootView.findViewById(R.id.in_date_layout);
-        final TextInputLayout timeInLayout = rootView.findViewById(R.id.in_time_layout);
+        dateInLayout = rootView.findViewById(R.id.in_date_layout);
+        timeInLayout = rootView.findViewById(R.id.in_time_layout);
         itemUsed = rootView.findViewById(R.id.detail_used_switch);
         saveButton = rootView.findViewById(R.id.detail_save_button);
         Button rescanButton = rootView.findViewById(R.id.detail_rescan_button);
@@ -234,6 +241,7 @@ public class ItemDetailFragment extends Fragment {
         useRadioGroup = rootView.findViewById(R.id.RadioGroup_id);
         final TextInputLayout diLayout = rootView.findViewById(R.id.TextInputLayout_di);
         singleUseButton = rootView.findViewById(R.id.RadioButton_single);
+        singleUseButton.setChecked(true);
         multiUse = rootView.findViewById(R.id.radio_multiuse);
         numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
@@ -277,7 +285,7 @@ public class ItemDetailFragment extends Fragment {
                 String toastMessage;
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (Objects.requireNonNull(document).exists()) {
                         try {
                             mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
                             mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
@@ -297,10 +305,15 @@ public class ItemDetailFragment extends Fragment {
                             if (getArguments() != null) {
                                 String barcode = getArguments().getString("barcode");
                                 boolean isPending = getArguments().getBoolean("pending_udi");
-                                if(isPending){
+                                boolean editingExisting = getArguments().getBoolean("editingExisting");
+                                if (isPending) {
                                     getPendingSpecs(barcode);
                                 }
                                 udiEditText.setText(barcode);
+                                if (editingExisting) {
+                                    udiEditText.setEnabled(false);
+                                    autoPopulateButton.setEnabled(false);
+                                }
                             }
 
                             //get realtime update for Equipment Type field from database
@@ -330,7 +343,6 @@ public class ItemDetailFragment extends Fragment {
         });
 
 
-
         // NumberPicker Dialog for NumberAdded field
         numberAdded.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -345,15 +357,6 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 incrementNumberAdded();
-            }
-        });
-
-
-        // icon listener to icon_search di in database to autopopulate di-specific fields
-        diLayout.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                autoPopulateFromDatabase(view, Objects.requireNonNull(deviceIdentifier.getText()).toString().trim());
             }
         });
 
@@ -401,8 +404,14 @@ public class ItemDetailFragment extends Fragment {
         topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (parent != null)
-                    parent.onBackPressed();
+                FragmentManager fragmentManager = getFragmentManager();
+                if(Objects.requireNonNull(fragmentManager).getBackStackEntryCount() > 0) {
+                    fragmentManager.popBackStack();
+                }else{
+                    if(parent != null){
+                        parent.onBackPressed();
+                    }
+                }
             }
         });
 
@@ -520,7 +529,7 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //hardcoded
-                if ((checkAutocompleteTexts && checkEditTexts) && (checkSingleUseButton || checkMultiUseButton)) {
+                if ((checkAutocompleteTexts && checkEditTexts)) {
                     if (checkItemUsed) {
                         if (!checkProcedureFields) {
                             Toast.makeText(rootView.getContext(), "Please enter procedure information", Toast.LENGTH_SHORT).show();
@@ -532,7 +541,7 @@ public class ItemDetailFragment extends Fragment {
                             mHospitalId, "departments",
                             "default_department", "dis");
 
-                    deletePendingUdi(udiEditText.getText().toString().trim());
+                    deletePendingUdi(Objects.requireNonNull(udiEditText.getText()).toString().trim());
                 } else {
                     Toast.makeText(rootView.getContext(), "Please fill out all required fields", Toast.LENGTH_SHORT).show();
                 }
@@ -541,6 +550,8 @@ public class ItemDetailFragment extends Fragment {
 
         if (getArguments() != null) {
             String barcode = getArguments().getString("barcode");
+            procedureInfoHashMap = (HashMap<String, Object>) getArguments().getSerializable("procedure_info");
+            System.out.println(procedureInfoHashMap);
             udiEditText.setText(barcode);
             autoPopulate(rootView);
 
@@ -548,7 +559,7 @@ public class ItemDetailFragment extends Fragment {
         return rootView;
     }
 
-    private void getPendingSpecs(final String barcode){
+    private void getPendingSpecs(final String barcode) {
         DocumentReference docRef = db.collection("networks").document(mNetworkId)
                 .collection("hospitals").document(mHospitalId).collection("departments")
                 .document("default_department").collection("pending_udis").document(barcode);
@@ -557,12 +568,12 @@ public class ItemDetailFragment extends Fragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (Objects.requireNonNull(document).exists()) {
                         List<Map> list = new ArrayList<>();
                         Map<String, Object> map = document.getData();
                         if (map != null) {
-                                list.add(map);
-                            }
+                            list.add(map);
+                        }
                         autopopulatePendingData(list);
                     }
                 }
@@ -570,7 +581,7 @@ public class ItemDetailFragment extends Fragment {
         });
     }
 
-    private void deletePendingUdi(String barcode){
+    private void deletePendingUdi(String barcode) {
         CollectionReference CollectionRef = db.collection("networks").document(mNetworkId)
                 .collection("hospitals").document(mHospitalId).collection("departments")
                 .document("default_department").collection("pending_udis");
@@ -591,7 +602,7 @@ public class ItemDetailFragment extends Fragment {
                 });
     }
 
-    private void autopopulatePendingData(List<Map> list){
+    private void autopopulatePendingData(List<Map> list) {
         hospitalName.setText(Objects.requireNonNull(list.get(0).get("site_name")).toString());
         dateIn.setText(Objects.requireNonNull(list.get(0).get("date_in")).toString());
         notes.setText(Objects.requireNonNull(list.get(0).get("notes")).toString());
@@ -626,7 +637,7 @@ public class ItemDetailFragment extends Fragment {
                 }
                 if (documentSnapshot != null && documentSnapshot.exists()) {
                     Map<String, Object> typeObj = documentSnapshot.getData();
-                    locCounter = typeObj.size();
+                    locCounter = Objects.requireNonNull(typeObj).size();
                     for (Object value : typeObj.values()) {
                         if (!PHYSICALLOC.contains(value.toString())) {
                             PHYSICALLOC.add(value.toString());
@@ -806,20 +817,7 @@ public class ItemDetailFragment extends Fragment {
         dateIn.addTextChangedListener(editTextWatcher);
         timeIn.addTextChangedListener(editTextWatcher);
 
-        singleUseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                checkSingleUseButton = true;
-            }
 
-        });
-
-        multiUse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                checkMultiUseButton = true;
-            }
-        });
     }
 
 
@@ -983,14 +981,23 @@ public class ItemDetailFragment extends Fragment {
         });
         procedureTimeInLayout.addView(procedureTimeInEditText);
 
-        TextInputLayout procedureFloorTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
+        TextInputLayout procedureRoomTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
                 R.layout.activity_itemdetail_materialcomponent, null);
-        procedureFloorTimeLayout.setHint("Fluoro time");
-        procedureFloorTimeLayout.setPadding(0, 10, 0, 0);
-        final TextInputEditText procedureFloorTimeEditText = new TextInputEditText(procedureFloorTimeLayout.getContext());
-        procedureFloorTimeEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-        procedureFloorTimeEditText.setFocusable(false);
-        procedureFloorTimeLayout.addView(procedureFloorTimeEditText);
+        procedureRoomTimeLayout.setHint("Room time");
+        procedureRoomTimeLayout.setPadding(0, 10, 0, 0);
+        final TextInputEditText procedureRoomTimeEditText = new TextInputEditText(procedureRoomTimeLayout.getContext());
+        procedureRoomTimeEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+        procedureRoomTimeEditText.setFocusable(false);
+        procedureRoomTimeLayout.addView(procedureRoomTimeEditText);
+
+        TextInputLayout procedureFluoroTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
+                R.layout.activity_itemdetail_materialcomponent, null);
+        procedureFluoroTimeLayout.setHint("Fluoro time");
+        procedureFluoroTimeLayout.setPadding(0, 10, 0, 0);
+        final TextInputEditText procedureFluoroTimeEditText = new TextInputEditText(procedureFluoroTimeLayout.getContext());
+        procedureFluoroTimeEditText.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+        procedureFluoroTimeEditText.setFocusable(true);
+        procedureFluoroTimeLayout.addView(procedureFluoroTimeEditText);
 
 
         TextInputLayout procedureTimeOutLayout = (TextInputLayout) View.inflate(view.getContext(),
@@ -1027,7 +1034,7 @@ public class ItemDetailFragment extends Fragment {
                                 }
                                 int mins = (int) (millsDif / (1000 * 60)) % 60;
                                 String totalTime = (hours * 60 + mins) + " minutes";
-                                procedureFloorTimeEditText.setText(totalTime);
+                                procedureRoomTimeEditText.setText(totalTime);
 
                             } catch (ParseException e) {
                                 e.printStackTrace();
@@ -1133,12 +1140,14 @@ public class ItemDetailFragment extends Fragment {
                         Objects.requireNonNull(procedureTimeInEditText.getText()).toString());
                 procedureInfoMap.put(TIMEOUT_KEY,
                         Objects.requireNonNull(procedureTimeOutEditText.getText()).toString());
+                procedureInfoMap.put("room_time",
+                        Objects.requireNonNull(procedureRoomTimeEditText.getText()).toString());
                 procedureInfoMap.put("fluoro_time",
-                        Objects.requireNonNull(procedureFloorTimeEditText.getText()).toString());
+                        Objects.requireNonNull(procedureFluoroTimeEditText.getText()).toString());
 
                 checkProcedureFields = validateFields(new TextInputEditText[]{procedureDateEditText, procedureNameEditText,
                         accessionNumberEditText, numberUsedEditText,
-                        procedureTimeInEditText, procedureTimeOutEditText, procedureFloorTimeEditText});
+                        procedureTimeInEditText, procedureTimeOutEditText, procedureRoomTimeEditText,procedureFluoroTimeEditText});
                 if (checkProcedureFields && (!(procedureInfoAdded[0]))) {
                     procedureMapList.add(procedureInfoMap);
                     procedureInfoAdded[0] = true;
@@ -1156,9 +1165,11 @@ public class ItemDetailFragment extends Fragment {
         numberUsedEditText.addTextChangedListener(newProcedureTextWatcher);
         accessionNumberEditText.addTextChangedListener(newProcedureTextWatcher);
         procedureTimeInEditText.addTextChangedListener(newProcedureTextWatcher);
-        procedureFloorTimeEditText.addTextChangedListener(newProcedureTextWatcher);
+        procedureRoomTimeEditText.addTextChangedListener(newProcedureTextWatcher);
+        procedureFluoroTimeEditText.addTextChangedListener(newProcedureTextWatcher);
         procedureTimeInEditText.addTextChangedListener(newProcedureTextWatcher);
         procedureTimeOutEditText.addTextChangedListener(newProcedureTextWatcher);
+
 
         procedureNameLayout.addView(procedureNameEditText);
         procedureDateLayout.addView(procedureDateEditText);
@@ -1169,9 +1180,10 @@ public class ItemDetailFragment extends Fragment {
         procedureInfoLayout.addView(procedureNameLayout, 2);
         procedureInfoLayout.addView(procedureTimeInLayout, 3);
         procedureInfoLayout.addView(procedureTimeOutLayout, 4);
-        procedureInfoLayout.addView(procedureFloorTimeLayout, 5);
-        procedureInfoLayout.addView(accessionNumberLayout, 6);
-        procedureInfoLayout.addView(numberUsedLayout, 7);
+        procedureInfoLayout.addView(procedureRoomTimeLayout, 5);
+        procedureInfoLayout.addView(procedureFluoroTimeLayout, 6);
+        procedureInfoLayout.addView(accessionNumberLayout, 7);
+        procedureInfoLayout.addView(numberUsedLayout, 8);
         itemUsedFields.addView(procedureInfoLayout, itemUsedFields.indexOfChild(addProcedure));
     }
 
@@ -1183,6 +1195,7 @@ public class ItemDetailFragment extends Fragment {
         }
         return true;
     }
+
     //checks whether or not the accession number is unique
     private void checkAccessionNumber(final View view, final String accessionNum, final TextInputEditText accessionNumberEditText) {
         final DocumentReference docRef = accessionNumberRef.document(accessionNum);
@@ -1252,8 +1265,7 @@ public class ItemDetailFragment extends Fragment {
                 });
     }
 
-    // removes the accession number from the database if users removes
-    // newly added procedure info fields
+    // removes the accession number from the database if users clicks cancel removes
     private void removeAccessionNumber(LinearLayout itemUsedFields) {
         LinearLayout procedureInfo = (LinearLayout) itemUsedFields.getChildAt((itemUsedFields.indexOfChild(addProcedure)) - 1);
         TextInputLayout accessionNumLayout = procedureInfo.findViewWithTag("accession");
@@ -1277,6 +1289,7 @@ public class ItemDetailFragment extends Fragment {
     // adds new row of size text views if users clicks on a button
     int rowIndex = 1;
     int rowLoc = 1;
+
     private void addEmptySizeOption(View view) {
 
         Log.d(TAG, "Adding empty size option!");
@@ -1346,14 +1359,12 @@ public class ItemDetailFragment extends Fragment {
         }
         allSizeOptions.remove(allSizeOptions.size() - 1);
         allSizeOptions.remove(allSizeOptions.size() - 1);
-        System.out.println(allSizeOptions.size());
-
     }
 
     private void addItemSpecs(String key, String value, View view) {
         Log.d(TAG, "Adding item specs!");
 
-        LinearLayout layoutSize = new LinearLayout(getContext());
+        LinearLayout layoutSize = new LinearLayout(view.getContext());
         layoutSize.setOrientation(LinearLayout.HORIZONTAL);
         layoutSize.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
@@ -1483,6 +1494,7 @@ public class ItemDetailFragment extends Fragment {
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeConstrainLayout));
         }
     }
+
     private void addNewSite(final AdapterView<?> adapterView, View view, int i) {
         String selected = (String) adapterView.getItemAtPosition(i);
         TextInputLayout other_site_layout;
@@ -1499,9 +1511,11 @@ public class ItemDetailFragment extends Fragment {
                 @Override
                 public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 }
+
                 @Override
                 public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 }
+
                 @Override
                 public void afterTextChanged(Editable editable) {
                     if (!(otherSite_text.toString().trim().isEmpty())) {
@@ -1565,6 +1579,7 @@ public class ItemDetailFragment extends Fragment {
             linearLayout.removeViewAt(1 + linearLayout.indexOfChild(siteConstrainLayout));
         }
     }
+
     private void addNewLoc(final AdapterView<?> adapterView, View view, int i) {
         String selectedLoc = (String) adapterView.getItemAtPosition(i);
         final TextInputLayout other_physicaloc_layout;
@@ -1581,9 +1596,11 @@ public class ItemDetailFragment extends Fragment {
                 @Override
                 public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 }
+
                 @Override
                 public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 }
+
                 @Override
                 public void afterTextChanged(Editable editable) {
                     if (!(otherPhysicalLoc_text.toString().trim().isEmpty())) {
@@ -1654,7 +1671,7 @@ public class ItemDetailFragment extends Fragment {
                          String DEPARTMENTS, String DEPARTMENT, String PRODUCTDIS) {
 
         Log.d(TAG, "SAVING");
-        String barcode_str = Objects.requireNonNull(udiEditText.getText()).toString();
+        final String barcode_str = Objects.requireNonNull(udiEditText.getText()).toString();
         String name_str = Objects.requireNonNull(nameEditText.getText()).toString();
         String company_str = Objects.requireNonNull(company.getText()).toString();
         String medical_speciality_str = Objects.requireNonNull(medicalSpeciality.getText()).toString();
@@ -1667,17 +1684,20 @@ public class ItemDetailFragment extends Fragment {
         int quantity_int;
         String number_added_str = "0";
         int totalUsed = 0;
-        for (int i = 0; i < numberUsedList.size(); i++) {
-            totalUsed += Integer.parseInt(Objects.requireNonNull(numberUsedList.get(i).getText()).toString());
-        }
+
         if (itemUsed.isChecked()) {
+
+            for (int i = 0; i < numberUsedList.size(); i++) {
+                totalUsed += Integer.parseInt(Objects.requireNonNull(numberUsedList.get(i).getText()).toString());
+            }
+
             quantity_int = Integer.parseInt(itemQuantity) - totalUsed;
             diQuantity = String.valueOf(Integer.parseInt(diQuantity) - totalUsed);
 
             //Create notification if value of diQuantity is below a certain number
             int diQuantity_int = Integer.parseInt(diQuantity);
 
-            if(diQuantity_int <= 8){
+            if (diQuantity_int <= 8) {
                 String messageHeader = name_str + " are running low.";
                 String messageBody = "There are " + diQuantity + " " + name_str + " remaining.";
 
@@ -1734,7 +1754,6 @@ public class ItemDetailFragment extends Fragment {
         String notes_str = Objects.requireNonNull(notes.getText()).toString();
 
 
-        boolean is_used = itemUsed.isChecked();
         int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
         RadioButton radioButton = view.findViewById(radioButtonInt);
         String singleOrMultiUse = radioButton.getText().toString();
@@ -1760,7 +1779,8 @@ public class ItemDetailFragment extends Fragment {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+                        successful_save();
+//                        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -1772,7 +1792,7 @@ public class ItemDetailFragment extends Fragment {
                 });
 
         // saving udi-specific identifiers using InventoryTemplate class to store multiple items at once
-        udiDocument = new InventoryTemplate(barcode_str, is_used, number_added_str, lotNumber_str,
+        udiDocument = new InventoryTemplate(barcode_str, number_added_str, lotNumber_str,
                 expiration_str, quantity_str, currentTime_str, physical_location_str, referenceNumber_str,
                 notes_str, currentDate_str);
 
@@ -1782,12 +1802,13 @@ public class ItemDetailFragment extends Fragment {
                 .collection("udis").document(barcode_str);
 
         //saving data of InventoryTemplate to database
-        udiRef.set(udiDocument)
+        udiRef.set(udiDocument, SetOptions.merge())
                 //in case of success
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+                        successful_save();
+//                        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
                     }
                 })
                 // in case of failure
@@ -1801,7 +1822,9 @@ public class ItemDetailFragment extends Fragment {
 
         Map<String, Object> procedureQuantity = new HashMap<>();
         procedureQuantity.put("procedure_number", String.valueOf(procedureFieldAdded));
-        if (checkItemUsed) {
+
+        if (itemUsed.isChecked()) {
+            System.out.println("checkItemUsedTrue");
             for (int i = 0; i < procedureMapList.size(); i++) {
                 DocumentReference procedureDocRef = db.collection(NETWORKS).document(NETWORK)
                         .collection(SITES).document(SITE).collection(DEPARTMENTS)
@@ -1814,7 +1837,7 @@ public class ItemDetailFragment extends Fragment {
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+                                successful_save();
                             }
                         })
                         // in case of failure
@@ -1838,7 +1861,7 @@ public class ItemDetailFragment extends Fragment {
                             Log.d(TAG, e.toString());
                         }
                     });
-            procedureQuantity.clear();
+         //   procedureQuantity.clear();
         }
         if (allSizeOptions.size() > 0) {
             int i = 0;
@@ -1851,7 +1874,23 @@ public class ItemDetailFragment extends Fragment {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+
+                            AddEquipmentFragment fragment = new AddEquipmentFragment();
+                            Bundle bundle = new Bundle();
+                            bundle.putBoolean("added", true);
+                            bundle.putString("barcode",barcode_str);
+                            bundle.putSerializable("procedure_info",procedureInfoHashMap);
+                            fragment.setArguments(bundle);
+                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+
+                            //clears other fragments
+                            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                            fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+                            fragmentTransaction.add(R.id.activity_main, fragment);
+                            fragmentTransaction.addToBackStack(null);
+                            fragmentTransaction.commit();
+
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -1864,7 +1903,16 @@ public class ItemDetailFragment extends Fragment {
         }
     }
 
-    String di = "";
+    private void successful_save() {
+
+        // quit out fragment
+//        getActivity().getSupportFragmentManager().popBackStack();
+//        getFragmentManager().popBackStack();
+//        getActivity().onBackPressed();
+        Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().remove(this).commit();
+        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
+    }
+
     private void autoPopulate(final View view) {
         final String udiStr = Objects.requireNonNull(udiEditText.getText()).toString();
         if (udiStr.equals("")) {
@@ -2007,6 +2055,7 @@ public class ItemDetailFragment extends Fragment {
             }
         });
     }
+
     private void autoPopulateFromDatabase(final String udiStr) {
         DocumentReference udiDocRef;
         DocumentReference diDocRef;
@@ -2071,6 +2120,15 @@ public class ItemDetailFragment extends Fragment {
                         }
                         if (document.get(PHYSICALLOC_KEY) != null) {
                             physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
+                        } if(document.get("current_time") != null){
+                            timeIn.setText(document.getString("current_time"));
+                            timeIn.setEnabled(false);
+                            timeInLayout.setEndIconOnClickListener(null);
+
+                        } if(document.get("current_date") != null){
+                            dateIn.setText(document.getString("current_date"));
+                            dateIn.setEnabled(false);
+                            dateInLayout.setEndIconOnClickListener(null);
                         }
                     } else {
                         itemQuantity = "0";
@@ -2081,40 +2139,6 @@ public class ItemDetailFragment extends Fragment {
                     quantity.setText(document.getString(QUANTITY_KEY));
                     quantity.setEnabled(false);
                 } else {
-                    Log.d(TAG, "Failed with: ", task.getException());
-                }
-            }
-        });
-    }
-
-    private void autoPopulateFromDatabase(final View view, String di) {
-
-        DocumentReference diDocRef = db.collection("networks").document(mNetworkId)
-                .collection("hospitals").document(mHospitalId)
-                .collection("departments").document("default_department")
-                .collection("dis").document(di);
-        diDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        quantity.setText("0");
-                        company.setText(document.getString(COMPANY_KEY));
-                        deviceDescription.setText(document.getString(DESCRIPTION_KEY));
-                        equipmentType.setText(document.getString(TYPE_KEY));
-                        medicalSpeciality.setText(document.getString(SPECIALTY_KEY));
-                        nameEditText.setText(document.getString(NAME_KEY));
-                        hospitalName.setText(document.getString(SITE_KEY));
-                        hospitalName.setText(document.getString(SINGLEORMULTI_KEY));
-                    } else {
-                        Toast.makeText(view.getContext(), "Equipment has not found", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "Document does not exist!");
-                    }
-                } else {
-                    Toast.makeText(view.getContext(), "Equipment has not found", Toast.LENGTH_SHORT).show();
-                    itemQuantity = "0";
-                    quantity.setText("0");
                     Log.d(TAG, "Failed with: ", task.getException());
                 }
             }
