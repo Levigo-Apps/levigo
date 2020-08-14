@@ -100,8 +100,7 @@ public class DIAdapter extends RecyclerView.Adapter<DIAdapter.DIHolder> {
 
 
         Map<String,Object> udis = (Map<String, Object>) productid.get("udis");
-
-        UDIAdapter udiAdapter = new UDIAdapter(activity, udis);
+        UDIAdapter udiAdapter = new UDIAdapter(activity,di, udis);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
         holder.itemUDIs.setLayoutManager(layoutManager);

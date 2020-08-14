@@ -18,6 +18,7 @@ public class UDIAdapter extends RecyclerView.Adapter<UDIAdapter.UDIHolder> {
     private static final String TAG = "udiadapter";
     private MainActivity activity;
     private Map<String,Object> iDataset;
+    private String di;
 
     public static class UDIHolder extends RecyclerView.ViewHolder {
         public TextView itemExpiration;
@@ -31,9 +32,12 @@ public class UDIAdapter extends RecyclerView.Adapter<UDIAdapter.UDIHolder> {
         }
     }
 
-    public UDIAdapter(MainActivity activity, Map<String,Object> iDataset) {
+    public UDIAdapter(MainActivity activity, Map<String, Object> di, Map<String, Object> iDataset) {
         this.activity = activity;
         this.iDataset = iDataset;
+        if(di.get("di") != null) {
+            this.di = di.get("di").toString();
+        }
     }
 
     @NonNull
@@ -53,7 +57,9 @@ public class UDIAdapter extends RecyclerView.Adapter<UDIAdapter.UDIHolder> {
 
 
         if(object instanceof Map) {
+
             final Map<String,Object> udi = (Map<String, Object>) object;
+            System.out.println("udi here is" + udi);
             if(udi.containsKey("expiration")) {
                 String expiration = "EXP " + udi.get("expiration").toString();
                 holder.itemExpiration.setText(expiration);
@@ -69,7 +75,7 @@ public class UDIAdapter extends RecyclerView.Adapter<UDIAdapter.UDIHolder> {
                     if(udi.containsKey("udi")) {
                         String udiString = udi.get("udi").toString();
                         //activity.startItemView(udiString);
-                        activity.startItemViewOnly(udiString);
+                        activity.startItemViewOnly(udiString, di);
                     }
                 }
             });

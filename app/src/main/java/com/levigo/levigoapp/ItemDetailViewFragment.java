@@ -1,10 +1,13 @@
 package com.levigo.levigoapp;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +32,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -58,6 +62,7 @@ public class ItemDetailViewFragment extends Fragment {
     private String itemQuantity;
     private String currentDate;
     private String currentTime;
+    private String returnedDi;
     private int procedureCount;
     private final String TYPE_KEY = "equipment_type";
     private final String SITE_KEY = "site_name";
@@ -168,6 +173,7 @@ public class ItemDetailViewFragment extends Fragment {
         if (getArguments() != null) {
             String barcode = getArguments().getString("barcode");
             udi.setText(barcode);
+            returnedDi = getArguments().getString("di");
             autoPopulate(rootView);
             Log.d(TAG, "auto");
         }
@@ -205,13 +211,12 @@ public class ItemDetailViewFragment extends Fragment {
             Bundle bundle = new Bundle();
             bundle.putString("barcode", Objects.requireNonNull(udi.getText()).toString());
             bundle.putBoolean("editingExisting", true);
+            bundle.putString("di",deviceIdentifier.getText().toString());
             fragment.setArguments(bundle);
 
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-
 //            //clears other fragments
 //            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
             fragmentTransaction.add(R.id.activity_main, fragment);
@@ -236,6 +241,7 @@ public class ItemDetailViewFragment extends Fragment {
         String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
 
         url = url + udiStr;
+
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -283,7 +289,7 @@ public class ItemDetailViewFragment extends Fragment {
                             medicalSpecialty.setText(medicalSpecialties.toString());
                             medicalSpecialty.setFocusable(false);
 
-                            autoPopulateFromDatabase(udi, udiStr, view);
+                            autoPopulateFromDatabase(di, udiStr, view);
 
                             JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
                             for (int i = 0; i < deviceSizeArray.length(); ++i) {
@@ -328,11 +334,16 @@ public class ItemDetailViewFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(TAG, "Error in parsing barcode");
+                nonGudidUdi(udiStr, view,returnedDi);
             }
         });
 
 // Add the request to the RequestQueue.
         queue.add(stringRequest);
+    }
+
+    private void nonGudidUdi(final String udiStr, final View view, String di){
+        autoPopulateFromDatabase(di,udiStr,view);
     }
 
     private void addItemSpecs(String key, String value, View view){
@@ -377,7 +388,7 @@ public class ItemDetailViewFragment extends Fragment {
         itemSpecsLinearLayout.addView(eachItemSpecsLayout);
     }
 
-    private void autoPopulateFromDatabase(final JSONObject udi, final String udiStr, final View view) {
+    private void autoPopulateFromDatabase(final String di, final String udiStr, final View view) {
         DocumentReference udiDocRef;
         DocumentReference diDocRef;
 
@@ -391,6 +402,47 @@ public class ItemDetailViewFragment extends Fragment {
                 .document("default_department").collection("dis").document(di);
 
 
+        diDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (Objects.requireNonNull(document).exists()) {
+                        if(document.get(TYPE_KEY) != null){
+                            type.setText(document.getString(TYPE_KEY));
+                        }
+                        if(document.get(SITE_KEY) != null){
+                            hospitalName.setText(document.getString(SITE_KEY));
+                        }
+                        if(document.get(USAGE_KEY) != null){
+                            String usageStr = document.getString(USAGE_KEY);
+                            usage.setText(usageStr);
+                        }
+                        if(document.get("device_description") != null && deviceDescription.getText().toString().length() <= 0){
+                            deviceDescription.setText(document.getString("device_description"));
+                        }
+                        if(document.get("di") != null && deviceIdentifier.getText().toString().length() <= 0 ){
+                            deviceIdentifier.setText(document.getString("di"));
+                        }
+                        if(document.get("medical_specialty") != null && medicalSpecialty.getText().toString().length() <= 0){
+                            medicalSpecialty.setText(document.getString("medical_specialty"));
+                        }
+                        if(document.get("name") != null && itemName.getText().toString().length() <= 0){
+                            itemName.setText(document.getString("name"));
+                        }
+                        if(document.get("company") != null && manufacturer.getText().toString().length() <= 0){
+                            manufacturer.setText(document.getString("company"));
+                        }
+
+                    } else {
+                        Log.d(TAG, "Document does not exist!");
+                    }
+                } else {
+                    Log.d(TAG, "Failed with: ", task.getException());
+                }
+            }
+        });
+
         udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -400,58 +452,22 @@ public class ItemDetailViewFragment extends Fragment {
                         if(document.get("procedure_number") != null){
                             procedureCount = Integer.parseInt(
                                     Objects.requireNonNull(document.getString("procedure_number")));
-
-                            getProcedureInfo(procedureCount, udi, udiStr, view);
+                            getProcedureInfo(procedureCount, di, udiStr, view);
                         }else{
                             procedureCount = 0;
                         }
-
-                    } else {
-                        procedureCount = 0;
-
-                        Log.d(TAG, "Document does not exist!");
-                    }
-                } else {
-                    procedureCount = 0;
-                    Log.d(TAG, "Failed with: ", task.getException());
-                }
-            }
-        });
-
-        diDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        if(document.get(TYPE_KEY) != null){
-                            type.setText(document.getString(TYPE_KEY));
-                            type.setFocusable(false);
-
-                        }if(document.get(SITE_KEY) != null){
-                            hospitalName.setText(document.getString(SITE_KEY));
-                            hospitalName.setFocusable(false);
-                        }if(document.get(USAGE_KEY) != null){
-                            String usageStr = document.getString(USAGE_KEY);
-                            usage.setText(usageStr);
+                        if(document.get("expiration") != null){
+                            expiration.setText(document.getString("expiration"));
                         }
-                    } else {
-
-                        Log.d(TAG, "Document does not exist!");
-                    }
-                } else {
-                    Log.d(TAG, "Failed with: ", task.getException());
-                }
-            }
-        });
-
-
-        udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
+                        if(document.get("lot_number") != null && lotNumber.getText().toString().length() <= 0){
+                            lotNumber.setText(document.getString("lot_number"));
+                        }
+                        if(document.get("notes") != null){
+                            notes.setText(document.getString("notes"));
+                        }
+                        if(document.get("physical_location") != null){
+                            physicalLocation.setText(document.getString("physical_location"));
+                        }
                         if(document.get("quantity") != null) {
                             itemQuantity = document.getString(QUANTITY_KEY);
                             quantity.setText(itemQuantity);
@@ -469,14 +485,19 @@ public class ItemDetailViewFragment extends Fragment {
                         if(document.get("notes") != null){
                             notes.setText(document.getString("notes"));
                         }
+                        if(document.get("reference_number") != null && referenceNumber.getText().toString().length() <= 0){
+                            referenceNumber.setText(document.getString("reference_number"));
+                        }
                     } else {
                         itemQuantity = "0";
                         quantity.setText("0");
+                        procedureCount = 0;
                         Log.d(TAG, "Document does not exist!");
                     }
                     quantity.setText(document.getString(QUANTITY_KEY));
                     quantity.setFocusable(false);
                 } else {
+                    procedureCount = 0;
                     Log.d(TAG, "Failed with: ", task.getException());
                 }
             }
@@ -484,66 +505,59 @@ public class ItemDetailViewFragment extends Fragment {
 
     }
 
-    private void getProcedureInfo(final int procedureCount, JSONObject udi,
+    private void getProcedureInfo(final int procedureCount, String di,
                                   String udiStr, final View view){
         final int[] check = {0};
         DocumentReference procedureRef;
+        for ( int i = 0; i < procedureCount; i++) {
+            procedureRef = db.collection("networks").document(mNetworkId)
+                    .collection("hospitals").document(mHospitalId).collection("departments")
+                    .document("default_department").collection("dis").document(di)
+                    .collection("udis").document(udiStr).collection("procedures")
+                    .document("procedure_" + (i + 1));
 
-        try {
-            for ( int i = 0; i < procedureCount; i++) {
-                procedureRef = db.collection("networks").document(mNetworkId)
-                        .collection("hospitals").document(mHospitalId).collection("departments")
-                        .document("default_department").collection("dis").document(udi.getString("di"))
-                        .collection("udis").document(udiStr).collection("procedures")
-                        .document("procedure_" + (i + 1));
-
-                procedureRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (Objects.requireNonNull(document).exists()) {
-                                Map<String, Object> map = document.getData();
-                                if (map != null) {
-                                    check[0]++;
-                                    procedureDoc.add(map);
-                                }
-                            }
-                            final boolean[] isUsageMaximized = {false};
-                            final LinearLayout isItemUsedLinearLayout = view.findViewById(R.id.isitemused_linear);
-                            if(check[0] == procedureCount) {
-                                usageLayout.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        if(isUsageMaximized[0]){
-                                            usageLayout.setImageResource(R.drawable.ic_baseline_plus);
-                                            isItemUsedLinearLayout.setVisibility(View.GONE);
-                                            linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout)+ 1)
-                                                    .setVisibility(View.GONE);
-                                            linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout)+ 2)
-                                                    .setVisibility(View.GONE);
-                                            isUsageMaximized[0] = false;
-//                                            usageHeader.setEndIconDrawable(R.drawable.ic_baseline_plus);
-
-                                        }else{
-                                            usageLayout.setImageResource(R.drawable.icon_minimize);
-                                            isItemUsedLinearLayout.setVisibility(View.VISIBLE);
-                                            addProcedureInfoFields(procedureDoc,view);
-                                            isUsageMaximized[0] = true;
-//                                            usageHeader.setEndIconDrawable(R.drawable.icon_minimize);
-
-                                        }
-                                    }
-                                });
+            procedureRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (Objects.requireNonNull(document).exists()) {
+                            Map<String, Object> map = document.getData();
+                            if (map != null) {
+                                check[0]++;
+                                procedureDoc.add(map);
                             }
                         }
-                    }
-                });
-            }
-        }catch(JSONException e){
-            Log.d(TAG, e.toString());
-        }
+                        final boolean[] isUsageMaximized = {false};
+                        final LinearLayout isItemUsedLinearLayout = view.findViewById(R.id.isitemused_linear);
+                        if(check[0] == procedureCount) {
+                            usageLayout.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    if(isUsageMaximized[0]){
+                                        usageLayout.setImageResource(R.drawable.ic_baseline_plus);
+                                        isItemUsedLinearLayout.setVisibility(View.GONE);
+                                        linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout)+ 1)
+                                                .setVisibility(View.GONE);
+                                        linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout)+ 2)
+                                                .setVisibility(View.GONE);
+                                        isUsageMaximized[0] = false;
 
+
+                                    }else{
+                                        usageLayout.setImageResource(R.drawable.icon_minimize);
+                                        isItemUsedLinearLayout.setVisibility(View.VISIBLE);
+                                        addProcedureInfoFields(procedureDoc,view);
+                                        isUsageMaximized[0] = true;
+
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+        }
     }
 
 

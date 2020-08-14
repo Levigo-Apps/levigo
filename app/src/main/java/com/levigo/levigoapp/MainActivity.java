@@ -465,10 +465,11 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
-    public void startItemViewOnly(String barcode) {
+    public void startItemViewOnly(String barcode, String di) {
         ItemDetailViewFragment fragment = new ItemDetailViewFragment();
         Bundle bundle = new Bundle();
         bundle.putString("barcode", barcode);
+        bundle.putString("di",di);
         fragment.setArguments(bundle);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
