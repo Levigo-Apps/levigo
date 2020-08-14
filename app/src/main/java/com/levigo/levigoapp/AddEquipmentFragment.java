@@ -175,6 +175,16 @@ public class AddEquipmentFragment extends Fragment {
                 setProcedureSummary(returnedProcedureInfo);
 
             }
+
+            if(procedureInfoBundle.getSerializable("procedure_udi") != null){
+                List<HashMap<String, Object>> udiList =
+                        (List<HashMap<String, Object>>) procedureInfoBundle.getSerializable("procedure_udi");
+                for(int i = 0; i < udiList.size(); i++){
+                    addReturnedUdi(udiList.get(i).get("udi").toString(),rootView,udiList.get(i).get("di").toString(),
+                            udiList.get(i).get("amount_used").toString());
+                }
+
+            }
             if(procedureInfoBundle.get("procedureMap") != null){
                 procedureInfoHashMap = (HashMap<String, Object>) procedureInfoBundle.getSerializable("procedureMap");
                 setProcedureSummary(procedureInfoHashMap);
@@ -323,13 +333,14 @@ public class AddEquipmentFragment extends Fragment {
                 .setTitle("Scan equipment")
                 .setMessage("The equipment could not be found in inventory.\nWould you like to scan it now?")
 
-        .setNegativeButton("Scan", new DialogInterface.OnClickListener() {
+        .setPositiveButton("Scan", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 ItemDetailFragment fragment = new ItemDetailFragment();
                 Bundle bundle = new Bundle();
                 bundle.putString("barcode", udi);
                 bundle.putSerializable("procedure_info",procedureInfoHashMap);
+                bundle.putSerializable("udi_quantity", (Serializable) procedureInfo);
                 fragment.setArguments(bundle);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
 
@@ -343,7 +354,7 @@ public class AddEquipmentFragment extends Fragment {
 
             }
         })
-        .setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
@@ -403,6 +414,42 @@ public class AddEquipmentFragment extends Fragment {
 
 
     }
+
+    private void addReturnedUdi(final String barcode, View view, final String di, String quantityStr){
+        final View textView = View.inflate(view.getContext(),R.layout.procedure_item,null);
+        textView.setId(View.generateViewId());
+
+        TextView udi = textView.findViewById(R.id.scanned_udi);
+        final TextView quantity = textView.findViewById(R.id.udi_quantity);
+        final ImageView plusIcon = textView.findViewById(R.id.increment_icon);
+        ImageView deleteIcon = textView.findViewById(R.id.delete_icon);
+        deleteIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteUdiView(view,textView.getId(),barcode);
+            }
+        });
+        plusIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addNumberPicker(view, quantity,barcode,plusIcon, di);
+            }
+        });
+
+        udi.setText(barcode);
+        String finalString;
+        if(Integer.parseInt(quantityStr) > 1){
+            finalString = quantityStr + " units have been used";
+        }else{
+            finalString = quantityStr + " unit has been used";
+        }
+        quantity.setText(finalString);
+        buttonsLayout.setVisibility(View.VISIBLE);
+        linearLayout.addView(textView,linearLayout.indexOfChild(buttonsLayout));
+
+
+    }
+
 
     private void deleteUdiView(View view, int elementId, String barcode){
         linearLayout.removeView(linearLayout.findViewById(elementId));
@@ -553,10 +600,6 @@ public class AddEquipmentFragment extends Fragment {
             }
         });
 
-
-
-
-
         quantityRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -565,6 +608,9 @@ public class AddEquipmentFragment extends Fragment {
                     if (document.exists()) {
                         if(document.get("quantity") != null){
                             diQuantity[0] = document.getString("quantity");
+                            if(Integer.parseInt(diQuantity[0]) <= 8){
+                                notification(Integer.parseInt(diQuantity[0]) - quantityUsed,udiStr);
+                            }
                         }else{
                             diQuantity[0] = "0";
                         }
@@ -672,6 +718,32 @@ public class AddEquipmentFragment extends Fragment {
                         Log.w(TAG, "Error updating document", e);
                     }
                 });
+
+    }
+
+    private void notification(int diQuantityInt,String udiStr){
+        String messageHeader = udiStr + " are running low.";
+        String messageBody = "There are " + diQuantityInt + " " +  " remaining items.";
+
+        HashMap<String, Object> notificationMessage = new HashMap<>();
+        notificationMessage.put("header", messageHeader);
+        notificationMessage.put("body", messageBody);
+        notificationMessage.put("hospital_id", mHospitalId);
+
+        CollectionReference notifRef = db.collection("networks").document(mNetworkId)
+                .collection("hospitals").document(mHospitalId).collection("notifications");
+
+        notifRef.add(notificationMessage).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                Toast.makeText(parent, "Notification Added", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(parent, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 }
