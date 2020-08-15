@@ -64,9 +64,10 @@ public class AddEquipmentFragment extends Fragment {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final CollectionReference usersRef = db.collection("users");
     private LinearLayout linearLayout;
+    private LinearLayout procedureSummaryLinear;
     private LinearLayout buttonsLayout;
     private List<HashMap<String, Object>> procedureInfo;
-    HashMap<String, Object> procedureInfoHashMap;
+    List<HashMap<String, Object>> procedureInfoHashMapList;
 
     private TextView procedureInfoName;
     private TextView procedureInfoDate;
@@ -83,6 +84,8 @@ public class AddEquipmentFragment extends Fragment {
     private String accessionNumber;
     private String udiStr;
 
+    private boolean equipmentScanned;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
@@ -91,13 +94,12 @@ public class AddEquipmentFragment extends Fragment {
         MaterialButton cancelButton = rootView.findViewById(R.id.equipment_cancel_button);
         MaterialButton saveButton = rootView.findViewById(R.id.equipment_save_button);
         FloatingActionButton addBarcode = rootView.findViewById(R.id.fragment_addScan);
-        procedureInfoName = rootView.findViewById(R.id.procedureinfoName_edittext);
-        procedureInfoDate = rootView.findViewById(R.id.procedureinfoDate_edittext);
-        procedureAccessionNumber = rootView.findViewById(R.id.procedureinfoAccessionNumber_edittext);
         linearLayout = rootView.findViewById(R.id.equipment_linearlayout);
         buttonsLayout = rootView.findViewById(R.id.item_bottom);
+        procedureSummaryLinear = rootView.findViewById(R.id.procedure_summary_linear);
         procedureInfo = new ArrayList<>();
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
+        equipmentScanned = false;
 
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -136,15 +138,7 @@ public class AddEquipmentFragment extends Fragment {
             public void onClick(View view) {
                 ProcedureInfoFragment fragment = new ProcedureInfoFragment();
                 Bundle bundle = new Bundle();
-                HashMap<String, Object> procedureInfoMap = new HashMap<>();
-                procedureInfoMap.put("procedure_used", procedureName);
-                procedureInfoMap.put("procedure_date", procedureDate);
-                procedureInfoMap.put("time_in", procedureTimeIn);
-                procedureInfoMap.put("time_out", procedureTimeOut);
-                procedureInfoMap.put("room_time", roomTime);
-                procedureInfoMap.put("fluoro_time", fluoroTime);
-                procedureInfoMap.put("accession_number", accessionNumber);
-                bundle.putSerializable("procedureMap", procedureInfoMap);
+                bundle.putSerializable("procedureMap", (Serializable) procedureInfoHashMapList);
                 fragment.setArguments(bundle);
 
                 FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
@@ -162,17 +156,21 @@ public class AddEquipmentFragment extends Fragment {
         if (getArguments() != null) {
 
             Bundle procedureInfoBundle = this.getArguments();
-            if(procedureInfoBundle.getBoolean("added")){
-                HashMap<String, Object> returnedProcedureInfo = (HashMap<String, Object>) procedureInfoBundle.getSerializable("procedure_info");
+            if(procedureInfoBundle.getBoolean("added")) {
+                procedureInfoHashMapList = (List<HashMap<String, Object>>)
+                        procedureInfoBundle.getSerializable("procedure_info");
                 checkUdi(Objects.requireNonNull(procedureInfoBundle.getString("barcode")));
-                procedureDate = (String) Objects.requireNonNull(returnedProcedureInfo).get("procedure_date");
-                procedureName = (String) returnedProcedureInfo.get("procedure_used");
-                procedureTimeIn = (String) returnedProcedureInfo.get("time_in");
-                procedureTimeOut = (String) returnedProcedureInfo.get("time_out");
-                roomTime = (String) returnedProcedureInfo.get("room_time");
-                fluoroTime = (String) returnedProcedureInfo.get("fluoro_time");
-                accessionNumber= (String) returnedProcedureInfo.get("accession_number");
-                setProcedureSummary(returnedProcedureInfo);
+                if (procedureInfoHashMapList.size() == 1) {
+                    procedureDate = (String) Objects.requireNonNull(procedureInfoHashMapList).get(0).get("procedure_date");
+                    procedureName = (String) procedureInfoHashMapList.get(0).get("procedure_used");
+                    procedureTimeIn = (String) procedureInfoHashMapList.get(0).get("time_in");
+                    procedureTimeOut = (String) procedureInfoHashMapList.get(0).get("time_out");
+                    roomTime = (String) procedureInfoHashMapList.get(0).get("room_time");
+                    fluoroTime = (String) procedureInfoHashMapList.get(0).get("fluoro_time");
+                    accessionNumber = (String) procedureInfoHashMapList.get(0).get("accession_number");
+
+                }
+                setProcedureSummary(procedureInfoHashMapList, rootView);
 
             }
 
@@ -186,15 +184,9 @@ public class AddEquipmentFragment extends Fragment {
 
             }
             if(procedureInfoBundle.get("procedureMap") != null){
-                procedureInfoHashMap = (HashMap<String, Object>) procedureInfoBundle.getSerializable("procedureMap");
-                setProcedureSummary(procedureInfoHashMap);
-                procedureDate = (String) Objects.requireNonNull(procedureInfoHashMap).get("procedure_date");
-                procedureName = (String) procedureInfoHashMap.get("procedure_used");
-                procedureTimeIn = (String) procedureInfoHashMap.get("time_in");
-                procedureTimeOut = (String) procedureInfoHashMap.get("time_out");
-                roomTime = (String) procedureInfoHashMap.get("room_time");
-                fluoroTime = (String) procedureInfoHashMap.get("fluoro_time");
-                accessionNumber= (String) procedureInfoHashMap.get("accession_number");
+                procedureInfoHashMapList = (List<HashMap<String, Object>>) procedureInfoBundle.getSerializable("procedureMap");
+                setProcedureSummary(procedureInfoHashMapList, rootView);
+
             }
 
         }
@@ -208,37 +200,58 @@ public class AddEquipmentFragment extends Fragment {
         });
 
 
-        final boolean[] notclicked = {true};
-
+        final int[] i = {0};
         addBarcode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                // startScanner();
 
-                if(notclicked[0]){
-                    checkUdi("(01)00886333006052(17)220410(10)11174028");
-                    notclicked[0] = false;
-                }else if(!notclicked[0]){
-                    checkUdi("(01)00827002048775(17)250212(10)10325877");
-                }
+                System.out.println("size is " + procedureInfoHashMapList.size());
+                String test[] = new String[]{"(01)00886333006052(17)220410(10)11174028","(01)00827002048775(17)250212(10)10325877",
+                        "(01)00389701007632(17)220630(10)YA29","(01)00389701007632(17)220630(10)YA25"};
+                if(procedureInfoHashMapList.size() < 2){
+                    checkUdi(test[i[0]++]);
 
+                }else{
+                    if(equipmentScanned){
+                        Toast.makeText(parent, "Please add only one equipment to multiple procedures", Toast.LENGTH_LONG).show();
+                    }else {
+                        checkUdi(test[1]);
+                        equipmentScanned = true;
+                    }
+                }
             }
         });
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveProcedureInfo(procedureInfo);
+                if(procedureInfoHashMapList.size() < 2) {
+                    saveProcedureInfo(procedureInfo);
+                }else{
+                    Toast.makeText(parent, "list is longer here", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
         return rootView;
     }
 
-    private void setProcedureSummary(HashMap<String, Object> procedureInformation){
-        procedureInfoName.setText(procedureInformation.get("procedure_used").toString());
-        procedureInfoDate.setText(procedureInformation.get("procedure_date").toString());
-        procedureAccessionNumber.setText(procedureInformation.get("accession_number").toString());
+    private void setProcedureSummary(List<HashMap<String, Object>> procedureInformationList, View view){
+
+        for(int i = 0; i < procedureInformationList.size(); i++) {
+            final View procedureSummaryView = View.inflate(view.getContext(), R.layout.procedure_summary, null);
+            TextView newProcedureName = procedureSummaryView.findViewById(R.id.newprocedureinfoName_textview);
+            TextView newProcedureDate = procedureSummaryView.findViewById(R.id.newprocedureinfoDate_textview);
+            TextView newProcedureAccessionNumber = procedureSummaryView.findViewById(R.id.newprocedureinfoAccessionNumber_textview);
+            newProcedureName.setText(procedureInformationList.get(i).get("procedure_used").toString());
+            newProcedureDate.setText(procedureInformationList.get(i).get("procedure_date").toString());
+            newProcedureAccessionNumber.setText(procedureInformationList.get(i).get("accession_number").toString());
+            procedureSummaryLinear.addView(procedureSummaryView);
+
+        }
+
+
     }
 
     private void startScanner() {
@@ -301,6 +314,7 @@ public class AddEquipmentFragment extends Fragment {
                                     if (task.isSuccessful()) {
                                         DocumentSnapshot document = task.getResult();
                                         if (Objects.requireNonNull(document).exists()) {
+
                                             addUdi(contents, getView(), di);
                                         }else{
                                             offerEquipmentScan(Objects.requireNonNull(view), contents);
@@ -339,7 +353,7 @@ public class AddEquipmentFragment extends Fragment {
                 ItemDetailFragment fragment = new ItemDetailFragment();
                 Bundle bundle = new Bundle();
                 bundle.putString("barcode", udi);
-                bundle.putSerializable("procedure_info",procedureInfoHashMap);
+                bundle.putSerializable("procedure_info", (Serializable) procedureInfoHashMapList);
                 bundle.putSerializable("udi_quantity", (Serializable) procedureInfo);
                 fragment.setArguments(bundle);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
