@@ -28,7 +28,7 @@
             android:gravity="center"
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:liftOnScroll="true"
-            app:menu="@menu/fragment_topbar"
+            app:menu="@menu/fragment_navbar"
             app:navigationIcon="@drawable/icon_back"
             app:title="Equipments used"
             app:titleTextColor="@android:color/white" />
@@ -57,100 +57,24 @@
                 android:paddingTop="20dp"
                 android:orientation="vertical">
 
-                <TextView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="5"
-                android:gravity="center_vertical"
-                android:text="Procedure summary"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
-                android:padding="8dp"/>
-
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:baselineAligned="false"
-                    android:orientation="horizontal"
-                    android:background="@android:color/white"
-                    android:layout_marginVertical="1dp">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:id="@+id/procedure_summary_linear">
                     <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:focusable="false"
-                        android:text="Procedure name"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="5"
+                        android:gravity="center_vertical"
+                        android:text="Procedure summary"
+                        android:textSize="20sp"
                         android:textStyle="bold"
-                        android:textSize="16sp"
                         android:textColor="@android:color/black"
-                        android:padding="8dp"
-                        android:gravity="center_vertical"/>
-                    <TextView
-                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:id="@+id/procedureinfoName_edittext"
-                        android:textSize="16sp"
-                        android:padding="8dp"/>
+                        android:paddingVertical="8dp"/>
+
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:baselineAligned="false"
-                    android:orientation="horizontal"
-                    android:background="@android:color/white"
-                    android:layout_marginVertical="1dp">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:focusable="false"
-                        android:text="Procedure date"
-                        android:textStyle="bold"
-                        android:textSize="16sp"
-                        android:textColor="@android:color/black"
-                        android:padding="8dp"
-                        android:gravity="center_vertical"/>
-                    <TextView
-                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:id="@+id/procedureinfoDate_edittext"
-                        android:textSize="16sp"
-                        android:padding="8dp"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:baselineAligned="false"
-                    android:orientation="horizontal"
-                    android:background="@android:color/white"
-                    android:layout_marginVertical="1dp">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:focusable="false"
-                        android:text="Accession number"
-                        android:textStyle="bold"
-                        android:textSize="16sp"
-                        android:textColor="@android:color/black"
-                        android:padding="8dp"
-                        android:gravity="center_vertical"/>
-                    <TextView
-                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:id="@+id/procedureinfoAccessionNumber_edittext"
-                        android:textSize="16sp"
-                        android:padding="8dp"/>
-                </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"

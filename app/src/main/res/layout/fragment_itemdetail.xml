@@ -28,7 +28,7 @@
             android:gravity="center"
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:liftOnScroll="true"
-            app:menu="@menu/fragment_topbar"
+            app:menu="@menu/fragment_navbar"
             app:navigationIcon="@drawable/icon_back"
             app:title="Edit equipment specifications"
             app:titleTextColor="@android:color/white" />
@@ -395,7 +395,7 @@
         </androidx.core.widget.NestedScrollView>
 
         <LinearLayout
-            android:id="@+id/item_bottom"
+            android:id="@+id/item_buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"

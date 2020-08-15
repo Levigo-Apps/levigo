@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/cancelProcedure"
+        android:enabled="true"
+        android:icon="@drawable/ic_backspace_white_24dp"
+        android:title="Cancel" />
+    <item
+        android:id="@+id/next"
+        android:enabled="true"
+        android:icon="@drawable/ic_arrow_forward_ios_white_24dp"
+        android:title="Next"
+        />
+</menu>
+
+
+
+
+
