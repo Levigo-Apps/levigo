@@ -58,6 +58,7 @@ public class SignUpActivity extends AppCompatActivity {
     private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
     private CollectionReference invitationCodesRef = levigoDb.collection("invitation_codes");
     private CollectionReference usersRef = levigoDb.collection("users");
+    private CollectionReference networksRef = levigoDb.collection("networks");
 
     private LinearLayout mEmailPasswordLayout;
     private Button mSubmitInvitationCode;
@@ -67,7 +68,6 @@ public class SignUpActivity extends AppCompatActivity {
     private TextInputEditText mPasswordField;
     private TextInputEditText mConfirmPasswordField;
     private Button mSignUpButton;
-    //    private Button mEmailForAdmin;
     private TextView mNetworkNameTextView;
     private TextView mHospitalNameTextView;
 
@@ -172,9 +172,8 @@ public class SignUpActivity extends AppCompatActivity {
                             Exception failedTaskException = task.getException();
                             Log.d(TAG, "get failed with ", failedTaskException);
                             FirebaseCrashlytics.getInstance().recordException(failedTaskException);
-//                            Log.d(TAG, "get failed with ", task.getException());
                         }
-                        if (toastMessage != null){
+                        if (toastMessage != null) {
                             Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
                         }
                     }
@@ -182,7 +181,6 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
-//        ImwdlM5c1FoqpDwbsRSU
         TextWatcher emailPasswordWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int
@@ -217,7 +215,6 @@ public class SignUpActivity extends AppCompatActivity {
         mPasswordField.addTextChangedListener(emailPasswordWatcher);
         mConfirmPasswordField.addTextChangedListener(emailPasswordWatcher);
 
-//        HctpKDcubLGmhZ4AIqSg
         mSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -229,11 +226,11 @@ public class SignUpActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-                                    disableValidationCode(mInvitationCode);
-
                                     // Create user document in "users" collection to store authorized hospital
                                     String userId = mAuth.getCurrentUser().getUid();
                                     String currentUserEmail = mAuth.getCurrentUser().getEmail();
+                                    disableValidationCode(mInvitationCode, userId);
+
                                     Map<String, Object> newUserData = new HashMap<>();
                                     newUserData.put("network_id", mNetworkId);
                                     newUserData.put("network_name", mNetworkName);
@@ -243,6 +240,8 @@ public class SignUpActivity extends AppCompatActivity {
 
                                     usersRef.document(userId).set(newUserData);
 
+                                    // give user admin access
+                                    networksRef.document(mNetworkId).update("auth_users." + userId, "editor");
                                     Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
                                     startActivity(mainActivityIntent);
                                     Toast.makeText(getApplicationContext(), "Account created. Welcome!",
@@ -251,7 +250,6 @@ public class SignUpActivity extends AppCompatActivity {
                                     // If sign in fails, display a message to the user.
                                     Exception createUserException = task.getException();
                                     Log.w(TAG, "createUserWithEmail:failure", createUserException);
-//                                    Log.w(TAG, "createUserWithEmail:failure", task.getException());
                                     Toast.makeText(getApplicationContext(), "Authentication failed.",
                                             Toast.LENGTH_SHORT).show();
                                     FirebaseCrashlytics.getInstance().recordException(createUserException);
@@ -263,9 +261,10 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
-    private void disableValidationCode(String invitationCode) {
+    private void disableValidationCode(String invitationCode, String userId) {
         DocumentReference currentCodeRef = invitationCodesRef.document(invitationCode);
         currentCodeRef.update("valid", false);
+        currentCodeRef.update("authorized_user", userId);
     }
 
     public void composeEmail(View view) {
