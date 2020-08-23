@@ -1407,8 +1407,7 @@ public class ItemDetailFragment extends Fragment {
         RequestQueue queue = Volley.newRequestQueue(parent);
         String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
         url = url + udiStr;
-
-
+        
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
@@ -1417,98 +1416,114 @@ public class ItemDetailFragment extends Fragment {
                         JSONObject responseJson;
                         try {
                             responseJson = new JSONObject(response);
-                            Log.d(TAG, "RESPONSE: " + response);
-                            JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
-                            JSONObject udi = responseJson.getJSONObject("udi");
-                            JSONArray productCodes = responseJson.getJSONArray("productCodes");
-                            StringBuilder medicalSpecialties = new StringBuilder();
-                            for (int i = 0; i < productCodes.length(); i++) {
-                                medicalSpecialties.append(productCodes.getJSONObject(i).getString("medicalSpecialty"));
-                                medicalSpecialties.append("; ");
-                            }
-                            medicalSpecialties = new StringBuilder(medicalSpecialties.substring(0, medicalSpecialties.length() - 2));
+//                            Log.d(TAG, "RESPONSE: " + response);
+                            if (responseJson.has("udi")){
+                                JSONObject udi = responseJson.getJSONObject("udi");
 
-                            lotNumber.setText(udi.getString("lotNumber"));
-                            lotNumber.setEnabled(false);
-                            lotNumber.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-
-                            company.setText(deviceInfo.getString("companyName"));
-
-                            company.setEnabled(false);
-                            company.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-
-                            expiration.setText(udi.getString("expirationDate"));
-                            expiration.setEnabled(false);
-
-
-                            di = udi.getString("di");
-                            deviceIdentifier.setText(udi.getString("di"));
-                            deviceIdentifier.setEnabled(false);
-
-                            updateProcedureFieldAdded(udiStr, di);
-
-                            nameEditText.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
-                            nameEditText.setEnabled(false);
-                            nameEditText.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-
-                            deviceDescription.setText(deviceInfo.getString("deviceDescription"));
-                            deviceDescription.setEnabled(false);
-                            deviceDescription.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-
-                            referenceNumber.setText(deviceInfo.getString("catalogNumber"));
-                            referenceNumber.setEnabled(false);
-
-                            medicalSpeciality.setText(medicalSpecialties.toString());
-                            medicalSpeciality.setEnabled(false);
-                            medicalSpeciality.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-
-                            numberAdded.setText(deviceInfo.getString("deviceCount"));
-                            autoPopulateFromDatabase(udiStr,di);
-                            JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
-                            for (int i = 0; i < deviceSizeArray.length(); ++i) {
-                                int colonIndex;
-                                String k;
-                                String v;
-                                JSONObject currentSizeObject = deviceSizeArray.getJSONObject(i);
-                                k = currentSizeObject.getString("sizeType");
-                                if (k.equals("Device Size Text, specify")) {
-                                    String customSizeText = currentSizeObject.getString("sizeText");
-                                    // Key, Value usually separated by colon
-                                    colonIndex = customSizeText.indexOf(":");
-                                    if (colonIndex == -1) {
-                                        // If no colon, save whole field as "value"
-                                        //TODO what if more than one????
-                                        //TODO Davit: Can we leave k blank for now, assign value during save?
-                                        k = "Custom Key";
-                                        v = customSizeText;
-                                    } else {
-                                        k = customSizeText.substring(0, colonIndex);
-                                        v = customSizeText.substring(colonIndex + 1).trim();
-                                    }
-                                } else {
-                                    v = currentSizeObject.getJSONObject("size").getString("value")
-                                            + " "
-                                            + currentSizeObject.getJSONObject("size").getString("unit");
+                                if (udi.has("lotNumber")) {
+                                    lotNumber.setText(udi.getString("lotNumber"));
+                                    lotNumber.setEnabled(false);
+                                    lotNumber.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
                                 }
-                                addItemSpecs(k, v, view);
+                                if (udi.has("expirationDate")) {
+                                    expiration.setText(udi.getString("expirationDate"));
+                                    expiration.setEnabled(false);
+                                }
+                                if (udi.has("di")) {
+                                    di = udi.getString("di");
+                                    deviceIdentifier.setText(udi.getString("di"));
+                                    deviceIdentifier.setEnabled(false);
+                                    updateProcedureFieldAdded(udiStr, di);
+                                }
+
+                            }
+                            if (responseJson.has("gudid") && responseJson.getJSONObject("gudid").has("device")) {
+                                JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
+
+                                if (deviceInfo.has("companyName")) {
+                                    company.setText(deviceInfo.getString("companyName"));
+                                    company.setEnabled(false);
+                                    company.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+                                }
+                                if (deviceInfo.has("gmdnTerms")) {
+                                    nameEditText.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
+                                    nameEditText.setEnabled(false);
+                                    nameEditText.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+                                }
+                                if (deviceInfo.has("deviceDescription")) {
+                                    deviceDescription.setText(deviceInfo.getString("deviceDescription"));
+                                    deviceDescription.setEnabled(false);
+                                    deviceDescription.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+                                }
+                                if (deviceInfo.has("catalogNumber")) {
+                                    referenceNumber.setText(deviceInfo.getString("catalogNumber"));
+                                    referenceNumber.setEnabled(false);
+                                }
+                                if (deviceInfo.has("deviceCount")) {
+                                    numberAdded.setText(deviceInfo.getString("deviceCount"));
+                                }
+                                if (deviceInfo.has("deviceSizes") && deviceInfo.getJSONObject("deviceSizes").has("deviceSize")) {
+                                    JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
+                                    for (int i = 0; i < deviceSizeArray.length(); ++i) {
+                                        int colonIndex;
+                                        String k;
+                                        String v;
+                                        JSONObject currentSizeObject = deviceSizeArray.getJSONObject(i);
+                                        k = currentSizeObject.getString("sizeType");
+                                        if (k.equals("Device Size Text, specify")) {
+                                            String customSizeText = currentSizeObject.getString("sizeText");
+                                            // Key, Value usually separated by colon
+                                            colonIndex = customSizeText.indexOf(":");
+                                            if (colonIndex == -1) {
+                                                // If no colon, save whole field as "value"
+                                                k = "Custom Key";
+                                                v = customSizeText;
+                                            } else {
+                                                k = customSizeText.substring(0, colonIndex);
+                                                v = customSizeText.substring(colonIndex + 1).trim();
+                                            }
+                                        } else {
+                                            v = currentSizeObject.getJSONObject("size").getString("value")
+                                                    + " "
+                                                    + currentSizeObject.getJSONObject("size").getString("unit");
+                                        }
+                                        addItemSpecs(k, v, view);
+                                    }
+                                }
+                                autoPopulateFromDatabase(udiStr,di);
+                            }
+
+                            if (responseJson.has("productCodes")){
+                                JSONArray productCodes = responseJson.getJSONArray("productCodes");
+                                StringBuilder medicalSpecialties = new StringBuilder();
+                                for (int i = 0; i < productCodes.length(); i++) {
+                                    medicalSpecialties.append(productCodes.getJSONObject(i).getString("medicalSpecialty"));
+                                    medicalSpecialties.append("; ");
+                                }
+                                medicalSpecialties = new StringBuilder(medicalSpecialties.substring(0, medicalSpecialties.length() - 2));
+
+                                medicalSpeciality.setText(medicalSpecialties.toString());
+                                medicalSpeciality.setEnabled(false);
+                                medicalSpeciality.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
                             }
                         } catch (JSONException e) {
                             FirebaseCrashlytics.getInstance().recordException(e);
                             e.printStackTrace();
+//                            Log.d(TAG, "ERROR: "+ e.getMessage());
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 FirebaseCrashlytics.getInstance().recordException(error);
-                Log.d(TAG, "Error in parsing barcode");
+//                Log.d(TAG, "Error in parsing barcode");
                 nonGudidUdi(udiStr,view);
             }
         });
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
-    
+
     private void nonGudidUdi(final String udiStr, final View view){
 
         if(deviceIdentifier.getText().toString().length() <= 0 && (!editingExisting)) {
