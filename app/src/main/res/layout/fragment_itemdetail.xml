@@ -120,8 +120,7 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_quantity"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:focusable="false" />
+                        android:layout_height="match_parent"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -138,9 +137,7 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_expiration_date"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:clickable="false"
-                        android:focusable="false" />
+                        android:layout_height="match_parent"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <LinearLayout
@@ -327,9 +324,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="true"
-                        android:cursorVisible="false"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false" />
+                        android:cursorVisible="false" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
