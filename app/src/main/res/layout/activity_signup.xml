@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     android:orientation="vertical"
-    android:padding="15dp"
-    android:background="@android:color/white">
+    android:padding="15dp">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/main_toolbar"
@@ -18,14 +18,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@android:drawable/ic_menu_sort_by_size"
-        app:titleTextColor="@color/colorPrimaryDark"
-        app:title="Create an Account" />
+        app:title="Create an Account"
+        app:titleTextColor="@color/colorPrimaryDark" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_weight="3">
+        android:layout_weight="3"
+        android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout_invitationCode"
@@ -39,9 +39,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="InvitationCode"
-                android:textColor="@color/colorCustomBlack"
                 android:inputType="textCapCharacters"
-                android:shadowColor="@color/colorPrimaryDark"/>
+                android:shadowColor="@color/colorPrimaryDark"
+                android:textColor="@color/colorCustomBlack" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -50,8 +50,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorPrimaryDark"
-            android:textColor="@android:color/white"
-            android:text="Submit" />
+            android:text="Submit"
+            android:textColor="@android:color/white" />
 
     </LinearLayout>
 
@@ -67,7 +67,8 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorPrimary"
             android:text="Your Network:"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/colorCustomBlack" />
 
         <TextView
             android:id="@+id/signup_network_name"
@@ -75,14 +76,16 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorPrimary"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/colorCustomBlack"
             android:textStyle="bold" />
 
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Your Site:"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+            android:text="Your Hospital:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/colorCustomBlack" />
 
         <TextView
             android:id="@+id/signup_site_name"
@@ -102,8 +105,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Email"
-                android:inputType="textEmailAddress"
-                />
+                android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -117,8 +119,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Password"
-                android:inputType="textPassword"
-                />
+                android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -132,8 +133,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Confirm Password"
-                android:inputType="textPassword"
-                />
+                android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
@@ -143,17 +143,18 @@
             android:backgroundTint="@color/colorPrimaryDark"
             android:text="Create Account" />
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="3"
         android:orientation="vertical">
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Are you a hospital administrator?"
-            android:textColor="@color/colorPrimaryDark">
-        </TextView>
+            android:textColor="@color/colorPrimaryDark"></TextView>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/signup_admin_email"
@@ -163,9 +164,9 @@
             android:background="?attr/selectableItemBackground"
             android:backgroundTint="@color/colorPrimaryDark"
             android:gravity="center"
-            android:text="Email us to create an admin account"
             android:onClick="composeEmail"
-            android:textSize="14sp"
-            android:textColor="@android:color/white" />
+            android:text="Email us to create an admin account"
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
     </LinearLayout>
 </LinearLayout>

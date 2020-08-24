@@ -1389,8 +1389,7 @@ public class ItemDetailFragment extends Fragment {
             return;
             // Some UDI starts with '+'; needs to strip plus sign and last letter in order to be recognized
         } else if (udiStr.charAt(0) == '+') {
-            // remove all non-numeric characters
-            udiStr = udiStr.replaceAll( "[^\\d]", "" );
+            udiStr = udiStr.replaceFirst("[+]", "01");
         }
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(parent);
@@ -1579,8 +1578,6 @@ public class ItemDetailFragment extends Fragment {
             }
         };
         deviceIdentifier.addTextChangedListener(deviceIdentifierWatcher);
-
-
     }
 
     private void updateProcedureFieldAdded(String udi, String di) {
@@ -1687,7 +1684,7 @@ public class ItemDetailFragment extends Fragment {
                         }
                     } else {
                         diQuantity = "0";
-                        Log.d(TAG, "Document does not exist!");
+//                        Log.d(TAG, "Document does not exist!");
                     }
                 } else {
                     Log.d(TAG, "Failed with: ", task.getException());
@@ -1738,10 +1735,9 @@ public class ItemDetailFragment extends Fragment {
                     } else {
                         itemQuantity = "0";
                         quantity.setText("0");
-
-                        Log.d(TAG, "Document does not exist!");
+//                        Log.d(TAG, "Document does not exist!");
                     }
-                    quantity.setText(document.getString(QUANTITY_KEY));
+//                    quantity.setText(document.getString(QUANTITY_KEY));
                     quantity.setEnabled(false);
                 } else {
                     Log.d(TAG, "Failed with: ", task.getException());

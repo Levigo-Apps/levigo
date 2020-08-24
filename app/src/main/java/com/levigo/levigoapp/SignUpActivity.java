@@ -161,7 +161,7 @@ public class SignUpActivity extends AppCompatActivity {
                                     }
 
                                 } else {
-                                    toastMessage = "Invitation code already used; Please contact administrator";
+                                    toastMessage = "Invitation code not exist or already used; Please contact administrator";
                                 }
                             } else {
                                 // document for invitation code doesn't exist
@@ -243,6 +243,7 @@ public class SignUpActivity extends AppCompatActivity {
                                     // give user admin access
                                     networksRef.document(mNetworkId).update("auth_users." + userId, "editor");
                                     Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                                    finish();
                                     startActivity(mainActivityIntent);
                                     Toast.makeText(getApplicationContext(), "Account created. Welcome!",
                                             Toast.LENGTH_SHORT).show();
