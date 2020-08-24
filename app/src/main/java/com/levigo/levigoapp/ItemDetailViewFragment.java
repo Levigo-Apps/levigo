@@ -1,13 +1,10 @@
 package com.levigo.levigoapp;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,16 +20,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,9 +30,6 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -134,7 +121,7 @@ public class ItemDetailViewFragment extends Fragment {
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         itemSpecsLinearLayout.setOrientation(LinearLayout.VERTICAL);
         itemSpecsLinearLayout.setVisibility(View.GONE);
-        linearLayout.addView(itemSpecsLinearLayout,linearLayout.indexOfChild(specsLinearLayout) + 1);
+        linearLayout.addView(itemSpecsLinearLayout, linearLayout.indexOfChild(specsLinearLayout) + 1);
         ImageView itemNameEdit = rootView.findViewById(R.id.itemname_edit);
 
 
@@ -152,6 +139,14 @@ public class ItemDetailViewFragment extends Fragment {
                         try {
                             mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
                             mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
+
+                            if (getArguments() != null) {
+                                String barcode = getArguments().getString("barcode");
+                                udi.setText(barcode);
+                                returnedDi = getArguments().getString("di");
+                                Log.d(TAG, "DI: " + returnedDi + "| UDI: " + barcode);
+                                autoPopulateFromDatabase(returnedDi, barcode, rootView);
+                            }
                         } catch (NullPointerException e) {
                             toastMessage = "Error retrieving user information; Please contact support";
                             Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
@@ -170,14 +165,6 @@ public class ItemDetailViewFragment extends Fragment {
         });
 
 
-        if (getArguments() != null) {
-            String barcode = getArguments().getString("barcode");
-            udi.setText(barcode);
-            returnedDi = getArguments().getString("di");
-            autoPopulate(rootView);
-            Log.d(TAG, "auto");
-        }
-
         topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -190,12 +177,12 @@ public class ItemDetailViewFragment extends Fragment {
         specificationLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(isSpecsMaximized[0]){
+                if (isSpecsMaximized[0]) {
                     isSpecsMaximized[0] = false;
                     itemSpecsLinearLayout.setVisibility(View.GONE);
                     specificationLayout.setImageResource(R.drawable.ic_baseline_plus);
 
-                }else{
+                } else {
                     itemSpecsLinearLayout.setVisibility(View.VISIBLE);
                     specificationLayout.setImageResource(R.drawable.icon_minimize);
                     isSpecsMaximized[0] = true;
@@ -207,146 +194,33 @@ public class ItemDetailViewFragment extends Fragment {
         itemNameEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            ItemDetailFragment fragment = new ItemDetailFragment();
-            Bundle bundle = new Bundle();
-            bundle.putString("barcode", Objects.requireNonNull(udi.getText()).toString());
-            bundle.putBoolean("editingExisting", true);
-            bundle.putString("di",deviceIdentifier.getText().toString());
-            fragment.setArguments(bundle);
+                ItemDetailFragment fragment = new ItemDetailFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("barcode", Objects.requireNonNull(udi.getText()).toString());
+                bundle.putBoolean("editingExisting", true);
+                bundle.putString("di", deviceIdentifier.getText().toString());
+                fragment.setArguments(bundle);
 
-            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
 //            //clears other fragments
-//            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
-            fragmentTransaction.add(R.id.activity_main, fragment);
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+                fragmentTransaction.add(R.id.activity_main, fragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
             }
         });
 
         return rootView;
     }
 
-    String di = "";
-    private void autoPopulate(final View view) {
+//    String di = "";
+//
+//    private void nonGudidUdi(final String udiStr, final View view, String di) {
+//        autoPopulateFromDatabase(di, udiStr, view);
+//    }
 
-
-        final String udiStr = Objects.requireNonNull(udi.getText()).toString();
-        udi.setFocusable(false);
-        Log.d(TAG, udiStr);
-
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(parent);
-        String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
-
-        url = url + udiStr;
-
-
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        JSONObject responseJson;
-                        try {
-                            responseJson = new JSONObject(response);
-
-                            Log.d(TAG, "RESPONSE: " + response);
-
-                            JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
-                            JSONObject udi = responseJson.getJSONObject("udi");
-                            JSONArray productCodes = responseJson.getJSONArray("productCodes");
-                            StringBuilder medicalSpecialties = new StringBuilder();
-                            for (int i = 0; i < productCodes.length(); i++) {
-                                medicalSpecialties.append(productCodes.getJSONObject(i).getString("medicalSpecialty"));
-                                medicalSpecialties.append("; ");
-                            }
-                            medicalSpecialties = new StringBuilder(medicalSpecialties.substring(0, medicalSpecialties.length() - 2));
-
-                            lotNumber.setText(udi.getString("lotNumber"));
-                            lotNumber.setFocusable(false);
-
-                            manufacturer.setText(deviceInfo.getString("companyName"));
-                            manufacturer.setFocusable(false);
-
-                            expiration.setText(udi.getString("expirationDate"));
-                            expiration.setFocusable(false);
-
-                            di = udi.getString("di");
-                            deviceIdentifier.setText(udi.getString("di"));
-                            deviceIdentifier.setFocusable(false);
-
-                            itemName.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
-                            itemName.setFocusable(false);
-
-                            deviceDescription.setText(deviceInfo.getString("deviceDescription"));
-                            deviceDescription.setFocusable(false);
-
-                            referenceNumber.setText(deviceInfo.getString("catalogNumber"));
-                            referenceNumber.setFocusable(false);
-
-                            medicalSpecialty.setText(medicalSpecialties.toString());
-                            medicalSpecialty.setFocusable(false);
-
-                            autoPopulateFromDatabase(di, udiStr, view);
-
-                            JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
-                            for (int i = 0; i < deviceSizeArray.length(); ++i) {
-                                String k;
-                                String v;
-
-                                JSONObject currentSizeObject = deviceSizeArray.getJSONObject(i);
-                                k = currentSizeObject.getString("sizeType");
-                                Log.d(TAG, "KEYS: " + k);
-                                if (k.equals("Device Size Text, specify")) {
-                                    String customSizeText = currentSizeObject.getString("sizeText");
-                                    // Key is usually substring before first number (e.g. "Co-Axial Introducer Needle: 17ga x 14.9cm")
-                                    k = customSizeText.split("[0-9]+")[0];
-
-                                    // needs remember the cutoff to retrieve the rest of the string
-                                    int cutoff = k.length();
-                                    // take off trailing whitespace
-                                    try {
-                                        k = k.substring(0, k.length() - 2);
-                                    } catch (StringIndexOutOfBoundsException e) { // if sizeText starts with number
-                                        k = "Size";
-                                    }
-
-                                    // Value is assumed to be the substring starting with the number
-                                    v = customSizeText.substring(cutoff);
-                                    Log.d(TAG, "Custom Key: " + k);
-                                    Log.d(TAG, "Custom Value: " + v);
-
-                                } else {
-                                    v = currentSizeObject.getJSONObject("size").getString("value")
-                                            + " "
-                                            + currentSizeObject.getJSONObject("size").getString("unit");
-                                    Log.d(TAG, "Value: " + v);
-                                }
-                                addItemSpecs(k, v, view);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d(TAG, "Error in parsing barcode");
-                nonGudidUdi(udiStr, view,returnedDi);
-            }
-        });
-
-// Add the request to the RequestQueue.
-        queue.add(stringRequest);
-    }
-
-    private void nonGudidUdi(final String udiStr, final View view, String di){
-        autoPopulateFromDatabase(di,udiStr,view);
-    }
-
-    private void addItemSpecs(String key, String value, View view){
+    private void addItemSpecs(String key, String value, View view) {
 
         LinearLayout eachItemSpecsLayout = new LinearLayout(view.getContext());
         eachItemSpecsLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -362,7 +236,7 @@ public class ItemDetailViewFragment extends Fragment {
 
         TextView headerKey = new TextView(view.getContext());
         headerKey.setLayoutParams(itemSpecsParams);
-        headerKey.setPadding((int) (8 * dp),(int) (8 * dp),(int) (8 * dp),(int) (8 * dp));
+        headerKey.setPadding((int) (8 * dp), (int) (8 * dp), (int) (8 * dp), (int) (8 * dp));
         headerKey.setText(key);
         headerKey.setFocusable(false);
         headerKey.setTypeface(headerKey.getTypeface(), Typeface.BOLD);
@@ -377,7 +251,7 @@ public class ItemDetailViewFragment extends Fragment {
 
         TextView specsValue = new TextView(view.getContext());
         specsValue.setLayoutParams(specValueParams);
-        specsValue.setPadding((int) (8 * dp),(int) (8 * dp),(int) (8 * dp),(int) (8 * dp));
+        specsValue.setPadding((int) (8 * dp), (int) (8 * dp), (int) (8 * dp), (int) (8 * dp));
         specsValue.setText(value);
         specsValue.setTextSize(14);
         specsValue.setTextColor(Color.BLACK);
@@ -408,29 +282,29 @@ public class ItemDetailViewFragment extends Fragment {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (Objects.requireNonNull(document).exists()) {
-                        if(document.get(TYPE_KEY) != null){
+                        if (document.get(TYPE_KEY) != null) {
                             type.setText(document.getString(TYPE_KEY));
                         }
-                        if(document.get(SITE_KEY) != null){
+                        if (document.get(SITE_KEY) != null) {
                             hospitalName.setText(document.getString(SITE_KEY));
                         }
-                        if(document.get(USAGE_KEY) != null){
+                        if (document.get(USAGE_KEY) != null) {
                             String usageStr = document.getString(USAGE_KEY);
                             usage.setText(usageStr);
                         }
-                        if(document.get("device_description") != null && deviceDescription.getText().toString().length() <= 0){
+                        if (document.get("device_description") != null && deviceDescription.getText().toString().length() <= 0) {
                             deviceDescription.setText(document.getString("device_description"));
                         }
-                        if(document.get("di") != null && deviceIdentifier.getText().toString().length() <= 0 ){
+                        if (document.get("di") != null && deviceIdentifier.getText().toString().length() <= 0) {
                             deviceIdentifier.setText(document.getString("di"));
                         }
-                        if(document.get("medical_specialty") != null && medicalSpecialty.getText().toString().length() <= 0){
+                        if (document.get("medical_specialty") != null && medicalSpecialty.getText().toString().length() <= 0) {
                             medicalSpecialty.setText(document.getString("medical_specialty"));
                         }
-                        if(document.get("name") != null && itemName.getText().toString().length() <= 0){
+                        if (document.get("name") != null && itemName.getText().toString().length() <= 0) {
                             itemName.setText(document.getString("name"));
                         }
-                        if(document.get("company") != null && manufacturer.getText().toString().length() <= 0){
+                        if (document.get("company") != null && manufacturer.getText().toString().length() <= 0) {
                             manufacturer.setText(document.getString("company"));
                         }
 
@@ -449,43 +323,46 @@ public class ItemDetailViewFragment extends Fragment {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (Objects.requireNonNull(document).exists()) {
-                        if(document.get("procedure_number") != null){
+                        if (document.get("procedure_number") != null) {
                             procedureCount = Integer.parseInt(
                                     Objects.requireNonNull(document.getString("procedure_number")));
                             getProcedureInfo(procedureCount, di, udiStr, view);
-                        }else{
+                        } else {
                             procedureCount = 0;
                         }
-                        if(document.get("expiration") != null){
+                        if (document.get("expiration") != null) {
                             expiration.setText(document.getString("expiration"));
                         }
-                        if(document.get("lot_number") != null && lotNumber.getText().toString().length() <= 0){
+                        if (document.get("lot_number") != null && lotNumber.getText().toString().length() <= 0) {
                             lotNumber.setText(document.getString("lot_number"));
                         }
-                        if(document.get("notes") != null){
+                        if (document.get("notes") != null) {
                             notes.setText(document.getString("notes"));
                         }
-                        if(document.get("physical_location") != null){
+                        if (document.get("physical_location") != null) {
                             physicalLocation.setText(document.getString("physical_location"));
                         }
-                        if(document.get("quantity") != null) {
+                        if (document.get("quantity") != null) {
                             itemQuantity = document.getString(QUANTITY_KEY);
                             quantity.setText(itemQuantity);
-                        }else{
+                        } else {
                             itemQuantity = "0";
                             quantity.setText("0");
-                        }if(document.get(PHYSICALLOC_KEY) != null){
+                        }
+                        if (document.get(PHYSICALLOC_KEY) != null) {
                             physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
-                        }if(document.get("current_date") != null){
+                        }
+                        if (document.get("current_date") != null) {
                             currentDate = document.getString("current_date");
-                        }if(document.get("current_time") != null){
+                        }
+                        if (document.get("current_time") != null) {
                             currentTime = document.getString("current_time");
                             lastUpdate.setText(String.format("%s\n%s", currentDate, currentTime));
                         }
-                        if(document.get("notes") != null){
+                        if (document.get("notes") != null) {
                             notes.setText(document.getString("notes"));
                         }
-                        if(document.get("reference_number") != null && referenceNumber.getText().toString().length() <= 0){
+                        if (document.get("reference_number") != null && referenceNumber.getText().toString().length() <= 0) {
                             referenceNumber.setText(document.getString("reference_number"));
                         }
                     } else {
@@ -506,10 +383,10 @@ public class ItemDetailViewFragment extends Fragment {
     }
 
     private void getProcedureInfo(final int procedureCount, String di,
-                                  String udiStr, final View view){
+                                  String udiStr, final View view) {
         final int[] check = {0};
         DocumentReference procedureRef;
-        for ( int i = 0; i < procedureCount; i++) {
+        for (int i = 0; i < procedureCount; i++) {
             procedureRef = db.collection("networks").document(mNetworkId)
                     .collection("hospitals").document(mHospitalId).collection("departments")
                     .document("default_department").collection("dis").document(di)
@@ -530,24 +407,24 @@ public class ItemDetailViewFragment extends Fragment {
                         }
                         final boolean[] isUsageMaximized = {false};
                         final LinearLayout isItemUsedLinearLayout = view.findViewById(R.id.isitemused_linear);
-                        if(check[0] == procedureCount) {
+                        if (check[0] == procedureCount) {
                             usageLayout.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    if(isUsageMaximized[0]){
+                                    if (isUsageMaximized[0]) {
                                         usageLayout.setImageResource(R.drawable.ic_baseline_plus);
                                         isItemUsedLinearLayout.setVisibility(View.GONE);
-                                        linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout)+ 1)
+                                        linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout) + 1)
                                                 .setVisibility(View.GONE);
-                                        linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout)+ 2)
+                                        linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout) + 2)
                                                 .setVisibility(View.GONE);
                                         isUsageMaximized[0] = false;
 
 
-                                    }else{
+                                    } else {
                                         usageLayout.setImageResource(R.drawable.icon_minimize);
                                         isItemUsedLinearLayout.setVisibility(View.VISIBLE);
-                                        addProcedureInfoFields(procedureDoc,view);
+                                        addProcedureInfoFields(procedureDoc, view);
                                         isUsageMaximized[0] = true;
 
                                     }
@@ -561,7 +438,7 @@ public class ItemDetailViewFragment extends Fragment {
     }
 
 
-    private void addProcedureInfoFields(final List<Map> procedureDoc, View view){
+    private void addProcedureInfoFields(final List<Map> procedureDoc, View view) {
         System.out.println(procedureDoc);
         int i;
         final LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
@@ -570,7 +447,7 @@ public class ItemDetailViewFragment extends Fragment {
         procedureInfoLayout.setOrientation(LinearLayout.VERTICAL);
 
 
-        for(i = 0; i < procedureDoc.size(); i++) {
+        for (i = 0; i < procedureDoc.size(); i++) {
 
             final LinearLayout eachProcedureLayout = new LinearLayout(view.getContext());
             eachProcedureLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -616,7 +493,7 @@ public class ItemDetailViewFragment extends Fragment {
 
 
             final boolean[] isMaximized = {false};
-            addProcedureSubFields(procedureInfoLayout,view,procedureDoc, i,eachProcedureLayout);
+            addProcedureSubFields(procedureInfoLayout, view, procedureDoc, i, eachProcedureLayout);
             procedureDateText.setEndIconOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -640,11 +517,11 @@ public class ItemDetailViewFragment extends Fragment {
             });
         }
 
-        linearLayout.addView(procedureInfoLayout,linearLayout.indexOfChild(usageLinearLayout) +   2);
+        linearLayout.addView(procedureInfoLayout, linearLayout.indexOfChild(usageLinearLayout) + 2);
     }
 
     private void addProcedureSubFields(LinearLayout procedureInfoLayout, View view,
-                                       List<Map> procedureDoc, int item, LinearLayout procedureInfo){
+                                       List<Map> procedureDoc, int item, LinearLayout procedureInfo) {
         LinearLayout subFieldsLayout = new LinearLayout(view.getContext());
         subFieldsLayout.setOrientation(LinearLayout.VERTICAL);
 
@@ -653,7 +530,7 @@ public class ItemDetailViewFragment extends Fragment {
         procedureName.setRowCount(1);
         GridLayout.LayoutParams procedureNameHeaderParams = new GridLayout.LayoutParams();
         procedureNameHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureNameHeaderParams.width = usageLinearLayout.getWidth()/2;
+        procedureNameHeaderParams.width = usageLinearLayout.getWidth() / 2;
         procedureNameHeaderParams.rowSpec = GridLayout.spec(0);
         procedureNameHeaderParams.columnSpec = GridLayout.spec(0);
         procedureNameHeaderParams.setMargins(0, 0, 0, 5);
@@ -670,7 +547,7 @@ public class ItemDetailViewFragment extends Fragment {
 
         GridLayout.LayoutParams procedureNameParams = new GridLayout.LayoutParams();
         procedureNameParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureNameParams.width = usageLinearLayout.getWidth()/2;
+        procedureNameParams.width = usageLinearLayout.getWidth() / 2;
         procedureNameParams.rowSpec = GridLayout.spec(0);
         procedureNameParams.columnSpec = GridLayout.spec(1);
         procedureNameParams.setMargins(0, 0, 0, 5);
@@ -691,7 +568,7 @@ public class ItemDetailViewFragment extends Fragment {
         procedureTimeIn.setRowCount(1);
         GridLayout.LayoutParams procedureTimeInHeaderParams = new GridLayout.LayoutParams();
         procedureTimeInHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureTimeInHeaderParams.width = linearLayout.getWidth()/2;
+        procedureTimeInHeaderParams.width = linearLayout.getWidth() / 2;
         procedureTimeInHeaderParams.rowSpec = GridLayout.spec(0);
         procedureTimeInHeaderParams.columnSpec = GridLayout.spec(0);
         procedureTimeInHeaderParams.setMargins(0, 0, 0, 5);
@@ -707,7 +584,7 @@ public class ItemDetailViewFragment extends Fragment {
 
         GridLayout.LayoutParams procedureTimeParams = new GridLayout.LayoutParams();
         procedureTimeParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureTimeParams.width = linearLayout.getWidth()/2;
+        procedureTimeParams.width = linearLayout.getWidth() / 2;
         procedureTimeParams.rowSpec = GridLayout.spec(0);
         procedureTimeParams.columnSpec = GridLayout.spec(1);
         procedureTimeParams.setMargins(0, 0, 0, 5);
@@ -730,7 +607,7 @@ public class ItemDetailViewFragment extends Fragment {
         procedureTimeOut.setRowCount(1);
         GridLayout.LayoutParams procedureTimeOutHeaderParams = new GridLayout.LayoutParams();
         procedureTimeOutHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureTimeOutHeaderParams.width = linearLayout.getWidth()/2;
+        procedureTimeOutHeaderParams.width = linearLayout.getWidth() / 2;
         procedureTimeOutHeaderParams.rowSpec = GridLayout.spec(0);
         procedureTimeOutHeaderParams.columnSpec = GridLayout.spec(0);
         procedureTimeOutHeaderParams.setMargins(0, 0, 0, 5);
@@ -746,7 +623,7 @@ public class ItemDetailViewFragment extends Fragment {
 
         GridLayout.LayoutParams procedureTimeOutParams = new GridLayout.LayoutParams();
         procedureTimeOutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureTimeOutParams.width = linearLayout.getWidth()/2;
+        procedureTimeOutParams.width = linearLayout.getWidth() / 2;
         procedureTimeOutParams.rowSpec = GridLayout.spec(0);
         procedureTimeOutParams.columnSpec = GridLayout.spec(1);
         procedureTimeOutParams.setMargins(0, 0, 0, 5);
@@ -767,7 +644,7 @@ public class ItemDetailViewFragment extends Fragment {
         procedureFluoroTime.setRowCount(1);
         GridLayout.LayoutParams procedureFluoroTimeHeaderParams = new GridLayout.LayoutParams();
         procedureFluoroTimeHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureFluoroTimeHeaderParams.width = linearLayout.getWidth()/2;
+        procedureFluoroTimeHeaderParams.width = linearLayout.getWidth() / 2;
         procedureFluoroTimeHeaderParams.rowSpec = GridLayout.spec(0);
         procedureFluoroTimeHeaderParams.columnSpec = GridLayout.spec(0);
         procedureFluoroTimeHeaderParams.setMargins(0, 0, 0, 5);
@@ -784,7 +661,7 @@ public class ItemDetailViewFragment extends Fragment {
 
         GridLayout.LayoutParams procedureFluoroTimeParams = new GridLayout.LayoutParams();
         procedureFluoroTimeParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureFluoroTimeParams.width = linearLayout.getWidth()/2;
+        procedureFluoroTimeParams.width = linearLayout.getWidth() / 2;
         procedureFluoroTimeParams.rowSpec = GridLayout.spec(0);
         procedureFluoroTimeParams.columnSpec = GridLayout.spec(1);
         procedureFluoroTimeParams.setMargins(0, 0, 0, 5);
@@ -800,15 +677,12 @@ public class ItemDetailViewFragment extends Fragment {
         procedureFluoroTime.addView(procedureFluoroTimeLayout);
 
 
-
-
-
         GridLayout procedureRoomTime = new GridLayout(view.getContext());
         procedureRoomTime.setColumnCount(2);
         procedureRoomTime.setRowCount(1);
         GridLayout.LayoutParams procedureRoomTimeHeaderParams = new GridLayout.LayoutParams();
         procedureRoomTimeHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureRoomTimeHeaderParams.width = linearLayout.getWidth()/2;
+        procedureRoomTimeHeaderParams.width = linearLayout.getWidth() / 2;
         procedureRoomTimeHeaderParams.rowSpec = GridLayout.spec(0);
         procedureRoomTimeHeaderParams.columnSpec = GridLayout.spec(0);
         procedureRoomTimeHeaderParams.setMargins(0, 0, 0, 5);
@@ -825,7 +699,7 @@ public class ItemDetailViewFragment extends Fragment {
 
         GridLayout.LayoutParams procedureRoomTimeParams = new GridLayout.LayoutParams();
         procedureRoomTimeParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureRoomTimeParams.width = linearLayout.getWidth()/2;
+        procedureRoomTimeParams.width = linearLayout.getWidth() / 2;
         procedureRoomTimeParams.rowSpec = GridLayout.spec(0);
         procedureRoomTimeParams.columnSpec = GridLayout.spec(1);
         procedureRoomTimeParams.setMargins(0, 0, 0, 5);
@@ -846,7 +720,7 @@ public class ItemDetailViewFragment extends Fragment {
         procedureAccession.setRowCount(1);
         GridLayout.LayoutParams procedureAccessionHeaderParams = new GridLayout.LayoutParams();
         procedureAccessionHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureAccessionHeaderParams.width = linearLayout.getWidth()/2;
+        procedureAccessionHeaderParams.width = linearLayout.getWidth() / 2;
         procedureAccessionHeaderParams.rowSpec = GridLayout.spec(0);
         procedureAccessionHeaderParams.columnSpec = GridLayout.spec(0);
         procedureAccessionHeaderParams.setMargins(0, 0, 0, 5);
@@ -863,7 +737,7 @@ public class ItemDetailViewFragment extends Fragment {
 
         GridLayout.LayoutParams procedureAccessionParams = new GridLayout.LayoutParams();
         procedureAccessionParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureAccessionParams.width = linearLayout.getWidth()/2;
+        procedureAccessionParams.width = linearLayout.getWidth() / 2;
         procedureAccessionParams.rowSpec = GridLayout.spec(0);
         procedureAccessionParams.columnSpec = GridLayout.spec(1);
         procedureAccessionParams.setMargins(0, 0, 0, 5);
@@ -884,7 +758,7 @@ public class ItemDetailViewFragment extends Fragment {
 
         GridLayout.LayoutParams procedureItemUsedHeader = new GridLayout.LayoutParams();
         procedureItemUsedHeader.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureItemUsedHeader.width = linearLayout.getWidth()/2;
+        procedureItemUsedHeader.width = linearLayout.getWidth() / 2;
         procedureItemUsedHeader.rowSpec = GridLayout.spec(0);
         procedureItemUsedHeader.columnSpec = GridLayout.spec(0);
         procedureItemUsedHeader.setMargins(0, 0, 0, 5);
@@ -900,7 +774,7 @@ public class ItemDetailViewFragment extends Fragment {
 
         GridLayout.LayoutParams procedureItemUsedLayout = new GridLayout.LayoutParams();
         procedureItemUsedLayout.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureItemUsedLayout.width = usageLinearLayout.getWidth()/2;
+        procedureItemUsedLayout.width = usageLinearLayout.getWidth() / 2;
         procedureItemUsedLayout.rowSpec = GridLayout.spec(0);
         procedureItemUsedLayout.columnSpec = GridLayout.spec(1);
         procedureItemUsedLayout.setMargins(0, 0, 0, 5);
@@ -923,8 +797,8 @@ public class ItemDetailViewFragment extends Fragment {
         subFieldsLayout.addView(procedureFluoroTime);
         subFieldsLayout.addView(procedureAccession);
         subFieldsLayout.addView(procedureItemUsed);
-        procedureInfoLayout.addView(subFieldsLayout,(procedureInfoLayout.indexOfChild(procedureInfo))+1);
-        procedureInfoLayout.getChildAt(procedureInfoLayout.indexOfChild(procedureInfo)+1).setVisibility(View.GONE);
+        procedureInfoLayout.addView(subFieldsLayout, (procedureInfoLayout.indexOfChild(procedureInfo)) + 1);
+        procedureInfoLayout.getChildAt(procedureInfoLayout.indexOfChild(procedureInfo) + 1).setVisibility(View.GONE);
 
     }
 }
