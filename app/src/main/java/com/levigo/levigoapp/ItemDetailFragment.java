@@ -5,15 +5,11 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
-import android.content.res.ColorStateList;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
-import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -23,7 +19,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -52,7 +47,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -72,7 +66,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -83,7 +76,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -177,7 +169,7 @@ public class ItemDetailFragment extends Fragment {
     private List<Map<String, Object>> procedureMapList;
     private List<TextInputEditText> numberUsedList;
     List<HashMap<String, Object>> procedureInfoHashMapList;
-    private List<HashMap<String, Object>>procedureUdisList;
+    private List<HashMap<String, Object>> procedureUdisList;
 
     private LinearLayout siteConstrainLayout;
     private LinearLayout physicalLocationConstrainLayout;
@@ -263,7 +255,7 @@ public class ItemDetailFragment extends Fragment {
         isTimeinSelected = false;
         checkProcedureFields = false;
         accessionNumberGenerated = false;
-        editingExisting =false;
+        editingExisting = false;
         addSizeButton = rootView.findViewById(R.id.button_addsize);
         specsTextView = rootView.findViewById(R.id.detail_specs_textview);
         allSizeOptions = new ArrayList<>();
@@ -312,7 +304,7 @@ public class ItemDetailFragment extends Fragment {
                                 if (editingExisting) {
                                     udiEditText.setEnabled(false);
                                     autoPopulateButton.setEnabled(false);
-                                    autopopulateNonGudid(barcode,getArguments().getString("di"));
+                                    autopopulateNonGudid(barcode, getArguments().getString("di"));
                                 }
                             }
 
@@ -405,17 +397,15 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 FragmentManager fragmentManager = getFragmentManager();
-                if(Objects.requireNonNull(fragmentManager).getBackStackEntryCount() > 0) {
+                if (Objects.requireNonNull(fragmentManager).getBackStackEntryCount() > 0) {
                     fragmentManager.popBackStack();
-                }else{
-                    if(parent != null){
+                } else {
+                    if (parent != null) {
                         parent.onBackPressed();
                     }
                 }
             }
         });
-
-
 
 
         // date picker for expiration date if entered manually
@@ -483,10 +473,10 @@ public class ItemDetailFragment extends Fragment {
             String barcode = getArguments().getString("barcode");
             procedureInfoHashMapList = (List<HashMap<String, Object>>) getArguments().getSerializable("procedure_info");
             procedureUdisList = (List<HashMap<String, Object>>) getArguments().getSerializable("udi_quantity");
-            if(procedureInfoHashMapList != null && procedureInfoHashMapList.size() != 0){
+            if (procedureInfoHashMapList != null && procedureInfoHashMapList.size() != 0) {
                 isProcedureInfoReturned = true;
             }
-            if(procedureUdisList != null && procedureUdisList.size() > 0){
+            if (procedureUdisList != null && procedureUdisList.size() > 0) {
                 isUdisReturned = true;
             }
             udiEditText.setText(barcode);
@@ -835,7 +825,6 @@ public class ItemDetailFragment extends Fragment {
         d.show();
 
     }
-
 
 
     private boolean validateFields(TextInputEditText[] fields) {
@@ -1328,13 +1317,13 @@ public class ItemDetailFragment extends Fragment {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        if(isProcedureInfoReturned) {
+                        if (isProcedureInfoReturned) {
                             AddEquipmentFragment fragment = new AddEquipmentFragment();
                             Bundle bundle = new Bundle();
                             bundle.putBoolean("added", true);
                             bundle.putString("barcode", barcode_str);
                             bundle.putSerializable("procedure_info", (Serializable) procedureInfoHashMapList);
-                            if(isUdisReturned){
+                            if (isUdisReturned) {
                                 bundle.putSerializable("procedure_udi", (Serializable) procedureUdisList);
                             }
                             fragment.setArguments(bundle);
@@ -1389,26 +1378,28 @@ public class ItemDetailFragment extends Fragment {
     }
 
     private void successful_save() {
-
         // quit out fragment
-//        getActivity().getSupportFragmentManager().popBackStack();
-//        getFragmentManager().popBackStack();
-//        getActivity().onBackPressed();
         Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().remove(this).commit();
         Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
     }
 
     private void autoPopulate(final View view) {
-        final String udiStr = Objects.requireNonNull(udiEditText.getText()).toString();
+        String udiStr = Objects.requireNonNull(udiEditText.getText()).toString();
         if (udiStr.equals("")) {
             return;
+            // Some UDI starts with '+'; needs to strip plus sign and last letter in order to be recognized
+        } else if (udiStr.charAt(0) == '+') {
+            // remove all non-numeric characters
+            udiStr = udiStr.replaceAll( "[^\\d]", "" );
         }
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(parent);
         String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
         url = url + udiStr;
-        
+
         // Request a string response from the provided URL.
+        final String finalUdiStr = udiStr;
+        final String finalUdiStr1 = udiStr;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
@@ -1417,7 +1408,7 @@ public class ItemDetailFragment extends Fragment {
                         try {
                             responseJson = new JSONObject(response);
 //                            Log.d(TAG, "RESPONSE: " + response);
-                            if (responseJson.has("udi")){
+                            if (responseJson.has("udi")) {
                                 JSONObject udi = responseJson.getJSONObject("udi");
 
                                 if (udi.has("lotNumber")) {
@@ -1433,7 +1424,7 @@ public class ItemDetailFragment extends Fragment {
                                     di = udi.getString("di");
                                     deviceIdentifier.setText(udi.getString("di"));
                                     deviceIdentifier.setEnabled(false);
-                                    updateProcedureFieldAdded(udiStr, di);
+                                    updateProcedureFieldAdded(finalUdiStr, di);
                                 }
 
                             }
@@ -1490,10 +1481,10 @@ public class ItemDetailFragment extends Fragment {
                                         addItemSpecs(k, v, view);
                                     }
                                 }
-                                autoPopulateFromDatabase(udiStr,di);
+                                autoPopulateFromDatabase(finalUdiStr, di);
                             }
 
-                            if (responseJson.has("productCodes")){
+                            if (responseJson.has("productCodes")) {
                                 JSONArray productCodes = responseJson.getJSONArray("productCodes");
                                 StringBuilder medicalSpecialties = new StringBuilder();
                                 for (int i = 0; i < productCodes.length(); i++) {
@@ -1517,19 +1508,19 @@ public class ItemDetailFragment extends Fragment {
             public void onErrorResponse(VolleyError error) {
                 FirebaseCrashlytics.getInstance().recordException(error);
 //                Log.d(TAG, "Error in parsing barcode");
-                nonGudidUdi(udiStr,view);
+                nonGudidUdi(finalUdiStr1, view);
             }
         });
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
 
-    private void nonGudidUdi(final String udiStr, final View view){
+    private void nonGudidUdi(final String udiStr, final View view) {
 
-        if(deviceIdentifier.getText().toString().length() <= 0 && (!editingExisting)) {
+        if (deviceIdentifier.getText().toString().length() <= 0 && (!editingExisting)) {
             Toast.makeText(parent, "Please enter Device Identifier and click on Autopopulate again", Toast.LENGTH_LONG).show();
             deviceIdentifier.setError("Enter device identifier (DI)");
-        }else if(deviceIdentifier.getText().toString().length() > 0 && (!editingExisting)){
+        } else if (deviceIdentifier.getText().toString().length() > 0 && (!editingExisting)) {
             final String di = deviceIdentifier.getText().toString();
             DocumentReference udiDocRef = db.collection("networks").document(mNetworkId)
                     .collection("hospitals").document(mHospitalId).collection("departments")
@@ -1543,7 +1534,7 @@ public class ItemDetailFragment extends Fragment {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
-                            autoPopulateFromDatabase(udiStr,di );
+                            autoPopulateFromDatabase(udiStr, di);
                             Toast.makeText(parent, "Equipment already exists in inventory, " +
                                     "please fill out remaining fields", Toast.LENGTH_SHORT).show();
                         } else {
@@ -1556,7 +1547,7 @@ public class ItemDetailFragment extends Fragment {
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                         }
                                     })
-                        .show();
+                                    .show();
 
                             Log.d(TAG, "No such document");
                         }
@@ -1581,15 +1572,13 @@ public class ItemDetailFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if(deviceIdentifier.getText().toString().length() > 0){
+                if (deviceIdentifier.getText().toString().length() > 0) {
                     deviceIdentifier.setError(null);
                 }
 
             }
         };
         deviceIdentifier.addTextChangedListener(deviceIdentifierWatcher);
-
-
 
 
     }
@@ -1628,7 +1617,7 @@ public class ItemDetailFragment extends Fragment {
         });
     }
 
-    private void autopopulateNonGudid(String barcode, String di){
+    private void autopopulateNonGudid(String barcode, String di) {
         autoPopulateFromDatabase(barcode, di);
     }
 
@@ -1649,28 +1638,28 @@ public class ItemDetailFragment extends Fragment {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (Objects.requireNonNull(document).exists()) {
-                        if(document.get(COMPANY_KEY) != null && company.getText().toString().length() <= 0){
+                        if (document.get(COMPANY_KEY) != null && company.getText().toString().length() <= 0) {
                             company.setText(document.getString(COMPANY_KEY));
                             company.setEnabled(false);
                         }
-                        if(document.get(SITE_KEY) != null && hospitalName.getText().toString().length() <= 0){
+                        if (document.get(SITE_KEY) != null && hospitalName.getText().toString().length() <= 0) {
                             hospitalName.setText(document.getString(SITE_KEY));
                             hospitalName.setEnabled(false);
                         }
-                        if(document.get("di") != null && deviceIdentifier.getText().toString().length() <= 0){
+                        if (document.get("di") != null && deviceIdentifier.getText().toString().length() <= 0) {
                             deviceIdentifier.setText(document.getString("di"));
                             deviceIdentifier.setEnabled(false);
                         }
 
-                        if(document.get(DESCRIPTION_KEY) != null){
+                        if (document.get(DESCRIPTION_KEY) != null) {
                             deviceDescription.setText(document.getString(DESCRIPTION_KEY));
                             deviceDescription.setEnabled(false);
                         }
-                        if(document.get(SPECIALTY_KEY) != null && medicalSpeciality.getText().toString().length() <= 0){
+                        if (document.get(SPECIALTY_KEY) != null && medicalSpeciality.getText().toString().length() <= 0) {
                             medicalSpeciality.setText(document.getString(SPECIALTY_KEY));
                             medicalSpeciality.setEnabled(false);
                         }
-                        if(document.get(NAME_KEY) != null && nameEditText.getText().toString().length() <= 0){
+                        if (document.get(NAME_KEY) != null && nameEditText.getText().toString().length() <= 0) {
                             nameEditText.setText(document.getString(NAME_KEY));
                             nameEditText.setEnabled(false);
                         }
@@ -1722,25 +1711,27 @@ public class ItemDetailFragment extends Fragment {
                         if (document.get(PHYSICALLOC_KEY) != null) {
                             physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
 
-                        } if(document.get("current_time") != null){
+                        }
+                        if (document.get("current_time") != null) {
                             timeIn.setText(document.getString("current_time"));
 
-                        } if(document.get("current_date") != null){
+                        }
+                        if (document.get("current_date") != null) {
                             dateIn.setText(document.getString("current_date"));
                         }
-                        if(document.get("reference_number") != null && referenceNumber.getText().toString().length() <= 0){
+                        if (document.get("reference_number") != null && referenceNumber.getText().toString().length() <= 0) {
                             referenceNumber.setText(document.getString("reference_number"));
                             referenceNumber.setEnabled(false);
                         }
-                        if(document.get("expiration") != null && expiration.getText().toString().length() <= 0){
+                        if (document.get("expiration") != null && expiration.getText().toString().length() <= 0) {
                             expiration.setText(document.getString("expiration"));
                             expiration.setEnabled(false);
                         }
-                        if(document.get("lot_number") != null && lotNumber.getText().toString().length() <=0){
+                        if (document.get("lot_number") != null && lotNumber.getText().toString().length() <= 0) {
                             lotNumber.setText(document.getString("lot_number"));
                             lotNumber.setEnabled(false);
                         }
-                        if(document.get("notes") != null){
+                        if (document.get("notes") != null) {
                             notes.setText(document.getString("notes"));
                         }
 
