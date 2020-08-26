@@ -13,7 +13,7 @@
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="Carebase"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -30,7 +30,7 @@
                 android:resource="@color/colorAccent" />
          <meta-data
                 android:name="com.google.firebase.messaging.default_notification_channel_id"
-                android:value="@string/default_notification_channel_id" />
+                android:value="Carebase" />
         <activity android:name="com.levigo.Carebase.MainActivity"
             android:windowSoftInputMode="adjustPan"/>
         <activity android:name="com.levigo.Carebase.LoginActivity">
