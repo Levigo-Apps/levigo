@@ -1,4 +1,4 @@
-package com.levigo.levigoapp;
+package com.levigo.Carebase;
 
 public class InventoryTemplate {
 

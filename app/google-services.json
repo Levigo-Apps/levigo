@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:476983775013:android:0c6c2ebb6806359f2c54cc",
         "android_client_info": {
-          "package_name": "com.levigo.levigoapp"
+          "package_name": "com.levigo.Carebase"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "476983775013-b764do6vqjaf5cosigkj7bukekn87dmc.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.levigo.levigoapp",
+            "package_name": "com.levigo.Carebase",
             "certificate_hash": "248cbce398bca1b47c7598b7570c194b9e3c314a"
           }
         },
