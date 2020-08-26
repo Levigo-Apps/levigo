@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.levigo.levigoapp;
+package com.levigo.Carebase;
 
 import android.os.Bundle;
 import android.util.Log;

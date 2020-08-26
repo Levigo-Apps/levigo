@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.levigo.levigoapp">
+    package="com.levigo.Carebase">
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -18,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
          <service
-                android:name=".MyFirebaseMessagingService"
+                android:name="com.levigo.Carebase.MyFirebaseMessagingService"
                 android:enabled="true"
                 android:exported="true">
          <intent-filter>
@@ -31,31 +31,31 @@
          <meta-data
                 android:name="com.google.firebase.messaging.default_notification_channel_id"
                 android:value="@string/default_notification_channel_id" />
-        <activity android:name=".MainActivity"
+        <activity android:name="com.levigo.Carebase.MainActivity"
             android:windowSoftInputMode="adjustPan"/>
-        <activity android:name=".LoginActivity">
+        <activity android:name="com.levigo.Carebase.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SignUpActivity">
+        <activity android:name="com.levigo.Carebase.SignUpActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".LoginActivity" />
+                android:value="com.levigo.Carebase.LoginActivity" />
         </activity>
-        <activity android:name=".ResetActivity">
+        <activity android:name="com.levigo.Carebase.ResetActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".LoginActivity" />
+                android:value="com.levigo.Carebase.LoginActivity" />
         </activity>
-        <activity android:name=".NetworkActivity">
+        <activity android:name="com.levigo.Carebase.NetworkActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value="com.levigo.Carebase.MainActivity" />
         </activity>
-        <activity android:name=".FilterActivity" />
+        <activity android:name="com.levigo.Carebase.FilterActivity" />
     </application>
 
 </manifest>
