@@ -573,14 +573,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
                 return true;
-//            case R.id.network:
-//                Intent intent_network = new Intent(getApplicationContext(), NetworkActivity.class);
-//                startActivity(intent_network);
-//                finish();
-//                return true;
-            case R.id.offlineFragment:
-                startItemOffline("");
-                return true;
             case R.id.pendingUdiFragment:
                 startPendingEquipment("");
                 return true;
