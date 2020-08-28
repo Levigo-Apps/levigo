@@ -204,22 +204,7 @@ public class AddEquipmentFragment extends Fragment {
         addBarcode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               // startScanner();
-
-                System.out.println("size is " + procedureInfoHashMapList.size());
-                String test[] = new String[]{"(01)00886333006052(17)220410(10)11174028","(01)00827002048775(17)250212(10)10325877",
-                        "(01)00389701007632(17)220630(10)YA29","(01)00389701007632(17)220630(10)YA25"};
-                if(procedureInfoHashMapList.size() < 2){
-                    checkUdi(test[i[0]++]);
-
-                }else{
-                    if(equipmentScanned){
-                        Toast.makeText(parent, "Please add only one equipment to multiple procedures", Toast.LENGTH_LONG).show();
-                    }else {
-                        checkUdi(test[1]);
-                        equipmentScanned = true;
-                    }
-                }
+                startScanner();
             }
         });
 
