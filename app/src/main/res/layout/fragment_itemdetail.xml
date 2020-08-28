@@ -28,7 +28,6 @@
             android:gravity="center"
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:liftOnScroll="true"
-            app:menu="@menu/fragment_navbar"
             app:navigationIcon="@drawable/icon_back"
             app:title="Edit equipment specifications"
             app:titleTextColor="@android:color/white" />
@@ -46,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:scrollbars="vertical"
-            app:layout_constraintBottom_toTopOf="@id/item_bottom"
+            app:layout_constraintBottom_toTopOf="@id/item_buttons"
             app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
