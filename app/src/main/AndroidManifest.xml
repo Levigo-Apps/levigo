@@ -12,9 +12,9 @@
     <application
         android:allowBackup="true"
         android:hardwareAccelerated="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_blue_house_on_white"
         android:label="Carebase"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_launcher_blue_house_on_white_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
          <service

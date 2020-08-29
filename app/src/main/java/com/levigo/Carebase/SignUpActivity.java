@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Levigo Apps
+ * Copyright 2020 Carebase Solutions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -276,5 +276,12 @@ public class SignUpActivity extends AppCompatActivity {
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
+    }
+
+    public void demoLogin(View view) {
+        mAuth.signInWithEmailAndPassword("carebasetester@gmail.com", "carebasetester");
+        Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+        finish();
+        startActivity(mainActivityIntent);
     }
 }
