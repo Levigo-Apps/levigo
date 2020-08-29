@@ -1,4 +1,4 @@
-package com.levigo.Carebase;
+package org.getcarebase.carebase;
 
 import android.app.Activity;
 import android.content.Intent;

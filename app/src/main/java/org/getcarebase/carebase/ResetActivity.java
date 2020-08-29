@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.levigo.Carebase;
+package org.getcarebase.carebase;
 
 import android.os.Bundle;
 import android.util.Log;
