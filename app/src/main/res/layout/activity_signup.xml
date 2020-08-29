@@ -147,7 +147,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="3"
+        android:layout_weight="2"
         android:orientation="vertical">
 
         <TextView
@@ -166,6 +166,25 @@
             android:gravity="center"
             android:onClick="composeEmail"
             android:text="Email us to create an admin account"
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Want to try it out first?"
+            android:textColor="@color/colorPrimaryDark"></TextView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/signup_demo_button"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:gravity="center"
+            android:onClick="demoLogin"
+            android:text="Live demo with a sample database"
             android:textColor="@android:color/white"
             android:textSize="14sp" />
     </LinearLayout>
