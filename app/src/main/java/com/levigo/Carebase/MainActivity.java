@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Levigo Apps
+ * Copyright 2020 Carebase Solutions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -88,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private CollectionReference usersRef = levigoDb.collection("users");
     private String mNetworkId;
-    //    private String mNetworkName;
     private String mHospitalId;
     private String mHospitalName;
 
@@ -99,28 +99,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Bundle bundle = this.getIntent().getExtras();
-        if(bundle != null) {
+        if (bundle != null) {
             if (bundle.getString("key") != null && (bundle.getString("key")).equals("equipment_type")) {
                 key = bundle.getString("key");
                 value = bundle.getString("value");
             }
-            /*
-            else if (bundle.getString("key") != null && (bundle.getString("key")).equals("expiration")){
-                key = bundle.getString("key");
-                String mid = bundle.getString("value");
-                if(mid.equals("Expiration Date - New to Old")){
-                    value = null;
-                    Log.d(TAG, "here 1");
-                }
-                else{
-                    value = "here";
-                    Log.d(TAG, "here 2");
-                }
-                Log.d(TAG, "key and value returned in main are: " + key + " and " + value);
-            }
-            */
-        }
-        else{
+        } else {
             value = null;
             key = null;
         }
@@ -145,7 +129,9 @@ public class MainActivity extends AppCompatActivity {
 
                             Toolbar mToolbar = findViewById(R.id.main_toolbar);
                             setSupportActionBar(mToolbar);
-                            mToolbar.setTitle(mHospitalName);
+                            // TODO only display first word from hospital name to prevent being cut off
+                            mToolbar.setTitle(mHospitalName.split(" ", 2)[0]);
+
 
                             inventoryRef = levigoDb.collection(inventoryRefUrl);
                             initInventory(value, key);
@@ -177,13 +163,13 @@ public class MainActivity extends AppCompatActivity {
         createNotificationChannel();
     }
 
-    private void subscribeUser(final String hospitalId){
+    private void subscribeUser(final String hospitalId) {
         FirebaseMessaging.getInstance().subscribeToTopic(hospitalId)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         String msg = "Successfully subscribed to " + hospitalId;
-                        if(!task.isSuccessful()){
+                        if (!task.isSuccessful()) {
                             msg = "Error subscribing to " + hospitalId;
                         }
                         Log.d("TAG", msg);
@@ -192,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void getToken(final DocumentReference userRef){
+    private void getToken(final DocumentReference userRef) {
         //Get Token for Current User
         FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
             @Override
@@ -279,25 +265,22 @@ public class MainActivity extends AppCompatActivity {
         iAdapter = new InventoryViewAdapter(MainActivity.this, entries);
         inventoryScroll.setAdapter(iAdapter);
 
-        if(value != null) {
-            if(value.equals("equipment_type")) {
+        if (value != null) {
+            if (value.equals("equipment_type")) {
                 Log.d(TAG, "IT GOT TO THE IF STATEMENT");
                 query = inventoryRef.whereEqualTo(value, key);
                 Log.d(TAG, "key and value returned in main areeeeee: " + key + " and " + value);
-            }
-            else if(key.equals("expiration")){
+            } else if (key.equals("expiration")) {
                 Log.d(TAG, "IT GOT TO THE ELSE IF STATEMENT");
-                if(key == null) {
+                if (key == null) {
                     Log.d(TAG, "IT GOT TO THE ELSE IF IF STATEMENT");
                     query = inventoryRef.orderBy("expiration");
-                }
-                else{
+                } else {
                     Log.d(TAG, "IT GOT TO THE ELSE IF IF IF STATEMENT");
-                    query = inventoryRef.orderBy("expiration",Query.Direction.DESCENDING);
+                    query = inventoryRef.orderBy("expiration", Query.Direction.DESCENDING);
                 }
             }
-        }
-        else{
+        } else {
             query = inventoryRef;
         }
 
@@ -405,17 +388,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-//    private void addItem(String json) {
-//        HashMap<String, String> data = new Gson().fromJson(json, HashMap.class);
-//        String udi = data.get("udi");
-//        if(udi == null) udi = "UNKNOWN UDI";
-//        inventoryRef.document(udi).set(data).addOnSuccessListener(new OnSuccessListener<Void>() {
-//            @Override
-//            public void onSuccess(Void aVoid) {
-//                Log.d(TAG, "Added Successfully");
-//            }
-//        });
-//    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -424,7 +397,7 @@ public class MainActivity extends AppCompatActivity {
         if (result != null) {
             String contents = result.getContents();
             if (contents != null) {
-                if(isNetworkAvailable())
+                if (isNetworkAvailable())
                     startItemView(contents);
                 else
                     startItemOffline(contents);
@@ -462,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
         ItemDetailViewFragment fragment = new ItemDetailViewFragment();
         Bundle bundle = new Bundle();
         bundle.putString("barcode", barcode);
-        bundle.putString("di",di);
+        bundle.putString("di", di);
         fragment.setArguments(bundle);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -477,7 +450,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
-    public void startItemOffline(String barcode){
+    public void startItemOffline(String barcode) {
         ItemDetailOfflineFragment fragment = new ItemDetailOfflineFragment();
         Bundle bundle = new Bundle();
         bundle.putString("barcode", barcode);
@@ -497,7 +470,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void startPendingEquipment(String barcode){
+    public void startPendingEquipment(String barcode) {
         PendingUdiFragment fragment = new PendingUdiFragment();
         Bundle bundle = new Bundle();
         bundle.putString("barcode", barcode);
@@ -516,7 +489,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void startProcedureInfo(String barcode){
+    public void startProcedureInfo(String barcode) {
         ProcedureInfoFragment fragment = new ProcedureInfoFragment();
         Bundle bundle = new Bundle();
         bundle.putString("barcode", barcode);
@@ -531,7 +504,6 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
-
 
 
     @Override
@@ -559,10 +531,10 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.manual_entry:
                 // if device has an access to the network regular manual entry opens
-                if(isNetworkAvailable()) {
+                if (isNetworkAvailable()) {
                     startItemView("");
                     // if device does not have an access to the network, offline manual entry opens
-                }else{
+                } else {
                     startItemOffline("");
                 }
                 return true;
