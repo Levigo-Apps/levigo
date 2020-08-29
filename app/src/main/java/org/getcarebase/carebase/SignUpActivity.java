@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.levigo.Carebase;
+package org.getcarebase.carebase;
 
 import android.content.Intent;
 import android.net.Uri;
