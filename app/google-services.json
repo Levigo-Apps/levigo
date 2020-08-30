@@ -10,18 +10,63 @@
       "client_info": {
         "mobilesdk_app_id": "1:476983775013:android:0c6c2ebb6806359f2c54cc",
         "android_client_info": {
-          "package_name": "com.levigo.Carebase"
+          "package_name": "com.levigo.levigoapp"
         }
       },
       "oauth_client": [
         {
+          "client_id": "476983775013-q0np6e1j3lirf6hkioee7qc3uo3h83ql.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.levigo.levigoapp",
+            "certificate_hash": "f95302367b9fc96ea8b225552a17a28418c0765b"
+          }
+        },
+        {
+          "client_id": "476983775013-d13vm3takmencfht4b3mjfh2l13qd3dq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.levigo.levigoapp",
+            "certificate_hash": "131bab21e7c79a03ce419adb7b88ae64b035325f"
+          }
+        },
+        {
           "client_id": "476983775013-b764do6vqjaf5cosigkj7bukekn87dmc.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.levigo.Carebase",
+            "package_name": "com.levigo.levigoapp",
             "certificate_hash": "248cbce398bca1b47c7598b7570c194b9e3c314a"
           }
         },
+        {
+          "client_id": "476983775013-6035jd344f7hoh9249s87m2n7eokq73a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDn0qKC13COQnVvZbWmFBW0i0GFO6MUktE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "476983775013-6035jd344f7hoh9249s87m2n7eokq73a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:476983775013:android:a30b16feaaa4dbea2c54cc",
+        "android_client_info": {
+          "package_name": "org.getcarebase.carebase"
+        }
+      },
+      "oauth_client": [
         {
           "client_id": "476983775013-6035jd344f7hoh9249s87m2n7eokq73a.apps.googleusercontent.com",
           "client_type": 3

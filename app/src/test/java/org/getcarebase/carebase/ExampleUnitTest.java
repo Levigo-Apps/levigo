@@ -1,4 +1,4 @@
-package com.levigo.Carebase;
+package org.getcarebase.carebase;
 
 import org.junit.Test;
 

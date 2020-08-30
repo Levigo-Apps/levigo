@@ -1,4 +1,4 @@
-package com.levigo.Carebase;
+package org.getcarebase.carebase;
 
 public class InventoryTemplate {
 
