@@ -1,6 +1,6 @@
 
 
-package com.levigo.Carebase;
+package org.getcarebase.carebase;
 
 import android.content.Context;
 import android.util.Log;
