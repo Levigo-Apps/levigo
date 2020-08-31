@@ -37,7 +37,7 @@
                 android:id="@+id/reset_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Email"
+                android:hint="@string/email_lbl"
                 android:textColor="@color/colorCustomBlack"
                 android:inputType="textCapCharacters"
                 android:shadowColor="@color/colorPrimaryDark"/>
@@ -51,7 +51,7 @@
             android:backgroundTint="@color/colorPrimaryDark"
             android:textColor="@android:color/white"
             android:onClick="resetWithEmail"
-            android:text="Send Reset Link" />
+            android:text="@string/send_reset_link_lbl" />
 
     </LinearLayout>
 </LinearLayout>

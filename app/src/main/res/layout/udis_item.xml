@@ -10,7 +10,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:id="@+id/udis_expirationdate"
-        android:text="Expiration Date"
+        android:text="@string/expiration_date_lbl"
         android:textSize="12sp"
         android:textStyle="bold"
         android:lines="1"

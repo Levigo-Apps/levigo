@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:id="@+id/linear_networkView"
         android:layout_width="376dp"
         android:layout_height="533dp"
         android:layout_marginStart="20dp"
@@ -19,7 +16,6 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/top_textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/topView_label"
@@ -29,7 +25,6 @@
 
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/search_textView"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="290dp"
             android:layout_height="wrap_content"
@@ -62,7 +57,6 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/all_sites_check"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
@@ -73,7 +67,6 @@
             android:textSize="18sp" />
 
         <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/optiona_check"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
@@ -84,7 +77,6 @@
             android:textSize="18sp" />
 
         <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/optionb_check"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
@@ -95,7 +87,6 @@
             android:textSize="18sp" />
 
         <ImageButton
-            android:id="@+id/plus_button"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_gravity="end"

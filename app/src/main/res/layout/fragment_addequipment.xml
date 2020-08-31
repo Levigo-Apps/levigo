@@ -9,7 +9,6 @@
     android:theme="@style/AppTheme">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/fragment_appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -105,7 +104,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="4dp"
                         android:layout_weight="1"
-                        android:text="Cancel" />
+                        android:text="@string/cancel_lbl" />
 
                     <Button
                         android:id="@+id/equipment_save_button"
@@ -113,7 +112,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="4dp"
                         android:layout_weight="1"
-                        android:text="Save" />
+                        android:text="@string/save_lbl" />
                 </LinearLayout>
 
             </LinearLayout>

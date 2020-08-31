@@ -24,7 +24,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:text="Name of Equipment"
+            android:text="@string/name_of_equipment_lbl"
             android:paddingHorizontal="4dp"
             android:textStyle="bold"
             android:textColor="@android:color/black"

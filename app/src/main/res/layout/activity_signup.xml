@@ -11,7 +11,6 @@
         android:id="@+id/main_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:layout_alignParentTop="true"
         android:background="@color/fui_transparent"
         app:layout_collapseMode="pin"
         app:layout_constraintEnd_toEndOf="parent"
@@ -38,7 +37,7 @@
                 android:id="@+id/et_InvitationCode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="InvitationCode"
+                android:hint="@string/invitationcode_lbl"
                 android:inputType="textCapCharacters"
                 android:shadowColor="@color/colorPrimaryDark"
                 android:textColor="@color/colorCustomBlack" />
@@ -50,7 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorPrimaryDark"
-            android:text="Submit"
+            android:text="@string/submit_lbl"
             android:textColor="@android:color/white" />
 
     </LinearLayout>
@@ -66,7 +65,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorPrimary"
-            android:text="Your Network:"
+            android:text="@string/your_network_lbl"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@color/colorCustomBlack" />
 
@@ -83,7 +82,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Your Hospital:"
+            android:text="@string/your_hospital_lbl"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@color/colorCustomBlack" />
 
@@ -104,7 +103,7 @@
                 android:id="@+id/signup_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Email"
+                android:hint="@string/email_lbl"
                 android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -118,7 +117,7 @@
                 android:id="@+id/signup_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Password"
+                android:hint="@string/password_lbl"
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -132,7 +131,7 @@
                 android:id="@+id/signup_password_confirm"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Confirm Password"
+                android:hint="@string/confirm_password_lbl"
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -141,7 +140,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorPrimaryDark"
-            android:text="Create Account" />
+            android:text="@string/create_account_lbl" />
     </LinearLayout>
 
     <LinearLayout
@@ -153,11 +152,10 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Are you a hospital administrator?"
-            android:textColor="@color/colorPrimaryDark"></TextView>
+            android:text="@string/are_you_a_hospital_administrator_lbl"
+            android:textColor="@color/colorPrimaryDark"/>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/signup_admin_email"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -165,18 +163,17 @@
             android:backgroundTint="@color/colorPrimaryDark"
             android:gravity="center"
             android:onClick="composeEmail"
-            android:text="Email us to create an admin account"
+            android:text="@string/email_us_to_create_an_admin_account_lbl"
             android:textColor="@android:color/white"
             android:textSize="14sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Want to try it out first?"
-            android:textColor="@color/colorPrimaryDark"></TextView>
+            android:text="@string/want_to_try_it_out_first_lbl"
+            android:textColor="@color/colorPrimaryDark"/>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/signup_demo_button"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -184,7 +181,7 @@
             android:backgroundTint="@color/colorPrimaryDark"
             android:gravity="center"
             android:onClick="demoLogin"
-            android:text="Live demo with a sample database"
+            android:text="@string/live_demo_with_a_sample_database_lbl"
             android:textColor="@android:color/white"
             android:textSize="14sp" />
     </LinearLayout>

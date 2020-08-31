@@ -17,7 +17,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="\tNumber of equipment used\t"
+            android:text="@string/tnumber_of_equipment_used_t_lbl"
             android:textSize="18sp"
             android:textColor="@color/colorPrimary"
             android:paddingVertical="10dp"
@@ -42,19 +42,22 @@
         >
 
         <Button
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/cancelButton_label"
+            android:layout_weight="1"/>
+
+        <Button
             android:id="@+id/button1"
+            style = "?android:attr/button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
            android:layout_marginEnd="10dp"
             android:text="@string/setButton_label" />
 
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="@string/cancelButton_label"
-            android:layout_weight="1"/>
+
     </LinearLayout>
 
 

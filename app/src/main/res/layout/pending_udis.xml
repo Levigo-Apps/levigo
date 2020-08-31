@@ -20,7 +20,7 @@
             android:padding="8dp"
             android:paddingStart="12dp"
             android:background="@drawable/inventory_di_background"
-            android:text="UDI"
+            android:text="@string/udi_lbl"
             android:textStyle="bold"
             android:textSize="15sp"
             android:textColor="@android:color/white"

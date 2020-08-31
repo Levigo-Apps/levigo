@@ -5,7 +5,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,11 +43,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -100,7 +95,6 @@ public class ItemDetailViewFragment extends Fragment {
     private TextView lastUpdate;
     private TextView notes;
     private TextView deviceDescription;
-    private TextView usageHeader;
     private List<Map> procedureDoc;
     private List<Map> costDoc;
 
@@ -133,7 +127,6 @@ public class ItemDetailViewFragment extends Fragment {
         specificationLayout = rootView.findViewById(R.id.specifications_plus);
         usageLayout = rootView.findViewById(R.id.usage_plus);
         procedureDoc = new ArrayList<>();
-        usageHeader = rootView.findViewById(R.id.usage_header);
         linearLayout = rootView.findViewById(R.id.itemdetailviewonly_linearlayout);
         LinearLayout specsLinearLayout = rootView.findViewById(R.id.specs_linearlayout);
         usageLinearLayout = rootView.findViewById(R.id.usage_linearlayout);
@@ -226,7 +219,7 @@ public class ItemDetailViewFragment extends Fragment {
                 bundle.putString("di", deviceIdentifier.getText().toString());
                 fragment.setArguments(bundle);
 
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
 //            //clears other fragments
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
@@ -575,7 +568,7 @@ public class ItemDetailViewFragment extends Fragment {
             TextInputEditText dateText = new TextInputEditText(procedureDateText.getContext());
             Object dateObject = procedureDoc.get(i).get("procedure_date");
             dateText.setBackgroundColor(Color.WHITE);
-            dateText.setText(dateObject.toString());
+            dateText.setText(Objects.requireNonNull(dateObject).toString());
             dateText.setFocusable(false);
             procedureDateText.addView(dateText);
             procedureDateText.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
@@ -748,7 +741,7 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureFluoroTimeHeaderLayout.setLayoutParams(procedureFluoroTimeHeaderParams);
         TextInputEditText procedureFluoroTimeHeaderEditText = new TextInputEditText(procedureFluoroTimeHeaderLayout.getContext());
-        procedureFluoroTimeHeaderEditText.setText("Fluoro time");
+        procedureFluoroTimeHeaderEditText.setText(R.string.fluoroTime_lbl);
         procedureFluoroTimeHeaderEditText.setBackgroundColor(Color.WHITE);
         procedureFluoroTimeHeaderEditText.setTypeface(procedureFluoroTimeHeaderEditText.getTypeface(), Typeface.BOLD);
         procedureFluoroTimeHeaderEditText.setFocusable(false);
@@ -786,7 +779,7 @@ public class ItemDetailViewFragment extends Fragment {
                 R.layout.activity_itemdetail_materialcomponent, null);
         procedureRoomTimeHeaderLayout.setLayoutParams(procedureRoomTimeHeaderParams);
         TextInputEditText procedureRoomTimeHeaderEditText = new TextInputEditText(procedureRoomTimeHeaderLayout.getContext());
-        procedureRoomTimeHeaderEditText.setText("Room time");
+        procedureRoomTimeHeaderEditText.setText(R.string.roomTime_lbl);
         procedureRoomTimeHeaderEditText.setBackgroundColor(Color.WHITE);
         procedureRoomTimeHeaderEditText.setTypeface(procedureRoomTimeHeaderEditText.getTypeface(), Typeface.BOLD);
         procedureRoomTimeHeaderEditText.setFocusable(false);
@@ -905,7 +898,7 @@ public class ItemDetailViewFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                 costDoc.add(document.getData());
                             }
                             addCostInfo(costDoc,view);
@@ -942,7 +935,7 @@ public class ItemDetailViewFragment extends Fragment {
                 costDateHeader.setLayoutParams(costHeaderParams);
                 TextInputEditText dateKey = new TextInputEditText(costDateHeader.getContext());
                 dateKey.setBackgroundColor(Color.WHITE);
-                dateKey.setText("Purchase date");
+                dateKey.setText(R.string.purchaseDate_lbl);
                 dateKey.setTypeface(dateKey.getTypeface(), Typeface.BOLD);
                 dateKey.setFocusable(false);
                 costDateHeader.addView(dateKey);
@@ -955,7 +948,7 @@ public class ItemDetailViewFragment extends Fragment {
                 costParams.weight = (float) 1.0;
                 costDateText.setLayoutParams(costParams);
                 TextInputEditText dateText = new TextInputEditText(costDateText.getContext());
-                dateText.setText(costDoc.get(i).get("cost_date").toString());
+                dateText.setText(Objects.requireNonNull(costDoc.get(i).get("cost_date")).toString());
                 dateText.setBackgroundColor(Color.WHITE);
                 dateText.setFocusable(false);
                 costDateText.addView(dateText);
@@ -989,7 +982,7 @@ public class ItemDetailViewFragment extends Fragment {
                 packagePriceHeader.setLayoutParams(packageHeaderParams);
                 TextInputEditText packageKey = new TextInputEditText(packagePriceHeader.getContext());
                 packageKey.setBackgroundColor(Color.WHITE);
-                packageKey.setText("Package cost");
+                packageKey.setText(R.string.packageCost_lbl);
                 packageKey.setTypeface(packageKey.getTypeface(), Typeface.BOLD);
                 packageKey.setFocusable(false);
                 packagePriceHeader.addView(packageKey);
@@ -1001,7 +994,7 @@ public class ItemDetailViewFragment extends Fragment {
                 packageParams.weight = (float) 1.0;
                 packagePriceText.setLayoutParams(packageParams);
                 TextInputEditText packagePriceEditText = new TextInputEditText(packagePriceText.getContext());
-                packagePriceEditText.setText(String.format("$ %s", costDoc.get(i).get("package_price").toString()));
+                packagePriceEditText.setText(String.format("$ %s", Objects.requireNonNull(costDoc.get(i).get("package_price")).toString()));
                 packagePriceEditText.setBackgroundColor(Color.WHITE);
                 packagePriceEditText.setFocusable(false);
                 packagePriceText.addView(packagePriceEditText);
@@ -1024,7 +1017,7 @@ public class ItemDetailViewFragment extends Fragment {
                 numberAddedHeader.setLayoutParams(numberAddedHeaderParams);
                 TextInputEditText numberAddedKey = new TextInputEditText(numberAddedHeader.getContext());
                 numberAddedKey.setBackgroundColor(Color.WHITE);
-                numberAddedKey.setText("Number of units");
+                numberAddedKey.setText(R.string.units_lbl);
                 numberAddedKey.setTypeface(numberAddedKey.getTypeface(), Typeface.BOLD);
                 numberAddedKey.setFocusable(false);
                 numberAddedHeader.addView(numberAddedKey);
@@ -1036,7 +1029,7 @@ public class ItemDetailViewFragment extends Fragment {
                 numberAddedParams.weight = (float) 1.0;
                 numberAddedText.setLayoutParams(numberAddedParams);
                 TextInputEditText numberAddedEditText = new TextInputEditText(numberAddedText.getContext());
-                numberAddedEditText.setText(costDoc.get(i).get("number_added").toString());
+                numberAddedEditText.setText(Objects.requireNonNull(costDoc.get(i).get("number_added")).toString());
                 numberAddedEditText.setBackgroundColor(Color.WHITE);
                 numberAddedEditText.setFocusable(false);
                 numberAddedText.addView(numberAddedEditText);
@@ -1059,7 +1052,7 @@ public class ItemDetailViewFragment extends Fragment {
                 unitCostHeader.setLayoutParams(unitCostParams);
                 TextInputEditText unitCostKey = new TextInputEditText(unitCostHeader.getContext());
                 unitCostKey.setBackgroundColor(Color.WHITE);
-                unitCostKey.setText("Cost per unit");
+                unitCostKey.setText(R.string.costUnit_lbl);
                 unitCostKey.setTypeface(dateKey.getTypeface(), Typeface.BOLD);
                 unitCostKey.setFocusable(false);
                 unitCostHeader.addView(unitCostKey);
@@ -1071,7 +1064,7 @@ public class ItemDetailViewFragment extends Fragment {
                 unitCostTextParams.weight = (float) 1.0;
                 unitCostText.setLayoutParams(unitCostTextParams);
                 TextInputEditText unitCostEditText = new TextInputEditText(unitCostText.getContext());
-                unitCostEditText.setText(String.format("$ %s", costDoc.get(i).get("unit_price").toString()));
+                unitCostEditText.setText(String.format("$ %s", Objects.requireNonNull(costDoc.get(i).get("unit_price")).toString()));
                 unitCostEditText.setBackgroundColor(Color.WHITE);
                 unitCostEditText.setFocusable(false);
                 unitCostText.addView(unitCostEditText);

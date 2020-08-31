@@ -14,7 +14,6 @@
         android:background="@android:color/black"/>
 
     <LinearLayout
-        android:id="@+id/procedureHeader_linearlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -25,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="5"
             android:gravity="center_vertical"
-            android:text="New procedure"
+            android:text="@string/new_procedure_lbl"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@android:color/black"
@@ -113,11 +112,10 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/procedureinfo_newroom_layout"
         style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Room time"
+        android:hint="@string/room_time_lbl"
         app:boxStrokeColor="@color/colorPrimary">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -129,11 +127,10 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/procedureinfo_fluoro_layout"
         style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Fluoro time"
+        android:hint="@string/fluoro_time_lbl"
         app:boxStrokeColor="@color/colorPrimary">
 
         <com.google.android.material.textfield.TextInputEditText
