@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,18 +21,34 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -61,9 +78,12 @@ public class ItemDetailViewFragment extends Fragment {
     private LinearLayout linearLayout;
     private LinearLayout usageLinearLayout;
     private LinearLayout itemSpecsLinearLayout;
+    private LinearLayout costLayout;
+
 
     private ImageView specificationLayout;
     private ImageView usageLayout;
+    private ImageView costIcon;
     private TextView itemName;
     private TextView udi;
     private TextView deviceIdentifier;
@@ -82,6 +102,7 @@ public class ItemDetailViewFragment extends Fragment {
     private TextView deviceDescription;
     private TextView usageHeader;
     private List<Map> procedureDoc;
+    private List<Map> costDoc;
 
     private float dp;
 
@@ -122,6 +143,9 @@ public class ItemDetailViewFragment extends Fragment {
         itemSpecsLinearLayout.setOrientation(LinearLayout.VERTICAL);
         itemSpecsLinearLayout.setVisibility(View.GONE);
         linearLayout.addView(itemSpecsLinearLayout, linearLayout.indexOfChild(specsLinearLayout) + 1);
+        costDoc = new ArrayList<>();
+        costLayout = rootView.findViewById(R.id.cost_linearlayout);
+        costIcon = rootView.findViewById(R.id.cost_plus);
         ImageView itemNameEdit = rootView.findViewById(R.id.itemname_edit);
 
 
@@ -146,6 +170,7 @@ public class ItemDetailViewFragment extends Fragment {
                                 returnedDi = getArguments().getString("di");
                                 Log.d(TAG, "DI: " + returnedDi + "| UDI: " + barcode);
                                 autoPopulateFromDatabase(returnedDi, barcode, rootView);
+                                getItemSpecs(rootView,barcode);
                             }
                         } catch (NullPointerException e) {
                             toastMessage = "Error retrieving user information; Please contact support";
@@ -211,14 +236,83 @@ public class ItemDetailViewFragment extends Fragment {
             }
         });
 
+
+
         return rootView;
     }
 
-//    String di = "";
-//
-//    private void nonGudidUdi(final String udiStr, final View view, String di) {
-//        autoPopulateFromDatabase(di, udiStr, view);
-//    }
+
+    private void getItemSpecs(final View view, String udi) {
+        String udiStr = udi;
+        if (udiStr.equals("")) {
+            return;
+            // Some UDI starts with '+'; needs to strip plus sign and last letter in order to be recognized
+        } else if (udiStr.charAt(0) == '+') {
+            udiStr = udiStr.replaceFirst("[+]", "01");
+        }
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(parent);
+        String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
+        url = url + udiStr;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONObject responseJson;
+                        try {
+                            responseJson = new JSONObject(response);
+                            if (responseJson.has("gudid") && responseJson.getJSONObject("gudid").has("device")) {
+                                JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
+
+                                if (deviceInfo.has("deviceSizes") && deviceInfo.getJSONObject("deviceSizes").has("deviceSize")) {
+                                    JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
+                                    for (int i = 0; i < deviceSizeArray.length(); ++i) {
+                                        int colonIndex;
+                                        String k;
+                                        String v;
+                                        JSONObject currentSizeObject = deviceSizeArray.getJSONObject(i);
+                                        k = currentSizeObject.getString("sizeType");
+                                        if (k.equals("Device Size Text, specify")) {
+                                            String customSizeText = currentSizeObject.getString("sizeText");
+                                            // Key, Value usually separated by colon
+                                            colonIndex = customSizeText.indexOf(":");
+                                            if (colonIndex == -1) {
+                                                // If no colon, save whole field as "value"
+                                                k = "Custom Key";
+                                                v = customSizeText;
+                                            } else {
+                                                k = customSizeText.substring(0, colonIndex);
+                                                v = customSizeText.substring(colonIndex + 1).trim();
+                                            }
+                                        } else {
+                                            v = currentSizeObject.getJSONObject("size").getString("value")
+                                                    + " "
+                                                    + currentSizeObject.getJSONObject("size").getString("unit");
+                                        }
+                                        addItemSpecs(k, v, view);
+                                    }
+                                }
+                            }
+
+                        } catch (JSONException e) {
+                            FirebaseCrashlytics.getInstance().recordException(e);
+                            e.printStackTrace();
+//                            Log.d(TAG, "ERROR: "+ e.getMessage());
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                FirebaseCrashlytics.getInstance().recordException(error);
+//                Log.d(TAG, "Error in parsing barcode");
+            }
+        });
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+
+    }
 
     private void addItemSpecs(String key, String value, View view) {
 
@@ -263,13 +357,14 @@ public class ItemDetailViewFragment extends Fragment {
     }
 
     private void autoPopulateFromDatabase(final String di, final String udiStr, final View view) {
-        DocumentReference udiDocRef;
+        final DocumentReference udiDocRef;
         DocumentReference diDocRef;
 
         udiDocRef = db.collection("networks").document(mNetworkId)
                 .collection("hospitals").document(mHospitalId).collection("departments")
                 .document("default_department").collection("dis").document(di)
                 .collection("udis").document(udiStr);
+
 
         diDocRef = db.collection("networks").document(mNetworkId)
                 .collection("hospitals").document(mHospitalId).collection("departments")
@@ -316,6 +411,8 @@ public class ItemDetailViewFragment extends Fragment {
                 }
             }
         });
+
+        getCostInfo(udiDocRef,view);
 
         udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -439,7 +536,6 @@ public class ItemDetailViewFragment extends Fragment {
 
 
     private void addProcedureInfoFields(final List<Map> procedureDoc, View view) {
-        System.out.println(procedureDoc);
         int i;
         final LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
         procedureInfoLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -801,4 +897,234 @@ public class ItemDetailViewFragment extends Fragment {
         procedureInfoLayout.getChildAt(procedureInfoLayout.indexOfChild(procedureInfo) + 1).setVisibility(View.GONE);
 
     }
+
+    private void getCostInfo(DocumentReference udiRef, final View view){
+        udiRef.collection("equipment_cost")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                costDoc.add(document.getData());
+                            }
+                            addCostInfo(costDoc,view);
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+    }
+
+    private void addCostInfo(List<Map> costDoc,View view){
+        if(costDoc.size() > 0) {
+            int i;
+            final LinearLayout costInfoLayout = new LinearLayout(view.getContext());
+            costInfoLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            costInfoLayout.setOrientation(LinearLayout.VERTICAL);
+            costInfoLayout.setVisibility(View.GONE);
+
+            for (i = 0; i < costDoc.size(); i++) {
+
+                final LinearLayout eachEquipmentLayout = new LinearLayout(view.getContext());
+                eachEquipmentLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT));
+                eachEquipmentLayout.setOrientation(LinearLayout.HORIZONTAL);
+                eachEquipmentLayout.setBaselineAligned(false);
+
+                final TextInputLayout costDateHeader = new TextInputLayout(view.getContext());
+                LinearLayout.LayoutParams costHeaderParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                costHeaderParams.weight = (float) 1.0;
+                costDateHeader.setLayoutParams(costHeaderParams);
+                TextInputEditText dateKey = new TextInputEditText(costDateHeader.getContext());
+                dateKey.setBackgroundColor(Color.WHITE);
+                dateKey.setText("Purchase date");
+                dateKey.setTypeface(dateKey.getTypeface(), Typeface.BOLD);
+                dateKey.setFocusable(false);
+                costDateHeader.addView(dateKey);
+
+
+                final TextInputLayout costDateText = new TextInputLayout(view.getContext());
+                LinearLayout.LayoutParams costParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                costParams.weight = (float) 1.0;
+                costDateText.setLayoutParams(costParams);
+                TextInputEditText dateText = new TextInputEditText(costDateText.getContext());
+                dateText.setText(costDoc.get(i).get("cost_date").toString());
+                dateText.setBackgroundColor(Color.WHITE);
+                dateText.setFocusable(false);
+                costDateText.addView(dateText);
+                costDateText.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
+                costDateText.setEndIconDrawable(R.drawable.ic_baseline_plus);
+                costDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
+                        getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
+
+                eachEquipmentLayout.addView(costDateHeader);
+                eachEquipmentLayout.addView(costDateText);
+                costInfoLayout.addView(eachEquipmentLayout);
+
+
+                final LinearLayout costInfoDetails = new LinearLayout(view.getContext());
+                costInfoDetails.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT));
+                costInfoDetails.setOrientation(LinearLayout.VERTICAL);
+                costInfoDetails.setVisibility(View.GONE);
+
+                final LinearLayout packagePriceLinearLayout = new LinearLayout(view.getContext());
+                packagePriceLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT));
+                packagePriceLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                packagePriceLinearLayout.setBaselineAligned(false);
+
+                final TextInputLayout packagePriceHeader = new TextInputLayout(view.getContext());
+                LinearLayout.LayoutParams packageHeaderParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                packageHeaderParams.weight = (float) 1.0;
+                packagePriceHeader.setLayoutParams(packageHeaderParams);
+                TextInputEditText packageKey = new TextInputEditText(packagePriceHeader.getContext());
+                packageKey.setBackgroundColor(Color.WHITE);
+                packageKey.setText("Package cost");
+                packageKey.setTypeface(packageKey.getTypeface(), Typeface.BOLD);
+                packageKey.setFocusable(false);
+                packagePriceHeader.addView(packageKey);
+
+                final TextInputLayout packagePriceText = new TextInputLayout(view.getContext());
+                LinearLayout.LayoutParams packageParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                packageParams.weight = (float) 1.0;
+                packagePriceText.setLayoutParams(packageParams);
+                TextInputEditText packagePriceEditText = new TextInputEditText(packagePriceText.getContext());
+                packagePriceEditText.setText(String.format("$ %s", costDoc.get(i).get("package_price").toString()));
+                packagePriceEditText.setBackgroundColor(Color.WHITE);
+                packagePriceEditText.setFocusable(false);
+                packagePriceText.addView(packagePriceEditText);
+
+                packagePriceLinearLayout.addView(packagePriceHeader);
+                packagePriceLinearLayout.addView(packagePriceText);
+
+                final LinearLayout numberAddedLinearLayout = new LinearLayout(view.getContext());
+                numberAddedLinearLayout .setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT));
+                numberAddedLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                numberAddedLinearLayout.setBaselineAligned(false);
+
+
+                final TextInputLayout numberAddedHeader = new TextInputLayout(view.getContext());
+                LinearLayout.LayoutParams numberAddedHeaderParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                numberAddedHeaderParams.weight = (float) 1.0;
+                numberAddedHeader.setLayoutParams(numberAddedHeaderParams);
+                TextInputEditText numberAddedKey = new TextInputEditText(numberAddedHeader.getContext());
+                numberAddedKey.setBackgroundColor(Color.WHITE);
+                numberAddedKey.setText("Number of units");
+                numberAddedKey.setTypeface(numberAddedKey.getTypeface(), Typeface.BOLD);
+                numberAddedKey.setFocusable(false);
+                numberAddedHeader.addView(numberAddedKey);
+
+                final TextInputLayout numberAddedText = new TextInputLayout(view.getContext());
+                LinearLayout.LayoutParams numberAddedParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                numberAddedParams.weight = (float) 1.0;
+                numberAddedText.setLayoutParams(numberAddedParams);
+                TextInputEditText numberAddedEditText = new TextInputEditText(numberAddedText.getContext());
+                numberAddedEditText.setText(costDoc.get(i).get("number_added").toString());
+                numberAddedEditText.setBackgroundColor(Color.WHITE);
+                numberAddedEditText.setFocusable(false);
+                numberAddedText.addView(numberAddedEditText);
+
+                numberAddedLinearLayout.addView(numberAddedHeader);
+                numberAddedLinearLayout.addView(numberAddedText);
+
+                final LinearLayout unitCostLinearLayout = new LinearLayout(view.getContext());
+                unitCostLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT));
+                unitCostLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                unitCostLinearLayout.setBaselineAligned(false);
+
+
+                final TextInputLayout unitCostHeader = new TextInputLayout(view.getContext());
+                LinearLayout.LayoutParams unitCostParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                unitCostParams.weight = (float) 1.0;
+                unitCostHeader.setLayoutParams(unitCostParams);
+                TextInputEditText unitCostKey = new TextInputEditText(unitCostHeader.getContext());
+                unitCostKey.setBackgroundColor(Color.WHITE);
+                unitCostKey.setText("Cost per unit");
+                unitCostKey.setTypeface(dateKey.getTypeface(), Typeface.BOLD);
+                unitCostKey.setFocusable(false);
+                unitCostHeader.addView(unitCostKey);
+
+                final TextInputLayout unitCostText = new TextInputLayout(view.getContext());
+                LinearLayout.LayoutParams unitCostTextParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                unitCostTextParams.weight = (float) 1.0;
+                unitCostText.setLayoutParams(unitCostTextParams);
+                TextInputEditText unitCostEditText = new TextInputEditText(unitCostText.getContext());
+                unitCostEditText.setText(String.format("$ %s", costDoc.get(i).get("unit_price").toString()));
+                unitCostEditText.setBackgroundColor(Color.WHITE);
+                unitCostEditText.setFocusable(false);
+                unitCostText.addView(unitCostEditText);
+
+                unitCostLinearLayout.addView(unitCostHeader);
+                unitCostLinearLayout.addView(unitCostText);
+
+                costInfoDetails.addView(packagePriceLinearLayout);
+                costInfoDetails.addView(numberAddedLinearLayout);
+                costInfoDetails.addView(unitCostLinearLayout);
+
+                costInfoLayout.addView(costInfoDetails);
+
+
+
+                final boolean[] isDetailMaximized = {false};
+                costDateText.setEndIconOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(isDetailMaximized[0]){
+                            costInfoDetails.setVisibility(View.GONE);
+                            isDetailMaximized[0] = false;
+                            costDateText.setEndIconDrawable(R.drawable.ic_baseline_plus);
+
+                        }else{
+                            costInfoDetails.setVisibility(View.VISIBLE);
+                            isDetailMaximized[0] = true;
+                            costDateText.setEndIconDrawable(R.drawable.icon_minimize);
+                        }
+                    }
+                });
+
+            }
+            linearLayout.addView(costInfoLayout, linearLayout.indexOfChild(costLayout) + 1);
+
+
+            final boolean[] isMaximized = {false};
+            costIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(isMaximized[0]){
+                        costInfoLayout.setVisibility(View.GONE);
+                        isMaximized[0] = false;
+                        costIcon.setImageResource(R.drawable.ic_baseline_plus);
+
+                    }else{
+                        costInfoLayout.setVisibility(View.VISIBLE);
+                        isMaximized[0] = true;
+                        costIcon.setImageResource(R.drawable.icon_minimize);
+                    }
+                }
+            });
+        }
+    }
+
 }

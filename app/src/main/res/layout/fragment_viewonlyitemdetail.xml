@@ -495,6 +495,32 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/cost_linearlayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="5"
+                    android:text="Equipment cost history"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:padding="8dp"/>
+                <ImageView
+                    android:id="@+id/cost_plus"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_baseline_plus"
+                    android:tint="@color/colorPrimary"
+                    android:padding="8dp"/>
+            </LinearLayout>
+
+
+            <LinearLayout
                 android:id="@+id/specs_linearlayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -519,6 +545,8 @@
                     android:src="@drawable/ic_baseline_plus"
                     android:tint="@color/colorPrimary"
                     android:padding="8dp"/>
+
+
             </LinearLayout>
 
 
