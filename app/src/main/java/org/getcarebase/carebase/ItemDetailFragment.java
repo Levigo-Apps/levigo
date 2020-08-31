@@ -86,6 +86,7 @@ public class ItemDetailFragment extends Fragment {
 
     private String mNetworkId;
     private String mHospitalId;
+    private String mUser;
 
     // Firebase database
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -281,8 +282,12 @@ public class ItemDetailFragment extends Fragment {
                     DocumentSnapshot document = task.getResult();
                     if (Objects.requireNonNull(document).exists()) {
                         try {
+
                             mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
                             mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
+                            mUser = Objects.requireNonNull(document.get("email")).toString();
+                            System.out.println("email is " + mUser);
+
                             typeRef = db.collection("networks").document(mNetworkId).collection("hospitals")
                                     .document(mHospitalId).collection("types").document("type_options");
                             siteRef = db.collection("networks").document(mNetworkId)
@@ -756,7 +761,7 @@ public class ItemDetailFragment extends Fragment {
 
                 for (TextInputEditText editText : new TextInputEditText[]{udiEditText, nameEditText,
                         company, expiration, lotNumber, referenceNumber, numberAdded, deviceIdentifier,
-                        dateIn, timeIn,costEditText}) {
+                        dateIn, timeIn}) {
                     if (Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()) {
                         checkEditTexts = false;
                         return;
@@ -778,7 +783,7 @@ public class ItemDetailFragment extends Fragment {
         deviceIdentifier.addTextChangedListener(editTextWatcher);
         dateIn.addTextChangedListener(editTextWatcher);
         timeIn.addTextChangedListener(editTextWatcher);
-        costEditText.addTextChangedListener(editTextWatcher);
+
 
 
     }
@@ -1385,7 +1390,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
     private void saveEquipmentCost(DocumentReference udiRef, TextInputEditText costEditText, TextInputEditText numberAdded, TextInputEditText dateIn){
-        if(costEditText.toString().length() > 0){
+        if(costEditText.getText().toString().length() > 0){
             Map<String, Object> costInfo = new HashMap<>();
             String cleanString = costEditText.getText().toString().replaceAll("[$,.]", "");
             double parsed = Double.parseDouble(cleanString) / 100;
@@ -1396,6 +1401,7 @@ public class ItemDetailFragment extends Fragment {
             costInfo.put("number_added",numberAdded.getText().toString());
             costInfo.put("package_price",parsed);
             costInfo.put("unit_price",roundOff);
+            costInfo.put("user",mUser);
 
             udiRef.collection("equipment_cost")
                     .add(costInfo)
