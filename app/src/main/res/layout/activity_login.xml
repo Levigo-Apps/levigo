@@ -17,12 +17,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:background="@color/colorPrimaryDark">
         <TextView
-            android:id="@+id/login_title"
             android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="16dp"
-            android:text="Carebase"
+            android:text="@string/carebase_lbl"
             android:fontFamily="sans-serif-light"
             android:textColor="@android:color/white"
             android:textSize="40sp"
@@ -69,7 +68,6 @@
             android:onClick="resetPassword"
             style="@style/Widget.MaterialComponents.Button.TextButton"/>
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/login_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -81,7 +79,6 @@
 
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/login_register"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

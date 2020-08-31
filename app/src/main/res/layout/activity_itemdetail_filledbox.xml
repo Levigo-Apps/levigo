@@ -1,9 +1,0 @@
-<com.google.android.material.textfield.TextInputLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="start"
-    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-    android:textAppearance="?android:attr/textAppearance"
-    app:chipBackgroundColor="@color/colorPrimary" />

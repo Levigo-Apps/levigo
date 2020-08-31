@@ -8,17 +8,17 @@
     android:background="@drawable/inventory_udi_background"
     android:id="@+id/category_layout"
     >
+
     <TextView
         android:id="@+id/category_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/check_icon"
         android:text="title"
         android:textColor="#5e5e5e"
-        android:textSize="20dp"
-        android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@id/check_icon"
-        />
+        android:textSize="20sp" />
 
     <ImageButton
         android:id="@+id/check_icon"

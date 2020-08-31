@@ -12,7 +12,7 @@
         android:padding="8dp"
         android:background="@color/colorBackground"
 
-        android:text="Category"
+        android:text="@string/inventory_lbl"
         android:textStyle="bold"
         android:textSize="18sp"
         android:textColor="@android:color/black"
