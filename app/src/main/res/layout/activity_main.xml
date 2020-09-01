@@ -21,17 +21,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
-            android:minHeight="120dp"
-            app:collapsedTitleTextAppearance="@style/TitleAppBarStyle"
             app:contentScrim="@color/colorPrimary"
-            app:expandedTitleTextAppearance="@style/TitleAppBarStyle"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
-            app:statusBarScrim="@color/colorPrimary"
-            app:titleTextColor="@android:color/white">
+            app:statusBarScrim="@color/colorPrimary">
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="150dp" />
+                android:layout_height="match_parent" />
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/main_toolbar"
@@ -41,6 +37,23 @@
                 app:layout_collapseMode="pin"
                 app:navigationIcon="@drawable/icon_camera" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        <TextView
+            android:id="@+id/main_hospital_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textAppearance="@style/TitleAppBarStyle"
+            android:textColor="@android:color/white"
+            android:textSize="30dp" />
+
+        <TextView
+            android:id="@+id/main_user_email_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="15dp" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
