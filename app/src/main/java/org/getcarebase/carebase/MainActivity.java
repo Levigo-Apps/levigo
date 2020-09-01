@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -91,6 +92,10 @@ public class MainActivity extends AppCompatActivity {
     private String mNetworkId;
     private String mHospitalId;
     private String mHospitalName;
+    private String mUserEmail;
+    private Toolbar mToolbar;
+    private TextView mHospitalNameTextView;
+    private TextView mUserEmailTextView;
 
 
     @Override
@@ -112,6 +117,10 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         String userId = mAuth.getCurrentUser().getUid();
 
+        mToolbar = findViewById(R.id.main_toolbar);
+        mHospitalNameTextView = findViewById(R.id.main_hospital_textview);
+        mUserEmailTextView = findViewById(R.id.main_user_email_textview);
+
         // Get user information in "users" collection
         final DocumentReference currentUserRef = usersRef.document(userId);
         currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -125,12 +134,15 @@ public class MainActivity extends AppCompatActivity {
                             mNetworkId = document.get("network_id").toString();
                             mHospitalId = document.get("hospital_id").toString();
                             mHospitalName = document.get("hospital_name").toString();
+                            mUserEmail = document.get("email").toString();
                             String inventoryRefUrl = "networks/" + mNetworkId + "/hospitals/" + mHospitalId + "/departments/default_department/dis";
 
-                            Toolbar mToolbar = findViewById(R.id.main_toolbar);
+//                            Toolbar mToolbar = findViewById(R.id.main_toolbar);
                             setSupportActionBar(mToolbar);
                             // TODO only display first word from hospital name to prevent being cut off
-                            mToolbar.setTitle(mHospitalName.split(" ", 2)[0]);
+//                            mToolbar.setTitle(mHospitalName.split(" ", 2)[0]);
+                            mHospitalNameTextView.setText(mHospitalName);
+                            mUserEmailTextView.setText(mUserEmail);
 
 
                             inventoryRef = levigoDb.collection(inventoryRefUrl);
