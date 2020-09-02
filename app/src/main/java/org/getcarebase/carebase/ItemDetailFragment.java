@@ -69,6 +69,7 @@ import java.io.Serializable;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -587,7 +588,32 @@ public class ItemDetailFragment extends Fragment {
                         view.getContext(),
                         R.layout.dropdown_menu_popup_item,
                         PHYSICALLOC);
+        adapterLoc.add("Box - Central Lines");
+        adapterLoc.add("Box - Picc Lines");
+        adapterLoc.add("Box - Tunnels/ports");
+        adapterLoc.add("Box - Short Wires");
+        adapterLoc.add("Box - Perma dialysis");
+        adapterLoc.add("Box - Triple lumen dialysis");
+        adapterLoc.add("Box - Other permacath");
+        adapterLoc.add("Box - Microcath");
+        adapterLoc.add("Box - Biopsy");
+        adapterLoc.add("Cabinet 1");
+        adapterLoc.add("Cabinet 2");
+        adapterLoc.add("Cabinet 3");
+        adapterLoc.add("Hanger - drainage cath");
+        adapterLoc.add("Hanger - Nephrostemy");
+        adapterLoc.add("Hanger - Misc catheters");
+        adapterLoc.add("Hanger - 4 french catheters");
+        adapterLoc.add("Hanger - 5 french catheters");
+        adapterLoc.add("Hanger - Kumpe - 5 french");
+        adapterLoc.add("Hanger - Drainage tube");
+        adapterLoc.add("Hanger - Biliary catheters");
+        adapterLoc.add("Hanger - Specialized sheaths/introducers");
+        adapterLoc.add("Shelf - G J Tube");
+        adapterLoc.add("Shelf - Lung Biopsy, Flesh Kit");
+        adapterLoc.add("Shelf - Micropuncture sets/Wires");
         adapterLoc.add("Other");
+
         physicalLocation.setAdapter(adapterLoc);
         physicalLocation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -667,7 +693,51 @@ public class ItemDetailFragment extends Fragment {
                         view.getContext(),
                         R.layout.dropdown_menu_popup_item,
                         TYPES);
-        adapterType.add("Other");
+        List<String> typesList = Arrays.asList(
+                "Balloon",
+                "Biliary Stent",
+                "Catheter",
+                "Catheter Extraction Tool",
+                "Catheter Securement Device",
+                "Central Venous Access",
+                "Chest (Bag, Catheter, Pneumo Kit, Thoracentesis Kit)",
+                "Coaxial Needle",
+                "Core Biopsy Gun",
+                "CT Biopsy Grid",
+                "Dilator",
+                "Drainage Bags, Kits, Tubes",
+                "Embolization (coils, microcoils, gel foam, particles)",
+                "Equipment",
+                "Flow Switch",
+                "Footballs",
+                "Gastro Equipment (feeding tube)",
+                "Gloves",
+                "Gown",
+                "Guide Sheath",
+                "Inflation Device",
+                "Introducer Sheath",
+                "Lidocaine",
+                "Micropuncture Kit",
+                "Needle",
+                "Nephro Tubes/Stents",
+                "Non-vascular Access Kit",
+                "Patient Cover",
+                "Picc line",
+                "Pneumothorax Kit/Flesh Kit",
+                "Povidone",
+                "Scalpel",
+                "Sheath",
+                "Sleeve",
+                "Snare",
+                "Stents and Embolization Coils",
+                "Sterile Tray",
+                "Stopcock",
+                "Tube",
+                "Wire",
+                "Ultrasound/Imaging related",
+                "Venous Access (Catheters, Central Lines, Introducers, Tunnelers)",
+                "Other");
+        adapterType.addAll(typesList);
         equipmentType.setAdapter(adapterType);
 
 
@@ -1647,7 +1717,6 @@ public class ItemDetailFragment extends Fragment {
                         }
                     } else {
                         diQuantity = "0";
-//                        Log.d(TAG, "Document does not exist!");
                     }
                 } else {
                     Log.d(TAG, "Failed with: ", task.getException());
