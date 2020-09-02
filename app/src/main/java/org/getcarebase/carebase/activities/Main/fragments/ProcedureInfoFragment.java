@@ -1,4 +1,4 @@
-package org.getcarebase.carebase;
+package org.getcarebase.carebase.activities.Main.fragments;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -35,6 +35,8 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.getcarebase.carebase.R;
 
 import java.io.Serializable;
 import java.text.ParseException;

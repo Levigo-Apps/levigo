@@ -1,4 +1,4 @@
-package org.getcarebase.carebase;
+package org.getcarebase.carebase.activities.Main;
 
 public class InventoryTemplate {
 

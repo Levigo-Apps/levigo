@@ -1,4 +1,4 @@
-package org.getcarebase.carebase;
+package org.getcarebase.carebase.activities.Main.fragments;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -61,6 +61,8 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
+import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.activities.Main.InventoryTemplate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -31,31 +31,26 @@
          <meta-data
                 android:name="com.google.firebase.messaging.default_notification_channel_id"
                 android:value="Carebase" />
-        <activity android:name="org.getcarebase.carebase.MainActivity"
+        <activity android:name="org.getcarebase.carebase.activities.Main.MainActivity"
             android:windowSoftInputMode="adjustPan"/>
-        <activity android:name="org.getcarebase.carebase.LoginActivity">
+        <activity android:name="org.getcarebase.carebase.activities.Login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="org.getcarebase.carebase.SignUpActivity">
+        <activity android:name="org.getcarebase.carebase.activities.Login.SignUpActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.getcarebase.carebase.LoginActivity" />
+                android:value="org.getcarebase.carebase.activities.Login.LoginActivity" />
         </activity>
-        <activity android:name="org.getcarebase.carebase.ResetActivity">
+        <activity android:name="org.getcarebase.carebase.activities.Login.ResetActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.getcarebase.carebase.LoginActivity" />
+                android:value="org.getcarebase.carebase.activities.Login.LoginActivity" />
         </activity>
-        <activity android:name="org.getcarebase.carebase.NetworkActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.getcarebase.carebase.MainActivity" />
-        </activity>
-        <activity android:name="org.getcarebase.carebase.FilterActivity" />
+        <activity android:name="org.getcarebase.carebase.activities.Main.FilterActivity" />
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package org.getcarebase.carebase;
+package org.getcarebase.carebase.activities.Main.fragments;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -47,6 +47,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
+import org.getcarebase.carebase.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 

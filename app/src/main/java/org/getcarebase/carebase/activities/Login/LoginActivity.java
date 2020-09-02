@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Levigo Apps
+ * Copyright 2020 Carebase Solutions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.getcarebase.carebase;
+package org.getcarebase.carebase.activities.Login;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -34,6 +34,9 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import org.getcarebase.carebase.activities.Main.MainActivity;
+import org.getcarebase.carebase.R;
 
 /**
  * Logs in user

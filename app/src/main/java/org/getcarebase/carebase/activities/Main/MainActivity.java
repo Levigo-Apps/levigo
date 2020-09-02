@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.getcarebase.carebase;
+package org.getcarebase.carebase.activities.Main;
 
 import android.Manifest;
 import android.app.NotificationChannel;
@@ -63,6 +63,15 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
+
+import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.activities.Login.LoginActivity;
+import org.getcarebase.carebase.activities.Main.adapters.InventoryViewAdapter;
+import org.getcarebase.carebase.activities.Main.fragments.ItemDetailFragment;
+import org.getcarebase.carebase.activities.Main.fragments.ItemDetailOfflineFragment;
+import org.getcarebase.carebase.activities.Main.fragments.ItemDetailViewFragment;
+import org.getcarebase.carebase.activities.Main.fragments.PendingUdiFragment;
+import org.getcarebase.carebase.activities.Main.fragments.ProcedureInfoFragment;
 
 import java.util.HashMap;
 import java.util.Map;
