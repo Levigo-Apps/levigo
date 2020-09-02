@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.getcarebase.carebase;
+package org.getcarebase.carebase.activities.Login;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -43,6 +43,9 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.activities.Main.MainActivity;
 
 import java.util.HashMap;
 import java.util.Map;

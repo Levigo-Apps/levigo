@@ -1,4 +1,4 @@
-package org.getcarebase.carebase;
+package org.getcarebase.carebase.activities.Main.adapters;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +10,9 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.activities.Main.MainActivity;
 
 import java.util.HashMap;
 import java.util.Map;

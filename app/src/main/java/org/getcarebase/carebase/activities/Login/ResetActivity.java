@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Levigo Apps
+ * Copyright 2020 Carebase Solutions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.getcarebase.carebase;
+package org.getcarebase.carebase.activities.Login;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -29,6 +29,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
+
+import org.getcarebase.carebase.R;
 
 /**
  * Resets password with email

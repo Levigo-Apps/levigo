@@ -1,6 +1,6 @@
 
 
-package org.getcarebase.carebase;
+package org.getcarebase.carebase.activities.Main.adapters;
 
 import android.content.Context;
 import android.util.Log;
@@ -15,6 +15,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.getcarebase.carebase.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;

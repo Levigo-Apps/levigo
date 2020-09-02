@@ -1,4 +1,4 @@
-package org.getcarebase.carebase;
+package org.getcarebase.carebase.activities.Main.fragments;
 
 import android.app.Activity;
 import android.content.res.ColorStateList;
@@ -40,6 +40,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.getcarebase.carebase.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
