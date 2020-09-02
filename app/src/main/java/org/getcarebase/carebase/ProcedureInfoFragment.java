@@ -40,6 +40,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -243,9 +244,36 @@ public class ProcedureInfoFragment extends Fragment {
                         rootView.getContext(),
                         R.layout.dropdown_menu_popup_item,
                         procedureNames);
-        procedureNamesAdapter.add("Other");
-        procedureNamesAdapter.add("Upper Endoscopy");
-        procedureNamesAdapter.add("Lower Endoscopy");
+        List<String> namesList = Arrays.asList
+                (
+                        "Angioplasty and Stent Insertion",
+                        "Ascitic Tap",
+                        "Biliary Drainage",
+                        "Bursal Injection",
+                        "Carotid Stenting",
+                        "Carpal Tunnel Ultrasound and Injection",
+                        "Image Guided Cervical Nerve Root Sleeve Corticosteroid Injection",
+                        "Image Guided Liver Biopsy",
+                        "Image Guided Lumbar Epidural Corticosteroid Injection",
+                        "Image guided lumbar nerve root sleeve injection",
+                        "Inferior Vena Cava Filters",
+                        "Joint Injection",
+                        "Nephrostomy",
+                        "Pleural Aspiration",
+                        "Radiofrequency Ablation",
+                        "SAH Vasospasm Endovascular Treatment",
+                        "Selective Internal Radiation Therapy [SIRT]: SIR-Spheres®",
+                        "Spinal Cord Embolisation (AVM/DAVF)",
+                        "Thyroid fine needle aspiration (FNA)",
+                        "Transarterial Chemoembolisation (TACE)",
+                        "Uterine Fibroid Embolisation",
+                        "Varicose Vein Ablation",
+                        "Vascular Closure Devices",
+                        "Venous Access",
+                        "Vertebroplasty",
+                        "Other"
+                );
+        procedureNames.addAll(namesList);
         Collections.sort(procedureNames);
         procedureNameEditText.setAdapter(procedureNamesAdapter);
 
