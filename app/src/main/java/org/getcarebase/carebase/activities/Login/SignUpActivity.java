@@ -273,7 +273,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     public void composeEmail(View view) {
         Intent intent = new Intent(Intent.ACTION_SENDTO);
-        final String SUPPORT_EMAIL = "theelliotliu@gmail.com";
+        final String SUPPORT_EMAIL = "elliot@getcarebase.org";
         intent.setData(Uri.parse("mailto:" + SUPPORT_EMAIL));
         intent.putExtra(Intent.EXTRA_SUBJECT, "Admin Account Request");
         if (intent.resolveActivity(getPackageManager()) != null) {
@@ -282,9 +282,22 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     public void demoLogin(View view) {
-        mAuth.signInWithEmailAndPassword("carebasetester@gmail.com", "carebasetester");
-        Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
-        finish();
-        startActivity(mainActivityIntent);
+        mAuth.signInWithEmailAndPassword("demo_user@getcarebase.org", "demo_user")
+                .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Create user document in "users" collection to store authorized hospital
+                            Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                            finish();
+                            startActivity(mainActivityIntent);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "Sign-In failed");
+                            Toast.makeText(getApplicationContext(), "Sign-in failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 }
