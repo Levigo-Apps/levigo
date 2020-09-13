@@ -28,7 +28,7 @@
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:liftOnScroll="true"
             app:navigationIcon="@drawable/icon_back"
-            app:title="Edit equipment specifications"
+            app:title="Edit Equipment Specifications"
             app:titleTextColor="@android:color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -82,8 +82,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/device_identifier_lbl"
-                    app:boxStrokeColor="@color/colorPrimary"
-                    >
+                    app:boxStrokeColor="@color/colorPrimary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_di"
@@ -114,7 +113,7 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_quantity"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"/>
+                        android:layout_height="match_parent" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -131,7 +130,7 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_expiration_date"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"/>
+                        android:layout_height="match_parent" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <LinearLayout
@@ -321,15 +320,14 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/equipment_cost_lbl"
-                    >
+                    android:hint="@string/equipment_cost_lbl">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_equipment_cost"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:cursorVisible="false" />
+                        android:cursorVisible="false"
+                        android:inputType="numberDecimal" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -337,19 +335,18 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/date_in_lbl"
-                    android:focusable="false"
                     android:clickable="false"
+                    android:focusable="false"
+                    android:hint="@string/date_in_lbl"
                     app:endIconDrawable="@drawable/calendar"
                     app:endIconMode="custom"
-                    app:endIconTint="@color/colorPrimary"
-                    >
+                    app:endIconTint="@color/colorPrimary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_in_date"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:focusable="false"/>
+                        android:focusable="false" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout

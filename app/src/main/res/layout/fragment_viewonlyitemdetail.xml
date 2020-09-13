@@ -27,17 +27,18 @@
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:liftOnScroll="true"
             app:navigationIcon="@drawable/icon_back"
-            app:title="Equipment specifications"
+            app:title="Equipment Specifications"
             app:titleTextColor="@android:color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="vertical"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/itemdetailviewonly_linearlayout"
@@ -50,447 +51,478 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/colorPrimary"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="1dp">
+                android:layout_marginBottom="1dp"
+                android:background="@color/colorPrimary">
+
                 <TextView
                     android:id="@+id/itemname_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="5"
-                    android:textColor="#ffffff"
+                    android:padding="16dp"
                     android:textAlignment="textStart"
-                    android:textSize="20sp"
-                    android:padding="16dp"/>
+                    android:textColor="#ffffff"
+                    android:textSize="20sp" />
+
                 <ImageView
                     android:id="@+id/itemname_edit"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:src="@drawable/icon_edit"
-                    android:tint="@android:color/white"
                     android:padding="16dp"
-                    />
+                    android:src="@drawable/icon_edit"
+                    android:tint="@android:color/white" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
+                android:layout_marginVertical="1dp"
                 android:background="@android:color/white"
-                android:layout_marginVertical="1dp">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
                     android:text="@string/barcode_udi_label"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <TextView
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:id="@+id/barcode_edittext"
-                    android:textSize="14sp"
-                    android:padding="8dp"/>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
+                android:layout_marginVertical="1dp"
                 android:background="@android:color/white"
-                android:layout_marginVertical="1dp">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
                     android:text="@string/device_identifier_label"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <TextView
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:id="@+id/di_edittext"
-                    android:textSize="14sp"
-                    android:padding="8dp"/>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
+                android:layout_marginVertical="1dp"
                 android:background="@android:color/white"
-                android:layout_marginVertical="1dp">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
                     android:text="@string/quantity_label"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <TextView
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:id="@+id/quantity_edittext"
-                    android:textSize="14sp"
-                    android:padding="8dp"/>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
+                android:layout_marginVertical="1dp"
                 android:background="@android:color/white"
-                android:layout_marginVertical="1dp">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
                     android:text="@string/expiration_label"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <TextView
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:id="@+id/expiration_edittext"
-                    android:textSize="14sp"
-                    android:padding="8dp"/>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
+                android:layout_marginVertical="1dp"
                 android:background="@android:color/white"
-                android:layout_marginVertical="1dp">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
                     android:text="@string/hospital_name_label"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <TextView
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:id="@+id/site_edittext"
-                    android:textSize="14sp"
-                    android:padding="8dp"/>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
+                android:layout_marginVertical="1dp"
                 android:background="@android:color/white"
-                android:layout_marginVertical="1dp">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
                     android:text="@string/physical_location_label"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <TextView
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:id="@+id/physicallocation_edittext"
-                    android:textSize="14sp"
-                    android:padding="8dp"/>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
+                android:layout_marginVertical="1dp"
                 android:background="@android:color/white"
-                android:layout_marginVertical="1dp">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
                     android:text="@string/type_label"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <TextView
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:id="@+id/type_edittext"
-                    android:textSize="14sp"
-                    android:padding="8dp"/>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
+                android:layout_marginVertical="1dp"
                 android:background="@android:color/white"
-                android:layout_marginVertical="1dp">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
                     android:text="@string/usage_label"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <TextView
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:id="@+id/usage_edittext"
-                    android:textSize="14sp"
-                    android:padding="8dp"/>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
+                android:layout_marginVertical="1dp"
                 android:background="@android:color/white"
-                android:layout_marginVertical="1dp">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
                     android:text="@string/medical_specialty_label"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <TextView
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:id="@+id/medicalspecialty_edittext"
-                    android:textSize="14sp"
-                    android:padding="8dp"/>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
+                android:layout_marginVertical="1dp"
                 android:background="@android:color/white"
-                android:layout_marginVertical="1dp">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
                     android:text="@string/device_description_label"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <TextView
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:id="@+id/devicedescription_edittext"
-                    android:textSize="14sp"
-                    android:padding="8dp"/>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
+                android:layout_marginVertical="1dp"
                 android:background="@android:color/white"
-                android:layout_marginVertical="1dp">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
                     android:text="@string/reference_number_label"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <TextView
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:id="@+id/referencenumber_edittext"
-                    android:textSize="14sp"
-                    android:padding="8dp"/>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
+                android:layout_marginVertical="1dp"
                 android:background="@android:color/white"
-                android:layout_marginVertical="1dp">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
                     android:text="@string/lot_number_label"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <TextView
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:id="@+id/lotnumber_edittext"
-                    android:textSize="14sp"
-                    android:padding="8dp"/>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
+                android:layout_marginVertical="1dp"
                 android:background="@android:color/white"
-                android:layout_marginVertical="1dp">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
                     android:text="@string/manufacturer_company_label"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <TextView
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:id="@+id/company_edittext"
-                    android:textSize="14sp"
-                    android:padding="8dp"/>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
+                android:layout_marginVertical="1dp"
                 android:background="@android:color/white"
-                android:layout_marginVertical="1dp">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
                     android:text="@string/last_update_label"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <TextView
+                    android:id="@+id/lasteupdate_edittext"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:id="@+id/lasteupdate_edittext"
-                    android:textSize="14sp"
-                    android:padding="8dp"/>
+                    android:padding="8dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
+                android:layout_marginVertical="1dp"
                 android:background="@android:color/white"
-                android:layout_marginVertical="1dp">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:focusable="false"
-                    android:text="@string/notes_label"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/black"
+                    android:gravity="center_vertical"
                     android:padding="8dp"
-                    android:gravity="center_vertical"/>
+                    android:text="@string/notes_label"
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
                 <TextView
+                    android:id="@+id/notes_edittext"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:id="@+id/notes_edittext"
-                    android:textSize="14sp"
-                    android:padding="8dp"/>
+                    android:padding="8dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -499,24 +531,25 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="5"
+                    android:padding="8dp"
                     android:text="@string/cost_lbl"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"/>
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
                 <ImageView
                     android:id="@+id/cost_plus"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:src="@drawable/ic_baseline_plus"
-                    android:tint="@color/colorPrimary"
                     android:padding="8dp"
-                    />
+                    android:src="@drawable/ic_baseline_plus"
+                    android:tint="@color/colorPrimary" />
             </LinearLayout>
 
 
@@ -527,25 +560,26 @@
                 android:layout_marginTop="10dp"
                 android:baselineAligned="false"
                 android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="5"
                     android:gravity="center_vertical"
+                    android:padding="8dp"
                     android:text="@string/specification_label"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"/>
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
                 <ImageView
                     android:id="@+id/specifications_plus"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:src="@drawable/ic_baseline_plus"
-                    android:tint="@color/colorPrimary"
                     android:padding="8dp"
-                    />
+                    android:src="@drawable/ic_baseline_plus"
+                    android:tint="@color/colorPrimary" />
 
 
             </LinearLayout>
@@ -557,23 +591,25 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="5"
+                    android:padding="8dp"
                     android:text="@string/usage_label"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
                     android:textColor="@android:color/black"
-                    android:padding="8dp"/>
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
                 <ImageView
                     android:id="@+id/usage_plus"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:padding="8dp"
                     android:src="@drawable/ic_baseline_plus"
-                    android:tint="@color/colorPrimary"
-                    android:padding="8dp"/>
+                    android:tint="@color/colorPrimary" />
             </LinearLayout>
 
             <LinearLayout

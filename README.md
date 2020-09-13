@@ -1,6 +1,9 @@
 # Carebase Medical Inventory Tracker for Android
 Free Android app that helps users scan the bar code on medical supplies, pull data from the FDA database, and keep track of aggregates and expiration dates.
 
+![Alt text](demo_images/Main.png?raw=true "Main")
+![Alt text](demo_images/AddItem.png?raw=true "Add Item")
+
 ## Join Us
 If you are a student or professional looking for a meaningful and challenging side project, please reach out to us! We are always looking for volunteers who have an interest in development, design, or anything else.
  
