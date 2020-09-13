@@ -33,7 +33,8 @@
                 android:value="Carebase" />
         <activity android:name="org.getcarebase.carebase.activities.Main.MainActivity"
             android:windowSoftInputMode="adjustPan"/>
-        <activity android:name="org.getcarebase.carebase.activities.Login.LoginActivity">
+        <activity android:name="org.getcarebase.carebase.activities.Login.LoginActivity"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

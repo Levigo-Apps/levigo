@@ -2,12 +2,12 @@
     <string name="app_name">Carebase</string>
     <string name="email_label">Email</string>
     <string name="password_label">Password</string>
-    <string name="forgot_your_password_label">Forgot your password?</string>
+    <string name="forgot_your_password_label">Forgot password</string>
     <string name="login_label">Login</string>
     <string name="error_invalid_email_format">Invalid email format</string>
     <string name="error_invalid_email">No account found for this email</string>
     <string name="error_invalid_password">Incorrect password</string>
-    <string name="register_label">Don\'t have an account? Register here</string>
+    <string name="register_label">Register here</string>
     <string name="notes_lbl">Notes</string>
     <string name="save_lbl">Save</string>
     <string name="type_lbl">Type</string>
