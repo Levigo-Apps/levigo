@@ -126,17 +126,28 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void login(final View view) {
+        // clear previous errors
+        emailTextInputLayout.setError(null);
+        passwordTextInputLayout.setError(null);
+
         final String email = mEmail.getText().toString();
         final String password = mPassword.getText().toString();
+        if (email.isEmpty()) {
+            emailTextInputLayout.setError("Enter your email");
+            emailTextInputLayout.requestFocus();
+            return;
+        }
+
+        if(password.isEmpty()) {
+            passwordTextInputLayout.setError("Enter your password");
+            passwordTextInputLayout.requestFocus();
+            return;
+        }
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        // clear previous errors
-                        emailTextInputLayout.setError(null);
-                        passwordTextInputLayout.setError(null);
-
                         if (task.isSuccessful()) {
                             userIsLoggedIn();
                         } else {
