@@ -4,18 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/colorBackground"
-    android:backgroundTint="@color/colorPrimaryDark">
+    android:background="@android:color/white">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="24dp"
         android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:background="@color/colorPrimaryDark">
+        app:layout_constraintEnd_toEndOf="parent">
+
         <TextView
             android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
@@ -23,50 +23,47 @@
             android:padding="16dp"
             android:text="@string/carebase_lbl"
             android:fontFamily="sans-serif-light"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorPrimary"
             android:textSize="40sp"
             android:textStyle="bold"/>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="250dp"
+            android:id="@+id/email_text_input_layout"
+            style="@style/Widget.Carebase.TextInputLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            app:boxBackgroundColor="@android:color/white"
             app:errorEnabled="true">
+
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/login_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:hint="@string/email_label"
-                android:textColor="@color/colorCustomBlack"
-                android:inputType="textEmailAddress"/>
+                android:inputType="textEmailAddress"
+                android:textColor="@color/colorCustomBlack" />
+
         </com.google.android.material.textfield.TextInputLayout>
+
         <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="250dp"
+            android:id="@+id/password_text_input_layout"
+            style="@style/Widget.Carebase.TextInputLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            app:boxBackgroundColor="@android:color/white"
             app:endIconMode="password_toggle">
+
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/login_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:inputType="textPassword"
-                android:textColor="@color/colorCustomBlack"
                 android:hint="@string/password_label"/>
+
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:textSize="12sp"
-            android:text="@string/forgot_your_password_label"
-            android:textColor="@android:color/white"
-            android:onClick="resetPassword"
-            style="@style/Widget.MaterialComponents.Button.TextButton"/>
         <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -75,6 +72,16 @@
             android:onClick="login"
             android:backgroundTint="@color/colorPrimary"
             android:textColor="@android:color/white"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:textSize="12sp"
+            android:text="@string/forgot_your_password_label"
+            android:onClick="resetPassword"
+            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
     </LinearLayout>
 
 
@@ -86,7 +93,7 @@
         android:gravity="center"
         android:text="@string/register_label"
         android:textSize="14sp"
-        android:textColor="@android:color/white"
+        android:textColor="@color/colorPrimary"
         android:onClick="register"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
