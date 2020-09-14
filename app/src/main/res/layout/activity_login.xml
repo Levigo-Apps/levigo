@@ -50,15 +50,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="24dp">
+                android:padding="24dp"
+                android:focusable="false"
+                android:focusableInTouchMode="true">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/email_text_input_layout"
                     style="@style/Widget.Carebase.TextInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    app:errorEnabled="true">
+                    android:layout_marginBottom="4dp"
+                    android:layout_gravity="center_horizontal">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/login_email"
@@ -130,14 +132,16 @@
         android:background="@android:color/white">
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/login_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:backgroundTint="@color/colorPrimary"
+            android:layout_marginHorizontal="24dp"
+            android:enabled="false"
             android:onClick="login"
             android:text="@string/login_label"
-            android:textColor="@android:color/white"
-            android:layout_marginHorizontal="24dp"/>
+            android:textColor="@android:color/white">
+        </com.google.android.material.button.MaterialButton>
 
     </LinearLayout>
 
