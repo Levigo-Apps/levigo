@@ -23,6 +23,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -32,6 +33,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.FirebaseApp;
@@ -59,6 +61,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EditText mEmail, mPassword;
     private TextInputLayout emailTextInputLayout,passwordTextInputLayout;
+    private Button loginButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,7 +80,9 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                toggleLoginButton();
+            }
             @Override
             public void afterTextChanged(Editable editable) {
                 // clear error
@@ -91,13 +96,23 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                toggleLoginButton();
+            }
             @Override
             public void afterTextChanged(Editable editable) {
                 // clear error
                 passwordTextInputLayout.setError(null);
             }
         });
+
+        loginButton = findViewById(R.id.login_button);
+    }
+
+    private void toggleLoginButton() {
+        // set login button to disabled if there is no text in either email or password
+        // or enabled if there is text in both
+        loginButton.setEnabled(!mEmail.getText().toString().isEmpty() && !mPassword.getText().toString().isEmpty());
     }
 
     private void userIsLoggedIn() {
@@ -132,17 +147,6 @@ public class LoginActivity extends AppCompatActivity {
 
         final String email = mEmail.getText().toString();
         final String password = mPassword.getText().toString();
-        if (email.isEmpty()) {
-            emailTextInputLayout.setError("Enter your email");
-            emailTextInputLayout.requestFocus();
-            return;
-        }
-
-        if(password.isEmpty()) {
-            passwordTextInputLayout.setError("Enter your password");
-            passwordTextInputLayout.requestFocus();
-            return;
-        }
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {

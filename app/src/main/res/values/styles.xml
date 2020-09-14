@@ -18,7 +18,6 @@
     <style name="Widget.Carebase.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="hintTextAppearance">@style/TextAppearance.Codebase.TextInputLayout.HintText</item>
         <item name="hintTextColor">@color/colorPrimary</item>
-        <item name="android:paddingBottom">8dp</item>
         <item name="boxStrokeColor">@color/colorPrimaryDark</item>
     </style>
 
