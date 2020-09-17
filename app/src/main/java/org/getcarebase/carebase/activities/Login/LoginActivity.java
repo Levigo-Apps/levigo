@@ -21,11 +21,9 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,7 +31,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.FirebaseApp;
@@ -41,10 +38,8 @@ import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.R;
@@ -74,45 +69,32 @@ public class LoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_login);
 
-        mEmail = findViewById(R.id.login_email);
-        emailTextInputLayout = findViewById(R.id.email_text_input_layout);
-        mEmail.addTextChangedListener(new TextWatcher() {
+        TextWatcher invalidCredentialsWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                toggleLoginButton();
+                // set login button to disabled if there is no text in either email or password
+                // or enabled if there is text in both
+                loginButton.setEnabled(!mEmail.getText().toString().isEmpty() && !mPassword.getText().toString().isEmpty());
             }
             @Override
             public void afterTextChanged(Editable editable) {
-                // clear error
+                // clear errors
                 emailTextInputLayout.setError(null);
+                passwordTextInputLayout.setError(null);
             }
-        });
+        };
+
+        mEmail = findViewById(R.id.login_email);
+        emailTextInputLayout = findViewById(R.id.email_text_input_layout);
+        mEmail.addTextChangedListener(invalidCredentialsWatcher);
 
         mPassword = findViewById(R.id.login_password);
         passwordTextInputLayout = findViewById(R.id.password_text_input_layout);
-        mPassword.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                toggleLoginButton();
-            }
-            @Override
-            public void afterTextChanged(Editable editable) {
-                // clear error
-                passwordTextInputLayout.setError(null);
-            }
-        });
+        mPassword.addTextChangedListener(invalidCredentialsWatcher);
 
         loginButton = findViewById(R.id.login_button);
-    }
-
-    private void toggleLoginButton() {
-        // set login button to disabled if there is no text in either email or password
-        // or enabled if there is text in both
-        loginButton.setEnabled(!mEmail.getText().toString().isEmpty() && !mPassword.getText().toString().isEmpty());
     }
 
     private void userIsLoggedIn() {
@@ -165,19 +147,23 @@ public class LoginActivity extends AppCompatActivity {
                                         break;
 
                                     case "ERROR_WRONG_PASSWORD":
-                                        passwordTextInputLayout.setError(getString(R.string.error_invalid_password));
+                                        emailTextInputLayout.setError(getString(R.string.error_invalid_email_or_password));
+                                        passwordTextInputLayout.setError(getString(R.string.error_invalid_email_or_password));
                                         break;
 
                                     case "ERROR_USER_NOT_FOUND":
-                                        emailTextInputLayout.setError(getString(R.string.error_invalid_email));
+                                        emailTextInputLayout.setError(getString(R.string.error_invalid_email_or_password));
+                                        passwordTextInputLayout.setError(getString(R.string.error_invalid_email_or_password));
                                         break;
                                 }
                             }
                             catch (FirebaseTooManyRequestsException e) {
-                                Snackbar.make(view, "Can't login due to too many attempts. Retry in 1 minute.", Snackbar.LENGTH_LONG).show();
+                                Snackbar.make(view, R.string.error_too_many_attempts, Snackbar.LENGTH_LONG).show();
                             }
                             catch (Exception e) {
-                                e.printStackTrace();
+                                Snackbar.make(view, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
+                                Log.e(TAG,"Sign in failed", e);
+                                FirebaseCrashlytics.getInstance().recordException(e);
                             }
                         }
                     }

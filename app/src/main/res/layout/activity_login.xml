@@ -39,7 +39,7 @@
                     android:layout_gravity="center_horizontal"
                     android:fontFamily="sans-serif-light"
                     android:padding="16dp"
-                    android:text="@string/carebase_lbl"
+                    android:text="@string/app_name"
                     android:textColor="@color/colorPrimary"
                     android:textSize="40sp"
                     android:textStyle="bold"
