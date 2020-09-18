@@ -146,12 +146,7 @@ public class LoginActivity extends AppCompatActivity {
                                         emailTextInputLayout.setError(getString(R.string.error_invalid_email_format));
                                         break;
 
-                                    case "ERROR_WRONG_PASSWORD":
-                                        emailTextInputLayout.setError(getString(R.string.error_invalid_email_or_password));
-                                        passwordTextInputLayout.setError(getString(R.string.error_invalid_email_or_password));
-                                        break;
-
-                                    case "ERROR_USER_NOT_FOUND":
+                                    case "ERROR_WRONG_PASSWORD": case "ERROR_USER_NOT_FOUND":
                                         emailTextInputLayout.setError(getString(R.string.error_invalid_email_or_password));
                                         passwordTextInputLayout.setError(getString(R.string.error_invalid_email_or_password));
                                         break;
