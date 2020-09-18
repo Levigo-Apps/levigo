@@ -5,4 +5,5 @@
     <color name="colorPrimaryDark">#053D76</color>
     <color name="colorAccent">#91C0F3</color>
     <color name="colorCustomBlack">#37474F</color>
+    <color name="textInputOutlineColor">#053D76</color>
 </resources>
