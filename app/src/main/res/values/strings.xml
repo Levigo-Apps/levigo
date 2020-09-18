@@ -2,9 +2,22 @@
     <string name="app_name">Carebase</string>
     <string name="email_label">Email</string>
     <string name="password_label">Password</string>
-    <string name="forgot_your_password_label">Forgot your password?</string>
+
+    <!--login/signup screen start-->
     <string name="login_label">Login</string>
-    <string name="register_label">Don\'t have an account? Register here</string>
+    <string name="email_lbl">Email</string>
+    <string name="password_lbl">Password</string>
+    <string name="error_invalid_email_format">Invalid email format</string>
+    <string name="error_invalid_email_or_password">Invalid email or password</string>
+    <string name="register_label">Register here</string>
+    <string name="forgot_your_password_label">Forgot password</string>
+    <!--login/signup screen end-->
+
+    <!--common errors start-->
+    <string name="error_too_many_attempts">Too many attempts. Retry in 1 minute.</string>
+    <string name="error_something_wrong">Something went wrong, please contact support</string>
+    <!--common errors end-->
+
     <string name="notes_lbl">Notes</string>
     <string name="save_lbl">Save</string>
     <string name="type_lbl">Type</string>
@@ -83,13 +96,11 @@
     <string name="cost_lbl">Cost</string>
     <string name="title_lbl">title</string>
     <string name="carebase_lbl">Carebase</string>
-    <string name="email_lbl">Email</string>
     <string name="send_reset_link_lbl">Send Reset Link</string>
     <string name="invitationcode_lbl">InvitationCode</string>
     <string name="submit_lbl">Submit</string>
     <string name="your_network_lbl">Your Network:</string>
     <string name="your_hospital_lbl">Your Hospital:</string>
-    <string name="password_lbl">Password</string>
     <string name="confirm_password_lbl">Confirm Password</string>
     <string name="create_account_lbl">Create Account</string>
     <string name="are_you_a_hospital_administrator_lbl">Are you a hospital administrator?</string>
