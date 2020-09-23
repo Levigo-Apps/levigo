@@ -157,10 +157,10 @@ public class AddEquipmentFragment extends Fragment {
         if (getArguments() != null) {
 
             Bundle procedureInfoBundle = this.getArguments();
-            if(procedureInfoBundle.getBoolean("added")) {
-                procedureInfoHashMapList = (List<HashMap<String, Object>>)
-                        procedureInfoBundle.getSerializable("procedure_info");
-                checkUdi(Objects.requireNonNull(procedureInfoBundle.getString("barcode")));
+
+            // general procedure details
+            if(procedureInfoBundle.getSerializable("procedure_info") != null) {
+                procedureInfoHashMapList = (List<HashMap<String, Object>>) procedureInfoBundle.getSerializable("procedure_info");
                 if (procedureInfoHashMapList.size() == 1) {
                     procedureDate = (String) Objects.requireNonNull(procedureInfoHashMapList).get(0).get("procedure_date");
                     procedureName = (String) procedureInfoHashMapList.get(0).get("procedure_used");
@@ -169,10 +169,12 @@ public class AddEquipmentFragment extends Fragment {
                     roomTime = (String) procedureInfoHashMapList.get(0).get("room_time");
                     fluoroTime = (String) procedureInfoHashMapList.get(0).get("fluoro_time");
                     accessionNumber = (String) procedureInfoHashMapList.get(0).get("accession_number");
-
                 }
                 setProcedureSummary(procedureInfoHashMapList, rootView);
+            }
 
+            if (procedureInfoBundle.getString("barcode") != null) {
+                checkUdi(procedureInfoBundle.getString("barcode"));
             }
 
             if(procedureInfoBundle.getSerializable("procedure_udi") != null){
@@ -182,11 +184,6 @@ public class AddEquipmentFragment extends Fragment {
                     addReturnedUdi(udiList.get(i).get("udi").toString(),rootView,udiList.get(i).get("di").toString(),
                             udiList.get(i).get("amount_used").toString());
                 }
-
-            }
-            if(procedureInfoBundle.get("procedureMap") != null){
-                procedureInfoHashMapList = (List<HashMap<String, Object>>) procedureInfoBundle.getSerializable("procedureMap");
-                setProcedureSummary(procedureInfoHashMapList, rootView);
 
             }
 

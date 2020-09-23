@@ -1359,7 +1359,6 @@ public class ItemDetailFragment extends Fragment {
                         if (isProcedureInfoReturned) {
                             AddEquipmentFragment fragment = new AddEquipmentFragment();
                             Bundle bundle = new Bundle();
-                            bundle.putBoolean("added", true);
                             bundle.putString("barcode", barcode_str);
                             bundle.putSerializable("procedure_info", (Serializable) procedureInfoHashMapList);
                             if (isUdisReturned) {
