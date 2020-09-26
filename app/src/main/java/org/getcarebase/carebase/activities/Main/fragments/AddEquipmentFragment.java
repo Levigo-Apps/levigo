@@ -139,7 +139,7 @@ public class AddEquipmentFragment extends Fragment {
             public void onClick(View view) {
                 ProcedureInfoFragment fragment = new ProcedureInfoFragment();
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("procedureMap", (Serializable) procedureInfoHashMapList);
+                bundle.putSerializable("procedure_info", (Serializable) procedureInfoHashMapList);
                 fragment.setArguments(bundle);
 
                 FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();

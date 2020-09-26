@@ -134,9 +134,9 @@ public class ProcedureInfoFragment extends Fragment {
         if (getArguments() != null) {
             List<HashMap<String, Object>> procedureInfo;
             Bundle procedureInfoBundle = this.getArguments();
-            if(procedureInfoBundle.get("procedureMap") != null){
+            if(procedureInfoBundle.get("procedure_info") != null){
                 checkAllFields = true;
-                procedureInfo = (List<HashMap<String, Object>>) procedureInfoBundle.getSerializable("procedureMap");
+                procedureInfo = (List<HashMap<String, Object>>) procedureInfoBundle.getSerializable("procedure_info");
                 if(procedureInfo != null) {
                     procedureDateEditText.setText((String) procedureInfo.get(0).get("procedure_date"));
                     procedureNameEditText.setText((String) procedureInfo.get(0).get("procedure_used"));
@@ -315,27 +315,11 @@ public class ProcedureInfoFragment extends Fragment {
         return rootView;
     }
 
-    private void removeProcedureView(View view, int viewId){
-        linearLayout.removeView(linearLayout.findViewById(viewId));
-        for(int i = 0; i < newProcedureInfoList.size(); i++){
-            if(newProcedureInfoList.get(i).get("view_id").toString().equals(String.valueOf(viewId))){
-                newProcedureInfoList.remove(i);
-            }
-        }
-        System.out.println(newProcedureInfoList);
-    }
-
     private void listProcedures(View view, List<HashMap<String, Object>> newProcedureInfoList){
         for(int i = 1; i < newProcedureInfoList.size(); i++){
             final View procedureInfoView = View.inflate(view.getContext(), R.layout.procedure_info, null);
             procedureInfoView.setId(View.generateViewId());
             ImageView removeProcedure = procedureInfoView.findViewById(R.id.procedure_removeIcon);
-            removeProcedure.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    removeProcedureView(view, procedureInfoView.getId());
-                }
-            });
             final TextInputEditText newProcedureDate = procedureInfoView.findViewById(R.id.procedure_newdate);
             AutoCompleteTextView newProcedureName = procedureInfoView.findViewById(R.id.procedure_newname);
             final TextInputEditText newProcedureRoomIn = procedureInfoView.findViewById(R.id.procedure_newtimeIn);
@@ -400,8 +384,6 @@ public class ProcedureInfoFragment extends Fragment {
     }
 
     private void saveAndSend(){
-
-
         AddEquipmentFragment fragment = new AddEquipmentFragment();
         Bundle bundle = new Bundle();
         HashMap<String, Object> procedureInfo = new HashMap<>();
