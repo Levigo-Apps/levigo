@@ -29,6 +29,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout_invitationCode"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@color/colorPrimaryDark"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp">
@@ -50,6 +51,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorPrimary"
             android:text="@string/submit_lbl"
+            android: android:enabled="false"
             android:textColor="@android:color/white" />
 
     </LinearLayout>
@@ -97,6 +99,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:boxStrokeColor="@color/colorPrimaryDark"
             android:layout_marginTop="5dp">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -111,6 +114,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:boxStrokeColor="@color/colorPrimaryDark"
             android:layout_marginTop="5dp">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -125,6 +129,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:boxStrokeColor="@color/colorPrimaryDark"
             android:layout_marginTop="5dp">
 
             <com.google.android.material.textfield.TextInputEditText
