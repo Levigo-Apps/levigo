@@ -687,6 +687,12 @@ public class AddEquipmentFragment extends Fragment {
     }
     private void updateUdiQuantity(String currentQuantity, int quantityUsed, DocumentReference quantityRef, String udi){
 
+        //checks if amount used is > than current quantity
+        if (Integer.parseInt(currentQuantity) < quantityUsed) {
+            int diff = quantityUsed - Integer.parseInt(currentQuantity);
+            currentQuantity = quantityUsed + "";
+        }
+
         quantityRef.collection("udis").document(udi)
                 .update("quantity", String.valueOf(Integer.parseInt(currentQuantity) - quantityUsed))
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -704,6 +710,13 @@ public class AddEquipmentFragment extends Fragment {
     }
 
     private void updateDiQuantity(String currentQuantity, int quantityUsed, DocumentReference quantityRef){
+
+        //checks if amount used is > than current quantity
+        if (Integer.parseInt(currentQuantity) < quantityUsed) {
+            int diff = quantityUsed - Integer.parseInt(currentQuantity);
+            currentQuantity = quantityUsed + "";
+        }
+
         quantityRef
                 .update("quantity", String.valueOf(Integer.parseInt(currentQuantity) - quantityUsed))
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
