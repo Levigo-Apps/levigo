@@ -1584,15 +1584,14 @@ public class ItemDetailFragment extends Fragment {
 
     private void nonGudidUdi(final String udiStr, final View view) {
 
-        if (Objects.requireNonNull(deviceIdentifier.getText()).toString().length() <= 0 && (!editingExisting)) {
-            Toast.makeText(parent, "Please enter Device Identifier and click on Autopopulate again", Toast.LENGTH_LONG).show();
+        if (Objects.requireNonNull(udiEditText.getText()).toString().length() <= 0 && (!editingExisting)) {
+            Toast.makeText(parent, "Please enter barcode and click on Autopopulate again", Toast.LENGTH_LONG).show();
             deviceIdentifier.setError("Enter device identifier (DI)");
-        } else if (deviceIdentifier.getText().toString().length() > 0 && (!editingExisting)) {
-            final String di = deviceIdentifier.getText().toString();
+        } else if (udiEditText.getText().toString().length() > 0 && (!editingExisting)) {
             DocumentReference udiDocRef = db.collection("networks").document(mNetworkId)
                     .collection("hospitals").document(mHospitalId).collection("departments")
                     .document("default_department").collection("dis")
-                    .document(di).collection("udis").document(udiStr);
+                    .document(udiStr).collection("udis").document(udiStr);
 
 
             udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -1601,7 +1600,7 @@ public class ItemDetailFragment extends Fragment {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (Objects.requireNonNull(document).exists()) {
-                            autoPopulateFromDatabase(udiStr, di);
+                            autoPopulateFromDatabase(udiStr, udiStr);
                             Toast.makeText(parent, "Equipment already exists in inventory, " +
                                     "please fill out remaining fields", Toast.LENGTH_SHORT).show();
                         } else {
@@ -1623,9 +1622,7 @@ public class ItemDetailFragment extends Fragment {
                     }
                 }
             });
-
         }
-
         TextWatcher deviceIdentifierWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
