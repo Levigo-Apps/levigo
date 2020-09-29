@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 public class AddEquipmentFragment extends Fragment {
@@ -67,26 +68,12 @@ public class AddEquipmentFragment extends Fragment {
     private LinearLayout linearLayout;
     private LinearLayout procedureSummaryLinear;
     private LinearLayout buttonsLayout;
-    private List<HashMap<String, Object>> procedureInfo;
-    List<HashMap<String, Object>> procedureInfoHashMapList;
-
-    private TextView procedureInfoName;
-    private TextView procedureInfoDate;
-    private TextView procedureAccessionNumber;
+    private List<HashMap<String, Object>> procedureEquipment;
+    private HashMap<String, String> procedureInfo;
 
     private String mNetworkId;
     private String mHospitalId;
-    private String procedureDate;
-    private String procedureName;
-    private String procedureTimeIn;
-    private String procedureTimeOut;
-    private String roomTime;
-    private String fluoroTime;
-    private String accessionNumber;
     private String udiStr;
-
-    private boolean equipmentScanned;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
@@ -98,10 +85,8 @@ public class AddEquipmentFragment extends Fragment {
         linearLayout = rootView.findViewById(R.id.equipment_linearlayout);
         buttonsLayout = rootView.findViewById(R.id.item_bottom);
         procedureSummaryLinear = rootView.findViewById(R.id.procedure_summary_linear);
-        procedureInfo = new ArrayList<>();
+        procedureEquipment = new ArrayList<>();
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
-        equipmentScanned = false;
-
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
@@ -139,7 +124,7 @@ public class AddEquipmentFragment extends Fragment {
             public void onClick(View view) {
                 ProcedureInfoFragment fragment = new ProcedureInfoFragment();
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("procedure_info", (Serializable) procedureInfoHashMapList);
+                bundle.putSerializable("procedure_info", procedureInfo);
                 fragment.setArguments(bundle);
 
                 FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
@@ -160,17 +145,8 @@ public class AddEquipmentFragment extends Fragment {
 
             // general procedure details
             if(procedureInfoBundle.getSerializable("procedure_info") != null) {
-                procedureInfoHashMapList = (List<HashMap<String, Object>>) procedureInfoBundle.getSerializable("procedure_info");
-                if (procedureInfoHashMapList.size() == 1) {
-                    procedureDate = (String) Objects.requireNonNull(procedureInfoHashMapList).get(0).get("procedure_date");
-                    procedureName = (String) procedureInfoHashMapList.get(0).get("procedure_used");
-                    procedureTimeIn = (String) procedureInfoHashMapList.get(0).get("time_in");
-                    procedureTimeOut = (String) procedureInfoHashMapList.get(0).get("time_out");
-                    roomTime = (String) procedureInfoHashMapList.get(0).get("room_time");
-                    fluoroTime = (String) procedureInfoHashMapList.get(0).get("fluoro_time");
-                    accessionNumber = (String) procedureInfoHashMapList.get(0).get("accession_number");
-                }
-                setProcedureSummary(procedureInfoHashMapList, rootView);
+                procedureInfo = (HashMap<String, String>) procedureInfoBundle.getSerializable("procedure_info");
+                setProcedureSummary(rootView);
             }
 
             if (procedureInfoBundle.getString("barcode") != null) {
@@ -184,9 +160,7 @@ public class AddEquipmentFragment extends Fragment {
                     addReturnedUdi(udiList.get(i).get("udi").toString(),rootView,udiList.get(i).get("di").toString(),
                             udiList.get(i).get("amount_used").toString());
                 }
-
             }
-
         }
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
@@ -208,33 +182,23 @@ public class AddEquipmentFragment extends Fragment {
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                if(procedureInfoHashMapList.size() < 2) {
-                    saveProcedureInfo(procedureInfo);
-                }else{
-                    Toast.makeText(parent, "list is longer here", Toast.LENGTH_SHORT).show();
-                }
+            public void onClick(View view) {saveProcedureInfo();
             }
         });
 
         return rootView;
     }
 
-    private void setProcedureSummary(List<HashMap<String, Object>> procedureInformationList, View view){
-
-        for(int i = 0; i < procedureInformationList.size(); i++) {
-            final View procedureSummaryView = View.inflate(view.getContext(), R.layout.procedure_summary, null);
-            TextView newProcedureName = procedureSummaryView.findViewById(R.id.newprocedureinfoName_textview);
-            TextView newProcedureDate = procedureSummaryView.findViewById(R.id.newprocedureinfoDate_textview);
-            TextView newProcedureAccessionNumber = procedureSummaryView.findViewById(R.id.newprocedureinfoAccessionNumber_textview);
-            newProcedureName.setText(procedureInformationList.get(i).get("procedure_used").toString());
-            newProcedureDate.setText(procedureInformationList.get(i).get("procedure_date").toString());
-            newProcedureAccessionNumber.setText(procedureInformationList.get(i).get("accession_number").toString());
-            procedureSummaryLinear.addView(procedureSummaryView);
-
-        }
-
-
+    private void setProcedureSummary(View view){
+        checkProcedureInfo();
+        final View procedureSummaryView = View.inflate(view.getContext(), R.layout.procedure_summary, null);
+        TextView newProcedureName = procedureSummaryView.findViewById(R.id.newprocedureinfoName_textview);
+        TextView newProcedureDate = procedureSummaryView.findViewById(R.id.newprocedureinfoDate_textview);
+        TextView newProcedureAccessionNumber = procedureSummaryView.findViewById(R.id.newprocedureinfoAccessionNumber_textview);
+        newProcedureName.setText(Objects.requireNonNull(procedureInfo.get("procedure_used")));
+        newProcedureDate.setText(Objects.requireNonNull(procedureInfo.get("procedure_date")));
+        newProcedureAccessionNumber.setText(Objects.requireNonNull(procedureInfo.get("accession_number")));
+        procedureSummaryLinear.addView(procedureSummaryView);
     }
 
     private void startScanner() {
@@ -336,8 +300,8 @@ public class AddEquipmentFragment extends Fragment {
                 ItemDetailFragment fragment = new ItemDetailFragment();
                 Bundle bundle = new Bundle();
                 bundle.putString("barcode", udi);
-                bundle.putSerializable("procedure_info", (Serializable) procedureInfoHashMapList);
-                bundle.putSerializable("udi_quantity", (Serializable) procedureInfo);
+                bundle.putSerializable("procedure_info", procedureInfo);
+                bundle.putSerializable("udi_quantity", (Serializable) procedureEquipment);
                 fragment.setArguments(bundle);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
 
@@ -443,16 +407,13 @@ public class AddEquipmentFragment extends Fragment {
         quantity.setText(finalString);
         buttonsLayout.setVisibility(View.VISIBLE);
         linearLayout.addView(textView,linearLayout.indexOfChild(buttonsLayout));
-
-
     }
-
 
     private void deleteUdiView(View view, int elementId, String barcode){
         linearLayout.removeView(linearLayout.findViewById(elementId));
-        for(int i = 0; i < procedureInfo.size(); i++){
-            if(procedureInfo.get(i).get("udi").toString().equals(barcode)){
-                procedureInfo.remove(i);
+        for(int i = 0; i < procedureEquipment.size(); i++){
+            if(procedureEquipment.get(i).get("udi").toString().equals(barcode)){
+                procedureEquipment.remove(i);
             }
         }
     }
@@ -488,8 +449,7 @@ public class AddEquipmentFragment extends Fragment {
                 eachUdi.put("udi",barcode);
                 eachUdi.put("amount_used",String.valueOf(np.getValue()));
                 eachUdi.put("di",di);
-                procedureInfo.add(eachUdi);
-
+                procedureEquipment.add(eachUdi);
             }
         });
         b2.setOnClickListener(new View.OnClickListener()
@@ -502,28 +462,22 @@ public class AddEquipmentFragment extends Fragment {
         d.show();
     }
 
-    private void saveProcedureInfo(final List<HashMap<String, Object>> procedureInfo){
-
-        for(int i = 0; i < procedureInfo.size(); i++){
-            procedureInfo.get(i).put("accession_number",accessionNumber);
-            procedureInfo.get(i).put("room_time",roomTime);
-            procedureInfo.get(i).put("procedure_date",procedureDate);
-            procedureInfo.get(i).put("time_in",procedureTimeIn);
-            procedureInfo.get(i).put("time_out",procedureTimeOut);
-            procedureInfo.get(i).put("procedure_used",procedureName);
-            procedureInfo.get(i).put("fluoro_time",fluoroTime);
+    private void saveProcedureInfo(){
+        checkProcedureInfo();
+        for(int i = 0; i < procedureEquipment.size(); i++){
+            for (Map.Entry<String,String> procedureInfoEntry: procedureInfo.entrySet()) {
+                procedureEquipment.get(i).put(procedureInfoEntry.getKey(),procedureInfoEntry.getValue());
+            }
         }
 
-
-
-        for(int i = 0; i < procedureInfo.size(); i++){
+        for(int i = 0; i < procedureEquipment.size(); i++){
             DocumentReference procedureCounterRef = db.collection("networks").document(mNetworkId)
                     .collection("hospitals").document(mHospitalId).collection("departments")
                     .document("default_department").collection("dis")
-                    .document(Objects.requireNonNull(procedureInfo.get(i).get("di")).toString()).collection("udis")
-                    .document(Objects.requireNonNull(procedureInfo.get(i).get("udi")).toString());
+                    .document(Objects.requireNonNull(procedureEquipment.get(i).get("di")).toString()).collection("udis")
+                    .document(Objects.requireNonNull(procedureEquipment.get(i).get("udi")).toString());
 
-            final int quantityUsed = Integer.parseInt(Objects.requireNonNull(procedureInfo.get(i).get("amount_used")).toString());
+            final int quantityUsed = Integer.parseInt(Objects.requireNonNull(procedureEquipment.get(i).get("amount_used")).toString());
 
             final int finalI = i;
             procedureCounterRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -534,12 +488,12 @@ public class AddEquipmentFragment extends Fragment {
                         if (Objects.requireNonNull(document).exists()) {
                             if(document.get("procedure_number") != null){
                                 String procedureCounter = document.getString("procedure_number");
-                                saveData(procedureInfo.get(finalI),procedureCounter ,quantityUsed);
+                                saveData(procedureEquipment.get(finalI),procedureCounter ,quantityUsed);
                             }else{
-                                saveData(procedureInfo.get(finalI),"0",quantityUsed);
+                                saveData(procedureEquipment.get(finalI),"0",quantityUsed);
                             }
                         } else {
-                            Toast.makeText(parent, "Procedure information for " + procedureInfo.get(finalI).get("udi") +
+                            Toast.makeText(parent, "Procedure information for " + procedureEquipment.get(finalI).get("udi") +
                                     " has not been saved", Toast.LENGTH_SHORT).show();
                             Log.d(TAG, "No such document");
                         }
@@ -557,12 +511,12 @@ public class AddEquipmentFragment extends Fragment {
 
     }
 
-    private void saveData(HashMap<String, Object> procedureInfo, String procedureCounter, final int quantityUsed){
-
-        final String udi = Objects.requireNonNull(procedureInfo.get("udi")).toString();
-        final String di = Objects.requireNonNull(procedureInfo.get("di")).toString();
-        procedureInfo.remove("udi");
-        procedureInfo.remove("di");
+    private void saveData(HashMap<String, Object> procedureEquipment, String procedureCounter, final int quantityUsed){
+        final String accessionNumber = procedureInfo.get("accession_number");
+        final String udi = Objects.requireNonNull(procedureEquipment.get("udi")).toString();
+        final String di = Objects.requireNonNull(procedureEquipment.get("di")).toString();
+        procedureEquipment.remove("udi");
+        procedureEquipment.remove("di");
         final String[] udiQuantity = new String[1];
         final String[] diQuantity = new String[1];
 
@@ -625,7 +579,7 @@ public class AddEquipmentFragment extends Fragment {
 
         // saves procedure information for each udi
         procedureDocRef.collection("procedures")
-                .document("procedure_" + (Integer.parseInt(procedureCounter) + 1)).set(procedureInfo)
+                .document("procedure_" + (Integer.parseInt(procedureCounter) + 1)).set(procedureEquipment)
                 //in case of success
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -742,5 +696,17 @@ public class AddEquipmentFragment extends Fragment {
             }
         });
 
+    }
+
+    // check if procedureInfo has required fields
+    private void checkProcedureInfo() {
+        Objects.requireNonNull(procedureInfo);
+        Objects.requireNonNull(procedureInfo.get("procedure_date"));
+        Objects.requireNonNull(procedureInfo.get("procedure_used"));
+        Objects.requireNonNull(procedureInfo.get("time_in"));
+        Objects.requireNonNull(procedureInfo.get("time_out"));
+        Objects.requireNonNull(procedureInfo.get("room_time"));
+        Objects.requireNonNull(procedureInfo.get("fluoro_time"));
+        Objects.requireNonNull(procedureInfo.get("accession_number"));
     }
 }
