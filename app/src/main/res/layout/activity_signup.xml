@@ -49,9 +49,8 @@
             android:id="@+id/submit_invitation_code_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimary"
             android:text="@string/submit_lbl"
-            android: android:enabled="false"
+            android:enabled="false"
             android:textColor="@android:color/white" />
 
     </LinearLayout>
