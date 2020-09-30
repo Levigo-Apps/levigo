@@ -580,7 +580,8 @@ public class AddEquipmentFragment extends Fragment {
 
         quantityRef.collection("udis").document(udi).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+            public void onComplete(@NonNull Task<DocumentSnapshot> task){
+
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
@@ -589,7 +590,11 @@ public class AddEquipmentFragment extends Fragment {
                         }else{
                             udiQuantity[0] = "0";
                         }
-                        updateUdiQuantity(udiQuantity[0],quantityUsed, quantityRef, udi);
+                        int extra = updateUdiQuantity(udiQuantity[0],quantityUsed, quantityRef, udi);
+                        if (extra != 0) {
+                            Toast.makeText(getActivity(), "There was " + extra +
+                                    " more of the equipment used during the procedure, than the known available quantity.", Toast.LENGTH_SHORT).show();
+                        }
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                     } else {
                         Log.d(TAG, "No such document");
@@ -614,7 +619,11 @@ public class AddEquipmentFragment extends Fragment {
                         }else{
                             diQuantity[0] = "0";
                         }
-                        updateDiQuantity(diQuantity[0],quantityUsed,quantityRef);
+                        int extra = updateDiQuantity(diQuantity[0],quantityUsed,quantityRef);
+                        if (extra != 0) {
+                            Toast.makeText(getActivity(), "There was " + extra +
+                                    " more of the equipment used during the procedure, than the known available quantity.", Toast.LENGTH_SHORT).show();
+                        }
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                     } else {
                         Log.d(TAG, "No such document");
@@ -685,11 +694,11 @@ public class AddEquipmentFragment extends Fragment {
                     }
                 });
     }
-    private void updateUdiQuantity(String currentQuantity, int quantityUsed, DocumentReference quantityRef, String udi){
-
+    private int updateUdiQuantity(String currentQuantity, int quantityUsed, DocumentReference quantityRef, String udi){
+        int diff = 0;
         //checks if amount used is > than current quantity
         if (Integer.parseInt(currentQuantity) < quantityUsed) {
-            int diff = quantityUsed - Integer.parseInt(currentQuantity);
+            diff = quantityUsed - Integer.parseInt(currentQuantity);
             currentQuantity = quantityUsed + "";
         }
 
@@ -707,13 +716,15 @@ public class AddEquipmentFragment extends Fragment {
                         Log.w(TAG, "Error updating document", e);
                     }
                 });
+
+        return diff;
     }
 
-    private void updateDiQuantity(String currentQuantity, int quantityUsed, DocumentReference quantityRef){
-
+    private int updateDiQuantity(String currentQuantity, int quantityUsed, DocumentReference quantityRef){
+        int diff = 0;
         //checks if amount used is > than current quantity
         if (Integer.parseInt(currentQuantity) < quantityUsed) {
-            int diff = quantityUsed - Integer.parseInt(currentQuantity);
+            diff = quantityUsed - Integer.parseInt(currentQuantity);
             currentQuantity = quantityUsed + "";
         }
 
@@ -731,7 +742,7 @@ public class AddEquipmentFragment extends Fragment {
                         Log.w(TAG, "Error updating document", e);
                     }
                 });
-
+        return diff;
     }
 
     private void notification(int diQuantityInt,String udiStr){
