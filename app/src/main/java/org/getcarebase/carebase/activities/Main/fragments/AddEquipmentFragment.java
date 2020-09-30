@@ -590,9 +590,9 @@ public class AddEquipmentFragment extends Fragment {
                         }else{
                             udiQuantity[0] = "0";
                         }
-                        int extra = updateUdiQuantity(udiQuantity[0],quantityUsed, quantityRef, udi);
-                        if (extra != 0) {
-                            Toast.makeText(getActivity(), "There was " + extra +
+                        int diff = updateUdiQuantity(Integer.parseInt(udiQuantity[0]),quantityUsed, quantityRef, udi);
+                        if (diff < 0) {
+                            Toast.makeText(getActivity(), "There was " + Math.abs(diff) +
                                     " more of the equipment used during the procedure, than the known available quantity.", Toast.LENGTH_SHORT).show();
                         }
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
@@ -619,11 +619,7 @@ public class AddEquipmentFragment extends Fragment {
                         }else{
                             diQuantity[0] = "0";
                         }
-                        int extra = updateDiQuantity(diQuantity[0],quantityUsed,quantityRef);
-                        if (extra != 0) {
-                            Toast.makeText(getActivity(), "There was " + extra +
-                                    " more of the equipment used during the procedure, than the known available quantity.", Toast.LENGTH_SHORT).show();
-                        }
+                        updateDiQuantity(Integer.parseInt(diQuantity[0]),quantityUsed,quantityRef);
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                     } else {
                         Log.d(TAG, "No such document");
@@ -694,16 +690,13 @@ public class AddEquipmentFragment extends Fragment {
                     }
                 });
     }
-    private int updateUdiQuantity(String currentQuantity, int quantityUsed, DocumentReference quantityRef, String udi){
-        int diff = 0;
-        //checks if amount used is > than current quantity
-        if (Integer.parseInt(currentQuantity) < quantityUsed) {
-            diff = quantityUsed - Integer.parseInt(currentQuantity);
-            currentQuantity = quantityUsed + "";
-        }
+
+
+    private int updateUdiQuantity(int currentQuantity, int quantityUsed, DocumentReference quantityRef, String udi){
+        int diff = currentQuantity - quantityUsed;
 
         quantityRef.collection("udis").document(udi)
-                .update("quantity", String.valueOf(Integer.parseInt(currentQuantity) - quantityUsed))
+                .update("quantity", String.valueOf(Math.max(diff, 0)))
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -720,16 +713,9 @@ public class AddEquipmentFragment extends Fragment {
         return diff;
     }
 
-    private int updateDiQuantity(String currentQuantity, int quantityUsed, DocumentReference quantityRef){
-        int diff = 0;
-        //checks if amount used is > than current quantity
-        if (Integer.parseInt(currentQuantity) < quantityUsed) {
-            diff = quantityUsed - Integer.parseInt(currentQuantity);
-            currentQuantity = quantityUsed + "";
-        }
-
+    private void updateDiQuantity(int currentQuantity, int quantityUsed, DocumentReference quantityRef){
         quantityRef
-                .update("quantity", String.valueOf(Integer.parseInt(currentQuantity) - quantityUsed))
+                .update("quantity", String.valueOf(Math.max(currentQuantity - quantityUsed, 0))) // either sets quantity to the difference or 0 if difference < 0
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -742,7 +728,6 @@ public class AddEquipmentFragment extends Fragment {
                         Log.w(TAG, "Error updating document", e);
                     }
                 });
-        return diff;
     }
 
     private void notification(int diQuantityInt,String udiStr){
