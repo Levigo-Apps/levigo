@@ -592,7 +592,7 @@ public class AddEquipmentFragment extends Fragment {
                         }
                         int diff = updateUdiQuantity(Integer.parseInt(udiQuantity[0]),quantityUsed, quantityRef, udi);
                         if (diff < 0) {
-                            Toast.makeText(getActivity(), "There was " + Math.abs(diff) +
+                            Toast.makeText(parent, "There was " + Math.abs(diff) +
                                     " more of the equipment used during the procedure, than the known available quantity.", Toast.LENGTH_SHORT).show();
                         }
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
