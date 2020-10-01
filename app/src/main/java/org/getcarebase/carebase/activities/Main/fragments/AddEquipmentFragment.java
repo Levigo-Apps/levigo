@@ -146,6 +146,7 @@ public class AddEquipmentFragment extends Fragment {
             // general procedure details
             if(procedureInfoBundle.getSerializable("procedure_info") != null) {
                 procedureInfo = (HashMap<String, String>) procedureInfoBundle.getSerializable("procedure_info");
+                checkProcedureInfo();
                 setProcedureSummary(rootView);
             }
 
