@@ -532,7 +532,8 @@ public class AddEquipmentFragment extends Fragment {
 
         quantityRef.collection("udis").document(udi).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+            public void onComplete(@NonNull Task<DocumentSnapshot> task){
+
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
@@ -541,7 +542,11 @@ public class AddEquipmentFragment extends Fragment {
                         }else{
                             udiQuantity[0] = "0";
                         }
-                        updateUdiQuantity(udiQuantity[0],quantityUsed, quantityRef, udi);
+                        int diff = updateUdiQuantity(Integer.parseInt(udiQuantity[0]),quantityUsed, quantityRef, udi);
+                        if (diff < 0) {
+                            Toast.makeText(parent, "There was " + Math.abs(diff) +
+                                    " more of the equipment used during the procedure, than the known available quantity.", Toast.LENGTH_SHORT).show();
+                        }
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                     } else {
                         Log.d(TAG, "No such document");
@@ -560,13 +565,13 @@ public class AddEquipmentFragment extends Fragment {
                     if (document.exists()) {
                         if(document.get("quantity") != null){
                             diQuantity[0] = document.getString("quantity");
+                            int newQuantity = updateDiQuantity(Integer.parseInt(diQuantity[0]),quantityUsed,quantityRef);
                             if(Integer.parseInt(diQuantity[0]) <= 8){
-                                notification(Integer.parseInt(diQuantity[0]) - quantityUsed,udiStr);
+                                notification(newQuantity,udiStr);
                             }
                         }else{
                             diQuantity[0] = "0";
                         }
-                        updateDiQuantity(diQuantity[0],quantityUsed,quantityRef);
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                     } else {
                         Log.d(TAG, "No such document");
@@ -637,10 +642,14 @@ public class AddEquipmentFragment extends Fragment {
                     }
                 });
     }
-    private void updateUdiQuantity(String currentQuantity, int quantityUsed, DocumentReference quantityRef, String udi){
+
+    // updates UDI quantity
+    // returns true difference
+    private int updateUdiQuantity(int currentQuantity, int quantityUsed, DocumentReference quantityRef, String udi){
+        int diff = currentQuantity - quantityUsed;
 
         quantityRef.collection("udis").document(udi)
-                .update("quantity", String.valueOf(Integer.parseInt(currentQuantity) - quantityUsed))
+                .update("quantity", String.valueOf(Math.max(diff, 0)))
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -653,11 +662,15 @@ public class AddEquipmentFragment extends Fragment {
                         Log.w(TAG, "Error updating document", e);
                     }
                 });
+
+        return diff;
     }
-
-    private void updateDiQuantity(String currentQuantity, int quantityUsed, DocumentReference quantityRef){
+    // updates DI quantity
+    // returns new quantity
+    private int updateDiQuantity(int currentQuantity, int quantityUsed, DocumentReference quantityRef){
+        int newQuantity = Math.max(currentQuantity - quantityUsed, 0);
         quantityRef
-                .update("quantity", String.valueOf(Integer.parseInt(currentQuantity) - quantityUsed))
+                .update("quantity", String.valueOf(newQuantity)) // either sets quantity to the difference or 0 if difference < 0
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -670,7 +683,7 @@ public class AddEquipmentFragment extends Fragment {
                         Log.w(TAG, "Error updating document", e);
                     }
                 });
-
+        return newQuantity;
     }
 
     private void notification(int diQuantityInt,String udiStr){
