@@ -157,7 +157,7 @@ public class ItemDetailFragment extends Fragment {
     private ArrayList<String> TYPES;
     private ArrayList<String> SITELOC;
     private ArrayList<String> PHYSICALLOC;
-    List<HashMap<String, Object>> procedureInfoHashMapList;
+    HashMap<String, String> procedureInfo;
     private List<HashMap<String, Object>> procedureUdisList;
 
     private LinearLayout siteConstrainLayout;
@@ -478,9 +478,9 @@ public class ItemDetailFragment extends Fragment {
 
         if (getArguments() != null) {
             String barcode = getArguments().getString("barcode");
-            procedureInfoHashMapList = (List<HashMap<String, Object>>) getArguments().getSerializable("procedure_info");
+            procedureInfo = (HashMap<String, String>) getArguments().getSerializable("procedure_info");
             procedureUdisList = (List<HashMap<String, Object>>) getArguments().getSerializable("udi_quantity");
-            if (procedureInfoHashMapList != null && procedureInfoHashMapList.size() != 0) {
+            if (procedureInfo != null && procedureInfo.size() != 0) {
                 isProcedureInfoReturned = true;
             }
             if (procedureUdisList != null && procedureUdisList.size() > 0) {
@@ -1359,9 +1359,8 @@ public class ItemDetailFragment extends Fragment {
                         if (isProcedureInfoReturned) {
                             AddEquipmentFragment fragment = new AddEquipmentFragment();
                             Bundle bundle = new Bundle();
-                            bundle.putBoolean("added", true);
                             bundle.putString("barcode", barcode_str);
-                            bundle.putSerializable("procedure_info", (Serializable) procedureInfoHashMapList);
+                            bundle.putSerializable("procedure_info", (Serializable) procedureInfo);
                             if (isUdisReturned) {
                                 bundle.putSerializable("procedure_udi", (Serializable) procedureUdisList);
                             }
