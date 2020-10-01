@@ -565,13 +565,13 @@ public class AddEquipmentFragment extends Fragment {
                     if (document.exists()) {
                         if(document.get("quantity") != null){
                             diQuantity[0] = document.getString("quantity");
+                            int newQuantity = updateDiQuantity(Integer.parseInt(diQuantity[0]),quantityUsed,quantityRef);
                             if(Integer.parseInt(diQuantity[0]) <= 8){
-                                notification(Integer.parseInt(diQuantity[0]) - quantityUsed,udiStr);
+                                notification(newQuantity,udiStr);
                             }
                         }else{
                             diQuantity[0] = "0";
                         }
-                        updateDiQuantity(Integer.parseInt(diQuantity[0]),quantityUsed,quantityRef);
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                     } else {
                         Log.d(TAG, "No such document");
@@ -643,7 +643,8 @@ public class AddEquipmentFragment extends Fragment {
                 });
     }
 
-
+    // updates UDI quantity
+    // returns true difference
     private int updateUdiQuantity(int currentQuantity, int quantityUsed, DocumentReference quantityRef, String udi){
         int diff = currentQuantity - quantityUsed;
 
@@ -664,10 +665,12 @@ public class AddEquipmentFragment extends Fragment {
 
         return diff;
     }
-
-    private void updateDiQuantity(int currentQuantity, int quantityUsed, DocumentReference quantityRef){
+    // updates DI quantity
+    // returns new quantity
+    private int updateDiQuantity(int currentQuantity, int quantityUsed, DocumentReference quantityRef){
+        int newQuantity = Math.max(currentQuantity - quantityUsed, 0);
         quantityRef
-                .update("quantity", String.valueOf(Math.max(currentQuantity - quantityUsed, 0))) // either sets quantity to the difference or 0 if difference < 0
+                .update("quantity", String.valueOf(newQuantity)) // either sets quantity to the difference or 0 if difference < 0
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -680,6 +683,7 @@ public class AddEquipmentFragment extends Fragment {
                         Log.w(TAG, "Error updating document", e);
                     }
                 });
+        return newQuantity;
     }
 
     private void notification(int diQuantityInt,String udiStr){
