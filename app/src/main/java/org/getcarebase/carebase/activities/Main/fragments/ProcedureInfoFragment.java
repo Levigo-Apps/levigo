@@ -60,16 +60,12 @@ public class ProcedureInfoFragment extends Fragment {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final CollectionReference usersRef = db.collection("users");
 
-    private LinearLayout linearLayout;
-    private LinearLayout buttonsLayout;
-
     private String mNetworkId;
     private String mHospitalId;
     private boolean checkAllFields;
     private boolean checkAutoComplete;
     private List<String> procedureNames;
     private List<Integer> viewIds;
-    private List<HashMap<String, Object>> newProcedureInfoList;
 
     private TextInputLayout accessionNumber;
 
@@ -100,15 +96,11 @@ public class ProcedureInfoFragment extends Fragment {
         fluoroTimeEditText = rootView.findViewById(R.id.procedure_fluoroTime);
         accessionNumberEditText = rootView.findViewById(R.id.procedure_accessionNumber);
         accessionNumber = rootView.findViewById(R.id.procedureinfo_accessionNumber_layout);
-        MaterialButton addProcedure = rootView.findViewById(R.id.procedure_add_button);
-        linearLayout = rootView.findViewById(R.id.procedureinfo_linearlayout);
         procedureNames = new ArrayList<>();
         viewIds = new ArrayList<>();
-        newProcedureInfoList = new ArrayList<>();
         checkAllFields = false;
         checkAutoComplete = false;
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
-        buttonsLayout = rootView.findViewById(R.id.item_buttons);
         BottomNavigationView bottomNav = rootView.findViewById(R.id.bottom_navigation);
 
         bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -131,24 +123,20 @@ public class ProcedureInfoFragment extends Fragment {
             }
         });
 
-
+        // if fields should be pre populated
         if (getArguments() != null) {
-            List<HashMap<String, Object>> procedureInfo;
             Bundle procedureInfoBundle = this.getArguments();
-            if(procedureInfoBundle.get("procedureMap") != null){
+            if(procedureInfoBundle.get("procedure_info") != null){
                 checkAllFields = true;
-                procedureInfo = (List<HashMap<String, Object>>) procedureInfoBundle.getSerializable("procedureMap");
-                if(procedureInfo != null) {
-                    procedureDateEditText.setText((String) procedureInfo.get(0).get("procedure_date"));
-                    procedureNameEditText.setText((String) procedureInfo.get(0).get("procedure_used"));
-                    timeInEditText.setText((String) procedureInfo.get(0).get("time_in"));
-                    timeOutEditText.setText((String) procedureInfo.get(0).get("time_out"));
-                    roomTimeEditText.setText((String) procedureInfo.get(0).get("room_time"));
-                    fluoroTimeEditText.setText((String) procedureInfo.get(0).get("fluoro_time"));
-                    accessionNumberEditText.setText((String) procedureInfo.get(0).get("accession_number"));
-                    if(procedureInfo.size() > 1){
-                        listProcedures(rootView,procedureInfo);
-                    }
+                HashMap<String, String> procedureEquipment = (HashMap<String, String>) procedureInfoBundle.getSerializable("procedure_info");
+                if(procedureEquipment != null) {
+                    procedureDateEditText.setText(procedureEquipment.get("procedure_date"));
+                    procedureNameEditText.setText(procedureEquipment.get("procedure_used"));
+                    timeInEditText.setText(procedureEquipment.get("time_in"));
+                    timeOutEditText.setText(procedureEquipment.get("time_out"));
+                    roomTimeEditText.setText(procedureEquipment.get("room_time"));
+                    fluoroTimeEditText.setText(procedureEquipment.get("fluoro_time"));
+                    accessionNumberEditText.setText(procedureEquipment.get("accession_number"));
                 }
             }
         }
@@ -282,11 +270,9 @@ public class ProcedureInfoFragment extends Fragment {
 
         TextWatcher textWatcher = new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override
             public void afterTextChanged(Editable editable) {
                 boolean checkProcedureTime = validateFields(new TextInputEditText[]{timeInEditText
@@ -313,236 +299,23 @@ public class ProcedureInfoFragment extends Fragment {
         accessionNumberEditText.addTextChangedListener(textWatcher);
         fluoroTimeEditText.addTextChangedListener(textWatcher);
 
-
-        addProcedure.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (checkAllFields && checkAutoComplete) {
-                    checkAllFields = false;
-                    checkAutoComplete = false;
-                    final View procedureInfoView = View.inflate(rootView.getContext(), R.layout.procedure_info, null);
-                    procedureInfoView.setId(View.generateViewId());
-                    ImageView removeProcedure = procedureInfoView.findViewById(R.id.procedure_removeIcon);
-                    removeProcedure.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            checkAllFields = true;
-                            checkAutoComplete = true;
-                            removeProcedureView(rootView,procedureInfoView.getId());
-                        }
-                    });
-                    TextInputLayout procedureDateLayout = procedureInfoView.findViewById(R.id.procedureinfo_date_newlayout);
-                    final TextInputEditText newProcedureDateEditText = procedureInfoView.findViewById(R.id.procedure_newdate);
-                    procedureDateLayout.setEndIconOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-
-                            DatePickerDialog.OnDateSetListener dateInListener = new DatePickerDialog.OnDateSetListener() {
-                                @Override
-                                public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-                                    myCalendar.set(Calendar.YEAR, i);
-                                    myCalendar.set(Calendar.MONTH, i1);
-                                    myCalendar.set(Calendar.DAY_OF_MONTH, i2);
-                                    String myFormat = "yyyy/MM/dd";
-                                    SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                                    newProcedureDateEditText.setText(String.format("%s", sdf.format(myCalendar.getTime())));
-                                }
-                            };
-                            new DatePickerDialog(view.getContext(), dateInListener, myCalendar
-                                    .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                                    myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-                        }
-                    });
-
-                    final AutoCompleteTextView newProcedureName = procedureInfoView.findViewById(R.id.procedure_newname);
-                    newProcedureName.setAdapter(procedureNamesAdapter);
-
-                    final TextInputEditText roomTimeIn = procedureInfoView.findViewById(R.id.procedure_newtimeIn);
-                    TextInputLayout roomTimeInLayout = procedureInfoView.findViewById(R.id.procedureinfo_newtimeIn_layout);
-                    roomTimeInLayout.setEndIconOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            timeLayoutPicker(rootView, roomTimeIn);
-                        }
-                    });
-
-                    final TextInputEditText roomTimeOut = procedureInfoView.findViewById(R.id.procedure_newtimeOut);
-                    TextInputLayout roomTimeOutLayout = procedureInfoView.findViewById(R.id.procedureinfo_newtimeOut_layout);
-                    roomTimeOutLayout.setEndIconOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            timeLayoutPicker(rootView, roomTimeOut);
-                        }
-                    });
-
-                    final TextInputEditText newRoomTimeEditText = procedureInfoView.findViewById(R.id.procedure_newroomTime);
-
-                    final TextInputEditText newFluoroTimeEditText = procedureInfoView.findViewById(R.id.procedure_newfluoroTime);
-
-                    final TextInputEditText newAccessionNumberEditText = procedureInfoView.findViewById(R.id.procedure_newaccessionNumber);
-                    newAccessionNumberEditText.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            generateNewNumber(rootView, newAccessionNumberEditText);
-                        }
-                    });
-
-                    TextWatcher newTextWatcher = new TextWatcher() {
-                        @Override
-                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                        }
-
-                        @Override
-                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                        }
-
-                        @Override
-                        public void afterTextChanged(Editable editable) {
-                            boolean checkProcedureTime = validateFields(new TextInputEditText[]{roomTimeIn
-                                    , roomTimeOut});
-
-                            if (checkProcedureTime) {
-                                calculateRoomTime(Objects.requireNonNull(roomTimeIn.getText()).toString(),
-                                        Objects.requireNonNull(roomTimeOut.getText()).toString(), newRoomTimeEditText);
-                            }
-
-                            checkAllFields = validateFields(new TextInputEditText[]{roomTimeIn, roomTimeOut,
-                                    newProcedureDateEditText, newAccessionNumberEditText, newFluoroTimeEditText});
-
-                            checkAutoComplete = validateAutoComplete(new AutoCompleteTextView[]{newProcedureName});
-                            if(checkAllFields && checkAutoComplete){
-                                HashMap<String, Object> newProcedureInfo = new HashMap<>();
-                                newProcedureInfo.put("view_id",procedureInfoView.getId());
-                                newProcedureInfo.put("procedure_used", Objects.requireNonNull(newProcedureName.getText()).toString());
-                                newProcedureInfo.put("procedure_date", Objects.requireNonNull(newProcedureDateEditText.getText()).toString());
-                                newProcedureInfo.put("time_in", Objects.requireNonNull(roomTimeIn.getText()).toString());
-                                newProcedureInfo.put("time_out", Objects.requireNonNull(roomTimeOut.getText()).toString());
-                                newProcedureInfo.put("room_time", Objects.requireNonNull(newRoomTimeEditText.getText()).toString());
-                                newProcedureInfo.put("fluoro_time", Objects.requireNonNull(newFluoroTimeEditText.getText()).toString());
-                                newProcedureInfo.put("accession_number", Objects.requireNonNull(newAccessionNumberEditText.getText()).toString());
-                                newProcedureInfoList.add(newProcedureInfo);
-                            }
-                        }
-                    };
-
-                    roomTimeIn.addTextChangedListener(newTextWatcher);
-                    roomTimeOut.addTextChangedListener(newTextWatcher);
-                    newProcedureDateEditText.addTextChangedListener(newTextWatcher);
-                    newAccessionNumberEditText.addTextChangedListener(newTextWatcher);
-                    newFluoroTimeEditText.addTextChangedListener(newTextWatcher);
-                    newProcedureName.addTextChangedListener(newTextWatcher);
-
-                    linearLayout.addView(procedureInfoView, linearLayout.indexOfChild(buttonsLayout));
-                }else{
-                    Toast.makeText(parent, "Please fill out all fields before adding a new procedure",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
         return rootView;
     }
 
-    private void removeProcedureView(View view, int viewId){
-        linearLayout.removeView(linearLayout.findViewById(viewId));
-        for(int i = 0; i < newProcedureInfoList.size(); i++){
-            if(newProcedureInfoList.get(i).get("view_id").toString().equals(String.valueOf(viewId))){
-                newProcedureInfoList.remove(i);
-            }
-        }
-        System.out.println(newProcedureInfoList);
-    }
-
-    private void listProcedures(View view, List<HashMap<String, Object>> newProcedureInfoList){
-        for(int i = 1; i < newProcedureInfoList.size(); i++){
-            final View procedureInfoView = View.inflate(view.getContext(), R.layout.procedure_info, null);
-            procedureInfoView.setId(View.generateViewId());
-            ImageView removeProcedure = procedureInfoView.findViewById(R.id.procedure_removeIcon);
-            removeProcedure.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    removeProcedureView(view, procedureInfoView.getId());
-                }
-            });
-            final TextInputEditText newProcedureDate = procedureInfoView.findViewById(R.id.procedure_newdate);
-            AutoCompleteTextView newProcedureName = procedureInfoView.findViewById(R.id.procedure_newname);
-            final TextInputEditText newProcedureRoomIn = procedureInfoView.findViewById(R.id.procedure_newtimeIn);
-            final TextInputEditText newProcedureRoomOut = procedureInfoView.findViewById(R.id.procedure_newtimeOut);
-            TextInputEditText newProcedureRoomTime = procedureInfoView.findViewById(R.id.procedure_newroomTime);
-            TextInputEditText newProcedureFluoroTime = procedureInfoView.findViewById(R.id.procedure_newfluoroTime);
-            TextInputEditText newProcedureAccession = procedureInfoView.findViewById(R.id.procedure_newaccessionNumber);
-
-            newProcedureDate.setText(newProcedureInfoList.get(i).get("procedure_date").toString());
-            newProcedureName.setText(newProcedureInfoList.get(i).get("procedure_used").toString());
-            newProcedureRoomIn.setText(newProcedureInfoList.get(i).get("time_in").toString());
-            newProcedureRoomOut.setText(newProcedureInfoList.get(i).get("time_out").toString());
-            newProcedureRoomTime.setText(newProcedureInfoList.get(i).get("room_time").toString());
-            newProcedureFluoroTime.setText(newProcedureInfoList.get(i).get("fluoro_time").toString());
-            newProcedureAccession.setText(newProcedureInfoList.get(i).get("accession_number").toString());
-
-            TextInputLayout newProcedureDateLayout = procedureInfoView.findViewById(R.id.procedureinfo_date_newlayout);
-            newProcedureDateLayout.setEndIconOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    DatePickerDialog.OnDateSetListener dateInListener = new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-                            myCalendar.set(Calendar.YEAR, i);
-                            myCalendar.set(Calendar.MONTH, i1);
-                            myCalendar.set(Calendar.DAY_OF_MONTH, i2);
-                            String myFormat = "yyyy/MM/dd";
-                            SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                            newProcedureDate.setText(String.format("%s", sdf.format(myCalendar.getTime())));
-                        }
-                    };
-                    new DatePickerDialog(view.getContext(), dateInListener, myCalendar
-                            .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                            myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-                }
-            });
-
-            TextInputLayout newProcedureNameLayout = procedureInfoView.findViewById(R.id.procedureinfo_name_newlayout);
-            newProcedureName.setAdapter(procedureNamesAdapter);
-
-            TextInputLayout newProcedureRoomInLayout = procedureInfoView.findViewById(R.id.procedureinfo_newtimeIn_layout);
-            newProcedureRoomInLayout.setEndIconOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    timeLayoutPicker(view, newProcedureRoomIn);
-                }
-            });
-            TextInputLayout newProcedureRoomOutLayout = procedureInfoView.findViewById(R.id.procedureinfo_newtimeOut_layout);
-            newProcedureRoomOutLayout.setEndIconOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    timeLayoutPicker(view,newProcedureRoomOut);
-                }
-            });
-
-
-
-
-            linearLayout.addView(procedureInfoView, linearLayout.indexOfChild(buttonsLayout));
-        }
-    }
-
+    // Go to add equipment screen
     private void saveAndSend(){
-
-
         AddEquipmentFragment fragment = new AddEquipmentFragment();
         Bundle bundle = new Bundle();
-        HashMap<String, Object> procedureInfo = new HashMap<>();
-        procedureInfo.put("procedure_used", Objects.requireNonNull(procedureNameEditText.getText()).toString());
-        procedureInfo.put("procedure_date", Objects.requireNonNull(procedureDateEditText.getText()).toString());
-        procedureInfo.put("time_in", Objects.requireNonNull(timeInEditText.getText()).toString());
-        procedureInfo.put("time_out", Objects.requireNonNull(timeOutEditText.getText()).toString());
-        procedureInfo.put("room_time", Objects.requireNonNull(roomTimeEditText.getText()).toString());
-        procedureInfo.put("fluoro_time", Objects.requireNonNull(fluoroTimeEditText.getText()).toString());
-        procedureInfo.put("accession_number", Objects.requireNonNull(accessionNumberEditText.getText()).toString());
-        newProcedureInfoList.add(procedureInfo);
+        HashMap<String, String> procedureEquipment = new HashMap<String, String>();
+        procedureEquipment.put("procedure_used", Objects.requireNonNull(procedureNameEditText.getText()).toString());
+        procedureEquipment.put("procedure_date", Objects.requireNonNull(procedureDateEditText.getText()).toString());
+        procedureEquipment.put("time_in", Objects.requireNonNull(timeInEditText.getText()).toString());
+        procedureEquipment.put("time_out", Objects.requireNonNull(timeOutEditText.getText()).toString());
+        procedureEquipment.put("room_time", Objects.requireNonNull(roomTimeEditText.getText()).toString());
+        procedureEquipment.put("fluoro_time", Objects.requireNonNull(fluoroTimeEditText.getText()).toString());
+        procedureEquipment.put("accession_number", Objects.requireNonNull(accessionNumberEditText.getText()).toString());
 
-        bundle.putSerializable("procedureMap", (Serializable) newProcedureInfoList);
+        bundle.putSerializable("procedure_info", procedureEquipment);
         fragment.setArguments(bundle);
 
         FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
