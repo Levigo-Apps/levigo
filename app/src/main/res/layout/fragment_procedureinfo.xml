@@ -180,26 +180,6 @@
                         />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <LinearLayout
-                    android:id="@+id/item_buttons"
-                    style="?android:attr/buttonBarStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:orientation="horizontal"
-                    android:paddingTop="8dp"
-                    android:layout_marginBottom="?android:attr/actionBarSize"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    >
-                    <Button
-                        android:id="@+id/procedure_add_button"
-                        style="?android:attr/buttonBarButtonStyle"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="4dp"
-                        android:layout_weight="1"
-                        android:text="@string/add_a_procedure_lbl" />
-                </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
