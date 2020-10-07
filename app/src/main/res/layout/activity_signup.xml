@@ -28,7 +28,8 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout_invitationCode"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Carebase.TextInputLayout"
+            app:boxStrokeColor="@color/colorPrimaryDark"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp">
@@ -38,7 +39,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/invitationcode_lbl"
-                android:inputType="textCapCharacters"
                 android:shadowColor="@color/colorPrimaryDark"
                 android:textColor="@color/colorCustomBlack" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -48,8 +48,8 @@
             android:id="@+id/submit_invitation_code_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimaryDark"
             android:text="@string/submit_lbl"
+            android:enabled="false"
             android:textColor="@android:color/white" />
 
     </LinearLayout>
@@ -97,6 +97,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:boxStrokeColor="@color/colorPrimaryDark"
             android:layout_marginTop="5dp">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -111,6 +112,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:boxStrokeColor="@color/colorPrimaryDark"
             android:layout_marginTop="5dp">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -125,6 +127,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:boxStrokeColor="@color/colorPrimaryDark"
             android:layout_marginTop="5dp">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -139,8 +142,9 @@
             android:id="@+id/signup_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimaryDark"
-            android:text="@string/create_account_lbl" />
+            android:backgroundTint="@color/colorPrimary"
+            android:text="@string/create_account_lbl"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 
     <LinearLayout
@@ -156,15 +160,14 @@
             android:textColor="@color/colorPrimaryDark"/>
 
         <com.google.android.material.button.MaterialButton
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="?attr/materialButtonOutlinedStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackground"
-            android:backgroundTint="@color/colorPrimaryDark"
             android:gravity="center"
             android:onClick="composeEmail"
             android:text="@string/email_us_to_create_an_admin_account_lbl"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorPrimary"
             android:textSize="14sp" />
 
         <TextView
@@ -174,15 +177,14 @@
             android:textColor="@color/colorPrimaryDark"/>
 
         <com.google.android.material.button.MaterialButton
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="?attr/materialButtonOutlinedStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackground"
-            android:backgroundTint="@color/colorPrimaryDark"
             android:gravity="center"
             android:onClick="demoLogin"
             android:text="@string/live_demo_with_a_sample_database_lbl"
-            android:textColor="@android:color/white"
+            android:textColor="@color/colorPrimary"
             android:textSize="14sp" />
     </LinearLayout>
 </LinearLayout>

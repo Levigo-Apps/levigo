@@ -17,6 +17,7 @@
 package org.getcarebase.carebase.activities.Login;
 
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -30,6 +31,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
+import android.widget.Button;
+import android.text.TextWatcher;
+
+
 import org.getcarebase.carebase.R;
 
 /**
@@ -40,15 +45,43 @@ public class ResetActivity extends AppCompatActivity {
     private static final String TAG = ResetActivity.class.getSimpleName();
     private FirebaseAuth mAuth;
     private TextInputEditText mEmailField;
+    private Button resetButton;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reset);
         mEmailField = findViewById(R.id.reset_email);
+        resetButton = findViewById(R.id.send_reset_link_button);
+
 
         mAuth = FirebaseAuth.getInstance();
+
+        mEmailField.addTextChangedListener(resetTextWatcher);
+
+
+
     }
+
+    private TextWatcher resetTextWatcher = new TextWatcher() {
+
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            resetButton.setEnabled(!mEmailField.getText().toString().isEmpty());
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+
+        }
+    };
+
 
     public void resetWithEmail(View view) {
         String emailAddress = mEmailField.getText().toString();

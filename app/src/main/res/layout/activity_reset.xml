@@ -29,6 +29,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout_invitationCode"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@color/colorPrimaryDark"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp">
@@ -39,16 +40,15 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/email_lbl"
                 android:textColor="@color/colorCustomBlack"
-                android:inputType="textCapCharacters"
                 android:shadowColor="@color/colorPrimaryDark"/>
         </com.google.android.material.textfield.TextInputLayout>
 
 
         <Button
-            android:id="@+id/submit_invitation_code_button"
+            android:id="@+id/send_reset_link_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimaryDark"
+            android:enabled="false"
             android:textColor="@android:color/white"
             android:onClick="resetWithEmail"
             android:text="@string/send_reset_link_lbl" />
