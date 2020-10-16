@@ -127,7 +127,6 @@ public class ProcedureInfoFragment extends Fragment {
         if (getArguments() != null) {
             Bundle procedureInfoBundle = this.getArguments();
             if(procedureInfoBundle.get("procedure_info") != null){
-                checkAllFields = true;
                 HashMap<String, String> procedureEquipment = (HashMap<String, String>) procedureInfoBundle.getSerializable("procedure_info");
                 if(procedureEquipment != null) {
                     procedureDateEditText.setText(procedureEquipment.get("procedure_date"));
@@ -137,6 +136,8 @@ public class ProcedureInfoFragment extends Fragment {
                     roomTimeEditText.setText(procedureEquipment.get("room_time"));
                     fluoroTimeEditText.setText(procedureEquipment.get("fluoro_time"));
                     accessionNumberEditText.setText(procedureEquipment.get("accession_number"));
+                    checkAllFields = true;
+                    checkAutoComplete = validateAutoComplete(new AutoCompleteTextView[]{procedureNameEditText});
                 }
             }
         }
