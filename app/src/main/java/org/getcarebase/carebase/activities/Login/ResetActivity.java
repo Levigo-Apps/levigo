@@ -25,6 +25,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -36,17 +38,18 @@ import android.text.TextWatcher;
 
 
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.utils.Resource;
+import org.getcarebase.carebase.viewmodels.AuthViewModel;
 
 /**
  * Resets password with email
 */
 
 public class ResetActivity extends AppCompatActivity {
-    private static final String TAG = ResetActivity.class.getSimpleName();
-    private FirebaseAuth mAuth;
     private TextInputEditText mEmailField;
     private Button resetButton;
 
+    private AuthViewModel authViewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,47 +57,31 @@ public class ResetActivity extends AppCompatActivity {
         setContentView(R.layout.activity_reset);
         mEmailField = findViewById(R.id.reset_email);
         resetButton = findViewById(R.id.send_reset_link_button);
+        authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
+        mEmailField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
-        mAuth = FirebaseAuth.getInstance();
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                resetButton.setEnabled(!mEmailField.getText().toString().isEmpty());
+            }
 
-        mEmailField.addTextChangedListener(resetTextWatcher);
-
-
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
 
     }
 
-    private TextWatcher resetTextWatcher = new TextWatcher() {
-
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            resetButton.setEnabled(!mEmailField.getText().toString().isEmpty());
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-
-        }
-    };
-
-
     public void resetWithEmail(View view) {
-        String emailAddress = mEmailField.getText().toString();
-        mAuth.sendPasswordResetEmail(emailAddress)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "Reset instructions sent. Please check email");
-                            Toast.makeText(getApplicationContext(), "Email sent!", Toast.LENGTH_LONG).show();
-                            finish();
-                        }
-                    }
-                });
+        String email = mEmailField.getText().toString();
+        authViewModel.resetPasswordWithEmail(email).observe(this, new Observer<Resource<Object>>() {
+            @Override
+            public void onChanged(Resource<Object> result) {
+                Toast.makeText(getApplicationContext(), result.resourceString, Toast.LENGTH_LONG).show();
+                finish();
+            }
+        });
     }
 }
