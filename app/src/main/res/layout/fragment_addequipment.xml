@@ -27,7 +27,6 @@
             android:gravity="center"
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:liftOnScroll="true"
-            app:menu="@menu/fragment_navbar"
             app:navigationIcon="@drawable/icon_back"
             app:title="Equipments used"
             app:titleTextColor="@android:color/white" />
