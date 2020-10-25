@@ -157,10 +157,10 @@ public class LoginActivity extends AppCompatActivity {
                         passwordTextInputLayout.setError(getString(userResource.resourceString));
                     }
                     else  if (userResource.resourceString == R.string.error_too_many_attempts) {
-                        Snackbar.make(view, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(view, userResource.resourceString, Snackbar.LENGTH_LONG).show();
                     }
                     else if (userResource.resourceString == R.string.error_something_wrong) {
-                        Snackbar.make(view, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(view, userResource.resourceString, Snackbar.LENGTH_LONG).show();
                     }
                 }
             }
