@@ -89,6 +89,7 @@ public class ItemDetailFragment extends Fragment {
     private String mNetworkId;
     private String mHospitalId;
     private String mUser;
+    private String mHospitalName;
 
     // Firebase database
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -258,6 +259,7 @@ public class ItemDetailFragment extends Fragment {
                             mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
                             mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
                             mUser = Objects.requireNonNull(document.get("email")).toString();
+                            mHospitalName = Objects.requireNonNull(document.get("hospital_name")).toString();
 
 
                             typeRef = db.collection("networks").document(mNetworkId).collection("hospitals")
@@ -413,6 +415,7 @@ public class ItemDetailFragment extends Fragment {
             }
         };
         costEditText.addTextChangedListener(costWatcher);
+
 
 
         // date picker for expiration date if entered manually
@@ -628,6 +631,10 @@ public class ItemDetailFragment extends Fragment {
 
 
     private void updateSite(View view) {
+
+        //default value is users hospital name
+        hospitalName.setText(mHospitalName);
+
         siteRef.document("site_options").addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
@@ -1492,7 +1499,6 @@ public class ItemDetailFragment extends Fragment {
                                     deviceIdentifier.setText(udi.getString("di"));
                                     deviceIdentifier.setEnabled(false);
                                 }
-
                             }
                             if (responseJson.has("gudid") && responseJson.getJSONObject("gudid").has("device")) {
                                 JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
