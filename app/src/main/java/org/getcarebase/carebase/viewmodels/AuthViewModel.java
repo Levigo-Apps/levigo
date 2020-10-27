@@ -31,9 +31,4 @@ public class AuthViewModel extends ViewModel {
     public LiveData<Resource<Object>> resetPasswordWithEmail(final String email) {
         return authRepository.resetPasswordWithEmail(email);
     }
-
-
-
-
-
 }
