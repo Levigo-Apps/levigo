@@ -103,15 +103,14 @@ public class SignUpActivity extends AppCompatActivity {
         invitationCodeLayout = findViewById(R.id.textInputLayout_invitationCode);
         invitationCodeBox = findViewById(R.id.et_InvitationCode);
 
-
-        // Disable submit invitation code when it's empty
+        
         invitationCodeBox.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // enables the submit button if invitation code is empty
+                // enables the submit button if invitation code is not empty
                 submitInvitationCode.setEnabled(s.toString().trim().length() != 0);
             }
 
