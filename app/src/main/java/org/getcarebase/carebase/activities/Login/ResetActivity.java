@@ -75,12 +75,12 @@ public class ResetActivity extends AppCompatActivity {
     }
 
     public void resetWithEmail(View view) {
-        String email = mEmailField.getText().toString();
+        String email = mEmailField.getText().toString().trim();
         authViewModel.resetPasswordWithEmail(email).observe(this, new Observer<Resource<Object>>() {
             @Override
             public void onChanged(Resource<Object> result) {
-                Toast.makeText(getApplicationContext(), result.resourceString, Toast.LENGTH_LONG).show();
                 finish();
+                Toast.makeText(getApplicationContext(), result.resourceString, Toast.LENGTH_LONG).show();
             }
         });
     }

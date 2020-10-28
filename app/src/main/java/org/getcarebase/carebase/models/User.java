@@ -3,6 +3,8 @@ package org.getcarebase.carebase.models;
 import com.google.firebase.firestore.Exclude;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class User implements Serializable {
     private final String userId;
@@ -19,6 +21,15 @@ public class User implements Serializable {
         this.hospitalName = hospitalName;
         this.networkId = networkId;
         this.networkName = networkName;
+    }
+
+    public User(String userId, String email, InvitationCode invitationCode) {
+        this.userId = userId;
+        this.email = email;
+        this.hospitalId = invitationCode.getHospitalId();
+        this.hospitalName = invitationCode.getHospitalName();
+        this.networkId = invitationCode.getNetworkId();
+        this.networkName = invitationCode.getNetworkName();
     }
 
     public String getUserId() {
@@ -43,6 +54,16 @@ public class User implements Serializable {
 
     public String getNetworkName() {
         return networkName;
+    }
+
+    public Map<String,String> toMap() {
+        Map<String,String> userMap = new HashMap<>();
+        userMap.put("network_id", networkId);
+        userMap.put("network_name", networkName);
+        userMap.put("hospital_id", hospitalId);
+        userMap.put("hospital_name", hospitalName);
+        userMap.put("email", email);
+        return userMap;
     }
 
 }
