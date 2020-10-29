@@ -28,9 +28,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -46,6 +50,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.MainActivity;
+import org.getcarebase.carebase.models.InvitationCode;
+import org.getcarebase.carebase.models.User;
+import org.getcarebase.carebase.utils.Resource;
+import org.getcarebase.carebase.viewmodels.AuthViewModel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,218 +65,135 @@ import java.util.Map;
 public class SignUpActivity extends AppCompatActivity {
     private static final String TAG = SignUpActivity.class.getSimpleName();
 
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore levigoDb = FirebaseFirestore.getInstance();
-    private CollectionReference invitationCodesRef = levigoDb.collection("invitation_codes");
-    private CollectionReference usersRef = levigoDb.collection("users");
-    private CollectionReference networksRef = levigoDb.collection("networks");
+    private LinearLayout emailPasswordLayout;
+    private Button submitInvitationCode;
+    private TextInputLayout invitationCodeLayout;
+    private TextInputEditText invitationCodeBox;
+    private TextInputEditText emailField;
+    private TextInputEditText passwordField;
+    private TextInputEditText confirmPasswordField;
+    private Button signUpButton;
+    private TextView networkNameTextView;
+    private TextView hospitalNameTextView;
 
-    private LinearLayout mEmailPasswordLayout;
-    private Button mSubmitInvitationCode;
-    private TextInputLayout mInvitationCodeLayout;
-    private TextInputEditText mInvitationCodeBox;
-    private TextInputEditText mEmailField;
-    private TextInputEditText mPasswordField;
-    private TextInputEditText mConfirmPasswordField;
-    private Button mSignUpButton;
-    private TextView mNetworkNameTextView;
-    private TextView mHospitalNameTextView;
-
-    private String mInvitationCode;
-
-    // ID and name of network and site authorized
-    private String mNetworkId;
-    private String mNetworkName;
-    private String mHospitalId;
-    private String mHospitalName;
+    private AuthViewModel authViewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+        authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
-        mAuth = FirebaseAuth.getInstance();
+        networkNameTextView = findViewById(R.id.signup_network_name);
+        hospitalNameTextView = findViewById(R.id.signup_site_name);
 
-        mNetworkNameTextView = findViewById(R.id.signup_network_name);
-        mHospitalNameTextView = findViewById(R.id.signup_site_name);
-
-        mEmailPasswordLayout = findViewById(R.id.signup_email_password_layout);
-        mEmailField = findViewById(R.id.signup_email);
-        mPasswordField = findViewById(R.id.signup_password);
-        mConfirmPasswordField = findViewById(R.id.signup_password_confirm);
-        mSignUpButton = findViewById(R.id.signup_button);
+        emailPasswordLayout = findViewById(R.id.signup_email_password_layout);
+        emailField = findViewById(R.id.signup_email);
+        passwordField = findViewById(R.id.signup_password);
+        confirmPasswordField = findViewById(R.id.signup_password_confirm);
+        signUpButton = findViewById(R.id.signup_button);
 
         // Email password fields disabled until valid invitation code
-        mEmailPasswordLayout.setVisibility(View.GONE);
-        mSignUpButton.setEnabled(false);
+        emailPasswordLayout.setVisibility(View.GONE);
+        signUpButton.setEnabled(false);
 
-        mSubmitInvitationCode = findViewById(R.id.submit_invitation_code_button);
+        submitInvitationCode = findViewById(R.id.submit_invitation_code_button);
         // Disabled until not empty
-        mSubmitInvitationCode.setEnabled(false);
-        mInvitationCodeLayout = findViewById(R.id.textInputLayout_invitationCode);
-        mInvitationCodeBox = findViewById(R.id.et_InvitationCode);
+        submitInvitationCode.setEnabled(false);
+        invitationCodeLayout = findViewById(R.id.textInputLayout_invitationCode);
+        invitationCodeBox = findViewById(R.id.et_InvitationCode);
 
-
-        // Disable submit invitation code when it's empty
-        mInvitationCodeBox.addTextChangedListener(new TextWatcher() {
+        
+        invitationCodeBox.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().trim().length() == 0) {
-                    mSubmitInvitationCode.setEnabled(false);
-                } else {
-                    mSubmitInvitationCode.setEnabled(true);
-                }
+                // enables the submit button if invitation code is not empty
+                submitInvitationCode.setEnabled(s.toString().trim().length() != 0);
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-            }
+            public void afterTextChanged(Editable s) { }
         });
 
-        mSubmitInvitationCode.setOnClickListener(new View.OnClickListener() {
+        submitInvitationCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mInvitationCode = mInvitationCodeBox.getText().toString();
-
-                final DocumentReference docRef = invitationCodesRef.document(mInvitationCode);
-                // Verify invitation code
-                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        String toastMessage = null;
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                if (document.getBoolean("valid")) {
-                                    try {
-                                        // Valid code; Check which network & hospital authorized for
-                                        mNetworkId = document.get("network_id").toString();
-                                        mNetworkName = document.get("network_name").toString();
-                                        mHospitalId = document.get("hospital_id").toString();
-                                        mHospitalName = document.get("hospital_name").toString();
-
-                                        // Display authorized network and hospital
-                                        mNetworkNameTextView.setText(mNetworkName);
-                                        mHospitalNameTextView.setText(mHospitalName);
-
-                                        mEmailPasswordLayout.setVisibility(View.VISIBLE);
-                                        mInvitationCodeLayout.setEnabled(false);
-                                    } catch (NullPointerException e) {
-                                        // invitation code data missing fields
-                                        FirebaseCrashlytics.getInstance().recordException(e);
-                                        toastMessage = "Error with validation code data; Please contact support";
-                                    }
-
-                                } else {
-                                    toastMessage = "Invitation code not exist or already used; Please contact administrator";
-                                }
-                            } else {
-                                // document for invitation code doesn't exist
-                                toastMessage = "Invalid invitation code; Please contact administrator";
-                            }
-                        } else {
-                            toastMessage = "Invitation code validation failed; Please try again and contact support if issue persists";
-                            Exception failedTaskException = task.getException();
-                            Log.d(TAG, "get failed with ", failedTaskException);
-                            FirebaseCrashlytics.getInstance().recordException(failedTaskException);
-                        }
-                        if (toastMessage != null) {
-                            Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
+                String invitationCode = invitationCodeBox.getText().toString();
+                checkInvitationCode(invitationCode);
             }
         });
 
         TextWatcher emailPasswordWatcher = new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int
-                    count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before,
-                                      int count) {
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
-                //TODO NullPointerException?
-                String e = mEmailField.getText().toString();
-                String p = mPasswordField.getText().toString();
-                String cp = mConfirmPasswordField.getText().toString();
+                String e = emailField.getText().toString().trim();
+                String p = passwordField.getText().toString().trim();
+                String cp = confirmPasswordField.getText().toString().trim();
 
-                if (!p.equals(cp)) {
-                    // Disable sign up if password fields don't match
-                    mSignUpButton.setEnabled(false);
-                    //TODO display warning sign next to confirm password
-                } else if (e.length() == 0 || p.length() == 0) {
-                    // Disable sign up if any field is empty
-                    mSignUpButton.setEnabled(false);
-                } else {
-                    mSignUpButton.setEnabled(true);
-                }
+                // enable sign up if password fields match and
+                // if all fields are not empty
+                signUpButton.setEnabled(p.equals(cp) && e.length() != 0 || p.length() != 0);
             }
         };
-        mEmailField.addTextChangedListener(emailPasswordWatcher);
-        mPasswordField.addTextChangedListener(emailPasswordWatcher);
-        mConfirmPasswordField.addTextChangedListener(emailPasswordWatcher);
+        emailField.addTextChangedListener(emailPasswordWatcher);
+        passwordField.addTextChangedListener(emailPasswordWatcher);
+        confirmPasswordField.addTextChangedListener(emailPasswordWatcher);
 
-        mSignUpButton.setOnClickListener(new View.OnClickListener() {
+        signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = mEmailField.getText().toString();
-                String password = mPasswordField.getText().toString();
-
-                mAuth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    // Create user document in "users" collection to store authorized hospital
-                                    String userId = mAuth.getCurrentUser().getUid();
-                                    String currentUserEmail = mAuth.getCurrentUser().getEmail();
-                                    disableValidationCode(mInvitationCode, userId);
-
-                                    Map<String, Object> newUserData = new HashMap<>();
-                                    newUserData.put("network_id", mNetworkId);
-                                    newUserData.put("network_name", mNetworkName);
-                                    newUserData.put("hospital_id", mHospitalId);
-                                    newUserData.put("hospital_name", mHospitalName);
-                                    newUserData.put("email", currentUserEmail);
-
-                                    usersRef.document(userId).set(newUserData);
-
-                                    // give user admin access
-                                    networksRef.document(mNetworkId).update("auth_users." + userId, "editor");
-                                    Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
-                                    finish();
-                                    startActivity(mainActivityIntent);
-                                    Toast.makeText(getApplicationContext(), "Account created. Welcome!",
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    // If sign in fails, display a message to the user.
-                                    Exception createUserException = task.getException();
-                                    Log.w(TAG, "createUserWithEmail:failure", createUserException);
-                                    Toast.makeText(getApplicationContext(), "Authentication failed.",
-                                            Toast.LENGTH_SHORT).show();
-                                    FirebaseCrashlytics.getInstance().recordException(createUserException);
-                                }
-                            }
-                        });
-
+                String email = emailField.getText().toString();
+                String password = passwordField.getText().toString();
+                createUser(email,password);
             }
         });
     }
 
-    private void disableValidationCode(String invitationCode, String userId) {
-        DocumentReference currentCodeRef = invitationCodesRef.document(invitationCode);
-        currentCodeRef.update("valid", false);
-        currentCodeRef.update("authorized_user", userId);
+    private void checkInvitationCode(final String invitationCode) {
+        LiveData<Resource<InvitationCode>> result = authViewModel.isInvitationCodeValid(invitationCode);
+        result.observe(this, new Observer<Resource<InvitationCode>>() {
+            @Override
+            public void onChanged(Resource<InvitationCode> invitationCodeResource) {
+                if (invitationCodeResource.status == Resource.Status.SUCCESS) {
+                    InvitationCode code = invitationCodeResource.data;
+                    // Display authorized network and hospital
+                    networkNameTextView.setText(code.getNetworkName());
+                    hospitalNameTextView.setText(code.getHospitalName());
+                    emailPasswordLayout.setVisibility(View.VISIBLE);
+                    invitationCodeLayout.setEnabled(false);
+                }
+                else if (invitationCodeResource.status == Resource.Status.ERROR) {
+                    Toast.makeText(getApplicationContext(), invitationCodeResource.resourceString, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    private void createUser(final String email, final String password) {
+        LiveData<Resource<User>> result = authViewModel.createUser(email,password);
+        result.observe(this, new Observer<Resource<User>>() {
+            @Override
+            public void onChanged(Resource<User> userResource) {
+                if (userResource.status == Resource.Status.SUCCESS) {
+                    Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(mainActivityIntent);
+                    finish();
+                    Toast.makeText(getApplicationContext(), "Account created. Welcome!",Toast.LENGTH_LONG).show();
+                }
+                else if (userResource.status == Resource.Status.ERROR) {
+                    Toast.makeText(getApplicationContext(), userResource.resourceString, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     public void composeEmail(View view) {
@@ -282,22 +207,20 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     public void demoLogin(View view) {
-        mAuth.signInWithEmailAndPassword("demo_user@getcarebase.org", "demo_user")
-                .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Create user document in "users" collection to store authorized hospital
-                            Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
-                            finish();
-                            startActivity(mainActivityIntent);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "Sign-In failed");
-                            Toast.makeText(getApplicationContext(), "Sign-in failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+        LiveData<Resource<User>> result = authViewModel.signInWithEmailAndPassword("demo_user@getcarebase.org", "demo_user");
+        result.observe(this, new Observer<Resource<User>>() {
+            @Override
+            public void onChanged(Resource<User> userResource) {
+                if (userResource.status == Resource.Status.SUCCESS) {
+                    Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(mainActivityIntent);
+                    finish();
+                }
+                else if (userResource.status == Resource.Status.ERROR) {
+                    Toast.makeText(getApplicationContext(), userResource.resourceString, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
     }
 }

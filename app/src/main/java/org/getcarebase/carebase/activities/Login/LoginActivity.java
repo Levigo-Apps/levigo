@@ -28,6 +28,8 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -43,6 +45,9 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.models.User;
+import org.getcarebase.carebase.utils.Resource;
+import org.getcarebase.carebase.viewmodels.AuthViewModel;
 
 /**
  * Logs in user
@@ -53,19 +58,27 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = LoginActivity.class.getSimpleName();
     private static final int RC_SIGN_IN = 1;
 
-    private FirebaseAuth mAuth;
     private EditText mEmail, mPassword;
     private TextInputLayout emailTextInputLayout,passwordTextInputLayout;
     private Button loginButton;
+
+    private AuthViewModel authViewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FirebaseApp.initializeApp(this);
+        authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
-        mAuth = FirebaseAuth.getInstance();
-
-        userIsLoggedIn();
+        // try to sign in with current user
+        authViewModel.getUser().observe(this, new Observer<Resource<User>>() {
+            @Override
+            public void onChanged(Resource<User> userResource) {
+                if (userResource.status == Resource.Status.SUCCESS) {
+                    signUserIn(userResource.data);
+                }
+            }
+        });
 
         setContentView(R.layout.activity_login);
 
@@ -97,13 +110,10 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.login_button);
     }
 
-    private void userIsLoggedIn() {
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null) {
-            Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(mainActivityIntent);
-            finish();
-        }
+    private void signUserIn(User user) {
+        Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(mainActivityIntent);
+        finish();
     }
 
     @Override
@@ -111,7 +121,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
-                userIsLoggedIn();
+                signUserIn((User) data.getSerializableExtra("authenticated_user"));
             } else {
                 Log.d(TAG, "Sign in cancelled");
             }
@@ -130,39 +140,31 @@ public class LoginActivity extends AppCompatActivity {
         final String email = mEmail.getText().toString();
         final String password = mPassword.getText().toString();
 
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            userIsLoggedIn();
-                        } else {
-                            try {
-                                throw task.getException();
-                            } catch (FirebaseAuthException e) {
-                                String errorCode = e.getErrorCode();
-                                switch (errorCode) {
-                                    case "ERROR_INVALID_EMAIL":
-                                        emailTextInputLayout.setError(getString(R.string.error_invalid_email_format));
-                                        break;
-
-                                    case "ERROR_WRONG_PASSWORD": case "ERROR_USER_NOT_FOUND":
-                                        emailTextInputLayout.setError(getString(R.string.error_invalid_email_or_password));
-                                        passwordTextInputLayout.setError(getString(R.string.error_invalid_email_or_password));
-                                        break;
-                                }
-                            }
-                            catch (FirebaseTooManyRequestsException e) {
-                                Snackbar.make(view, R.string.error_too_many_attempts, Snackbar.LENGTH_LONG).show();
-                            }
-                            catch (Exception e) {
-                                Snackbar.make(view, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
-                                Log.e(TAG,"Sign in failed", e);
-                                FirebaseCrashlytics.getInstance().recordException(e);
-                            }
-                        }
+        authViewModel.signInWithEmailAndPassword(email,password)
+                .observe(this, new Observer<Resource<User>>() {
+            @Override
+            public void onChanged(Resource<User> userResource) {
+                if (userResource.status == Resource.Status.SUCCESS) {
+                    // sign in user
+                    signUserIn(userResource.data);
+                }
+                else if (userResource.status == Resource.Status.ERROR) {
+                    if (userResource.resourceString == R.string.error_invalid_email_format) {
+                        emailTextInputLayout.setError(getString(userResource.resourceString));
                     }
-                });
+                    else if (userResource.resourceString == R.string.error_invalid_email_or_password) {
+                        emailTextInputLayout.setError(getString(userResource.resourceString));
+                        passwordTextInputLayout.setError(getString(userResource.resourceString));
+                    }
+                    else  if (userResource.resourceString == R.string.error_too_many_attempts) {
+                        Snackbar.make(view, userResource.resourceString, Snackbar.LENGTH_LONG).show();
+                    }
+                    else if (userResource.resourceString == R.string.error_something_wrong) {
+                        Snackbar.make(view, userResource.resourceString, Snackbar.LENGTH_LONG).show();
+                    }
+                }
+            }
+        });
     }
 
     public void register(View view) {
