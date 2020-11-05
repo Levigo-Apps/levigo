@@ -154,6 +154,7 @@ public class ItemDetailFragment extends Fragment {
     private boolean isProcedureInfoReturned;
     private boolean isUdisReturned;
     private boolean editingExisting;
+    private boolean isDi;
     private List<TextInputEditText> allSizeOptions;
     private ArrayList<String> TYPES;
     private ArrayList<String> SITELOC;
@@ -1265,7 +1266,7 @@ public class ItemDetailFragment extends Fragment {
         Log.d(TAG, "SAVING");
 
 
-        final String barcode_str = Objects.requireNonNull(udiEditText.getText()).toString();
+        String udi_str = Objects.requireNonNull(udiEditText.getText()).toString();
         String name_str = Objects.requireNonNull(nameEditText.getText()).toString();
         String company_str = Objects.requireNonNull(company.getText()).toString();
         String medical_speciality_str = Objects.requireNonNull(medicalSpeciality.getText()).toString();
@@ -1279,6 +1280,10 @@ public class ItemDetailFragment extends Fragment {
         String numberAddedStr = Objects.requireNonNull(numberAdded.getText()).toString();
         int newTotalQuantity = Integer.parseInt(itemQuantity) +
                 Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
+
+        //save the udi to include expiration date and lot number
+        String mmyy_str = (expiration_str.substring(5,7) + expiration_str.substring(2,4));
+        final String barcode_str = udi_str + "$$" + mmyy_str + lotNumber_str;
 
         diQuantity = String.valueOf(Integer.parseInt(diQuantity) +
                 Integer.parseInt(numberAdded.getText().toString()));
@@ -1460,15 +1465,20 @@ public class ItemDetailFragment extends Fragment {
 
     private void autoPopulate(final View view) {
         String udiStr = Objects.requireNonNull(udiEditText.getText()).toString();
+        String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
+
         if (udiStr.equals("")) {
             return;
-            // Some UDI starts with '+'; needs to strip plus sign and last letter in order to be recognized
+            // Some UDI starts with '+'; need to strip + and last character and send as a di
         } else if (udiStr.charAt(0) == '+') {
-            udiStr = udiStr.replaceFirst("[+]", "01");
+            udiStr = udiStr.substring(1, udiStr.length() - 1);
+            url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?di=";
+            isDi = true;
+            di = udiStr;
+
         }
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(parent);
-        String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
         url = url + udiStr;
 
         // Request a string response from the provided URL.
@@ -1499,6 +1509,10 @@ public class ItemDetailFragment extends Fragment {
                                     deviceIdentifier.setText(udi.getString("di"));
                                     deviceIdentifier.setEnabled(false);
                                 }
+                            }
+                            if (isDi) {
+                                deviceIdentifier.setText(di);
+                                deviceIdentifier.setEnabled(false);
                             }
                             if (responseJson.has("gudid") && responseJson.getJSONObject("gudid").has("device")) {
                                 JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
