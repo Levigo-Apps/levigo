@@ -1282,8 +1282,11 @@ public class ItemDetailFragment extends Fragment {
                 Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
 
         //save the udi to include expiration date and lot number
-        String mmyy_str = (expiration_str.substring(5,7) + expiration_str.substring(2,4));
-        final String barcode_str = udi_str + "$$" + mmyy_str + lotNumber_str;
+        if (isDi) {
+            String mmyy_str = (expiration_str.substring(5, 7) + expiration_str.substring(2, 4));
+            udi_str = udi_str + "$$" + mmyy_str + lotNumber_str;
+        }
+        final String barcode_str = udi_str;
 
         diQuantity = String.valueOf(Integer.parseInt(diQuantity) +
                 Integer.parseInt(numberAdded.getText().toString()));
