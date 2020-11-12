@@ -1606,12 +1606,11 @@ public class ItemDetailFragment extends Fragment {
                     try {
                         responseJson = new JSONObject(response);
                         if (responseJson.has("udi")) {
-                            JSONObject udi = responseJson.getJSONObject("udi");
+                            String udi = responseJson.getString("udi");
                             if (responseJson.has("di")) {
-                                di = udi.getString("di");
+                                di = responseJson.getString("di");
+                                deviceIdentifier.setText(di);
                                 autoPopulateFromDatabase(udiStr, di, view);
-                            } else {
-                                nonGudidUdi(udiStr, view);
                             }
                         }
                     } catch (JSONException e) {
@@ -1623,6 +1622,7 @@ public class ItemDetailFragment extends Fragment {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     FirebaseCrashlytics.getInstance().recordException(error);
+                    nonGudidUdi(udiStr, view);
                 }
             });
         queue.add(stringRequest);
