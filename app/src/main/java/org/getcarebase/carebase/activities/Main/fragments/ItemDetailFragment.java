@@ -178,6 +178,7 @@ public class ItemDetailFragment extends Fragment {
     private final String QUANTITY_KEY = "quantity";
 
     private float dp;
+    private View rightView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -282,7 +283,7 @@ public class ItemDetailFragment extends Fragment {
                                 if (editingExisting) {
                                     udiEditText.setEnabled(false);
                                     autoPopulateButton.setEnabled(false);
-                                    autopopulateNonGudid(barcode, getArguments().getString("di"));
+                                    autopopulateNonGudid(barcode, getArguments().getString("di"), rightView);
                                 }
                             }
 
@@ -1459,6 +1460,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
     private void autoPopulate(final View view) {
+        rightView = view;
         String udiStr = Objects.requireNonNull(udiEditText.getText()).toString();
         if (udiStr.equals("")) {
             return;
@@ -1553,7 +1555,7 @@ public class ItemDetailFragment extends Fragment {
                                         addItemSpecs(k, v, view);
                                     }
                                 }
-                                autoPopulateFromDatabase(finalUdiStr, di);
+                                autoPopulateFromDatabase(finalUdiStr, di, view);
                             }
 
                             if (responseJson.has("productCodes")) {
@@ -1580,11 +1582,63 @@ public class ItemDetailFragment extends Fragment {
             public void onErrorResponse(VolleyError error) {
                 FirebaseCrashlytics.getInstance().recordException(error);
 //                Log.d(TAG, "Error in parsing barcode");
-                nonGudidUdi(finalUdiStr1, view);
+                //Call checkValidUdi
+//                nonGudidUdi(finalUdiStr1, view);
+                setValidDi(finalUdiStr, view);
             }
         });
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
+    }
+
+    //if its valid udi, set diTextView with valid Di
+    //Call parseUDi
+    private void setValidDi(final String udiStr, final View view) {
+        RequestQueue queue = Volley.newRequestQueue(parent);
+        String url ="https://accessgudid.nlm.nih.gov/api/v2/parse_udi.json?udi=";
+        url = url + udiStr;
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+            new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    JSONObject responseJson;
+                    try {
+                        responseJson = new JSONObject(response);
+                        if (responseJson.has("udi")) {
+                            JSONObject udi = responseJson.getJSONObject("udi");
+                            if (responseJson.has("di")) {
+                                di = udi.getString("di");
+                                autoPopulateFromDatabase(udiStr, di, view);
+                            } else {
+                                nonGudidUdi(udiStr, view);
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } ,
+            new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    FirebaseCrashlytics.getInstance().recordException(error);
+                }
+            });
+        queue.add(stringRequest);
+    }
+
+    private void notInDatabaseError(View view) {
+        new MaterialAlertDialogBuilder(view.getContext())
+                .setTitle("Equipment status")
+                .setMessage("Equipment has not been stored in inventory yet.\n" +
+                        "Please fill out all fields carefully")
+                .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                    }
+                })
+                .show();
     }
 
     private void nonGudidUdi(final String udiStr, final View view) {
@@ -1605,24 +1659,15 @@ public class ItemDetailFragment extends Fragment {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (Objects.requireNonNull(document).exists()) {
-                            autoPopulateFromDatabase(udiStr, udiStr);
+                            autoPopulateFromDatabase(udiStr, udiStr, view);
                             Toast.makeText(parent, "Equipment already exists in inventory, " +
                                     "please fill out remaining fields", Toast.LENGTH_SHORT).show();
                         } else {
-                            new MaterialAlertDialogBuilder(view.getContext())
-                                    .setTitle("Equipment status")
-                                    .setMessage("Equipment has not been stored in inventory yet.\n" +
-                                            "Please fill out all fields carefully")
-                                    .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                        }
-                                    })
-                                    .show();
-
+                            notInDatabaseError(view);
                             Log.d(TAG, "No such document");
                         }
                     } else {
+                        //Call
                         Log.d(TAG, "get failed with ", task.getException());
                     }
                 }
@@ -1651,11 +1696,11 @@ public class ItemDetailFragment extends Fragment {
     }
 
 
-    private void autopopulateNonGudid(String barcode, String di) {
-        autoPopulateFromDatabase(barcode, di);
+    private void autopopulateNonGudid(String barcode, String di, View view) {
+        autoPopulateFromDatabase(barcode, di, view);
     }
 
-    private void autoPopulateFromDatabase(final String udiStr, String di) {
+    private void autoPopulateFromDatabase(final String udiStr, String di, final View view) {
         DocumentReference udiDocRef;
         DocumentReference diDocRef;
         udiDocRef = db.collection("networks").document(mNetworkId)
@@ -1721,6 +1766,8 @@ public class ItemDetailFragment extends Fragment {
                         }
                     } else {
                         diQuantity = "0";
+                        notInDatabaseError(view);
+                        Log.d(TAG, "Di doesn't exist in database ", task.getException());
                     }
                 } else {
                     Log.d(TAG, "Failed with: ", task.getException());
