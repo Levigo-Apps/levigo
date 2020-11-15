@@ -46,6 +46,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.User;
+import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 import org.getcarebase.carebase.viewmodels.AuthViewModel;
 
@@ -68,19 +69,34 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FirebaseApp.initializeApp(this);
+        setContentView(R.layout.activity_login);
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
-        // try to sign in with current user
-        authViewModel.getUser().observe(this, new Observer<Resource<User>>() {
+        authViewModel.getUserLiveData().observe(this, new Observer<Resource<User>>() {
             @Override
             public void onChanged(Resource<User> userResource) {
-                if (userResource.status == Resource.Status.SUCCESS) {
-                    signUserIn(userResource.data);
+                if (userResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                    // sign in user
+                    signUserIn(userResource.getData());
+                }
+                else if (userResource.getRequest().getStatus() == Request.Status.ERROR && userResource.getRequest().getResourceString() != null) {
+                    if (userResource.getRequest().getResourceString() == R.string.error_invalid_email_format) {
+                        emailTextInputLayout.setError(getString(userResource.getRequest().getResourceString()));
+                    }
+                    else if (userResource.getRequest().getResourceString() == R.string.error_invalid_email_or_password) {
+                        emailTextInputLayout.setError(getString(userResource.getRequest().getResourceString()));
+                        passwordTextInputLayout.setError(getString(userResource.getRequest().getResourceString()));
+                    }
+                    else if (userResource.getRequest().getResourceString() == R.string.error_too_many_attempts ||
+                            userResource.getRequest().getResourceString() == R.string.error_something_wrong) {
+                        Snackbar.make(findViewById(R.id.login_constraint_layout), userResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
+                    }
                 }
             }
         });
 
-        setContentView(R.layout.activity_login);
+        // try to sign in with current user
+        authViewModel.getUser();
 
         TextWatcher invalidCredentialsWatcher = new TextWatcher() {
             @Override
@@ -140,31 +156,7 @@ public class LoginActivity extends AppCompatActivity {
         final String email = mEmail.getText().toString();
         final String password = mPassword.getText().toString();
 
-        authViewModel.signInWithEmailAndPassword(email,password)
-                .observe(this, new Observer<Resource<User>>() {
-            @Override
-            public void onChanged(Resource<User> userResource) {
-                if (userResource.status == Resource.Status.SUCCESS) {
-                    // sign in user
-                    signUserIn(userResource.data);
-                }
-                else if (userResource.status == Resource.Status.ERROR) {
-                    if (userResource.resourceString == R.string.error_invalid_email_format) {
-                        emailTextInputLayout.setError(getString(userResource.resourceString));
-                    }
-                    else if (userResource.resourceString == R.string.error_invalid_email_or_password) {
-                        emailTextInputLayout.setError(getString(userResource.resourceString));
-                        passwordTextInputLayout.setError(getString(userResource.resourceString));
-                    }
-                    else  if (userResource.resourceString == R.string.error_too_many_attempts) {
-                        Snackbar.make(view, userResource.resourceString, Snackbar.LENGTH_LONG).show();
-                    }
-                    else if (userResource.resourceString == R.string.error_something_wrong) {
-                        Snackbar.make(view, userResource.resourceString, Snackbar.LENGTH_LONG).show();
-                    }
-                }
-            }
-        });
+        authViewModel.signInWithEmailAndPassword(email,password);
     }
 
     public void register(View view) {

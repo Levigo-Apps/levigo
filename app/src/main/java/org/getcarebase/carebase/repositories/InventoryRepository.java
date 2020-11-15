@@ -16,6 +16,7 @@ import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceProduction;
 import org.getcarebase.carebase.models.User;
+import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public class InventoryRepository {
     private final String TAG = getClass().getSimpleName();
 
     public LiveData<Resource<Map<String,DeviceModel>>> getDeviceModelMapForHospital(User user) {
-        Resource<Map<String,DeviceModel>> deviceModelMapResource = new Resource<>(deviceModelMap,null, Resource.Status.LOADING);
+        Resource<Map<String,DeviceModel>> deviceModelMapResource = new Resource<>(deviceModelMap, new Request(null, Request.Status.LOADING));
         final MutableLiveData<Resource<Map<String,DeviceModel>>> deviceModelMapLiveData = new MutableLiveData<>(deviceModelMapResource);
         String inventoryRefUrl = "networks/" + user.getNetworkId() + "/hospitals/"
                 + user.getHospitalId() + "/departments/default_department/dis";
@@ -45,7 +46,7 @@ public class InventoryRepository {
                         throw e;
                     } catch (FirebaseFirestoreException firebaseFirestoreException) {
                         firebaseFirestoreException.printStackTrace();
-                        Resource<Map<String,DeviceModel>> result = new Resource<>(deviceModelMap,R.string.error_something_wrong, Resource.Status.LOADING);
+                        Resource<Map<String,DeviceModel>> result = new Resource<>(deviceModelMap, new Request(R.string.error_something_wrong, Request.Status.LOADING));
                         deviceModelMapLiveData.setValue(result);
                     }
                     return;
@@ -66,7 +67,7 @@ public class InventoryRepository {
                                         throw e;
                                     } catch (FirebaseFirestoreException firebaseFirestoreException) {
                                         firebaseFirestoreException.printStackTrace();
-                                        Resource<Map<String, DeviceModel>> result = new Resource<>(deviceModelMap, R.string.error_something_wrong, Resource.Status.LOADING);
+                                        Resource<Map<String, DeviceModel>> result = new Resource<>(deviceModelMap, new Request(R.string.error_something_wrong, Request.Status.LOADING));
                                         deviceModelMapLiveData.setValue(result);
                                     }
                                     return;
@@ -84,7 +85,7 @@ public class InventoryRepository {
                                         deviceModel.removeProduction(udi);
                                     }
                                 }
-                                Resource<Map<String,DeviceModel>> result = new Resource<>(deviceModelMap,null, Resource.Status.SUCCESS);
+                                Resource<Map<String,DeviceModel>> result = new Resource<>(deviceModelMap, new Request(null, Request.Status.SUCCESS));
                                 deviceModelMapLiveData.setValue(result);
                             }
                         });
@@ -99,7 +100,7 @@ public class InventoryRepository {
                         String di = (String) documentChange.getDocument().get("di");
                         deviceModelMap.remove(di);
                     }
-                    Resource<Map<String,DeviceModel>> result = new Resource<>(deviceModelMap,null, Resource.Status.SUCCESS);
+                    Resource<Map<String,DeviceModel>> result = new Resource<>(deviceModelMap,new Request(null , Request.Status.SUCCESS));
                     deviceModelMapLiveData.setValue(result);
                 }
             }
