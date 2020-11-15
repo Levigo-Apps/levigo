@@ -27,6 +27,7 @@ import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.models.InvitationCode;
 import org.getcarebase.carebase.models.User;
+import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
 import java.util.HashMap;
@@ -56,7 +57,7 @@ public class FirebaseAuthRepository {
                 if (task.isSuccessful()) {
                     FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                     if (firebaseUser == null) {
-                        Resource<User> userResource = new Resource<>(null,R.string.error_something_wrong, Resource.Status.ERROR);
+                        Resource<User> userResource = new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR));
                         Log.e(TAG,"Sign in failed",new NullPointerException());
                         userMutableLiveData.setValue(userResource);
                         return;
@@ -85,7 +86,7 @@ public class FirebaseAuthRepository {
                         Log.e(TAG,"Sign in failed", e);
                         FirebaseCrashlytics.getInstance().recordException(e);
                     }
-                    Resource<User> userResource = new Resource<>(null,errorResourceString,Resource.Status.ERROR);
+                    Resource<User> userResource = new Resource<>(null,new Request(errorResourceString, Request.Status.ERROR));
                     userMutableLiveData.setValue(userResource);
                 }
             }
@@ -105,7 +106,7 @@ public class FirebaseAuthRepository {
         }
         else {
             Log.e(TAG,"User is not signed in");
-            userMutableLiveData.setValue(new Resource<User>(null,null, Resource.Status.ERROR));
+            userMutableLiveData.setValue(new Resource<User>(null, new Request(R.string.user_not_signed_in, Request.Status.ERROR)));
         }
         return userMutableLiveData;
     }
@@ -116,13 +117,13 @@ public class FirebaseAuthRepository {
      * @param email the address the email should be sent to
      * @return the status of the request
      */
-    public LiveData<Resource<Object>> resetPasswordWithEmail(final String email) {
-        final MutableLiveData<Resource<Object>> result = new MutableLiveData<>();
+    public LiveData<Request> resetPasswordWithEmail(final String email) {
+        final MutableLiveData<Request> result = new MutableLiveData<>();
         firebaseAuth.sendPasswordResetEmail(email)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        result.setValue(new Resource<>(null,R.string.forgot_password_email_sent, Resource.Status.SUCCESS));
+                        result.setValue(new Request(R.string.forgot_password_email_sent, Request.Status.SUCCESS));
                     }
                 });
         return result;
@@ -152,23 +153,23 @@ public class FirebaseAuthRepository {
                                         String hospitalName = document.get("hospital_name").toString();
 
                                         InvitationCode invitationCode = new InvitationCode(invitationCodeString,networkId,networkName,hospitalId,hospitalName,true);
-                                        Resource<InvitationCode> request = new Resource<>(invitationCode,null, Resource.Status.SUCCESS);
+                                        Resource<InvitationCode> request = new Resource<>(invitationCode, new Request(null, Request.Status.SUCCESS));
                                         result.setValue(request);
                                     } catch (NullPointerException e) {
                                         // invitation code data missing fields
                                         FirebaseCrashlytics.getInstance().recordException(e);
-                                        result.setValue(new Resource<InvitationCode>(null,R.string.error_something_wrong, Resource.Status.ERROR));
+                                        result.setValue(new Resource<InvitationCode>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
                                     }
                                 } else {
                                     // invitation code is invalid - all ready used
-                                    result.setValue(new Resource<InvitationCode>(null,R.string.error_something_wrong, Resource.Status.ERROR));
+                                    result.setValue(new Resource<InvitationCode>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
                                 }
                             } else {
                                 // document for invitation code doesn't exist
-                                result.setValue(new Resource<InvitationCode>(null,R.string.error_invalid_invitation, Resource.Status.ERROR));
+                                result.setValue(new Resource<InvitationCode>(null,new Request(R.string.error_invalid_invitation, Request.Status.ERROR)));
                             }
                         } else {
-                            result.setValue(new Resource<InvitationCode>(null,R.string.error_something_wrong, Resource.Status.ERROR));
+                            result.setValue(new Resource<InvitationCode>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
                             FirebaseCrashlytics.getInstance().recordException(task.getException());
                         }
                     }
@@ -205,11 +206,11 @@ public class FirebaseAuthRepository {
 
                     // give user admin access
                     firestore.collection("networks").document(invitationCode.getNetworkId()).update("auth_users." + userId, "editor");
-                    Resource<User> newUserResource = new Resource<>(newUser,null, Resource.Status.SUCCESS);
+                    Resource<User> newUserResource = new Resource<>(newUser,new Request(R.string.account_created, Request.Status.SUCCESS));
                     result.setValue(newUserResource);
                 }
                 else {
-                    Resource<User> newUserResource = new Resource<>(null,R.string.error_something_wrong, Resource.Status.ERROR);
+                    Resource<User> newUserResource = new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR));
                     result.setValue(newUserResource);
                 }
             }
@@ -236,19 +237,19 @@ public class FirebaseAuthRepository {
                         String hospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
                         String hospitalName = Objects.requireNonNull(document.get("hospital_name")).toString();
                         User user = new User(firebaseUser.getUid(),firebaseUser.getEmail(),hospitalId,hospitalName,networkId,networkName);
-                        Resource<User> userResource = new Resource<>(user,null, Resource.Status.SUCCESS);
+                        Resource<User> userResource = new Resource<>(user, new Request(null, Request.Status.SUCCESS));
                         userMutableLiveData.setValue(userResource);
                     }
                     // user document does not exist
                     else {
-                        Resource<User> userResource = new Resource<>(null,R.string.error_something_wrong, Resource.Status.ERROR);
+                        Resource<User> userResource = new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR));
                         Log.e(TAG,String.format("User %s does not exist",firebaseUser.getUid()));
                         userMutableLiveData.setValue(userResource);
                     }
                 }
                 // query failure
                 else {
-                    Resource<User> userResource = new Resource<>(null,R.string.error_something_wrong, Resource.Status.ERROR);
+                    Resource<User> userResource = new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR));
                     Log.e(TAG,String.format("User %s failed to sign in",firebaseUser.getUid()));
                     userMutableLiveData.setValue(userResource);
                 }

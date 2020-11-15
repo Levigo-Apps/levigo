@@ -13,6 +13,8 @@
     <string name="forgot_your_password_label">Forgot password</string>
     <string name="forgot_password_email_sent">If there is an account with that email, a password reset email has been sent</string>
     <string name="error_invalid_invitation">Invalid invitation code</string>
+    <string name="account_created">Account created. Welcome!</string>
+    <string name="user_not_signed_in">User not signed in</string>
     <!--login/signup screen end-->
 
     <!--common errors start-->
