@@ -2,6 +2,9 @@ package org.getcarebase.carebase.models;
 
 import java.util.Map;
 
+/**
+ * immutable class representing the udi level information of a device
+ */
 public class DeviceProduction {
     private final String uniqueDeviceIdentifier;
     private final String dateAdded;
