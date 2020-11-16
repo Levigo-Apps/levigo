@@ -38,6 +38,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_HANDLE_CAMERA_PERM = 1;
 
     private RecyclerView inventoryScroll;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private TypesAdapter typesAdapter;
     private TextView hospitalNameTextView;
     private TextView userEmailTextView;
@@ -77,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         hospitalNameTextView = findViewById(R.id.main_hospital_textview);
         userEmailTextView = findViewById(R.id.main_user_email_textview);
         inventoryScroll = findViewById(R.id.main_categories);
+        swipeRefreshLayout = findViewById(R.id.main_swipe_refresh_container);
 
         // get user info
         inventoryViewModel = new ViewModelProvider(this).get(InventoryViewModel.class);
@@ -85,11 +88,15 @@ public class MainActivity extends AppCompatActivity {
                 User currentUser = userResource.getData();
                 hospitalNameTextView.setText(currentUser.getHospitalName());
                 userEmailTextView.setText(currentUser.getEmail());
+                // update inventory once we get user
                 initInventory();
             } else if (userResource.getRequest().getStatus() == Request.Status.ERROR) {
                 Snackbar.make(findViewById(R.id.activity_main), userResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
             }
         });
+
+        // on refresh update inventory
+        swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadInventory());
 
         getPermissions();
     }
@@ -132,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
             if (mapResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                 typesAdapter.setCategoricalInventory(mapResource.getData());
                 typesAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
             } else if (mapResource.getRequest().getStatus() == Request.Status.ERROR) {
                 Snackbar.make(findViewById(R.id.activity_main), mapResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
             }
@@ -207,9 +215,8 @@ public class MainActivity extends AppCompatActivity {
         fragment.setArguments(bundle);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        //clears other fragments
+        // clears other fragments
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
@@ -228,8 +235,7 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         //clears other fragments
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
-
+        
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
         fragmentTransaction.add(R.id.activity_main, fragment);

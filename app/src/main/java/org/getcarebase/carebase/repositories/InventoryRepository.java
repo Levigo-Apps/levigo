@@ -35,6 +35,7 @@ public class InventoryRepository {
      * @return LiveData : Holds the resource (status) of the reference to the list
      */
     public LiveData<Resource<List<DeviceModel>>> getDeviceModelMapForHospital(User user) {
+        deviceModelList.clear();
         Resource<List<DeviceModel>> deviceModelListResource = new Resource<>(deviceModelList, new Request(null, Request.Status.LOADING));
         final MutableLiveData<Resource<List<DeviceModel>>> deviceModelListLiveData = new MutableLiveData<>(deviceModelListResource);
         String inventoryRefUrl = "networks/" + user.getNetworkId() + "/hospitals/"
