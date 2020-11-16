@@ -22,6 +22,10 @@
     <string name="error_something_wrong">Something went wrong, please contact support</string>
     <!--common errors end-->
 
+    <!--template values start-->
+    <string name="unit_quantity_value">%1$d Units</string>
+    <!--template values end-->
+
     <string name="notes_lbl">Notes</string>
     <string name="save_lbl">Save</string>
     <string name="type_lbl">Type</string>

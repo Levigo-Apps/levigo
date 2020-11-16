@@ -1,6 +1,5 @@
 package org.getcarebase.carebase.activities.Main.adapters;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,21 +12,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.MainActivity;
+import org.getcarebase.carebase.models.DeviceModel;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder> {
-
-    private static final String TAG = "typesadapter";
-    private MainActivity activity;
-    private Map<String,Object> iDataset;
+    private final MainActivity activity;
+    private Map<String, List<DeviceModel>> categoricalInventory;
 
     public static class TypesHolder extends RecyclerView.ViewHolder {
         public RecyclerView itemDIs;
         public TextView itemType;
         public ImageView itemIcon;
-
 
         public TypesHolder(View view){
             super(view);
@@ -35,86 +33,49 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
             itemType = view.findViewById(R.id.types_name);
             itemIcon = view.findViewById(R.id.types_icon);
 
-            itemType.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if(itemDIs.getVisibility() == View.GONE){
-                        itemDIs.setVisibility(View.VISIBLE);
-                        itemIcon.setImageResource(R.drawable.icon_minimize);
-                    }
-                    else {
-                        itemDIs.setVisibility(View.GONE);
-                        itemIcon.setImageResource(R.drawable.ic_baseline_plus);
-                    }
+            itemType.setOnClickListener(view1 -> {
+                if(itemDIs.getVisibility() == View.GONE){
+                    itemDIs.setVisibility(View.VISIBLE);
+                    itemIcon.setImageResource(R.drawable.icon_minimize);
+                }
+                else {
+                    itemDIs.setVisibility(View.GONE);
+                    itemIcon.setImageResource(R.drawable.ic_baseline_plus);
                 }
             });
         }
     }
 
-    public TypesAdapter(MainActivity activity, Map<String,Object> iDataset) {
+    public TypesAdapter(MainActivity activity) {
         this.activity = activity;
-        this.iDataset = iDataset;
+    }
+
+    public void setCategoricalInventory(Map<String, List<DeviceModel>> categoricalInventory) {
+        this.categoricalInventory = categoricalInventory;
     }
 
     @NonNull
     @Override
     public TypesAdapter.TypesHolder onCreateViewHolder (ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.types_item, parent, false);
-
-        TypesHolder vh = new TypesHolder(view);
-        return vh;
+        return new TypesHolder(view);
     }
 
     @Override
     public void onBindViewHolder(TypesHolder holder, int position){
-     //   Map<String,Object> udi = tDataset.get(position);
-     //   if(udi.containsKey("equipment_type")) {
-      //      String typeString = udi.get("equipment_type").toString();
-      //      holder.itemType.setText(typeString);
-       // }
+        List<Map.Entry<String, List<DeviceModel>>> categories = new ArrayList<>(categoricalInventory.entrySet());
+        Map.Entry<String, List<DeviceModel>> category = categories.get(position);
 
-         Object[] types = iDataset.values().toArray();
+        holder.itemType.setText(category.getKey());
 
-         Object object = types[position];
-
-         Map<String,Object> dis;
-            if(object instanceof Map) {
-                dis = (Map<String, Object>) object;
-            }
-         else {
-            Log.d(TAG, "ERROR");
-            return;
-         }
-
-
-        Object[] types1 = dis.values().toArray();
-        Object object1 = types1[0];
-        Map<String,Object> productType;
-        if(object1 instanceof Map) {
-            productType = (Map<String,Object>) object1;
-        }
-        else {
-            Log.d(TAG, "ERROR");
-            return;
-        }
-
-        Map<String,Object> type = (HashMap<String,Object>) productType.get("di");
-        //TODO make safe
-        if(type != null && type.containsKey("equipment_type")) {
-            String type_item = type.get("equipment_type").toString();
-            holder.itemType.setText(type_item);
-        }
-
-         DIAdapter diAdapter = new DIAdapter(activity, dis);
-
-         LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
-         holder.itemDIs.setLayoutManager(layoutManager);
-         holder.itemDIs.setAdapter(diAdapter);
-
+        DeviceModelsAdapter deviceModelsAdapter = new DeviceModelsAdapter(activity, category.getValue());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
+        holder.itemDIs.setLayoutManager(layoutManager);
+        holder.itemDIs.setAdapter(deviceModelsAdapter);
     }
 
     @Override
     public int getItemCount(){
-        return iDataset.size();
+        return categoricalInventory == null ? 0 : categoricalInventory.size();
     }
 }
