@@ -46,7 +46,7 @@ public class InventoryViewModel extends ViewModel {
      * Updates inventoryLiveData with the LiveData from the repository
      */
     public void loadInventory() {
-        inventoryLiveData.addSource(inventoryRepository.getDeviceModelMapForHospital(Objects.requireNonNull(userLiveData.getValue()).getData()));
+        inventoryLiveData.addSource(inventoryRepository.getDeviceModelListForHospital(Objects.requireNonNull(userLiveData.getValue()).getData()));
     }
 
     public LiveData<Resource<Map<String, List<DeviceModel>>>> getCategoricalInventoryLiveData() {
