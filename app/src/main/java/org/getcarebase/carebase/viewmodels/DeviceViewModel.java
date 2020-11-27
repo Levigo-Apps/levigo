@@ -81,7 +81,11 @@ public class DeviceViewModel extends ViewModel {
                 DeviceModel databaseDeviceModel = databaseResource.getData();
                 databaseDeviceModel.addDeviceProduction(gudidDeviceModel.getProductions().get(0));
                 deviceLiveData.setValue(new Resource<>(databaseDeviceModel, new Request(null, Request.Status.SUCCESS)));
+            } else {
+                // device that is in gudid and not in our database
+                deviceLiveData.setValue(gudidResource);
             }
+
         }
         else if (databaseResource.getRequest().getStatus() == Request.Status.SUCCESS) {
             // device is in our database
