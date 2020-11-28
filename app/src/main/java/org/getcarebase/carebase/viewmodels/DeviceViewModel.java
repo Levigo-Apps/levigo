@@ -7,7 +7,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
@@ -23,6 +22,10 @@ public class DeviceViewModel extends ViewModel {
 
     private LiveData<Resource<User>> userLiveData;
     private MediatorLiveData<Resource<DeviceModel>> deviceLiveData;
+    // when a user tries to save a device this live data will be updated
+    private MutableLiveData<DeviceModel> saveDeviceLiveData;
+    // requests to save a device will be sent to this live data
+    private final LiveData<Request> saveDeviceRequestLiveData = Transformations.switchMap(saveDeviceLiveData, deviceModel -> deviceRepository.saveDevice(deviceModel));
 
     public DeviceViewModel() {
         authRepository = new FirebaseAuthRepository();
@@ -102,5 +105,9 @@ public class DeviceViewModel extends ViewModel {
         DeviceSourceObserver deviceSourceObserver = new DeviceSourceObserver(databaseSource,gudidSource);
         deviceLiveData.addSource(databaseSource,deviceSourceObserver);
         deviceLiveData.addSource(gudidSource,deviceSourceObserver);
-     }
+    }
+
+    public void saveDevice(DeviceModel deviceModel) {
+        saveDeviceLiveData.setValue(deviceModel);
+    }
 }
