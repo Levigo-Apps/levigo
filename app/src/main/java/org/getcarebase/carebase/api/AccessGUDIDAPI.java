@@ -2,8 +2,6 @@ package org.getcarebase.carebase.api;
 
 import org.getcarebase.carebase.models.ParseUDIResponse;
 
-import java.text.ParseException;
-
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;

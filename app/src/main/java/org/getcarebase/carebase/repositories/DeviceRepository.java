@@ -1,27 +1,28 @@
 package org.getcarebase.carebase.repositories;
 
-import android.content.Context;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.getcarebase.carebase.api.AccessGUDIDAPI;
-import org.getcarebase.carebase.api.AccessGUDIDAPIService;
+import org.getcarebase.carebase.api.AccessGUDIDAPIInstanceFactory;
 import org.getcarebase.carebase.models.DeviceModel;
+import org.getcarebase.carebase.models.DeviceModelGUDIDDeserializer;
 import org.getcarebase.carebase.models.DeviceProduction;
 import org.getcarebase.carebase.models.ParseUDIResponse;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -33,33 +34,42 @@ import retrofit2.Callback;
 public class DeviceRepository {
     private static final String TAG = "DeviceRepository";
     private final CollectionReference inventoryReference;
-    private AccessGUDIDAPI accessGUDIDAPI;
+    private final AccessGUDIDAPI accessGUDIDAPI = AccessGUDIDAPIInstanceFactory.getRetrofitInstance(DeviceModel.class, new DeviceModelGUDIDDeserializer()).create(AccessGUDIDAPI.class);
 
     public DeviceRepository(String networkId, String hospitalId) {
         inventoryReference = FirebaseFirestore.getInstance().collection("networks").document(networkId)
                 .collection("hospitals").document(hospitalId)
                 .collection("departments").document("default_department")
                 .collection("dis");
-        accessGUDIDAPI = AccessGUDIDAPIService.createService(accessGUDIDAPI.getClass());
     }
 
     /**
-     * Saves only the model information into the di collection. Does not save production information.
-     * @param deviceModel the di level information of the device.
+     * Saves a device and all its associated data (DeviceProcedures and Specifications) into the database.
+     * @param deviceModel A device (only one production should be in the array)
      * @return a Request object detailing the status of the request.
      */
-    public LiveData<Request> saveDeviceModel(DeviceModel deviceModel) {
-        return null;
-    }
+    public LiveData<Request> saveDevice(DeviceModel deviceModel) {
+        MutableLiveData<Request> saveDeviceRequest = new MutableLiveData<>();
+        List<Task<Void>> tasks = new ArrayList<>();
+        // save device model
+        DocumentReference deviceModelReference = inventoryReference.document(deviceModel.getDeviceIdentifier());
+        tasks.add(deviceModelReference.set(deviceModel.toMap()));
 
-    /**
-     * Saves only the device production into the udi collection of the di.
-     * @param di The di of the device.
-     * @param deviceProduction the udi level information of the device.
-     * @return a Request object detailing the status of the request.
-     */
-    public LiveData<Request> saveDeviceProduction(String di, DeviceProduction deviceProduction) {
-        return null;
+        // save device production
+        DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
+        DocumentReference deviceProductionReference = deviceModelReference.collection("udis").document(deviceProduction.getUniqueDeviceIdentifier());
+        tasks.add(deviceProductionReference.set(deviceProduction));
+
+        Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                saveDeviceRequest.setValue(new Request(null, Request.Status.SUCCESS));
+            } else {
+                // TODO make resource error string
+                saveDeviceRequest.setValue(new Request(null, Request.Status.ERROR));
+            }
+        });
+
+        return saveDeviceRequest;
     }
 
     /**
