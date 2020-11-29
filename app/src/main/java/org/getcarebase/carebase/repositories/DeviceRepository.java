@@ -27,6 +27,7 @@ import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * This is class should handle all of the logic of saving and retrieving for a device.
@@ -142,7 +143,23 @@ public class DeviceRepository {
      * will be stored in the list of production in the DeviceModel
      */
     public LiveData<Resource<DeviceModel>> autoPopulateFromGUDID(String udi) {
-        return null;
+        MutableLiveData<Resource<DeviceModel>> deviceLiveData = new MutableLiveData<>();
+        deviceLiveData.setValue(new Resource<>(null, new Request(null,Request.Status.LOADING)));
+
+        accessGUDIDAPI.getDeviceModel(udi).enqueue(new Callback<DeviceModel>() {
+            @Override
+            public void onResponse(Call<DeviceModel> call, Response<DeviceModel> response) {
+                deviceLiveData.setValue(new Resource<>(response.body(), new Request(null, Request.Status.SUCCESS)));
+            }
+
+            @Override
+            public void onFailure(Call<DeviceModel> call, Throwable t) {
+                Log.e(TAG, "onFailure: ", t);
+                deviceLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+            }
+        });
+
+        return deviceLiveData;
     }
 
  }
