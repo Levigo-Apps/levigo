@@ -21,11 +21,22 @@ public class DeviceViewModel extends ViewModel {
     private final FirebaseAuthRepository authRepository;
 
     private LiveData<Resource<User>> userLiveData;
-    private MediatorLiveData<Resource<DeviceModel>> deviceLiveData;
+
+    private MediatorLiveData<Resource<DeviceModel>> autoPopulatedDeviceLiveData;
+    
     // when a user tries to save a device this live data will be updated
-    private MutableLiveData<DeviceModel> saveDeviceLiveData;
+    private final MutableLiveData<DeviceModel> saveDeviceLiveData = new MutableLiveData<>();
+
+    private final MutableLiveData<String> saveDeviceTypeLiveData = new MutableLiveData<>();
+    private final MutableLiveData<String> savePhysicalLocationLiveData = new MutableLiveData<>();
+
     // requests to save a device will be sent to this live data
     private final LiveData<Request> saveDeviceRequestLiveData = Transformations.switchMap(saveDeviceLiveData, deviceModel -> deviceRepository.saveDevice(deviceModel));
+
+    private final LiveData<Request> saveDeviceTypeRequestLiveData = Transformations.switchMap(saveDeviceTypeLiveData, deviceType -> deviceRepository.saveDeviceType(deviceType));
+    private final LiveData<Request> savePhysicalLocationRequestLiveData = Transformations.switchMap(savePhysicalLocationLiveData, physicalLocation -> deviceRepository.savePhysicalLocation(physicalLocation));
+
+
 
     public DeviceViewModel() {
         authRepository = new FirebaseAuthRepository();
@@ -38,9 +49,42 @@ public class DeviceViewModel extends ViewModel {
         return userLiveData;
     }
 
-    public void setUpInventoryConnection() {
+    public void setupInventoryReference() {
         User user = Objects.requireNonNull(userLiveData.getValue()).getData();
         deviceRepository = new DeviceRepository(user.getNetworkId(), user.getHospitalId());
+    }
+
+    public LiveData<Resource<String[]>> getDeviceTypesLiveData() {
+        return deviceRepository.getDeviceTypeOptions();
+    }
+
+    public void saveDeviceType(String deviceType) {
+        saveDeviceTypeLiveData.setValue(deviceType);
+    }
+
+    public LiveData<Resource<String[]>> getSitesLiveData() {
+        return deviceRepository.getSiteOptions();
+    }
+
+    public LiveData<Resource<String[]>> getPhysicalLocationsLiveData() {
+        return deviceRepository.getPhysicalLocationOptions();
+    }
+
+    public void savePhysicalLocation(String physicalLocation) {
+        savePhysicalLocationLiveData.setValue(physicalLocation);
+    }
+
+    public void saveDevice(DeviceModel deviceModel) {
+        saveDeviceLiveData.setValue(deviceModel);
+    }
+
+    public void autoPopulatedScannedBarcode(String barcode) {
+        autoPopulatedDeviceLiveData.setValue(new Resource<>(null,new Request(null,Request.Status.LOADING)));
+        LiveData<Resource<DeviceModel>> databaseSource = deviceRepository.autoPopulateFromDatabase(barcode);
+        LiveData<Resource<DeviceModel>> gudidSource = deviceRepository.autoPopulateFromGUDID(barcode);
+        DeviceSourceObserver deviceSourceObserver = new DeviceSourceObserver(databaseSource,gudidSource);
+        autoPopulatedDeviceLiveData.addSource(databaseSource,deviceSourceObserver);
+        autoPopulatedDeviceLiveData.addSource(gudidSource,deviceSourceObserver);
     }
 
     private class DeviceSourceObserver implements Observer<Resource<DeviceModel>> {
@@ -70,11 +114,11 @@ public class DeviceViewModel extends ViewModel {
                 && databaseResource.getRequest().getStatus() == Request.Status.ERROR) {
             if (databaseResource.getData() != null) {
                 // device that is not in gudid has device model information in database
-                deviceLiveData.setValue(databaseResource);
+                autoPopulatedDeviceLiveData.setValue(databaseResource);
             } else {
                 // device could not auto populated
                 // TODO make error message in strings
-                deviceLiveData.setValue(new Resource<>(null, new Request(null, Request.Status.ERROR)));
+                autoPopulatedDeviceLiveData.setValue(new Resource<>(null, new Request(null, Request.Status.ERROR)));
             }
         } else if (gudidResource.getRequest().getStatus() == Request.Status.SUCCESS
                 && databaseResource.getRequest().getStatus() == Request.Status.ERROR) {
@@ -83,31 +127,18 @@ public class DeviceViewModel extends ViewModel {
                 DeviceModel gudidDeviceModel = gudidResource.getData();
                 DeviceModel databaseDeviceModel = databaseResource.getData();
                 databaseDeviceModel.addDeviceProduction(gudidDeviceModel.getProductions().get(0));
-                deviceLiveData.setValue(new Resource<>(databaseDeviceModel, new Request(null, Request.Status.SUCCESS)));
+                autoPopulatedDeviceLiveData.setValue(new Resource<>(databaseDeviceModel, new Request(null, Request.Status.SUCCESS)));
             } else {
                 // device that is in gudid and not in our database
-                deviceLiveData.setValue(gudidResource);
+                autoPopulatedDeviceLiveData.setValue(gudidResource);
             }
 
         }
         else if (databaseResource.getRequest().getStatus() == Request.Status.SUCCESS) {
             // device is in our database
-            deviceLiveData.setValue(databaseSource.getValue());
+            autoPopulatedDeviceLiveData.setValue(databaseSource.getValue());
         }
-        deviceLiveData.removeSource(databaseSource);
-        deviceLiveData.removeSource(gudidSource);
-    }
-
-    public void autoPopulatedScannedBarcode(String barcode) {
-        deviceLiveData.setValue(new Resource<>(null,new Request(null,Request.Status.LOADING)));
-        LiveData<Resource<DeviceModel>> databaseSource = deviceRepository.autoPopulateFromDatabase(barcode);
-        LiveData<Resource<DeviceModel>> gudidSource = deviceRepository.autoPopulateFromGUDID(barcode);
-        DeviceSourceObserver deviceSourceObserver = new DeviceSourceObserver(databaseSource,gudidSource);
-        deviceLiveData.addSource(databaseSource,deviceSourceObserver);
-        deviceLiveData.addSource(gudidSource,deviceSourceObserver);
-    }
-
-    public void saveDevice(DeviceModel deviceModel) {
-        saveDeviceLiveData.setValue(deviceModel);
+        autoPopulatedDeviceLiveData.removeSource(databaseSource);
+        autoPopulatedDeviceLiveData.removeSource(gudidSource);
     }
 }

@@ -2,15 +2,20 @@ package org.getcarebase.carebase.repositories;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import org.getcarebase.carebase.api.AccessGUDIDAPI;
 import org.getcarebase.carebase.api.AccessGUDIDAPIInstanceFactory;
@@ -20,10 +25,13 @@ import org.getcarebase.carebase.models.DeviceProduction;
 import org.getcarebase.carebase.models.ParseUDIResponse;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
+import org.w3c.dom.Document;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -34,14 +42,136 @@ import retrofit2.Response;
  */
 public class DeviceRepository {
     private static final String TAG = "DeviceRepository";
-    private final CollectionReference inventoryReference;
+    private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     private final AccessGUDIDAPI accessGUDIDAPI = AccessGUDIDAPIInstanceFactory.getRetrofitInstance(DeviceModel.class, new DeviceModelGUDIDDeserializer()).create(AccessGUDIDAPI.class);
 
+    private final String networkId;
+    private final String hospitalId;
+    private final CollectionReference inventoryReference;
+    private final DocumentReference deviceTypesReference;
+
     public DeviceRepository(String networkId, String hospitalId) {
-        inventoryReference = FirebaseFirestore.getInstance().collection("networks").document(networkId)
+        this.networkId = networkId;
+        this.hospitalId = hospitalId;
+        inventoryReference = firestore.collection("networks").document(networkId)
                 .collection("hospitals").document(hospitalId)
                 .collection("departments").document("default_department")
                 .collection("dis");
+        deviceTypesReference = firestore.collection("networks").document(networkId)
+                .collection("hospitals").document(hospitalId)
+                .collection("types").document("type_options");
+
+    }
+
+    /**
+     * Gets the possible device types and updates the returned LiveData when changes are made
+     * @return a LiveData containing a Resource with a String array
+     */
+    public LiveData<Resource<String[]>> getDeviceTypeOptions() {
+        MutableLiveData<Resource<String[]>> deviceTypesLiveData = new MutableLiveData<>();
+        deviceTypesReference.addSnapshotListener((documentSnapshot, e) -> {
+            if (documentSnapshot != null && documentSnapshot.exists()) {
+                String[] types = (String[]) documentSnapshot.getData().values().toArray();
+                Arrays.sort(types);
+                deviceTypesLiveData.setValue(new Resource<>(types,new Request(null, Request.Status.SUCCESS)));
+            }
+            else {
+                if (e != null) {
+                    Log.e(TAG, "Listen failed.", e);
+                }
+                // TODO make error message in strings
+                deviceTypesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+            }
+        });
+        return deviceTypesLiveData;
+    }
+
+    /**
+     * Saves new device type
+     * @param deviceType the device type to be added
+     * @return a LiveData of Request indicating whether the addition was successful
+     */
+    public LiveData<Request> saveDeviceType(String deviceType) {
+        MutableLiveData<Request> saveDeviceTypeRequest = new MutableLiveData<>();
+        // random key as key does not matter -> need to change doc to array in firebase
+        String key = "type_" + ((int) (Math.random() * 1000000) + 1);
+        deviceTypesReference.update(key,deviceType).addOnCompleteListener(task -> {
+            // TODO make success message and error message in strings
+            if (task.isSuccessful()) {
+                saveDeviceTypeRequest.setValue(new Request(null, Request.Status.SUCCESS));
+            } else {
+                saveDeviceTypeRequest.setValue(new Request(null, Request.Status.ERROR));
+            }
+        });
+        return saveDeviceTypeRequest;
+    }
+
+    /**
+     * Gets the possible site options
+     * @return a LiveData containing a Resource with a String array
+     */
+    public LiveData<Resource<String[]>> getSiteOptions() {
+        MutableLiveData<Resource<String[]>> sitesLiveData = new MutableLiveData<>();
+        DocumentReference documentReference = firestore.collection("networks").document(networkId)
+                .collection("hospitals").document("site_options");
+        documentReference.get().addOnCompleteListener( task -> {
+            if (task.isSuccessful()) {
+                String[] sites = (String[]) task.getResult().getData().values().toArray();
+                Arrays.sort(sites);
+                sitesLiveData.setValue(new Resource<>(sites,new Request(null, Request.Status.SUCCESS)));
+            } else {
+                // TODO make error message in strings
+                sitesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+            }
+        });
+        return sitesLiveData;
+    }
+
+    /**
+     * Gets the possible physical locations in the current hospital and updates the returned LiveData
+     * when any changes are made
+     * @return a LiveData containing a Resource with a String array
+     */
+    public LiveData<Resource<String[]>> getPhysicalLocationOptions(){
+        MutableLiveData<Resource<String[]>> physicalLocationsLiveData = new MutableLiveData<>();
+        DocumentReference documentReference = firestore.collection("networks").document(networkId)
+                .collection("hospitals").document("hospital")
+                .collection("physical_locations").document("locations");
+        documentReference.addSnapshotListener((documentSnapshot, e) -> {
+            if (documentSnapshot != null && documentSnapshot.exists()) {
+                String[] physicalLocations = (String[]) documentSnapshot.getData().values().toArray();
+                Arrays.sort(physicalLocations);
+                physicalLocationsLiveData.setValue(new Resource<>(physicalLocations,new Request(null, Request.Status.SUCCESS)));
+            }
+            else {
+                if (e != null) {
+                    Log.e(TAG, "Listen failed.", e);
+                }
+                // TODO make error message in strings
+                physicalLocationsLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+            }
+        });
+        return physicalLocationsLiveData;
+    }
+
+    /**
+     * Saves new physical location
+     * @param physicalLocation physical location to be added
+     * @return a LiveData of Request indicating whether the addition was successful
+     */
+    public LiveData<Request> savePhysicalLocation(String physicalLocation) {
+        MutableLiveData<Request> saveDeviceTypeRequest = new MutableLiveData<>();
+        // random key as key does not matter -> need to change doc to array in firebase
+        String key = "loc_" + ((int) (Math.random() * 1000000) + 1);
+        deviceTypesReference.update(key,physicalLocation).addOnCompleteListener(task -> {
+            // TODO make success message and error message in strings
+            if (task.isSuccessful()) {
+                saveDeviceTypeRequest.setValue(new Request(null, Request.Status.SUCCESS));
+            } else {
+                saveDeviceTypeRequest.setValue(new Request(null, Request.Status.ERROR));
+            }
+        });
+        return saveDeviceTypeRequest;
     }
 
     /**
