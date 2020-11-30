@@ -71,7 +71,9 @@ public class DeviceRepository {
         MutableLiveData<Resource<String[]>> deviceTypesLiveData = new MutableLiveData<>();
         deviceTypesReference.addSnapshotListener((documentSnapshot, e) -> {
             if (documentSnapshot != null && documentSnapshot.exists()) {
-                String[] types = (String[]) documentSnapshot.getData().values().toArray();
+                // convert to array of strings
+                Object[] objects = documentSnapshot.getData().values().toArray();
+                String[] types = (String[]) Arrays.asList(objects).toArray(new String[objects.length]);
                 Arrays.sort(types);
                 deviceTypesLiveData.setValue(new Resource<>(types,new Request(null, Request.Status.SUCCESS)));
             }
@@ -116,7 +118,9 @@ public class DeviceRepository {
                 .collection("hospitals").document("site_options");
         documentReference.get().addOnCompleteListener( task -> {
             if (task.isSuccessful()) {
-                String[] sites = (String[]) task.getResult().getData().values().toArray();
+                // convert to array of strings
+                Object[] objects = task.getResult().getData().values().toArray();
+                String[] sites = (String[]) Arrays.asList(objects).toArray(new String[objects.length]);
                 Arrays.sort(sites);
                 sitesLiveData.setValue(new Resource<>(sites,new Request(null, Request.Status.SUCCESS)));
             } else {
@@ -135,11 +139,13 @@ public class DeviceRepository {
     public LiveData<Resource<String[]>> getPhysicalLocationOptions(){
         MutableLiveData<Resource<String[]>> physicalLocationsLiveData = new MutableLiveData<>();
         DocumentReference documentReference = firestore.collection("networks").document(networkId)
-                .collection("hospitals").document("hospital")
+                .collection("hospitals").document(hospitalId)
                 .collection("physical_locations").document("locations");
         documentReference.addSnapshotListener((documentSnapshot, e) -> {
             if (documentSnapshot != null && documentSnapshot.exists()) {
-                String[] physicalLocations = (String[]) documentSnapshot.getData().values().toArray();
+                // convert to array of strings
+                Object[] objects = documentSnapshot.getData().values().toArray();
+                String[] physicalLocations = (String[]) Arrays.asList(objects).toArray(new String[objects.length]);
                 Arrays.sort(physicalLocations);
                 physicalLocationsLiveData.setValue(new Resource<>(physicalLocations,new Request(null, Request.Status.SUCCESS)));
             }

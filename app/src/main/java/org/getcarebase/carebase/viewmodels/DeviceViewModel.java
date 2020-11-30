@@ -49,7 +49,7 @@ public class DeviceViewModel extends ViewModel {
         return userLiveData;
     }
 
-    public void setupInventoryReference() {
+    public void setupDeviceRepository() {
         User user = Objects.requireNonNull(userLiveData.getValue()).getData();
         deviceRepository = new DeviceRepository(user.getNetworkId(), user.getHospitalId());
     }
