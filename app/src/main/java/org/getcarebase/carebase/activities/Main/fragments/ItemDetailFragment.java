@@ -33,6 +33,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -47,6 +49,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -63,11 +66,15 @@ import com.journeyapps.barcodescanner.CaptureActivity;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.InventoryTemplate;
+import org.getcarebase.carebase.models.User;
+import org.getcarebase.carebase.utils.Resource;
+import org.getcarebase.carebase.viewmodels.DeviceViewModel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -156,9 +163,79 @@ public class ItemDetailFragment extends Fragment {
     private boolean editingExisting;
     private boolean isDi;
     private List<TextInputEditText> allSizeOptions;
-    private ArrayList<String> TYPES;
-    private ArrayList<String> SITELOC;
-    private ArrayList<String> PHYSICALLOC;
+    // TODO remove hardcoded fields
+    private final List<String> DEVICE_TYPES = Arrays.asList(
+            "Balloon",
+            "Biliary Stent",
+            "Catheter",
+            "Catheter Extraction Tool",
+            "Catheter Securement Device",
+            "Central Venous Access",
+            "Chest (Bag, Catheter, Pneumo Kit, Thoracentesis Kit)",
+            "Coaxial Needle",
+            "Core Biopsy Gun",
+            "CT Biopsy Grid",
+            "Dilator",
+            "Drainage Bags, Kits, Tubes",
+            "Embolization (coils, microcoils, gel foam, particles)",
+            "Equipment",
+            "Flow Switch",
+            "Footballs",
+            "Gastro Equipment (feeding tube)",
+            "Gloves",
+            "Gown",
+            "Guide Sheath",
+            "Inflation Device",
+            "Introducer Sheath",
+            "Lidocaine",
+            "Micropuncture Kit",
+            "Needle",
+            "Nephro Tubes/Stents",
+            "Non-vascular Access Kit",
+            "Patient Cover",
+            "Picc line",
+            "Pneumothorax Kit/Flesh Kit",
+            "Povidone",
+            "Scalpel",
+            "Sheath",
+            "Sleeve",
+            "Snare",
+            "Stents and Embolization Coils",
+            "Sterile Tray",
+            "Stopcock",
+            "Tube",
+            "Wire",
+            "Ultrasound/Imaging related",
+            "Venous Access (Catheters, Central Lines, Introducers, Tunnelers)",
+            "Other");
+    private final List<String> SITES = Arrays.asList("Other");
+    private final List<String> PHYSICAL_LOCATIONS = Arrays.asList(
+            "Box - Central Lines",
+            "Box - Picc Lines",
+            "Box - Tunnels/ports",
+            "Box - Short Wires",
+            "Box - Perma dialysis",
+            "Box - Triple lumen dialysis",
+            "Box - Other permacath",
+            "Box - Microcath",
+            "Box - Biopsy",
+            "Cabinet 1",
+            "Cabinet 2",
+            "Cabinet 3",
+            "Hanger - drainage cath",
+            "Hanger - Nephrostemy",
+            "Hanger - Misc catheters",
+            "Hanger - 4 french catheters",
+            "Hanger - 5 french catheters",
+            "Hanger - Kumpe - 5 french",
+            "Hanger - Drainage tube",
+            "Hanger - Biliary catheters",
+            "Hanger - Specialized sheaths/introducers",
+            "Shelf - G J Tube",
+            "Shelf - Lung Biopsy, Flesh Kit",
+            "Shelf - Micropuncture sets/Wires",
+            "Other");
+
     HashMap<String, String> procedureInfo;
     private List<HashMap<String, Object>> procedureUdisList;
 
@@ -181,12 +258,15 @@ public class ItemDetailFragment extends Fragment {
     private float dp;
     private View rightView;
 
+    private DeviceViewModel deviceViewModel;
+    private View rootView;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         dp = Objects.requireNonNull(getContext()).getResources().getDisplayMetrics().density;
         // Inflate the layout for this fragment
-        final View rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
+        rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
         myCalendar = Calendar.getInstance();
         parent = getActivity();
         linearLayout = rootView.findViewById(R.id.itemdetail_linearlayout);
@@ -239,80 +319,75 @@ public class ItemDetailFragment extends Fragment {
         addSizeButton = rootView.findViewById(R.id.button_addsize);
         specsTextView = rootView.findViewById(R.id.detail_specs_textview);
         allSizeOptions = new ArrayList<>();
-        TYPES = new ArrayList<>();
-        SITELOC = new ArrayList<>();
-        PHYSICALLOC = new ArrayList<>();
 
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
 
-        // Get user information in "users" collection
-        final DocumentReference currentUserRef = usersRef.document(userId);
-        currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                String toastMessage;
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        try {
-
-                            mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
-                            mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
-                            mUser = Objects.requireNonNull(document.get("email")).toString();
-                            mHospitalName = Objects.requireNonNull(document.get("hospital_name")).toString();
-
-
-                            typeRef = db.collection("networks").document(mNetworkId).collection("hospitals")
-                                    .document(mHospitalId).collection("types").document("type_options");
-                            siteRef = db.collection("networks").document(mNetworkId)
-                                    .collection("hospitals");
-                            physLocRef = db.collection("networks").document(mNetworkId)
-                                    .collection("hospitals").document(mHospitalId)
-                                    .collection("physical_locations").document("locations");
-
-                            //get pending equipment info
-                            if (getArguments() != null) {
-                                String barcode = getArguments().getString("barcode");
-                                boolean isPending = getArguments().getBoolean("pending_udi");
-                                editingExisting = getArguments().getBoolean("editingExisting");
-                                if (isPending) {
-                                    getPendingSpecs(barcode);
-                                }
-                                udiEditText.setText(barcode);
-                                if (editingExisting) {
-                                    udiEditText.setEnabled(false);
-                                    autoPopulateButton.setEnabled(false);
-                                    autopopulateNonGudid(barcode, getArguments().getString("di"), rightView);
-                                }
-                            }
-
-                            //get realtime update for Equipment Type field from database
-                            updateEquipmentType(rootView);
-
-                            //get realtime update for Site field from database
-                            updateSite(rootView);
-
-                            //get realtime update for Physical Location field from database
-                            updatePhysicalLocation(rootView);
-
-                        } catch (NullPointerException e) {
-                            toastMessage = "Error retrieving user information; Please contact support";
-                            Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        // document for user doesn't exist
-                        toastMessage = "User not found; Please contact support";
-                        Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    toastMessage = "User lookup failed; Please try again and contact support if issue persists";
-                    Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
-            }
+        deviceViewModel = new ViewModelProvider(this).get(DeviceViewModel.class);
+        // if it is viable, find a way to get the user from inventoryViewModel from main activity
+        // instead of waiting again to get the user again
+        deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
+            deviceViewModel.setupDeviceRepository();
+            setupOptionFields();
         });
+
+        // Get user information in "users" collection
+//        final DocumentReference currentUserRef = usersRef.document(userId);
+//        currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                String toastMessage;
+//                if (task.isSuccessful()) {
+//                    DocumentSnapshot document = task.getResult();
+//                    if (Objects.requireNonNull(document).exists()) {
+//                        try {
+//
+//                            mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
+//                            mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
+//                            mUser = Objects.requireNonNull(document.get("email")).toString();
+//                            mHospitalName = Objects.requireNonNull(document.get("hospital_name")).toString();
+//
+//
+//                            typeRef = db.collection("networks").document(mNetworkId).collection("hospitals")
+//                                    .document(mHospitalId).collection("types").document("type_options");
+//                            siteRef = db.collection("networks").document(mNetworkId)
+//                                    .collection("hospitals");
+//                            physLocRef = db.collection("networks").document(mNetworkId)
+//                                    .collection("hospitals").document(mHospitalId)
+//                                    .collection("physical_locations").document("locations");
+//
+//                            //get pending equipment info
+//                            if (getArguments() != null) {
+//                                String barcode = getArguments().getString("barcode");
+//                                boolean isPending = getArguments().getBoolean("pending_udi");
+//                                editingExisting = getArguments().getBoolean("editingExisting");
+//                                if (isPending) {
+//                                    getPendingSpecs(barcode);
+//                                }
+//                                udiEditText.setText(barcode);
+//                                if (editingExisting) {
+//                                    udiEditText.setEnabled(false);
+//                                    autoPopulateButton.setEnabled(false);
+//                                    autopopulateNonGudid(barcode, getArguments().getString("di"), rightView);
+//                                }
+//                            }
+//                        } catch (NullPointerException e) {
+//                            toastMessage = "Error retrieving user information; Please contact support";
+//                            Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+//                        }
+//                    } else {
+//                        // document for user doesn't exist
+//                        toastMessage = "User not found; Please contact support";
+//                        Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+//                    }
+//                } else {
+//                    toastMessage = "User lookup failed; Please try again and contact support if issue persists";
+//                    Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+//                    Log.d(TAG, "get failed with ", task.getException());
+//                }
+//            }
+//        });
 
 
         // NumberPicker Dialog for NumberAdded field
@@ -498,6 +573,60 @@ public class ItemDetailFragment extends Fragment {
         return rootView;
     }
 
+    private void somethingWentWrong() {
+        Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
+    }
+
+    /**
+     * sets up the option fields such as device type, site, and physical location
+     */
+    private void setupOptionFields() {
+        // set up device types
+        final ArrayAdapter<String> deviceTypeAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
+        deviceViewModel.getDeviceTypesLiveData().observe(getViewLifecycleOwner(), deviceTypesResource -> {
+            if(deviceTypesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+                deviceTypeAdapter.clear();
+                deviceTypeAdapter.addAll(DEVICE_TYPES);
+                deviceTypeAdapter.addAll(Arrays.asList(deviceTypesResource.getData()));
+            } else {
+                Log.d(TAG,"Unable to fetch device types");
+                somethingWentWrong();
+            }
+        });
+        equipmentType.setAdapter(deviceTypeAdapter);
+        equipmentType.setOnItemClickListener((adapterView, view, position, row) -> addTypeOptionField(adapterView, view, position));
+
+        // set up sites
+        final ArrayAdapter<String> sitesAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
+        deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
+            if(sitesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+                sitesAdapter.clear();
+                sitesAdapter.addAll(Arrays.asList(sitesResource.getData()));
+                sitesAdapter.addAll(SITES);
+            } else {
+                Log.d(TAG,"Unable to fetch sites");
+                somethingWentWrong();
+            }
+        });
+        hospitalName.setAdapter(sitesAdapter);
+        hospitalName.setOnItemClickListener((adapterView, view, position, id) -> addNewSite(adapterView, view, position));
+
+        // set up physical locations
+        final ArrayAdapter<String> physicalLocationsAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
+        deviceViewModel.getPhysicalLocationsLiveData().observe(getViewLifecycleOwner(), physicalLocationsResource -> {
+            if(physicalLocationsResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+                physicalLocationsAdapter.clear();
+                physicalLocationsAdapter.addAll(PHYSICAL_LOCATIONS);
+                physicalLocationsAdapter.addAll(Arrays.asList(physicalLocationsResource.getData()));
+            } else {
+                Log.d(TAG,"Unable to fetch physical locations");
+                somethingWentWrong();
+            }
+        });
+        physicalLocation.setAdapter(physicalLocationsAdapter);
+        physicalLocation.setOnItemClickListener((adapterView, view, position, id) -> addNewLoc(adapterView, view, position));
+    }
+
 
     private void getPendingSpecs(final String barcode) {
         DocumentReference docRef = db.collection("networks").document(mNetworkId)
@@ -565,200 +694,6 @@ public class ItemDetailFragment extends Fragment {
         }, hour, minute, true);
         mTimePicker.setTitle("Select Time");
         mTimePicker.show();
-    }
-
-    private void updatePhysicalLocation(View view) {
-        physLocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-                if (documentSnapshot != null && documentSnapshot.exists()) {
-                    Map<String, Object> typeObj = documentSnapshot.getData();
-                    locCounter = Objects.requireNonNull(typeObj).size();
-                    for (Object value : typeObj.values()) {
-                        if (!PHYSICALLOC.contains(value.toString())) {
-                            PHYSICALLOC.add(value.toString());
-                        }
-                        Collections.sort(PHYSICALLOC);
-                    }
-                } else {
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
-
-        final ArrayAdapter<String> adapterLoc =
-                new ArrayAdapter<>(
-                        view.getContext(),
-                        R.layout.dropdown_menu_popup_item,
-                        PHYSICALLOC);
-        adapterLoc.add("Box - Central Lines");
-        adapterLoc.add("Box - Picc Lines");
-        adapterLoc.add("Box - Tunnels/ports");
-        adapterLoc.add("Box - Short Wires");
-        adapterLoc.add("Box - Perma dialysis");
-        adapterLoc.add("Box - Triple lumen dialysis");
-        adapterLoc.add("Box - Other permacath");
-        adapterLoc.add("Box - Microcath");
-        adapterLoc.add("Box - Biopsy");
-        adapterLoc.add("Cabinet 1");
-        adapterLoc.add("Cabinet 2");
-        adapterLoc.add("Cabinet 3");
-        adapterLoc.add("Hanger - drainage cath");
-        adapterLoc.add("Hanger - Nephrostemy");
-        adapterLoc.add("Hanger - Misc catheters");
-        adapterLoc.add("Hanger - 4 french catheters");
-        adapterLoc.add("Hanger - 5 french catheters");
-        adapterLoc.add("Hanger - Kumpe - 5 french");
-        adapterLoc.add("Hanger - Drainage tube");
-        adapterLoc.add("Hanger - Biliary catheters");
-        adapterLoc.add("Hanger - Specialized sheaths/introducers");
-        adapterLoc.add("Shelf - G J Tube");
-        adapterLoc.add("Shelf - Lung Biopsy, Flesh Kit");
-        adapterLoc.add("Shelf - Micropuncture sets/Wires");
-        adapterLoc.add("Other");
-
-        physicalLocation.setAdapter(adapterLoc);
-        physicalLocation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                addNewLoc(adapterView, view, i);
-            }
-        });
-
-    }
-
-
-    private void updateSite(View view) {
-
-        //default value is users hospital name
-        hospitalName.setText(mHospitalName);
-
-        siteRef.document("site_options").addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-                if (documentSnapshot != null && documentSnapshot.exists()) {
-                    Map<String, Object> typeObj = documentSnapshot.getData();
-                    siteCounter = Objects.requireNonNull(typeObj).size();
-                    for (Object value : typeObj.values()) {
-                        if (!SITELOC.contains(value.toString())) {
-                            SITELOC.add(value.toString());
-                        }
-                        Collections.sort(SITELOC);
-                    }
-                } else {
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
-
-        // Dropdown menu for Site Location field
-        final ArrayAdapter<String> adapterSite =
-                new ArrayAdapter<>(
-                        view.getContext(),
-                        R.layout.dropdown_menu_popup_item,
-                        SITELOC);
-        adapterSite.add("Other");
-        hospitalName.setAdapter(adapterSite);
-        hospitalName.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                addNewSite(adapterView, view, i);
-            }
-        });
-
-    }
-
-    private void updateEquipmentType(View view) {
-        typeRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-                if (documentSnapshot != null && documentSnapshot.exists()) {
-                    Map<String, Object> typeObj = documentSnapshot.getData();
-                    typeCounter = Objects.requireNonNull(typeObj).size();
-                    for (Object value : typeObj.values()) {
-                        if (!TYPES.contains(value.toString())) {
-                            TYPES.add(value.toString());
-                        }
-                        Collections.sort(TYPES);
-                    }
-                } else {
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
-        // adapter for dropdown list for Types
-        final ArrayAdapter<String> adapterType =
-                new ArrayAdapter<>(
-                        view.getContext(),
-                        R.layout.dropdown_menu_popup_item,
-                        TYPES);
-        List<String> typesList = Arrays.asList(
-                "Balloon",
-                "Biliary Stent",
-                "Catheter",
-                "Catheter Extraction Tool",
-                "Catheter Securement Device",
-                "Central Venous Access",
-                "Chest (Bag, Catheter, Pneumo Kit, Thoracentesis Kit)",
-                "Coaxial Needle",
-                "Core Biopsy Gun",
-                "CT Biopsy Grid",
-                "Dilator",
-                "Drainage Bags, Kits, Tubes",
-                "Embolization (coils, microcoils, gel foam, particles)",
-                "Equipment",
-                "Flow Switch",
-                "Footballs",
-                "Gastro Equipment (feeding tube)",
-                "Gloves",
-                "Gown",
-                "Guide Sheath",
-                "Inflation Device",
-                "Introducer Sheath",
-                "Lidocaine",
-                "Micropuncture Kit",
-                "Needle",
-                "Nephro Tubes/Stents",
-                "Non-vascular Access Kit",
-                "Patient Cover",
-                "Picc line",
-                "Pneumothorax Kit/Flesh Kit",
-                "Povidone",
-                "Scalpel",
-                "Sheath",
-                "Sleeve",
-                "Snare",
-                "Stents and Embolization Coils",
-                "Sterile Tray",
-                "Stopcock",
-                "Tube",
-                "Wire",
-                "Ultrasound/Imaging related",
-                "Venous Access (Catheters, Central Lines, Introducers, Tunnelers)",
-                "Other");
-        adapterType.addAll(typesList);
-        equipmentType.setAdapter(adapterType);
-
-
-        equipmentType.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                addTypeOptionField(adapterView, view, i);
-
-            }
-        });
     }
 
     private void setTextWatcherRequired() {
