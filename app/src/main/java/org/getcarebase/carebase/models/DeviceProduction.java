@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * immutable class representing the udi level information of a device
+ * class representing the udi level information of a device
  */
 public class DeviceProduction {
     private String uniqueDeviceIdentifier;

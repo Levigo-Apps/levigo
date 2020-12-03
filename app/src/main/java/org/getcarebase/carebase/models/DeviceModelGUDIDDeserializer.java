@@ -23,7 +23,7 @@ public class DeviceModelGUDIDDeserializer implements JsonDeserializer<DeviceMode
         // get device production information
         JsonObject udiObject = jsonObject.getAsJsonObject("udi");
         deviceProduction.setUniqueDeviceIdentifier(udiObject.getAsJsonPrimitive("udi").getAsString());
-        // use `expirationDateFormat` to format expiration date
+        // TODO use `expirationDateFormat` to format expiration date
         deviceProduction.setExpirationDate(udiObject.getAsJsonPrimitive("expirationDate").getAsString());
         deviceProduction.setLotNumber(udiObject.getAsJsonPrimitive("lotNumber").getAsString());
 
@@ -34,38 +34,42 @@ public class DeviceModelGUDIDDeserializer implements JsonDeserializer<DeviceMode
         // get device model information
         deviceModel.setDeviceIdentifier(udiObject.getAsJsonPrimitive("di").getAsString());
         deviceModel.setCompany(deviceObject.getAsJsonPrimitive("companyName").getAsString());
-        deviceModel.setName(deviceObject.getAsJsonObject("gmdnTerms").getAsJsonArray().get(0).getAsJsonObject().getAsJsonPrimitive("gmdnPTName").getAsString());
+        deviceModel.setCompany(deviceObject.getAsJsonPrimitive("companyName").getAsString());
+        deviceModel.setName(deviceObject.getAsJsonObject("gmdnTerms").getAsJsonArray("gmdn").get(0).getAsJsonObject().getAsJsonPrimitive("gmdnPTName").getAsString());
         deviceModel.setDescription(deviceObject.getAsJsonPrimitive("deviceDescription").getAsString());
         deviceProduction.setReferenceNumber(deviceObject.getAsJsonPrimitive("catalogNumber").getAsString());
         // Not really sure about this but fine for now
         deviceProduction.setQuantity(deviceObject.getAsJsonPrimitive("deviceCount").getAsInt());
 
         // add device sizes to specifications
-        JsonArray deviceSizeArray = deviceObject.getAsJsonArray("deviceSizes");
-        for (int i = 0; i < deviceSizeArray.size(); ++i) {
-            int colonIndex;
-            String v;
-            JsonObject currentSizeObject = deviceSizeArray.get(i).getAsJsonObject();
-            String specification = currentSizeObject.getAsJsonPrimitive("sizeType").getAsString();
-            if (specification.equals("Device Size Text, specify")) {
-                String customSizeText = currentSizeObject.getAsJsonPrimitive("sizeText").getAsString();
-                // Key, Value usually separated by colon
-                colonIndex = customSizeText.indexOf(":");
-                if (colonIndex == -1) {
-                    // If no colon, save whole field as "value"
-                    specification = "Custom Key";
-                    v = customSizeText;
+        if (!deviceObject.get("deviceSizes").isJsonNull()) {
+            JsonArray deviceSizeArray = deviceObject.getAsJsonObject("deviceSizes").getAsJsonArray("deviceSize");
+            for (int i = 0; i < deviceSizeArray.size(); ++i) {
+                int colonIndex;
+                String v;
+                JsonObject currentSizeObject = deviceSizeArray.get(i).getAsJsonObject();
+                String specification = currentSizeObject.getAsJsonPrimitive("sizeType").getAsString();
+                if (specification.equals("Device Size Text, specify")) {
+                    String customSizeText = currentSizeObject.getAsJsonPrimitive("sizeText").getAsString();
+                    // Key, Value usually separated by colon
+                    colonIndex = customSizeText.indexOf(":");
+                    if (colonIndex == -1) {
+                        // If no colon, save whole field as "value"
+                        specification = "Custom Key";
+                        v = customSizeText;
+                    } else {
+                        specification = customSizeText.substring(0, colonIndex);
+                        v = customSizeText.substring(colonIndex + 1).trim();
+                    }
                 } else {
-                    specification = customSizeText.substring(0, colonIndex);
-                    v = customSizeText.substring(colonIndex + 1).trim();
+                    v = currentSizeObject.getAsJsonObject("size").getAsJsonPrimitive("value").getAsString()
+                            + " "
+                            + currentSizeObject.getAsJsonObject("size").getAsJsonPrimitive("unit").getAsString();
                 }
-            } else {
-                v = currentSizeObject.getAsJsonObject("size").getAsJsonPrimitive("value").getAsString()
-                        + " "
-                        + currentSizeObject.getAsJsonObject("size").getAsJsonPrimitive("unit").getAsString();
+                deviceModel.addSpecification(specification,v);
             }
-            deviceModel.addSpecification(specification,v);
         }
+
 
         deviceModel.addDeviceProduction(deviceProduction);
         return deviceModel;
