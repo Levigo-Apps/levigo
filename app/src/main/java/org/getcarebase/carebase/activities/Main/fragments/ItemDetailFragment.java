@@ -66,6 +66,8 @@ import com.journeyapps.barcodescanner.CaptureActivity;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.InventoryTemplate;
+import org.getcarebase.carebase.models.DeviceModel;
+import org.getcarebase.carebase.models.DeviceProduction;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.utils.Resource;
 import org.getcarebase.carebase.viewmodels.DeviceViewModel;
@@ -320,17 +322,16 @@ public class ItemDetailFragment extends Fragment {
         specsTextView = rootView.findViewById(R.id.detail_specs_textview);
         allSizeOptions = new ArrayList<>();
 
-
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-
         deviceViewModel = new ViewModelProvider(this).get(DeviceViewModel.class);
         // if it is viable, find a way to get the user from inventoryViewModel from main activity
         // instead of waiting again to get the user again
         deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
             deviceViewModel.setupDeviceRepository();
             setupOptionFields();
+            setupAutoPopulate();
         });
+
+
 
         // Get user information in "users" collection
 //        final DocumentReference currentUserRef = usersRef.document(userId);
@@ -415,7 +416,8 @@ public class ItemDetailFragment extends Fragment {
         autoPopulateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                autoPopulate(rootView);
+                String barcode = Objects.requireNonNull(udiEditText.getText()).toString();
+                deviceViewModel.autoPopulatedScannedBarcode(barcode);
             }
         });
         addSizeButton.setOnClickListener(new View.OnClickListener() {
@@ -573,8 +575,47 @@ public class ItemDetailFragment extends Fragment {
         return rootView;
     }
 
-    private void somethingWentWrong() {
-        Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
+    private void setupAutoPopulate() {
+        deviceViewModel.getAutoPopulatedDeviceLiveData().observe(getViewLifecycleOwner(), deviceModelResource -> {
+            if (deviceModelResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+                DeviceModel deviceModel = deviceModelResource.getData();
+                DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
+                deviceIdentifier.setText(deviceModel.getDeviceIdentifier());
+                deviceIdentifier.setEnabled(deviceModel.getDeviceIdentifier() == null);
+                nameEditText.setText(deviceModel.getName());
+                nameEditText.setEnabled(deviceModel.getName() == null);
+                quantity.setText(Integer.toString(deviceModel.getQuantity()));
+                quantity.setEnabled(false);
+                expiration.setText(deviceProduction.getExpirationDate());
+                expiration.setEnabled(deviceProduction.getExpirationDate() == null);
+                hospitalName.setText(deviceModel.getSiteName());
+                physicalLocation.setText(deviceProduction.getPhysicalLocation());
+                equipmentType.setText(deviceModel.getEquipmentType());
+                if (deviceModel.getUsage() != null && deviceModel.getUsage().equals("Single Use")) {
+                    singleUseButton.setChecked(true);
+                }
+                else if (deviceModel.getUsage() != null && deviceModel.getUsage().equals("Reusable")){
+                    multiUse.setChecked(true);
+                }
+                medicalSpeciality.setText(deviceModel.getMedicalSpecialty());
+                deviceDescription.setText(deviceModel.getDescription());
+                deviceDescription.setEnabled(deviceModel.getDescription() == null);
+                lotNumber.setText(deviceProduction.getLotNumber());
+                lotNumber.setEnabled(deviceProduction.getLotNumber() == null);
+                referenceNumber.setText(deviceProduction.getReferenceNumber());
+                referenceNumber.setEnabled(deviceProduction.getReferenceNumber() == null);
+                company.setText(deviceModel.getCompany());
+                company.setEnabled(deviceModel.getCompany() == null);
+                notes.setText(deviceProduction.getNotes());
+                notes.setEnabled(deviceProduction.getNotes() == null);
+                numberAdded.setText(Integer.toString(deviceProduction.getQuantity()));
+                for (Map.Entry<String,Object> specification : deviceModel.getSpecificationList()) {
+                    addItemSpecs(specification.getKey(),specification.getValue().toString(),rootView);
+                }
+            } else if (deviceModelResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR) {
+                somethingWentWrong();
+            }
+        });
     }
 
     /**
@@ -627,6 +668,9 @@ public class ItemDetailFragment extends Fragment {
         physicalLocation.setOnItemClickListener((adapterView, view, position, id) -> addNewLoc(adapterView, view, position));
     }
 
+    private void somethingWentWrong() {
+        Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
+    }
 
     private void getPendingSpecs(final String barcode) {
         DocumentReference docRef = db.collection("networks").document(mNetworkId)

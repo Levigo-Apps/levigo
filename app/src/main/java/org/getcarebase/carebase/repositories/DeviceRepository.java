@@ -262,9 +262,14 @@ public class DeviceRepository {
                         }
                     });
                 }
+                else {
+                    // device with given di is not in database
+                    // TODO make error message in strings
+                    deviceLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+                }
             }
             else {
-                // device with given di is not in database
+                // something went wrong
                 // TODO make error message in strings
                 deviceLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
             }

@@ -31,10 +31,12 @@ public class DeviceModel {
         data.remove("name");
         this.company = (String) data.get("company");
         data.remove("company");
-        this.description = (String) data.get("description");
+        this.description = (String) data.get("device_description");
         data.remove("description");
         this.equipmentType = (String) data.get("equipment_type");
         data.remove("equipment_type");
+        this.medicalSpecialty = (String) data.get("medical_specialty");
+        data.remove("medical_specialty");
         this.siteName = (String) data.get("site_name");
         data.remove("site_name");
         this.usage = (String) data.get("usage");
