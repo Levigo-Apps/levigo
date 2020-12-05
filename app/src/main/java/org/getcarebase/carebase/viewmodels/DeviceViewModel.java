@@ -117,17 +117,13 @@ public class DeviceViewModel extends ViewModel {
             return;
         }
 
-        if (gudidResource.getRequest().getStatus() == Request.Status.ERROR
-                && databaseResource.getRequest().getStatus() == Request.Status.ERROR) {
-            if (databaseResource.getData() != null) {
-                // device that is not in gudid but has device model information in database
-                autoPopulatedDeviceLiveData.setValue(databaseResource);
-            } else {
-                // device could not auto populated (no data)
-                // TODO make error message in strings
-                autoPopulatedDeviceLiveData.setValue(new Resource<>(null, new Request(null, Request.Status.ERROR)));
-            }
-        } else if (gudidResource.getRequest().getStatus() == Request.Status.SUCCESS
+        if (gudidResource.getRequest().getStatus() == Request.Status.ERROR && gudidResource.getRequest().getResourceString() == R.string.error_something_wrong) {
+            autoPopulatedDeviceLiveData.setValue(gudidResource);
+        }
+        else if (databaseResource.getRequest().getStatus() == Request.Status.ERROR && databaseResource.getRequest().getResourceString() == R.string.error_something_wrong) {
+            autoPopulatedDeviceLiveData.setValue(databaseResource);
+        }
+        else if (gudidResource.getRequest().getStatus() == Request.Status.SUCCESS
                 && databaseResource.getRequest().getStatus() == Request.Status.ERROR) {
             if (databaseResource.getData() != null) {
                 // device that is in gudid also has device model information in database
@@ -139,11 +135,14 @@ public class DeviceViewModel extends ViewModel {
                 // device that is in gudid and not in our database
                 autoPopulatedDeviceLiveData.setValue(gudidResource);
             }
+        } else {
+            // device that is not in gudid but has device model information in database
+            // device could not be auto populated (no data)
+            // or device is in our database
+            autoPopulatedDeviceLiveData.setValue(databaseResource);
         }
-        else if (databaseResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-            // device is in our database
-            autoPopulatedDeviceLiveData.setValue(databaseSource.getValue());
-        }
+
+        // stop listening to these sources
         autoPopulatedDeviceLiveData.removeSource(databaseSource);
         autoPopulatedDeviceLiveData.removeSource(gudidSource);
     }
