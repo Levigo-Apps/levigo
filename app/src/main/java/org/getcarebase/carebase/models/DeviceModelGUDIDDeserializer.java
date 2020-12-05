@@ -1,11 +1,15 @@
 package org.getcarebase.carebase.models;
 
+import android.text.InputType;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+
+import org.json.JSONArray;
 
 import java.lang.reflect.Type;
 
@@ -27,7 +31,6 @@ public class DeviceModelGUDIDDeserializer implements JsonDeserializer<DeviceMode
         deviceProduction.setExpirationDate(udiObject.getAsJsonPrimitive("expirationDate").getAsString());
         deviceProduction.setLotNumber(udiObject.getAsJsonPrimitive("lotNumber").getAsString());
 
-
         JsonObject gudidObject = jsonObject.getAsJsonObject("gudid");
         JsonObject deviceObject = gudidObject.getAsJsonObject("device");
 
@@ -40,6 +43,18 @@ public class DeviceModelGUDIDDeserializer implements JsonDeserializer<DeviceMode
         deviceProduction.setReferenceNumber(deviceObject.getAsJsonPrimitive("catalogNumber").getAsString());
         // Not really sure about this but fine for now
         deviceProduction.setQuantity(deviceObject.getAsJsonPrimitive("deviceCount").getAsInt());
+
+        // get medical specialty
+//        if (!deviceObject.get("productCodes").isJsonNull()) {
+//            JsonArray productCodes = deviceObject.getAsJsonObject("fdaProductCode").getAsJsonArray("productCodes");
+//            StringBuilder medicalSpecialties = new StringBuilder();
+//            for (int i = 0; i < productCodes.size(); i++) {
+//                medicalSpecialties.append(productCodes.get(i).getAsJsonObject().getAsJsonPrimitive("medicalSpecialty").getAsString());
+//                medicalSpecialties.append("; ");
+//            }
+//            medicalSpecialties = new StringBuilder(medicalSpecialties.substring(0, medicalSpecialties.length() - 2));
+//            deviceModel.setMedicalSpecialty(medicalSpecialties.toString());
+//        }
 
         // add device sizes to specifications
         if (!deviceObject.get("deviceSizes").isJsonNull()) {

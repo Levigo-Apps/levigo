@@ -20,6 +20,8 @@
     <!--common errors start-->
     <string name="error_too_many_attempts">Too many attempts. Retry in 1 minute.</string>
     <string name="error_something_wrong">Something went wrong, please contact support</string>
+    <string name="error_device_lookup">Could not find device information</string>
+    <string name="error_partial_data_in_database">Only device model information is found for this device</string>
     <!--common errors end-->
 
     <!--template values start-->

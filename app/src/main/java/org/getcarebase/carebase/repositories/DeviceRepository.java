@@ -17,6 +17,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
+import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.api.AccessGUDIDAPI;
 import org.getcarebase.carebase.api.AccessGUDIDAPIInstanceFactory;
 import org.getcarebase.carebase.models.DeviceModel;
@@ -221,13 +222,17 @@ public class DeviceRepository {
         accessGUDIDAPI.getParseUdiResponse(udi).enqueue(new Callback<ParseUDIResponse>() {
             @Override
             public void onResponse(Call<ParseUDIResponse> call, retrofit2.Response<ParseUDIResponse> response) {
-                getDeviceFromFirestore(response.body().getDi(), response.body().getUdi(), deviceLiveData);
+                if (response.isSuccessful()) {
+                    getDeviceFromFirestore(Objects.requireNonNull(response.body()).getDi(), response.body().getUdi(), deviceLiveData);
+                } else {
+                    getDeviceFromFirestore(udi, udi, deviceLiveData);
+                }
             }
 
             @Override
             public void onFailure(Call<ParseUDIResponse> call, Throwable t) {
                 Log.e(TAG, "onFailure: ", t);
-                getDeviceFromFirestore(udi, udi, deviceLiveData);
+                deviceLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
             }
         });
 
@@ -256,26 +261,24 @@ public class DeviceRepository {
                                 deviceLiveData.setValue(new Resource<>(deviceModel,new Request(null, Request.Status.SUCCESS)));
                             }
                             else {
-                                // udi information is not in the database (partial data)
-                                deviceLiveData.setValue(new Resource<>(deviceModel,new Request(null, Request.Status.ERROR)));
+                                // device production information is not in the database (partial data)
+                                deviceLiveData.setValue(new Resource<>(deviceModel,new Request(R.string.error_partial_data_in_database, Request.Status.ERROR)));
                             }
                         }
                         else {
-                            // something went wrong during udi retrieval
-                            deviceLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+                            // something went wrong during device production retrieval
+                            deviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
                         }
                     });
                 }
                 else {
                     // device with given di is not in database
-                    // TODO make error message in strings
-                    deviceLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+                    deviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_device_lookup, Request.Status.ERROR)));
                 }
             }
             else {
-                // something went wrong
-                // TODO make error message in strings
-                deviceLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+                // something went wrong during device model retrieval
+                deviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
             }
         });
 
@@ -294,13 +297,18 @@ public class DeviceRepository {
         accessGUDIDAPI.getDeviceModel(udi).enqueue(new Callback<DeviceModel>() {
             @Override
             public void onResponse(Call<DeviceModel> call, Response<DeviceModel> response) {
-                deviceLiveData.setValue(new Resource<>(response.body(), new Request(null, Request.Status.SUCCESS)));
+                if (response.isSuccessful()) {
+                    deviceLiveData.setValue(new Resource<>(response.body(), new Request(null, Request.Status.SUCCESS)));
+                } else {
+                    deviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_device_lookup, Request.Status.ERROR)));
+                }
+
             }
 
             @Override
             public void onFailure(Call<DeviceModel> call, Throwable t) {
                 Log.e(TAG, "onFailure: ", t);
-                deviceLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+                deviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
             }
         });
 

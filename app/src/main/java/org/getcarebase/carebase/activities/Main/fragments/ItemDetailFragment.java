@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -15,6 +16,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -410,13 +412,18 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-        autoPopulateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String barcode = Objects.requireNonNull(udiEditText.getText()).toString();
-                deviceViewModel.autoPopulatedScannedBarcode(barcode);
+        autoPopulateButton.setOnClickListener(view -> {
+            // hide keyboard
+            try {
+                InputMethodManager imm = (InputMethodManager) Objects.requireNonNull(getActivity()).getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+            } catch (Exception e) {
+                Log.d(TAG,"onAutoPopulateClick: keyboard not open");
             }
+            String barcode = Objects.requireNonNull(udiEditText.getText()).toString();
+            deviceViewModel.autoPopulatedScannedBarcode(barcode);
         });
+        
         addSizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -576,8 +583,7 @@ public class ItemDetailFragment extends Fragment {
                     addItemSpecs(specification.getKey(),specification.getValue().toString(),rootView);
                 }
             } else if (deviceModelResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR) {
-                Log.d(TAG,"Error while autopopulating");
-                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(rootView, deviceModelResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
             }
         });
     }
