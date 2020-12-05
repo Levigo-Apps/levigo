@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
@@ -35,8 +36,6 @@ public class DeviceViewModel extends ViewModel {
 
     private final LiveData<Request> saveDeviceTypeRequestLiveData = Transformations.switchMap(saveDeviceTypeLiveData, deviceType -> deviceRepository.saveDeviceType(deviceType));
     private final LiveData<Request> savePhysicalLocationRequestLiveData = Transformations.switchMap(savePhysicalLocationLiveData, physicalLocation -> deviceRepository.savePhysicalLocation(physicalLocation));
-
-
 
     public DeviceViewModel() {
         authRepository = new FirebaseAuthRepository();
@@ -72,6 +71,10 @@ public class DeviceViewModel extends ViewModel {
 
     public void savePhysicalLocation(String physicalLocation) {
         savePhysicalLocationLiveData.setValue(physicalLocation);
+    }
+
+    public LiveData<Request> getSaveDeviceRequestLiveData() {
+        return saveDeviceRequestLiveData;
     }
 
     public void saveDevice(DeviceModel deviceModel) {
@@ -117,10 +120,10 @@ public class DeviceViewModel extends ViewModel {
         if (gudidResource.getRequest().getStatus() == Request.Status.ERROR
                 && databaseResource.getRequest().getStatus() == Request.Status.ERROR) {
             if (databaseResource.getData() != null) {
-                // device that is not in gudid has device model information in database
+                // device that is not in gudid but has device model information in database
                 autoPopulatedDeviceLiveData.setValue(databaseResource);
             } else {
-                // device could not auto populated
+                // device could not auto populated (no data)
                 // TODO make error message in strings
                 autoPopulatedDeviceLiveData.setValue(new Resource<>(null, new Request(null, Request.Status.ERROR)));
             }
@@ -136,7 +139,6 @@ public class DeviceViewModel extends ViewModel {
                 // device that is in gudid and not in our database
                 autoPopulatedDeviceLiveData.setValue(gudidResource);
             }
-
         }
         else if (databaseResource.getRequest().getStatus() == Request.Status.SUCCESS) {
             // device is in our database

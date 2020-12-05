@@ -1,5 +1,6 @@
 package org.getcarebase.carebase.models;
 
+import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
 import java.lang.reflect.Field;
@@ -84,7 +85,7 @@ public class DeviceProduction {
     public String getTimeAdded() {
         return timeAdded;
     }
-    @PropertyName("expiration_date")
+    @PropertyName("expiration")
     public String getExpirationDate() {
         return expirationDate;
     }
@@ -101,6 +102,10 @@ public class DeviceProduction {
         return physicalLocation;
     }
     @PropertyName("quantity")
+    public String getStringQuantity() {
+        return Integer.toString(quantity);
+    }
+    @Exclude
     public int getQuantity() {
         return quantity;
     }
