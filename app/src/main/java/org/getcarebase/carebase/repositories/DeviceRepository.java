@@ -250,15 +250,19 @@ public class DeviceRepository {
                     deviceModelReference.collection("udis").document(udi).get().addOnCompleteListener(udiTask -> {
                         if (udiTask.isSuccessful()) {
                             DocumentSnapshot udiDocument = Objects.requireNonNull(udiTask.getResult());
-                            if (document.exists()) {
+                            if (udiDocument.exists()) {
                                 DeviceProduction deviceProduction = new DeviceProduction(Objects.requireNonNull(udiDocument.getData()));
                                 deviceModel.addDeviceProduction(deviceProduction);
                                 deviceLiveData.setValue(new Resource<>(deviceModel,new Request(null, Request.Status.SUCCESS)));
                             }
+                            else {
+                                // udi information is not in the database (partial data)
+                                deviceLiveData.setValue(new Resource<>(deviceModel,new Request(null, Request.Status.ERROR)));
+                            }
                         }
                         else {
-                            // udi information is not in the database
-                            deviceLiveData.setValue(new Resource<>(deviceModel,new Request(null, Request.Status.SUCCESS)));
+                            // something went wrong during udi retrieval
+                            deviceLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
                         }
                     });
                 }

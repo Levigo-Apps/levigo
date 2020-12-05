@@ -20,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
@@ -329,6 +330,7 @@ public class ItemDetailFragment extends Fragment {
             deviceViewModel.setupDeviceRepository();
             setupOptionFields();
             setupAutoPopulate();
+            setupSaveDevice();
         });
 
 
@@ -408,11 +410,6 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-
-        //set TextWatcher for required fields
-        setTextWatcherRequired();
-
-
         autoPopulateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -465,38 +462,6 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-        TextWatcher costWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-            private String current = "";
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(!charSequence.toString().equals(current)){
-                    costEditText.removeTextChangedListener(this);
-                    String cleanString = charSequence.toString().replaceAll("[$,.]", "");
-                    double parsed = Double.parseDouble(cleanString);
-                    String formatted = NumberFormat.getCurrencyInstance().format((parsed/100));
-
-                    current = formatted;
-                    costEditText.setText(formatted);
-                    costEditText.setSelection(formatted.length());
-                    costEditText.addTextChangedListener(this);
-                }
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-
-            }
-        };
-        costEditText.addTextChangedListener(costWatcher);
-
-
-
         // date picker for expiration date if entered manually
         final DatePickerDialog.OnDateSetListener date_exp = new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -542,21 +507,7 @@ public class ItemDetailFragment extends Fragment {
         });
 
         // saves data into database
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //hardcoded
-                if ((checkAutocompleteTexts && checkEditTexts)) {
-                    saveData(rootView, "networks", mNetworkId, "hospitals",
-                            mHospitalId, "departments",
-                            "default_department", "dis");
-
-                    deletePendingUdi(Objects.requireNonNull(udiEditText.getText()).toString().trim());
-                } else {
-                    Toast.makeText(rootView.getContext(), "Please fill out all required fields", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        saveButton.setOnClickListener(v -> saveData());
 
         if (getArguments() != null) {
             String barcode = getArguments().getString("barcode");
@@ -573,6 +524,18 @@ public class ItemDetailFragment extends Fragment {
 
         }
         return rootView;
+    }
+
+    private void setupSaveDevice() {
+        deviceViewModel.getSaveDeviceRequestLiveData().observe(getViewLifecycleOwner(),request -> {
+            if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().remove(this).commit();
+                Snackbar.make(getActivity().findViewById(R.id.activity_main), "Equipment Saved", Snackbar.LENGTH_LONG).show();
+            } else {
+                Log.d(TAG,"error while saving device");
+                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void setupAutoPopulate() {
@@ -613,7 +576,8 @@ public class ItemDetailFragment extends Fragment {
                     addItemSpecs(specification.getKey(),specification.getValue().toString(),rootView);
                 }
             } else if (deviceModelResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR) {
-                somethingWentWrong();
+                Log.d(TAG,"Error while autopopulating");
+                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
             }
         });
     }
@@ -631,7 +595,7 @@ public class ItemDetailFragment extends Fragment {
                 deviceTypeAdapter.addAll(Arrays.asList(deviceTypesResource.getData()));
             } else {
                 Log.d(TAG,"Unable to fetch device types");
-                somethingWentWrong();
+                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
             }
         });
         equipmentType.setAdapter(deviceTypeAdapter);
@@ -646,7 +610,7 @@ public class ItemDetailFragment extends Fragment {
                 sitesAdapter.addAll(SITES);
             } else {
                 Log.d(TAG,"Unable to fetch sites");
-                somethingWentWrong();
+                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
             }
         });
         hospitalName.setAdapter(sitesAdapter);
@@ -661,15 +625,11 @@ public class ItemDetailFragment extends Fragment {
                 physicalLocationsAdapter.addAll(Arrays.asList(physicalLocationsResource.getData()));
             } else {
                 Log.d(TAG,"Unable to fetch physical locations");
-                somethingWentWrong();
+                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
             }
         });
         physicalLocation.setAdapter(physicalLocationsAdapter);
         physicalLocation.setOnItemClickListener((adapterView, view, position, id) -> addNewLoc(adapterView, view, position));
-    }
-
-    private void somethingWentWrong() {
-        Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
     }
 
     private void getPendingSpecs(final String barcode) {
@@ -740,82 +700,47 @@ public class ItemDetailFragment extends Fragment {
         mTimePicker.show();
     }
 
-    private void setTextWatcherRequired() {
-
-        TextWatcher autoCompleteTextWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+    // not in mvvm style - need to use data bindings
+    private DeviceModel isFieldsValid() {
+        boolean isValid = true;
+        for (EditText editText : new EditText[]{udiEditText,deviceIdentifier,nameEditText,expiration,
+                hospitalName,physicalLocation,equipmentType,lotNumber,company,numberAdded,dateIn,timeIn}) {
+            if (editText.getText().toString().trim().isEmpty()) {
+                isValid = false;
             }
+        }
+        if (isValid) {
+            DeviceModel deviceModel = new DeviceModel();
+            deviceModel.setDeviceIdentifier(deviceIdentifier.getText().toString().trim());
+            deviceModel.setName(nameEditText.getText().toString().trim());
+            deviceModel.setCompany(company.getText().toString().trim());
+            deviceModel.setDescription(deviceDescription.getText().toString().trim());
+            deviceModel.setEquipmentType(equipmentType.getText().toString().trim());
+            deviceModel.setMedicalSpecialty(medicalSpeciality.getText().toString().trim());
+            deviceModel.setSiteName(hospitalName.getText().toString().trim());
+            int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
+            final RadioButton radioButton = rootView.findViewById(radioButtonInt);
+            final String usage = radioButton.getText().toString();
+            deviceModel.setUsage(usage);
+            int currentQuantity = Integer.parseInt(quantity.getText().toString());
+            int amount = Integer.parseInt(numberAdded.getText().toString());
+            deviceModel.setQuantity(currentQuantity + amount);
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            DeviceProduction deviceProduction = new DeviceProduction();
+            deviceProduction.setUniqueDeviceIdentifier(udiEditText.getText().toString().trim());
+            deviceProduction.setDateAdded(dateIn.getText().toString().trim());
+            deviceProduction.setTimeAdded(timeIn.getText().toString().trim());
+            deviceProduction.setExpirationDate(expiration.getText().toString().trim());
+            deviceProduction.setLotNumber(lotNumber.getText().toString().trim());
+            deviceProduction.setNotes(notes.getText().toString().trim());
+            deviceProduction.setPhysicalLocation(physicalLocation.getText().toString().trim());
+            deviceProduction.setQuantity(amount);
+            deviceModel.addDeviceProduction(deviceProduction);
 
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-                for (AutoCompleteTextView editText : new AutoCompleteTextView[]{equipmentType,
-                        hospitalName, physicalLocation}) {
-                    if ((editText.getText().toString().trim().isEmpty())) {
-                        checkAutocompleteTexts = false;
-                        return;
-                    }
-                }
-
-                checkAutocompleteTexts = true;
-            }
-        };
-        equipmentType.addTextChangedListener(autoCompleteTextWatcher);
-        hospitalName.addTextChangedListener(autoCompleteTextWatcher);
-        physicalLocation.addTextChangedListener(autoCompleteTextWatcher);
-
-
-        TextWatcher editTextWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-                for (TextInputEditText editText : new TextInputEditText[]{udiEditText, nameEditText,
-                        company, expiration, lotNumber, referenceNumber, numberAdded, deviceIdentifier,
-                        dateIn, timeIn}) {
-                    if (Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()) {
-                        checkEditTexts = false;
-                        return;
-                    }
-
-                }
-
-                checkEditTexts = true;
-            }
-        };
-
-        udiEditText.addTextChangedListener(editTextWatcher);
-        nameEditText.addTextChangedListener(editTextWatcher);
-        company.addTextChangedListener(editTextWatcher);
-        expiration.addTextChangedListener(editTextWatcher);
-        lotNumber.addTextChangedListener(editTextWatcher);
-        referenceNumber.addTextChangedListener(editTextWatcher);
-        numberAdded.addTextChangedListener(editTextWatcher);
-        deviceIdentifier.addTextChangedListener(editTextWatcher);
-        dateIn.addTextChangedListener(editTextWatcher);
-        timeIn.addTextChangedListener(editTextWatcher);
-
-
-
+            return deviceModel;
+        }
+        return null;
     }
-
-
-
-
 
     private void incrementNumberAdded() {
         int newNumber = 0;
@@ -1239,226 +1164,15 @@ public class ItemDetailFragment extends Fragment {
         }
     }
 
-    public void saveToDB(String name_str, String type_str, String company_str, String di_str, String site_name_str,
-                         String description_str, String medical_speciality_str, Object singleOrMultiUse, final String barcode_str,
-                         String numberAddedStr, String lotNumber_str, String expiration_str, String quantityStr, String currentTime_str,
-                         String physical_location_str, String referenceNumber_str, String notes_str, String currentDate_str,
-                         View view, String NETWORKS, String NETWORK, String SITES, String SITE, String DEPARTMENTS, String DEPARTMENT,
-                         String PRODUCTDIS) {
-        // saving di-specific identifiers using HashMap
-        Map<String, Object> diDoc = new HashMap<>();
-        diDoc.put(NAME_KEY, name_str);
-        diDoc.put(TYPE_KEY, type_str);
-        diDoc.put(COMPANY_KEY, company_str);
-        String DI_KEY = "di";
-        diDoc.put(DI_KEY, di_str);
-        diDoc.put(SITE_KEY, site_name_str);
-        diDoc.put(DESCRIPTION_KEY, description_str);
-        diDoc.put(SPECIALTY_KEY, medical_speciality_str);
-        diDoc.put(USAGE_KEY, singleOrMultiUse);
-        diDoc.put(QUANTITY_KEY, diQuantity);
-
-        DocumentReference diRef = db.collection(NETWORKS).document(NETWORK)
-                .collection(SITES).document(SITE).collection(DEPARTMENTS)
-                .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str);
-        diRef.set(diDoc)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        successful_save();
-//                        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, e.toString());
-                    }
-                });
-
-        // saving udi-specific identifiers using InventoryTemplate class to store multiple items at once
-        udiDocument = new InventoryTemplate(barcode_str, numberAddedStr, lotNumber_str,
-                expiration_str, quantityStr, currentTime_str, physical_location_str, referenceNumber_str,
-                notes_str, currentDate_str);
-
-        DocumentReference udiRef = db.collection(NETWORKS).document(NETWORK)
-                .collection(SITES).document(SITE).collection(DEPARTMENTS)
-                .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str)
-                .collection("udis").document(barcode_str);
-
-
-        saveEquipmentCost(udiRef,costEditText,numberAdded,dateIn);
-
-        //saving data of InventoryTemplate to database
-        udiRef.set(udiDocument, SetOptions.merge())
-                //in case of success
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        if (isProcedureInfoReturned) {
-                            AddEquipmentFragment fragment = new AddEquipmentFragment();
-                            Bundle bundle = new Bundle();
-                            bundle.putString("barcode", barcode_str);
-                            bundle.putSerializable("procedure_info", (Serializable) procedureInfo);
-                            if (isUdisReturned) {
-                                bundle.putSerializable("procedure_udi", (Serializable) procedureUdisList);
-                            }
-                            fragment.setArguments(bundle);
-                            FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
-
-                            //clears other fragments
-                            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                            fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
-                            fragmentTransaction.add(R.id.activity_main, fragment);
-                            fragmentTransaction.addToBackStack(null);
-                            fragmentTransaction.commit();
-                        }
-                        successful_save();
-//                        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                // in case of failure
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, e.toString());
-                    }
-                });
-
-
-        if (allSizeOptions.size() > 0) {
-            int i = 0;
-            Map<String, Object> sizeOptions = new HashMap<>();
-            while (i < allSizeOptions.size()) {
-                sizeOptions.put(Objects.requireNonNull(allSizeOptions.get(i++).getText()).toString().trim(),
-                        Objects.requireNonNull(allSizeOptions.get(i++).getText()).toString().trim());
-            }
-            diRef.update(sizeOptions)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, e.toString());
-                        }
-                    });
+    private void saveData() {
+        DeviceModel deviceModel = isFieldsValid();
+        if (deviceModel != null) {
+            deviceViewModel.saveDevice(deviceModel);
+        } else {
+            Snackbar.make(rootView, "Please fill all required fields", Snackbar.LENGTH_LONG).show();
         }
-
-
     }
 
-    // method for saving data to firebase cloud firestore
-    public void saveData(final View view, final String NETWORKS, final String NETWORK, final String SITES, final String SITE,
-                         final String DEPARTMENTS, final String DEPARTMENT, final String PRODUCTDIS) {
-
-        Log.d(TAG, "SAVING");
-
-
-        final String name_str = Objects.requireNonNull(nameEditText.getText()).toString();
-        final String company_str = Objects.requireNonNull(company.getText()).toString();
-        final String medical_speciality_str = Objects.requireNonNull(medicalSpeciality.getText()).toString();
-        final String di_str = Objects.requireNonNull(deviceIdentifier.getText()).toString();
-        final String description_str = Objects.requireNonNull(deviceDescription.getText()).toString();
-        final String lotNumber_str = Objects.requireNonNull(lotNumber.getText()).toString();
-        final String referenceNumber_str = Objects.requireNonNull(referenceNumber.getText()).toString();
-        final String expiration_str = Objects.requireNonNull(expiration.getText()).toString();
-        final String currentDate_str = Objects.requireNonNull(dateIn.getText()).toString();
-        final String numberAddedStr = Objects.requireNonNull(numberAdded.getText()).toString();
-
-        diQuantity = String.valueOf(Integer.parseInt(diQuantity) +
-                Integer.parseInt(numberAdded.getText().toString()));
-
-
-        String site_name;
-        if (chosenSite) {
-             site_name = Objects.requireNonNull(otherSite_text.getText()).toString();
-        } else {
-             site_name = hospitalName.getText().toString();
-        }
-        final String site_name_str = site_name;
-
-        String physical_location;
-        if (chosenLocation) {
-            physical_location = Objects.requireNonNull(otherPhysicalLoc_text.getText()).toString().trim();
-        } else {
-            physical_location = physicalLocation.getText().toString().trim();
-        }
-        final String physical_location_str = physical_location;
-
-        String type;
-        if (chosenType) {
-            type = Objects.requireNonNull(otherType_text.getText()).toString();
-        } else {
-            type = equipmentType.getText().toString();
-        }
-        final String type_str = type;
-        final String currentTime_str = Objects.requireNonNull(timeIn.getText()).toString();
-        final String notes_str = Objects.requireNonNull(notes.getText()).toString();
-
-
-        int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
-        final RadioButton radioButton = view.findViewById(radioButtonInt);
-        final String singleOrMultiUse = radioButton.getText().toString();
-
-        if (!isDi) {
-            //regular barcodes
-            final String barcode_str = Objects.requireNonNull(udiEditText.getText()).toString();
-            int newTotalQuantity = Integer.parseInt(itemQuantity) +
-                    Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
-            final String quantityStr = String.valueOf(newTotalQuantity);
-
-            saveToDB(name_str,type_str,company_str, di_str,site_name_str, description_str, medical_speciality_str,
-                    singleOrMultiUse, barcode_str, numberAddedStr, lotNumber_str, expiration_str, quantityStr,
-                    currentTime_str, physical_location_str, referenceNumber_str, notes_str, currentDate_str,
-                    view, NETWORKS, NETWORK, SITES, SITE, DEPARTMENTS, DEPARTMENT,PRODUCTDIS);
-
-        } else {
-            //hibcc barcodes: alter the udi string and check for quantity
-            String udi_str = Objects.requireNonNull(udiEditText.getText()).toString();
-            String mmyy_str = (expiration_str.substring(5, 7) + expiration_str.substring(2, 4));
-            udi_str = udi_str + "$$" + mmyy_str + lotNumber_str;
-            final String barcode_str = udi_str;
-
-            DocumentReference newUdiDoc = db.collection("networks").document(mNetworkId)
-                    .collection("hospitals").document(mHospitalId).collection("departments")
-                    .document("default_department").collection("dis").document(di)
-                    .collection("udis").document(barcode_str);
-
-            newUdiDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (Objects.requireNonNull(document).exists()) {
-                            if (document.get("quantity") != null) {
-                                itemQuantity = document.getString(QUANTITY_KEY);
-                            } else {
-                                itemQuantity = "0";
-                            }
-
-                        }
-                        int newTotalQuantity = Integer.parseInt(itemQuantity) +
-                                Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
-                        final String quantityStr = String.valueOf(newTotalQuantity);
-                        saveToDB(name_str,type_str,company_str, di_str,site_name_str,
-                                description_str, medical_speciality_str, singleOrMultiUse, barcode_str, numberAddedStr, lotNumber_str,
-                                expiration_str, quantityStr, currentTime_str, physical_location_str, referenceNumber_str,
-                                notes_str, currentDate_str, view, NETWORKS, NETWORK, SITES, SITE, DEPARTMENTS, DEPARTMENT,PRODUCTDIS);
-                    }
-                }
-            });
-
-        }
-
-    }
 
     private void saveEquipmentCost(DocumentReference udiRef, TextInputEditText costEditText, TextInputEditText numberAdded, TextInputEditText dateIn){
         if(Objects.requireNonNull(costEditText.getText()).toString().length() > 0){
@@ -1490,12 +1204,6 @@ public class ItemDetailFragment extends Fragment {
                     });
 
         }
-    }
-
-    private void successful_save() {
-        // quit out fragment
-        Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().remove(this).commit();
-        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
     }
 
     private void autoPopulate(final View view) {
