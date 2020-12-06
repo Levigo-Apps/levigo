@@ -50,6 +50,7 @@ public class DeviceRepository {
     private final String hospitalId;
     private final CollectionReference inventoryReference;
     private final DocumentReference deviceTypesReference;
+    private final DocumentReference physicalLocationsReference;
 
     public DeviceRepository(String networkId, String hospitalId) {
         this.networkId = networkId;
@@ -61,6 +62,9 @@ public class DeviceRepository {
         deviceTypesReference = firestore.collection("networks").document(networkId)
                 .collection("hospitals").document(hospitalId)
                 .collection("types").document("type_options");
+        physicalLocationsReference = firestore.collection("networks").document(networkId)
+                .collection("hospitals").document(hospitalId)
+                .collection("physical_locations").document("locations");
 
     }
 
@@ -99,11 +103,10 @@ public class DeviceRepository {
         // random key as key does not matter -> need to change doc to array in firebase
         String key = "type_" + ((int) (Math.random() * 1000000) + 1);
         deviceTypesReference.update(key,deviceType).addOnCompleteListener(task -> {
-            // TODO make success message and error message in strings
             if (task.isSuccessful()) {
-                saveDeviceTypeRequest.setValue(new Request(null, Request.Status.SUCCESS));
+                saveDeviceTypeRequest.setValue(new Request(R.string.new_device_type_saved, Request.Status.SUCCESS));
             } else {
-                saveDeviceTypeRequest.setValue(new Request(null, Request.Status.ERROR));
+                saveDeviceTypeRequest.setValue(new Request(R.string.error_something_wrong, Request.Status.ERROR));
             }
         });
         return saveDeviceTypeRequest;
@@ -139,10 +142,7 @@ public class DeviceRepository {
      */
     public LiveData<Resource<String[]>> getPhysicalLocationOptions(){
         MutableLiveData<Resource<String[]>> physicalLocationsLiveData = new MutableLiveData<>();
-        DocumentReference documentReference = firestore.collection("networks").document(networkId)
-                .collection("hospitals").document(hospitalId)
-                .collection("physical_locations").document("locations");
-        documentReference.addSnapshotListener((documentSnapshot, e) -> {
+        physicalLocationsReference.addSnapshotListener((documentSnapshot, e) -> {
             if (documentSnapshot != null && documentSnapshot.exists()) {
                 // convert to array of strings
                 Object[] objects = documentSnapshot.getData().values().toArray();
@@ -170,12 +170,12 @@ public class DeviceRepository {
         MutableLiveData<Request> saveDeviceTypeRequest = new MutableLiveData<>();
         // random key as key does not matter -> need to change doc to array in firebase
         String key = "loc_" + ((int) (Math.random() * 1000000) + 1);
-        deviceTypesReference.update(key,physicalLocation).addOnCompleteListener(task -> {
+        physicalLocationsReference.update(key,physicalLocation).addOnCompleteListener(task -> {
             // TODO make success message and error message in strings
             if (task.isSuccessful()) {
-                saveDeviceTypeRequest.setValue(new Request(null, Request.Status.SUCCESS));
+                saveDeviceTypeRequest.setValue(new Request(R.string.new_physical_location_saved, Request.Status.SUCCESS));
             } else {
-                saveDeviceTypeRequest.setValue(new Request(null, Request.Status.ERROR));
+                saveDeviceTypeRequest.setValue(new Request(R.string.error_something_wrong, Request.Status.ERROR));
             }
         });
         return saveDeviceTypeRequest;

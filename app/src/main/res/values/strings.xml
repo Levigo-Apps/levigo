@@ -24,6 +24,11 @@
     <string name="error_partial_data_in_database">Only device model information is found for this device</string>
     <!--common errors end-->
 
+    <!--adding a device start-->
+    <string name="new_device_type_saved">New device type successfully saved</string>
+    <string name="new_physical_location_saved">New physical location successfully saved</string>
+    <!--adding a device end-->
+
     <!--template values start-->
     <string name="unit_quantity_value">%1$d Units</string>
     <!--template values end-->
