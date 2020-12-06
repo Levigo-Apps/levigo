@@ -124,8 +124,6 @@ public class ItemDetailFragment extends Fragment {
     private AutoCompleteTextView equipmentType;
     private TextInputEditText company;
     private TextInputEditText otherType_text;
-    private TextInputEditText otherPhysicalLoc_text;
-    private TextInputEditText otherSite_text;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText deviceDescription;
     private TextInputEditText expiration;
@@ -333,67 +331,8 @@ public class ItemDetailFragment extends Fragment {
             setupOptionFields();
             setupAutoPopulate();
             setupSaveDevice();
+            handleArguments();
         });
-
-
-
-        // Get user information in "users" collection
-//        final DocumentReference currentUserRef = usersRef.document(userId);
-//        currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                String toastMessage;
-//                if (task.isSuccessful()) {
-//                    DocumentSnapshot document = task.getResult();
-//                    if (Objects.requireNonNull(document).exists()) {
-//                        try {
-//
-//                            mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
-//                            mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
-//                            mUser = Objects.requireNonNull(document.get("email")).toString();
-//                            mHospitalName = Objects.requireNonNull(document.get("hospital_name")).toString();
-//
-//
-//                            typeRef = db.collection("networks").document(mNetworkId).collection("hospitals")
-//                                    .document(mHospitalId).collection("types").document("type_options");
-//                            siteRef = db.collection("networks").document(mNetworkId)
-//                                    .collection("hospitals");
-//                            physLocRef = db.collection("networks").document(mNetworkId)
-//                                    .collection("hospitals").document(mHospitalId)
-//                                    .collection("physical_locations").document("locations");
-//
-//                            //get pending equipment info
-//                            if (getArguments() != null) {
-//                                String barcode = getArguments().getString("barcode");
-//                                boolean isPending = getArguments().getBoolean("pending_udi");
-//                                editingExisting = getArguments().getBoolean("editingExisting");
-//                                if (isPending) {
-//                                    getPendingSpecs(barcode);
-//                                }
-//                                udiEditText.setText(barcode);
-//                                if (editingExisting) {
-//                                    udiEditText.setEnabled(false);
-//                                    autoPopulateButton.setEnabled(false);
-//                                    autopopulateNonGudid(barcode, getArguments().getString("di"), rightView);
-//                                }
-//                            }
-//                        } catch (NullPointerException e) {
-//                            toastMessage = "Error retrieving user information; Please contact support";
-//                            Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-//                        }
-//                    } else {
-//                        // document for user doesn't exist
-//                        toastMessage = "User not found; Please contact support";
-//                        Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-//                    }
-//                } else {
-//                    toastMessage = "User lookup failed; Please try again and contact support if issue persists";
-//                    Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-//                    Log.d(TAG, "get failed with ", task.getException());
-//                }
-//            }
-//        });
-
 
         // NumberPicker Dialog for NumberAdded field
         numberAdded.setOnClickListener(new View.OnClickListener() {
@@ -413,24 +352,17 @@ public class ItemDetailFragment extends Fragment {
         });
 
         autoPopulateButton.setOnClickListener(view -> {
-            // hide keyboard
-            try {
-                InputMethodManager imm = (InputMethodManager) Objects.requireNonNull(getActivity()).getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
-            } catch (Exception e) {
-                Log.d(TAG,"onAutoPopulateClick: keyboard not open");
-            }
+            hideKeyboard();
             String barcode = Objects.requireNonNull(udiEditText.getText()).toString();
             deviceViewModel.autoPopulatedScannedBarcode(barcode);
         });
-        
+
         addSizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 addEmptySizeOption(view);
             }
         });
-
 
         //TimePicker dialog pops up when clicked on the icon
         timeInLayout.setEndIconOnClickListener(new View.OnClickListener() {
@@ -439,8 +371,6 @@ public class ItemDetailFragment extends Fragment {
                 timeInLayoutPicker(view);
             }
         });
-
-
 
         // going back to the scanner view
         rescanButton.setOnClickListener(new View.OnClickListener() {
@@ -451,9 +381,9 @@ public class ItemDetailFragment extends Fragment {
                 integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
                 integrator.setBarcodeImageEnabled(true);
                 integrator.initiateScan();
-//                parent.onBackPressed();
             }
         });
+
         //going back to inventory view
         topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -533,6 +463,15 @@ public class ItemDetailFragment extends Fragment {
         return rootView;
     }
 
+    private void hideKeyboard() {
+        try {
+            InputMethodManager imm = (InputMethodManager) Objects.requireNonNull(getActivity()).getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+        } catch (Exception e) {
+            Log.d(TAG,"Keyboard not open");
+        }
+    }
+
     private void setupSaveDevice() {
         deviceViewModel.getSaveDeviceRequestLiveData().observe(getViewLifecycleOwner(),request -> {
             if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
@@ -595,7 +534,7 @@ public class ItemDetailFragment extends Fragment {
         // set up device types
         final ArrayAdapter<String> deviceTypeAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
         deviceViewModel.getDeviceTypesLiveData().observe(getViewLifecycleOwner(), deviceTypesResource -> {
-            if(deviceTypesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+            if (deviceTypesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 deviceTypeAdapter.clear();
                 deviceTypeAdapter.addAll(DEVICE_TYPES);
                 deviceTypeAdapter.addAll(Arrays.asList(deviceTypesResource.getData()));
@@ -606,6 +545,12 @@ public class ItemDetailFragment extends Fragment {
         });
         equipmentType.setAdapter(deviceTypeAdapter);
         equipmentType.setOnItemClickListener((adapterView, view, position, row) -> addTypeOptionField(adapterView, view, position));
+
+        deviceViewModel.getSaveDeviceTypeRequestLiveData().observe(getViewLifecycleOwner(), request -> {
+            if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS || request.getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR) {
+                Snackbar.make(rootView, request.getResourceString(), Snackbar.LENGTH_LONG).show();
+            }
+        });
 
         // set up sites
         final ArrayAdapter<String> sitesAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
@@ -620,7 +565,6 @@ public class ItemDetailFragment extends Fragment {
             }
         });
         hospitalName.setAdapter(sitesAdapter);
-        hospitalName.setOnItemClickListener((adapterView, view, position, id) -> addNewSite(adapterView, view, position));
 
         // set up physical locations
         final ArrayAdapter<String> physicalLocationsAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
@@ -636,6 +580,21 @@ public class ItemDetailFragment extends Fragment {
         });
         physicalLocation.setAdapter(physicalLocationsAdapter);
         physicalLocation.setOnItemClickListener((adapterView, view, position, id) -> addNewLoc(adapterView, view, position));
+
+        deviceViewModel.getSavePhysicalLocationRequestLiveData().observe(getViewLifecycleOwner(),request -> {
+            if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS || request.getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR) {
+                Snackbar.make(rootView, request.getResourceString(), Snackbar.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    public void handleArguments() {
+        if (getArguments() != null) {
+            String barcode = getArguments().getString("barcode");
+            boolean isPending = getArguments().getBoolean("pending_udi");
+            udiEditText.setText(barcode);
+            deviceViewModel.autoPopulatedScannedBarcode(barcode);
+        }
     }
 
     private void getPendingSpecs(final String barcode) {
@@ -761,7 +720,6 @@ public class ItemDetailFragment extends Fragment {
 
 
     private void showNumberPicker(View view, final TextInputEditText editTextAdded) {
-
         final Dialog d = new Dialog(view.getContext());
         d.setTitle("NumberPicker");
         d.setContentView(R.layout.dialog);
@@ -772,30 +730,21 @@ public class ItemDetailFragment extends Fragment {
         np.setMinValue(0);   // min value 0
 
         np.setWrapSelectorWheel(true);
-        b1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                editTextAdded.setText(String.valueOf(np.getValue())); //set the value to textview
-                d.dismiss();
-            }
+        b1.setOnClickListener(v -> {
+            //set the value to textview
+            editTextAdded.setText(String.valueOf(np.getValue()));
+            d.dismiss();
         });
-        b2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                d.dismiss(); // dismiss the dialog
-            }
-        });
+        b2.setOnClickListener(v -> d.dismiss());
         d.show();
 
     }
-
 
     // adds new row of size text views if users clicks on a button
     int rowIndex = 1;
     int rowLoc = 1;
 
     private void addEmptySizeOption(View view) {
-
         Log.d(TAG, "Adding empty size option!");
         emptySizeFieldCounter++;
         LinearLayout layoutSize = new LinearLayout(getContext());
@@ -840,14 +789,8 @@ public class ItemDetailFragment extends Fragment {
             linearLayout.addView(removeSizeButton, linearLayout.indexOfChild(addSizeButton));
         }
 
-        removeSizeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                removeEmptySizeOption();
-            }
-        });
+        removeSizeButton.setOnClickListener(buttonView -> removeEmptySizeOption());
         isAddSizeButtonClicked = false;
-
     }
 
     //removes one row of size text entry
@@ -900,7 +843,6 @@ public class ItemDetailFragment extends Fragment {
         layoutSize.addView(sizeKeyLayout);
         layoutSize.addView(sizeValueLayout);
 
-
         allSizeOptions.add(sizeKey);
         allSizeOptions.add(sizeValue);
         linearLayout.addView(layoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
@@ -911,86 +853,47 @@ public class ItemDetailFragment extends Fragment {
     // adds new text field if users choose "other" for type
     private void addTypeOptionField(final AdapterView<?> adapterView, View view, int i) {
         String selected = (String) adapterView.getItemAtPosition(i);
-        TextInputLayout other_type_layout;
+        TextInputLayout otherTypeLayout;
         if (selected.equals("Other")) {
             saveButton.setEnabled(false);
             chosenType = true;
-            other_type_layout = (TextInputLayout) View.inflate(view.getContext(),
+            otherTypeLayout = (TextInputLayout) View.inflate(view.getContext(),
                     R.layout.activity_itemdetail_materialcomponent, null);
-            other_type_layout.setHint("Enter type");
-            other_type_layout.setGravity(Gravity.END);
-            other_type_layout.setId(View.generateViewId());
-            otherType_text = new TextInputEditText(other_type_layout.getContext());
+            otherTypeLayout.setHint("Enter type");
+            otherTypeLayout.setGravity(Gravity.END);
+            otherTypeLayout.setId(View.generateViewId());
+            EditText otherTypeEditText = new TextInputEditText(otherTypeLayout.getContext());
+
+            otherTypeEditText.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
+            otherTypeLayout.addView(otherType_text);
+            linearLayout.addView(otherTypeLayout, 1 + linearLayout.indexOfChild(typeConstrainLayout));
+
+            MaterialButton submitTypeButton = new MaterialButton(view.getContext(),
+                    null, R.attr.materialButtonOutlinedStyle);
+            submitTypeButton.setText(R.string.otherType_lbl);
+            submitTypeButton.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
+                    WRAP_CONTENT));
+            otherTypeLayout.addView(submitTypeButton);
+
             TextWatcher typeTextWatcher = new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                }
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
                 @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                }
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
                 @Override
                 public void afterTextChanged(Editable editable) {
-                    if (!(otherType_text.toString().trim().isEmpty())) {
-                        saveButton.setEnabled(true);
+                    if (editable.toString().trim().isEmpty()) {
+                        submitTypeButton.setEnabled(true);
                     }
                 }
             };
-            otherType_text.addTextChangedListener(typeTextWatcher);
+            otherTypeEditText.addTextChangedListener(typeTextWatcher);
 
-            otherType_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
-            other_type_layout.addView(otherType_text);
-            linearLayout.addView(other_type_layout, 1 + linearLayout.indexOfChild(typeConstrainLayout));
-
-            MaterialButton submit_otherType = new MaterialButton(view.getContext(),
-                    null, R.attr.materialButtonOutlinedStyle);
-            submit_otherType.setText(R.string.otherType_lbl);
-            submit_otherType.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-                    WRAP_CONTENT));
-            other_type_layout.addView(submit_otherType);
-
-            submit_otherType.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(view.getContext(), Objects.requireNonNull(otherType_text.getText()).toString(), Toast.LENGTH_SHORT).show();
-                    Map<String, Object> newType = new HashMap<>();
-                    newType.put("type_" + (++typeCounter), otherType_text.getText().toString());
-                    if (typeCounter == 1) {
-                        typeRef.set(newType)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                        Log.d(TAG, e.toString());
-                                    }
-                                });
-                    } else {
-                        typeRef.update(newType)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                        Log.d(TAG, e.toString());
-                                    }
-                                });
-                    }
-
-                }
+            submitTypeButton.setOnClickListener(submitTypeView -> {
+                deviceViewModel.saveDeviceType(Objects.requireNonNull(otherType_text.getText()).toString().trim());
+                saveButton.setEnabled(true);
             });
         } else if (chosenType) {
             chosenType = false;
@@ -999,170 +902,48 @@ public class ItemDetailFragment extends Fragment {
         }
     }
 
-    private void addNewSite(final AdapterView<?> adapterView, View view, int i) {
+    private void addNewLoc(final AdapterView<?> adapterView, View view, int i) {
         String selected = (String) adapterView.getItemAtPosition(i);
-        TextInputLayout other_site_layout;
+        final TextInputLayout otherPhysicalLocationLayout;
         if (selected.equals("Other")) {
             saveButton.setEnabled(false);
-            chosenSite = true;
-            other_site_layout = (TextInputLayout) View.inflate(view.getContext(),
-                    R.layout.activity_itemdetail_materialcomponent, null);
-            other_site_layout.setHint("Enter site");
-            other_site_layout.setId(View.generateViewId());
-            other_site_layout.setGravity(Gravity.END);
-            otherSite_text = new TextInputEditText(other_site_layout.getContext());
-            TextWatcher siteTextWatcher = new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    if (!(otherSite_text.toString().trim().isEmpty())) {
-                        saveButton.setEnabled(true);
-                    }
-                }
-            };
-            otherSite_text.addTextChangedListener(siteTextWatcher);
-            otherSite_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
-            other_site_layout.addView(otherSite_text);
-            linearLayout.addView(other_site_layout, 1 + linearLayout.indexOfChild(siteConstrainLayout));
-
-            MaterialButton submitOtherSite = new MaterialButton(view.getContext(),
-                    null, R.attr.materialButtonOutlinedStyle);
-            submitOtherSite.setText(R.string.submitSite_lbl);
-            submitOtherSite.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-                    WRAP_CONTENT));
-            other_site_layout.addView(submitOtherSite);
-            submitOtherSite.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(view.getContext(), Objects.requireNonNull(otherSite_text.getText()).toString(), Toast.LENGTH_SHORT).show();
-                    Map<String, Object> newType = new HashMap<>();
-                    newType.put("site_" + (++siteCounter), otherSite_text.getText().toString());
-                    if (siteCounter == 1) {
-                        siteRef.document("site_options").set(newType)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                        Log.d(TAG, e.toString());
-                                    }
-                                });
-                    } else {
-                        siteRef.document("site_options").update(newType)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                        Log.d(TAG, e.toString());
-                                    }
-                                });
-                    }
-                }
-            });
-        } else if (chosenSite) {
-            saveButton.setEnabled(true);
-            chosenSite = false;
-            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(siteConstrainLayout));
-        }
-    }
-
-    private void addNewLoc(final AdapterView<?> adapterView, View view, int i) {
-        String selectedLoc = (String) adapterView.getItemAtPosition(i);
-        final TextInputLayout other_physicaloc_layout;
-        if (selectedLoc.equals("Other")) {
-            saveButton.setEnabled(false);
             chosenLocation = true;
-            other_physicaloc_layout = (TextInputLayout) View.inflate(view.getContext(),
-                    R.layout.activity_itemdetail_materialcomponent, null);
-            other_physicaloc_layout.setHint("Enter physical location");
-            other_physicaloc_layout.setGravity(Gravity.END);
-            other_physicaloc_layout.setId(View.generateViewId());
-            otherPhysicalLoc_text = new TextInputEditText(other_physicaloc_layout.getContext());
+            otherPhysicalLocationLayout = (TextInputLayout) View.inflate(view.getContext(), R.layout.activity_itemdetail_materialcomponent, null);
+            otherPhysicalLocationLayout.setHint("Enter physical location");
+            otherPhysicalLocationLayout.setGravity(Gravity.END);
+            otherPhysicalLocationLayout.setId(View.generateViewId());
+            EditText otherPhysicalLocationEditText = new TextInputEditText(otherPhysicalLocationLayout.getContext());
+            otherPhysicalLocationEditText.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
+            otherPhysicalLocationLayout.addView(otherPhysicalLocationEditText);
+            linearLayout.addView(otherPhysicalLocationLayout, 1 + linearLayout.indexOfChild(physicalLocationConstrainLayout));
+
+            MaterialButton submitPhysicalLocationButton = new MaterialButton(view.getContext(), null, R.attr.materialButtonOutlinedStyle);
+            submitPhysicalLocationButton.setText(R.string.submitLocation_lbl);
+            submitPhysicalLocationButton.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
+                    WRAP_CONTENT));
+            otherPhysicalLocationLayout.addView(submitPhysicalLocationButton);
             TextWatcher physicalLocationWatcher = new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
                 @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
                 @Override
                 public void afterTextChanged(Editable editable) {
-                    if (!(otherPhysicalLoc_text.toString().trim().isEmpty())) {
-                        saveButton.setEnabled(true);
+                    if (!(editable.toString().trim().isEmpty())) {
+                       submitPhysicalLocationButton.setEnabled(true);
                     }
                 }
             };
-            otherPhysicalLoc_text.addTextChangedListener(physicalLocationWatcher);
-            otherPhysicalLoc_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
-            other_physicaloc_layout.addView(otherPhysicalLoc_text);
-            linearLayout.addView(other_physicaloc_layout, 1 + linearLayout.indexOfChild(physicalLocationConstrainLayout));
+            otherPhysicalLocationEditText.addTextChangedListener(physicalLocationWatcher);
 
-            MaterialButton submit_otherPhysicalLoc = new MaterialButton(view.getContext(),
-                    null, R.attr.materialButtonOutlinedStyle);
-            submit_otherPhysicalLoc.setText(R.string.submitLocation_lbl);
-            submit_otherPhysicalLoc.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-                    WRAP_CONTENT));
-            other_physicaloc_layout.addView(submit_otherPhysicalLoc);
-
-            submit_otherPhysicalLoc.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(view.getContext(), Objects.requireNonNull(otherPhysicalLoc_text.getText()).toString(), Toast.LENGTH_SHORT).show();
-                    Map<String, Object> newType = new HashMap<>();
-                    newType.put("loc_" + (++locCounter), otherPhysicalLoc_text.getText().toString());
-                    if (locCounter == 1) {
-                        physLocRef.set(newType)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                        Log.d(TAG, e.toString());
-                                    }
-                                });
-                    } else {
-                        physLocRef.update(newType)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                        Log.d(TAG, e.toString());
-                                    }
-                                });
-                    }
-                }
+            submitPhysicalLocationButton.setOnClickListener(submitPhysicalLocationView -> {
+                hideKeyboard();
+                deviceViewModel.savePhysicalLocation(Objects.requireNonNull(otherPhysicalLocationEditText.getText()).toString().trim());
+                saveButton.setEnabled(true);
             });
+
         } else if (chosenLocation) {
             saveButton.setEnabled(true);
             chosenLocation = false;

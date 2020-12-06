@@ -61,6 +61,10 @@ public class DeviceViewModel extends ViewModel {
         saveDeviceTypeLiveData.setValue(deviceType);
     }
 
+    public LiveData<Request> getSaveDeviceTypeRequestLiveData() {
+        return saveDeviceTypeRequestLiveData;
+    }
+
     public LiveData<Resource<String[]>> getSitesLiveData() {
         return deviceRepository.getSiteOptions();
     }
@@ -71,6 +75,10 @@ public class DeviceViewModel extends ViewModel {
 
     public void savePhysicalLocation(String physicalLocation) {
         savePhysicalLocationLiveData.setValue(physicalLocation);
+    }
+
+    public LiveData<Request> getSavePhysicalLocationRequestLiveData() {
+        return savePhysicalLocationRequestLiveData;
     }
 
     public LiveData<Request> getSaveDeviceRequestLiveData() {
