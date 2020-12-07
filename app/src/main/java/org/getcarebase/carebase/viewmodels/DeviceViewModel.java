@@ -135,9 +135,11 @@ public class DeviceViewModel extends ViewModel {
                 && databaseResource.getRequest().getStatus() == Request.Status.ERROR) {
             if (databaseResource.getData() != null) {
                 // device that is in gudid also has device model information in database
-                DeviceModel gudidDeviceModel = gudidResource.getData();
                 DeviceModel databaseDeviceModel = databaseResource.getData();
-                databaseDeviceModel.addDeviceProduction(gudidDeviceModel.getProductions().get(0));
+                DeviceModel gudidDeviceModel = gudidResource.getData();
+                if (gudidResource.getData().getProductions().size() != 0) {
+                    databaseDeviceModel.addDeviceProduction(gudidDeviceModel.getProductions().get(0));
+                }
                 autoPopulatedDeviceLiveData.setValue(new Resource<>(databaseDeviceModel, new Request(null, Request.Status.SUCCESS)));
             } else {
                 // device that is in gudid and not in our database

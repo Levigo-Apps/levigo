@@ -194,6 +194,14 @@ public class DeviceRepository {
 
         // save device production
         DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
+        // if udi and di are same we make udi unique so other scans do not overwrite (hibcc)
+        if (deviceProduction.getUniqueDeviceIdentifier().equals(deviceModel.getDeviceIdentifier())) {
+            String expirationDate = deviceProduction.getExpirationDate();
+            String mmyyString = expirationDate.substring(5, 7) + expirationDate.substring(2, 4);
+            String newUDI = deviceProduction.getUniqueDeviceIdentifier() + "$$" + mmyyString + deviceProduction.getLotNumber();
+            deviceProduction.setUniqueDeviceIdentifier(newUDI);
+        }
+
         DocumentReference deviceProductionReference = deviceModelReference.collection("udis").document(deviceProduction.getUniqueDeviceIdentifier());
         tasks.add(deviceProductionReference.set(deviceProduction));
 
@@ -215,25 +223,32 @@ public class DeviceRepository {
      * @return The DeviceModel information that is in the database, if the device production information
      * exists it will be stored in the list of production in the DeviceModel.
      */
-    public LiveData<Resource<DeviceModel>> autoPopulateFromDatabase(String udi) {
+    public LiveData<Resource<DeviceModel>> autoPopulateFromDatabase(final String udi) {
         MutableLiveData<Resource<DeviceModel>> deviceLiveData = new MutableLiveData<>();
         deviceLiveData.setValue(new Resource<>(null, new Request(null,Request.Status.LOADING)));
-        accessGUDIDAPI.getParseUdiResponse(udi).enqueue(new Callback<ParseUDIResponse>() {
-            @Override
-            public void onResponse(Call<ParseUDIResponse> call, retrofit2.Response<ParseUDIResponse> response) {
-                if (response.isSuccessful()) {
-                    getDeviceFromFirestore(Objects.requireNonNull(response.body()).getDi(), response.body().getUdi(), deviceLiveData);
-                } else {
-                    getDeviceFromFirestore(udi, udi, deviceLiveData);
+        String hibccDi = extractHibcc(udi);
+        if (hibccDi == null) {
+            accessGUDIDAPI.getParseUdiResponse(udi).enqueue(new Callback<ParseUDIResponse>() {
+                @Override
+                public void onResponse(Call<ParseUDIResponse> call, retrofit2.Response<ParseUDIResponse> response) {
+                    if (response.isSuccessful()) {
+                        getDeviceFromFirestore(Objects.requireNonNull(response.body()).getDi(), response.body().getUdi(), deviceLiveData);
+                    } else {
+                        getDeviceFromFirestore(udi, udi, deviceLiveData);
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<ParseUDIResponse> call, Throwable t) {
-                Log.e(TAG, "onFailure: ", t);
-                deviceLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
-            }
-        });
+                @Override
+                public void onFailure(Call<ParseUDIResponse> call, Throwable t) {
+                    Log.e(TAG, "onFailure: ", t);
+                    deviceLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+                }
+            });
+        } else {
+            // if it is in hibcc format
+            getDeviceFromFirestore(udi,udi,deviceLiveData);
+        }
+
 
         return deviceLiveData;
     }
@@ -289,19 +304,22 @@ public class DeviceRepository {
      * @return The DeviceModel information that is in the database, the device production information
      * will be stored in the list of production in the DeviceModel
      */
-    public LiveData<Resource<DeviceModel>> autoPopulateFromGUDID(String udi) {
+    public LiveData<Resource<DeviceModel>> autoPopulateFromGUDID(final String udi) {
         MutableLiveData<Resource<DeviceModel>> deviceLiveData = new MutableLiveData<>();
         deviceLiveData.setValue(new Resource<>(null, new Request(null,Request.Status.LOADING)));
 
-        accessGUDIDAPI.getDeviceModel(udi).enqueue(new Callback<DeviceModel>() {
+        Callback<DeviceModel> callback = new Callback<DeviceModel>() {
             @Override
             public void onResponse(Call<DeviceModel> call, Response<DeviceModel> response) {
-                if (response.isSuccessful()) {
+                DeviceModel deviceModel = response.body();
+                if (response.isSuccessful() && deviceModel != null) {
+                    if (deviceModel.getDeviceIdentifier() == null) {
+                        deviceModel.setDeviceIdentifier(udi);
+                    }
                     deviceLiveData.setValue(new Resource<>(response.body(), new Request(null, Request.Status.SUCCESS)));
                 } else {
                     deviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_device_lookup, Request.Status.ERROR)));
                 }
-
             }
 
             @Override
@@ -309,9 +327,24 @@ public class DeviceRepository {
                 Log.e(TAG, "onFailure: ", t);
                 deviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
             }
-        });
+        };
+
+        String hibccDi = extractHibcc(udi);
+        if (hibccDi != null) {
+            accessGUDIDAPI.getDIDeviceModel(hibccDi).enqueue(callback);
+        } else {
+            accessGUDIDAPI.getDeviceModel(udi).enqueue(callback);
+        }
 
         return deviceLiveData;
+    }
+
+    // removes plus and check character from valid hibcc di
+    // if it is not it will return null
+    public static String extractHibcc(String udi) {
+        if (udi.charAt(0) == '+')
+            return udi.substring(1, udi.length() - 1);
+        return null;
     }
 
  }
