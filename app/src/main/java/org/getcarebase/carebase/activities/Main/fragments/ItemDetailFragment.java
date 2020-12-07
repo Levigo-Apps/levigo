@@ -352,9 +352,11 @@ public class ItemDetailFragment extends Fragment {
         });
 
         autoPopulateButton.setOnClickListener(view -> {
-            hideKeyboard();
-            String barcode = Objects.requireNonNull(udiEditText.getText()).toString();
-            deviceViewModel.autoPopulatedScannedBarcode(barcode);
+            String barcode = Objects.requireNonNull(udiEditText.getText()).toString().trim();
+            if (!barcode.isEmpty()) {
+                deviceViewModel.autoPopulatedScannedBarcode(barcode);
+                hideKeyboard();
+            }
         });
 
         addSizeButton.setOnClickListener(new View.OnClickListener() {
@@ -473,17 +475,26 @@ public class ItemDetailFragment extends Fragment {
         deviceViewModel.getAutoPopulatedDeviceLiveData().observe(getViewLifecycleOwner(), deviceModelResource -> {
             if (deviceModelResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 DeviceModel deviceModel = deviceModelResource.getData();
-                DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
+                if (deviceModel.getProductions().size() != 0) {
+                    DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
+                    expiration.setText(deviceProduction.getExpirationDate());
+                    expiration.setEnabled(deviceProduction.getExpirationDate() == null);
+                    physicalLocation.setText(deviceProduction.getPhysicalLocation());
+                    lotNumber.setText(deviceProduction.getLotNumber());
+                    lotNumber.setEnabled(deviceProduction.getLotNumber() == null);
+                    referenceNumber.setText(deviceProduction.getReferenceNumber());
+                    referenceNumber.setEnabled(deviceProduction.getReferenceNumber() == null);
+                    notes.setText(deviceProduction.getNotes());
+                    notes.setEnabled(deviceProduction.getNotes() == null);
+                }
+
                 deviceIdentifier.setText(deviceModel.getDeviceIdentifier());
                 deviceIdentifier.setEnabled(deviceModel.getDeviceIdentifier() == null);
                 nameEditText.setText(deviceModel.getName());
                 nameEditText.setEnabled(deviceModel.getName() == null);
                 quantity.setText(Integer.toString(deviceModel.getQuantity()));
                 quantity.setEnabled(false);
-                expiration.setText(deviceProduction.getExpirationDate());
-                expiration.setEnabled(deviceProduction.getExpirationDate() == null);
                 hospitalName.setText(deviceModel.getSiteName());
-                physicalLocation.setText(deviceProduction.getPhysicalLocation());
                 equipmentType.setText(deviceModel.getEquipmentType());
                 if (deviceModel.getUsage() != null && deviceModel.getUsage().equals("Single Use")) {
                     singleUseButton.setChecked(true);
@@ -494,15 +505,9 @@ public class ItemDetailFragment extends Fragment {
                 medicalSpeciality.setText(deviceModel.getMedicalSpecialty());
                 deviceDescription.setText(deviceModel.getDescription());
                 deviceDescription.setEnabled(deviceModel.getDescription() == null);
-                lotNumber.setText(deviceProduction.getLotNumber());
-                lotNumber.setEnabled(deviceProduction.getLotNumber() == null);
-                referenceNumber.setText(deviceProduction.getReferenceNumber());
-                referenceNumber.setEnabled(deviceProduction.getReferenceNumber() == null);
                 company.setText(deviceModel.getCompany());
                 company.setEnabled(deviceModel.getCompany() == null);
-                notes.setText(deviceProduction.getNotes());
-                notes.setEnabled(deviceProduction.getNotes() == null);
-                numberAdded.setText(Integer.toString(deviceProduction.getQuantity()));
+                numberAdded.setText("1");
                 for (Map.Entry<String,Object> specification : deviceModel.getSpecificationList()) {
                     addItemSpecs(specification.getKey(),specification.getValue().toString(),rootView);
                 }
@@ -661,36 +666,48 @@ public class ItemDetailFragment extends Fragment {
     // not in mvvm style - need to use data bindings
     private DeviceModel isFieldsValid() {
         boolean isValid = true;
-        for (EditText editText : new EditText[]{udiEditText,deviceIdentifier,nameEditText,expiration,
-                hospitalName,physicalLocation,equipmentType,lotNumber,company,numberAdded,dateIn,timeIn}) {
+
+        List<EditText> requiredEditTexts = new ArrayList<>(allSizeOptions);
+        requiredEditTexts.addAll(Arrays.asList(udiEditText, deviceIdentifier, nameEditText, expiration,
+                hospitalName, physicalLocation, equipmentType, lotNumber, company, numberAdded, dateIn, timeIn));
+        for (EditText editText : requiredEditTexts) {
             if (editText.getText().toString().trim().isEmpty()) {
                 isValid = false;
             }
         }
         if (isValid) {
             DeviceModel deviceModel = new DeviceModel();
-            deviceModel.setDeviceIdentifier(deviceIdentifier.getText().toString().trim());
-            deviceModel.setName(nameEditText.getText().toString().trim());
-            deviceModel.setCompany(company.getText().toString().trim());
-            deviceModel.setDescription(deviceDescription.getText().toString().trim());
+            deviceModel.setDeviceIdentifier(Objects.requireNonNull(deviceIdentifier.getText()).toString().trim());
+            deviceModel.setName(Objects.requireNonNull(nameEditText.getText()).toString().trim());
+            deviceModel.setCompany(Objects.requireNonNull(company.getText()).toString().trim());
+            deviceModel.setDescription(Objects.requireNonNull(deviceDescription.getText()).toString().trim());
             deviceModel.setEquipmentType(equipmentType.getText().toString().trim());
-            deviceModel.setMedicalSpecialty(medicalSpeciality.getText().toString().trim());
+            deviceModel.setMedicalSpecialty(Objects.requireNonNull(medicalSpeciality.getText()).toString().trim());
             deviceModel.setSiteName(hospitalName.getText().toString().trim());
             int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
             final RadioButton radioButton = rootView.findViewById(radioButtonInt);
             final String usage = radioButton.getText().toString();
             deviceModel.setUsage(usage);
-            int currentQuantity = Integer.parseInt(quantity.getText().toString());
-            int amount = Integer.parseInt(numberAdded.getText().toString());
+            int currentQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
+            int amount = Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
             deviceModel.setQuantity(currentQuantity + amount);
 
+            if (allSizeOptions.size() > 0) {
+                int i = 0;
+                while (i < allSizeOptions.size()) {
+                    String key = Objects.requireNonNull(allSizeOptions.get(i++).getText()).toString().trim();
+                    String value = Objects.requireNonNull(allSizeOptions.get(i++).getText()).toString().trim();
+                    deviceModel.addSpecification(key,value);
+                }
+            }
+
             DeviceProduction deviceProduction = new DeviceProduction();
-            deviceProduction.setUniqueDeviceIdentifier(udiEditText.getText().toString().trim());
-            deviceProduction.setDateAdded(dateIn.getText().toString().trim());
-            deviceProduction.setTimeAdded(timeIn.getText().toString().trim());
-            deviceProduction.setExpirationDate(expiration.getText().toString().trim());
-            deviceProduction.setLotNumber(lotNumber.getText().toString().trim());
-            deviceProduction.setNotes(notes.getText().toString().trim());
+            deviceProduction.setUniqueDeviceIdentifier(Objects.requireNonNull(udiEditText.getText()).toString().trim());
+            deviceProduction.setDateAdded(Objects.requireNonNull(dateIn.getText()).toString().trim());
+            deviceProduction.setTimeAdded(Objects.requireNonNull(timeIn.getText()).toString().trim());
+            deviceProduction.setExpirationDate(Objects.requireNonNull(expiration.getText()).toString().trim());
+            deviceProduction.setLotNumber(Objects.requireNonNull(lotNumber.getText()).toString().trim());
+            deviceProduction.setNotes(Objects.requireNonNull(notes.getText()).toString().trim());
             deviceProduction.setPhysicalLocation(physicalLocation.getText().toString().trim());
             deviceProduction.setQuantity(amount);
             deviceModel.addDeviceProduction(deviceProduction);
