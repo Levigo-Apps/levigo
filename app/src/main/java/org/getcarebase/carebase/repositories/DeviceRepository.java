@@ -65,7 +65,6 @@ public class DeviceRepository {
         physicalLocationsReference = firestore.collection("networks").document(networkId)
                 .collection("hospitals").document(hospitalId)
                 .collection("physical_locations").document("locations");
-
     }
 
     /**

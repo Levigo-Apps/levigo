@@ -171,9 +171,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void startItemView(String barcode) {
         ItemDetailFragment fragment = new ItemDetailFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString("barcode", barcode);
-        fragment.setArguments(bundle);
+        if (!barcode.trim().isEmpty()) {
+            Bundle bundle = new Bundle();
+            bundle.putString("barcode", barcode);
+            fragment.setArguments(bundle);
+        }
 
         FragmentManager fragmentManager = getSupportFragmentManager();
 
