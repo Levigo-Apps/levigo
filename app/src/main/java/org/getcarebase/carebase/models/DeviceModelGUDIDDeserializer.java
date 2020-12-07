@@ -28,8 +28,12 @@ public class DeviceModelGUDIDDeserializer implements JsonDeserializer<DeviceMode
         JsonObject udiObject = jsonObject.getAsJsonObject("udi");
         deviceProduction.setUniqueDeviceIdentifier(udiObject.getAsJsonPrimitive("udi").getAsString());
         // TODO use `expirationDateFormat` to format expiration date
-        deviceProduction.setExpirationDate(udiObject.getAsJsonPrimitive("expirationDate").getAsString());
-        deviceProduction.setLotNumber(udiObject.getAsJsonPrimitive("lotNumber").getAsString());
+        if (!udiObject.get("expirationDate").isJsonNull()) {
+            deviceProduction.setExpirationDate(udiObject.getAsJsonPrimitive("expirationDate").getAsString());
+        }
+        if (!udiObject.get("lotNumber").isJsonNull()) {
+            deviceProduction.setLotNumber(udiObject.getAsJsonPrimitive("lotNumber").getAsString());
+        }
 
         JsonObject gudidObject = jsonObject.getAsJsonObject("gudid");
         JsonObject deviceObject = gudidObject.getAsJsonObject("device");
@@ -37,11 +41,14 @@ public class DeviceModelGUDIDDeserializer implements JsonDeserializer<DeviceMode
         // get device model information
         deviceModel.setDeviceIdentifier(udiObject.getAsJsonPrimitive("di").getAsString());
         deviceModel.setCompany(deviceObject.getAsJsonPrimitive("companyName").getAsString());
-        deviceModel.setCompany(deviceObject.getAsJsonPrimitive("companyName").getAsString());
         deviceModel.setName(deviceObject.getAsJsonObject("gmdnTerms").getAsJsonArray("gmdn").get(0).getAsJsonObject().getAsJsonPrimitive("gmdnPTName").getAsString());
-        deviceModel.setDescription(deviceObject.getAsJsonPrimitive("deviceDescription").getAsString());
-        deviceProduction.setReferenceNumber(deviceObject.getAsJsonPrimitive("catalogNumber").getAsString());
-        // Not really sure about this but fine for now
+        if (!deviceObject.get("deviceDescription").isJsonNull()) {
+            deviceModel.setDescription(deviceObject.getAsJsonPrimitive("deviceDescription").getAsString());
+        }
+        if (!deviceObject.get("catalogNumber").isJsonNull()) {
+            deviceProduction.setReferenceNumber(deviceObject.getAsJsonPrimitive("catalogNumber").getAsString());
+        }
+
         deviceProduction.setQuantity(deviceObject.getAsJsonPrimitive("deviceCount").getAsInt());
 
         // get medical specialty
@@ -84,7 +91,6 @@ public class DeviceModelGUDIDDeserializer implements JsonDeserializer<DeviceMode
                 deviceModel.addSpecification(specification,v);
             }
         }
-
 
         deviceModel.addDeviceProduction(deviceProduction);
         return deviceModel;
