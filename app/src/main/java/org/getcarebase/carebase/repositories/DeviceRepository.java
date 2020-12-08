@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -20,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.api.AccessGUDIDAPI;
 import org.getcarebase.carebase.api.AccessGUDIDAPIInstanceFactory;
+import org.getcarebase.carebase.models.Cost;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceModelGUDIDDeserializer;
 import org.getcarebase.carebase.models.DeviceProduction;
@@ -187,7 +189,7 @@ public class DeviceRepository {
      */
     public LiveData<Request> saveDevice(DeviceModel deviceModel) {
         MutableLiveData<Request> saveDeviceRequest = new MutableLiveData<>();
-        List<Task<Void>> tasks = new ArrayList<>();
+        List<Task<?>> tasks = new ArrayList<>();
         // save device model
         DocumentReference deviceModelReference = inventoryReference.document(deviceModel.getDeviceIdentifier());
         tasks.add(deviceModelReference.set(deviceModel.toMap()));
@@ -204,6 +206,12 @@ public class DeviceRepository {
 
         DocumentReference deviceProductionReference = deviceModelReference.collection("udis").document(deviceProduction.getUniqueDeviceIdentifier());
         tasks.add(deviceProductionReference.set(deviceProduction));
+
+        if (deviceProduction.getCosts().size() != 0) {
+            Cost cost = deviceProduction.getCosts().get(0);
+            cost.setUser(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
+            tasks.add(deviceProductionReference.collection("equipment_cost").add(cost));
+        }
 
         Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
