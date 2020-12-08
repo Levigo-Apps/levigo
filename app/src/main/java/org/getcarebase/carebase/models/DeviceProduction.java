@@ -22,6 +22,7 @@ public class DeviceProduction {
     private String physicalLocation;
     private int quantity;
     private String referenceNumber;
+    private List<Cost> costs = new ArrayList<>();
 
     public DeviceProduction() {}
 
@@ -73,6 +74,10 @@ public class DeviceProduction {
         this.referenceNumber = referenceNumber;
     }
 
+    public void addCost(Cost cost) {
+        costs.add(cost);
+    }
+
     @PropertyName("udi")
     public String getUniqueDeviceIdentifier() {
         return uniqueDeviceIdentifier;
@@ -112,5 +117,9 @@ public class DeviceProduction {
     @PropertyName("reference_number")
     public String getReferenceNumber() {
         return referenceNumber;
+    }
+    @Exclude
+    public List<Cost> getCosts() {
+        return costs;
     }
 }

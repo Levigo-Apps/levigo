@@ -5,10 +5,8 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -29,63 +27,38 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.SetOptions;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
-import org.getcarebase.carebase.R;
-import org.getcarebase.carebase.activities.Main.InventoryTemplate;
+import org.getcarebase.carebase.R;;
+import org.getcarebase.carebase.models.Cost;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceProduction;
-import org.getcarebase.carebase.models.User;
-import org.getcarebase.carebase.utils.Resource;
 import org.getcarebase.carebase.viewmodels.DeviceViewModel;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -106,13 +79,6 @@ public class ItemDetailFragment extends Fragment {
     // Firebase database
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final CollectionReference usersRef = db.collection("users");
-
-    private DocumentReference typeRef;
-    private CollectionReference siteRef;
-    private DocumentReference physLocRef;
-
-
-    InventoryTemplate udiDocument;
 
     private static final String TAG = ItemDetailFragment.class.getSimpleName();
     private Activity parent;
@@ -148,7 +114,6 @@ public class ItemDetailFragment extends Fragment {
     private RadioButton multiUse;
     private Button addSizeButton;
 
-    String di = "";
     private String itemQuantity = "0";
     private String diQuantity = "0";
     private int emptySizeFieldCounter = 0;
@@ -211,7 +176,6 @@ public class ItemDetailFragment extends Fragment {
             "Ultrasound/Imaging related",
             "Venous Access (Catheters, Central Lines, Introducers, Tunnelers)",
             "Other");
-    private final List<String> SITES = Arrays.asList("Other");
     private final List<String> PHYSICAL_LOCATIONS = Arrays.asList(
             "Box - Central Lines",
             "Box - Picc Lines",
@@ -246,20 +210,7 @@ public class ItemDetailFragment extends Fragment {
     private LinearLayout physicalLocationConstrainLayout;
     private LinearLayout typeConstrainLayout;
 
-
-    // firebase key labels to avoid hard-coded paths
-    private final String NAME_KEY = "name";
-    private final String TYPE_KEY = "equipment_type";
-    private final String COMPANY_KEY = "company";
-    private final String SITE_KEY = "site_name";
-    private final String SPECIALTY_KEY = "medical_specialty";
-    private final String DESCRIPTION_KEY = "device_description";
-    private final String USAGE_KEY = "usage";
-    private final String PHYSICALLOC_KEY = "physical_location";
-    private final String QUANTITY_KEY = "quantity";
-
     private float dp;
-    private View rightView;
 
     private DeviceViewModel deviceViewModel;
     private View rootView;
@@ -548,7 +499,6 @@ public class ItemDetailFragment extends Fragment {
             if(sitesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 sitesAdapter.clear();
                 sitesAdapter.addAll(Arrays.asList(sitesResource.getData()));
-                sitesAdapter.addAll(SITES);
             } else {
                 Log.d(TAG,"Unable to fetch sites");
                 Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
@@ -664,6 +614,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
     // not in mvvm style - need to use data bindings
+    // packages all the fields into a DeviceModel object
     private DeviceModel isFieldsValid() {
         boolean isValid = true;
 
@@ -711,6 +662,13 @@ public class ItemDetailFragment extends Fragment {
             deviceProduction.setPhysicalLocation(physicalLocation.getText().toString().trim());
             deviceProduction.setQuantity(amount);
             deviceModel.addDeviceProduction(deviceProduction);
+
+            if(!Objects.requireNonNull(costEditText.getText()).toString().trim().isEmpty()){
+                String cleanString = costEditText.getText().toString().replaceAll("[$,.]", "");
+                double packagePrice = Double.parseDouble(cleanString) / 100;
+                Cost cost = new Cost(Objects.requireNonNull(dateIn.getText()).toString(),amount,packagePrice);
+                deviceProduction.addCost(cost);
+            }
 
             return deviceModel;
         }
@@ -968,411 +926,5 @@ public class ItemDetailFragment extends Fragment {
         } else {
             Snackbar.make(rootView, "Please fill all required fields", Snackbar.LENGTH_LONG).show();
         }
-    }
-
-
-    private void saveEquipmentCost(DocumentReference udiRef, TextInputEditText costEditText, TextInputEditText numberAdded, TextInputEditText dateIn){
-        if(Objects.requireNonNull(costEditText.getText()).toString().length() > 0){
-            Map<String, Object> costInfo = new HashMap<>();
-            String cleanString = costEditText.getText().toString().replaceAll("[$,.]", "");
-            double parsed = Double.parseDouble(cleanString) / 100;
-            double pricePerUnit = parsed / Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
-            double roundOff = Math.round(pricePerUnit * 100.0) / 100.0;
-
-            costInfo.put("cost_date", Objects.requireNonNull(dateIn.getText()).toString());
-            costInfo.put("number_added",numberAdded.getText().toString());
-            costInfo.put("package_price",parsed);
-            costInfo.put("unit_price",roundOff);
-            costInfo.put("user",mUser);
-
-            udiRef.collection("equipment_cost")
-                    .add(costInfo)
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                @Override
-                public void onSuccess(DocumentReference documentReference) {
-                    Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
-                }
-            })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error adding document", e);
-                        }
-                    });
-
-        }
-    }
-
-    private void autoPopulate(final View view) {
-        rightView = view;
-        String udiStr = Objects.requireNonNull(udiEditText.getText()).toString();
-        String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
-
-        if (udiStr.equals("")) {
-            return;
-            // Some UDI starts with '+'; need to strip + and last character and send as a di
-        } else if (udiStr.charAt(0) == '+') {
-            udiStr = udiStr.substring(1, udiStr.length() - 1);
-            url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?di=";
-            isDi = true;
-            di = udiStr;
-
-        }
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(parent);
-        url = url + udiStr;
-
-        // Request a string response from the provided URL.
-        final String finalUdiStr = udiStr;
-        final String finalUdiStr1 = udiStr;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        JSONObject responseJson;
-                        try {
-                            responseJson = new JSONObject(response);
-//                            Log.d(TAG, "RESPONSE: " + response);
-                            if (responseJson.has("udi")) {
-                                JSONObject udi = responseJson.getJSONObject("udi");
-
-                                if (udi.has("lotNumber")) {
-                                    lotNumber.setText(udi.getString("lotNumber"));
-                                    lotNumber.setEnabled(false);
-                                    lotNumber.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-                                }
-                                if (udi.has("expirationDate")) {
-                                    expiration.setText(udi.getString("expirationDate"));
-                                    expiration.setEnabled(false);
-                                }
-                                if (udi.has("di")) {
-                                    di = udi.getString("di");
-                                    deviceIdentifier.setText(udi.getString("di"));
-                                    deviceIdentifier.setEnabled(false);
-                                }
-                            }
-                            if (isDi) {
-                                deviceIdentifier.setText(di);
-                                deviceIdentifier.setEnabled(false);
-                            }
-                            if (responseJson.has("gudid") && responseJson.getJSONObject("gudid").has("device")) {
-                                JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
-
-                                if (deviceInfo.has("companyName")) {
-                                    company.setText(deviceInfo.getString("companyName"));
-                                    company.setEnabled(false);
-                                    company.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-                                }
-                                if (deviceInfo.has("gmdnTerms")) {
-                                    nameEditText.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
-                                    nameEditText.setEnabled(false);
-                                    nameEditText.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-                                }
-                                if (deviceInfo.has("deviceDescription")) {
-                                    deviceDescription.setText(deviceInfo.getString("deviceDescription"));
-                                    deviceDescription.setEnabled(false);
-                                    deviceDescription.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-                                }
-                                if (deviceInfo.has("catalogNumber")) {
-                                    referenceNumber.setText(deviceInfo.getString("catalogNumber"));
-                                    referenceNumber.setEnabled(false);
-                                }
-                                if (deviceInfo.has("deviceCount")) {
-                                    numberAdded.setText(deviceInfo.getString("deviceCount"));
-                                }
-                                if (deviceInfo.has("deviceSizes") && deviceInfo.getJSONObject("deviceSizes").has("deviceSize")) {
-                                    JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
-                                    for (int i = 0; i < deviceSizeArray.length(); ++i) {
-                                        int colonIndex;
-                                        String k;
-                                        String v;
-                                        JSONObject currentSizeObject = deviceSizeArray.getJSONObject(i);
-                                        k = currentSizeObject.getString("sizeType");
-                                        if (k.equals("Device Size Text, specify")) {
-                                            String customSizeText = currentSizeObject.getString("sizeText");
-                                            // Key, Value usually separated by colon
-                                            colonIndex = customSizeText.indexOf(":");
-                                            if (colonIndex == -1) {
-                                                // If no colon, save whole field as "value"
-                                                k = "Custom Key";
-                                                v = customSizeText;
-                                            } else {
-                                                k = customSizeText.substring(0, colonIndex);
-                                                v = customSizeText.substring(colonIndex + 1).trim();
-                                            }
-                                        } else {
-                                            v = currentSizeObject.getJSONObject("size").getString("value")
-                                                    + " "
-                                                    + currentSizeObject.getJSONObject("size").getString("unit");
-                                        }
-                                        addItemSpecs(k, v, view);
-                                    }
-                                }
-                                autoPopulateFromDatabase(finalUdiStr, di, view);
-                            }
-
-                            if (responseJson.has("productCodes")) {
-                                JSONArray productCodes = responseJson.getJSONArray("productCodes");
-                                StringBuilder medicalSpecialties = new StringBuilder();
-                                for (int i = 0; i < productCodes.length(); i++) {
-                                    medicalSpecialties.append(productCodes.getJSONObject(i).getString("medicalSpecialty"));
-                                    medicalSpecialties.append("; ");
-                                }
-                                medicalSpecialties = new StringBuilder(medicalSpecialties.substring(0, medicalSpecialties.length() - 2));
-
-                                medicalSpeciality.setText(medicalSpecialties.toString());
-                                medicalSpeciality.setEnabled(false);
-                                medicalSpeciality.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-                            }
-                        } catch (JSONException e) {
-                            FirebaseCrashlytics.getInstance().recordException(e);
-                            e.printStackTrace();
-//                            Log.d(TAG, "ERROR: "+ e.getMessage());
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                FirebaseCrashlytics.getInstance().recordException(error);
-//                Log.d(TAG, "Error in parsing barcode");
-                //Call checkValidUdi
-//                nonGudidUdi(finalUdiStr1, view);
-                setValidDi(finalUdiStr, view);
-            }
-        });
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
-    }
-
-    //if its valid udi, set diTextView with valid Di
-    //Call parseUDi
-    private void setValidDi(final String udiStr, final View view) {
-        RequestQueue queue = Volley.newRequestQueue(parent);
-        String url ="https://accessgudid.nlm.nih.gov/api/v2/parse_udi.json?udi=";
-        url = url + udiStr;
-
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-            new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    JSONObject responseJson;
-                    try {
-                        responseJson = new JSONObject(response);
-                        if (responseJson.has("udi")) {
-                            String udi = responseJson.getString("udi");
-                            if (responseJson.has("di")) {
-                                di = responseJson.getString("di");
-                                deviceIdentifier.setText(di);
-                                autoPopulateFromDatabase(udiStr, di, view);
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } ,
-            new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    FirebaseCrashlytics.getInstance().recordException(error);
-                    nonGudidUdi(udiStr, view);
-                }
-            });
-        queue.add(stringRequest);
-    }
-
-    private void notInDatabaseError(View view) {
-        new MaterialAlertDialogBuilder(view.getContext())
-                .setTitle("Equipment status")
-                .setMessage("Equipment has not been stored in inventory yet.\n" +
-                        "Please fill out all fields carefully")
-                .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
-                })
-                .show();
-    }
-
-    private void nonGudidUdi(final String udiStr, final View view) {
-
-        if (Objects.requireNonNull(udiEditText.getText()).toString().length() <= 0 && (!editingExisting)) {
-            Toast.makeText(parent, "Please enter barcode and click on Autopopulate again", Toast.LENGTH_LONG).show();
-            deviceIdentifier.setError("Enter device identifier (DI)");
-        } else if (udiEditText.getText().toString().length() > 0 && (!editingExisting)) {
-            DocumentReference udiDocRef = db.collection("networks").document(mNetworkId)
-                    .collection("hospitals").document(mHospitalId).collection("departments")
-                    .document("default_department").collection("dis")
-                    .document(udiStr).collection("udis").document(udiStr);
-
-
-            udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (Objects.requireNonNull(document).exists()) {
-                            autoPopulateFromDatabase(udiStr, udiStr, view);
-                            Toast.makeText(parent, "Equipment already exists in inventory, " +
-                                    "please fill out remaining fields", Toast.LENGTH_SHORT).show();
-                        } else {
-                            notInDatabaseError(view);
-                            Log.d(TAG, "No such document");
-                        }
-                    } else {
-                        //Call
-                        Log.d(TAG, "get failed with ", task.getException());
-                    }
-                }
-            });
-        }
-        TextWatcher deviceIdentifierWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                if (deviceIdentifier.getText().toString().length() > 0) {
-                    deviceIdentifier.setError(null);
-                }
-
-            }
-        };
-        deviceIdentifier.addTextChangedListener(deviceIdentifierWatcher);
-    }
-
-
-    private void autopopulateNonGudid(String barcode, String di, View view) {
-        autoPopulateFromDatabase(barcode, di, view);
-    }
-
-    private void autoPopulateFromDatabase(final String udiStr, String di, final View view) {
-        DocumentReference udiDocRef;
-        DocumentReference diDocRef;
-        udiDocRef = db.collection("networks").document(mNetworkId)
-                .collection("hospitals").document(mHospitalId).collection("departments")
-                .document("default_department").collection("dis").document(di)
-                .collection("udis").document(udiStr);
-        diDocRef = db.collection("networks").document(mNetworkId)
-                .collection("hospitals").document(mHospitalId).collection("departments")
-                .document("default_department").collection("dis").document(di);
-
-        diDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        if (document.get(COMPANY_KEY) != null && Objects.requireNonNull(company.getText()).toString().length() <= 0) {
-                            company.setText(document.getString(COMPANY_KEY));
-                            company.setEnabled(false);
-                        }
-                        if (document.get(SITE_KEY) != null && hospitalName.getText().toString().length() <= 0) {
-                            hospitalName.setText(document.getString(SITE_KEY));
-                            hospitalName.setEnabled(false);
-                        }
-                        if (document.get("di") != null && Objects.requireNonNull(deviceIdentifier.getText()).toString().length() <= 0) {
-                            deviceIdentifier.setText(document.getString("di"));
-                            deviceIdentifier.setEnabled(false);
-                        }
-
-                        if (document.get(DESCRIPTION_KEY) != null) {
-                            deviceDescription.setText(document.getString(DESCRIPTION_KEY));
-                            deviceDescription.setEnabled(false);
-                        }
-                        if (document.get(SPECIALTY_KEY) != null && Objects.requireNonNull(medicalSpeciality.getText()).toString().length() <= 0) {
-                            medicalSpeciality.setText(document.getString(SPECIALTY_KEY));
-                            medicalSpeciality.setEnabled(false);
-                        }
-                        if (document.get(NAME_KEY) != null && Objects.requireNonNull(nameEditText.getText()).toString().length() <= 0) {
-                            nameEditText.setText(document.getString(NAME_KEY));
-                            nameEditText.setEnabled(false);
-                        }
-
-                        if (document.get(TYPE_KEY) != null && equipmentType.getText().toString().length() <= 0) {
-                            equipmentType.setText(document.getString(TYPE_KEY));
-                            equipmentType.setEnabled(false);
-                        }
-                        if (document.get(SITE_KEY) != null && hospitalName.getText().toString().length() <= 0) {
-                            hospitalName.setText(document.getString(SITE_KEY));
-                            hospitalName.setEnabled(false);
-                        }
-                        if (document.get(QUANTITY_KEY) != null) {
-                            diQuantity = document.getString(QUANTITY_KEY);
-                        } else {
-                            diQuantity = "0";
-                        }
-                        if (document.get(USAGE_KEY) != null) {
-                            String usage = document.getString(USAGE_KEY);
-                            if (Objects.requireNonNull(usage).equalsIgnoreCase("Single Use")) {
-                                singleUseButton.setChecked(true);
-                            } else if (usage.equalsIgnoreCase("Reusable")) {
-                                multiUse.setChecked(true);
-                            }
-                        }
-                    } else {
-                        diQuantity = "0";
-                        notInDatabaseError(view);
-                        Log.d(TAG, "Di doesn't exist in database ", task.getException());
-                    }
-                } else {
-                    Log.d(TAG, "Failed with: ", task.getException());
-                }
-            }
-        });
-
-        udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        if (document.get("quantity") != null) {
-                            itemQuantity = document.getString(QUANTITY_KEY);
-                            quantity.setText(itemQuantity);
-                        } else {
-                            itemQuantity = "0";
-                            quantity.setText("0");
-                        }
-                        if (document.get(PHYSICALLOC_KEY) != null) {
-                            physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
-
-                        }
-
-                        if (document.get("reference_number") != null && Objects.requireNonNull(referenceNumber.getText()).toString().length() <= 0) {
-                            referenceNumber.setText(document.getString("reference_number"));
-                            referenceNumber.setEnabled(false);
-                        }
-                        if (document.get("expiration") != null && Objects.requireNonNull(expiration.getText()).toString().length() <= 0) {
-                            expiration.setText(document.getString("expiration"));
-                            expiration.setEnabled(false);
-                        }
-                        if (document.get("lot_number") != null && Objects.requireNonNull(lotNumber.getText()).toString().length() <= 0) {
-                            lotNumber.setText(document.getString("lot_number"));
-                            lotNumber.setEnabled(false);
-                        }
-                        if (document.get("notes") != null) {
-                            notes.setText(document.getString("notes"));
-                        }
-
-                    } else {
-                        itemQuantity = "0";
-                        quantity.setText("0");
-//                        Log.d(TAG, "Document does not exist!");
-                    }
-//                    quantity.setText(document.getString(QUANTITY_KEY));
-                    quantity.setEnabled(false);
-                } else {
-                    Log.d(TAG, "Failed with: ", task.getException());
-                }
-            }
-        });
     }
 }
