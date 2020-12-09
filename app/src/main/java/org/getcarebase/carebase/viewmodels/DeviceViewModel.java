@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
@@ -22,7 +23,7 @@ public class DeviceViewModel extends ViewModel {
 
     private LiveData<Resource<User>> userLiveData;
 
-    private MediatorLiveData<Resource<DeviceModel>> autoPopulatedDeviceLiveData;
+    private final MediatorLiveData<Resource<DeviceModel>> autoPopulatedDeviceLiveData = new MediatorLiveData<>();
     
     // when a user tries to save a device this live data will be updated
     private final MutableLiveData<DeviceModel> saveDeviceLiveData = new MutableLiveData<>();
@@ -35,8 +36,6 @@ public class DeviceViewModel extends ViewModel {
 
     private final LiveData<Request> saveDeviceTypeRequestLiveData = Transformations.switchMap(saveDeviceTypeLiveData, deviceType -> deviceRepository.saveDeviceType(deviceType));
     private final LiveData<Request> savePhysicalLocationRequestLiveData = Transformations.switchMap(savePhysicalLocationLiveData, physicalLocation -> deviceRepository.savePhysicalLocation(physicalLocation));
-
-
 
     public DeviceViewModel() {
         authRepository = new FirebaseAuthRepository();
@@ -62,6 +61,10 @@ public class DeviceViewModel extends ViewModel {
         saveDeviceTypeLiveData.setValue(deviceType);
     }
 
+    public LiveData<Request> getSaveDeviceTypeRequestLiveData() {
+        return saveDeviceTypeRequestLiveData;
+    }
+
     public LiveData<Resource<String[]>> getSitesLiveData() {
         return deviceRepository.getSiteOptions();
     }
@@ -74,8 +77,20 @@ public class DeviceViewModel extends ViewModel {
         savePhysicalLocationLiveData.setValue(physicalLocation);
     }
 
+    public LiveData<Request> getSavePhysicalLocationRequestLiveData() {
+        return savePhysicalLocationRequestLiveData;
+    }
+
+    public LiveData<Request> getSaveDeviceRequestLiveData() {
+        return saveDeviceRequestLiveData;
+    }
+
     public void saveDevice(DeviceModel deviceModel) {
         saveDeviceLiveData.setValue(deviceModel);
+    }
+
+    public LiveData<Resource<DeviceModel>> getAutoPopulatedDeviceLiveData() {
+        return autoPopulatedDeviceLiveData;
     }
 
     public void autoPopulatedScannedBarcode(String barcode) {
@@ -110,34 +125,34 @@ public class DeviceViewModel extends ViewModel {
             return;
         }
 
-        if (gudidResource.getRequest().getStatus() == Request.Status.ERROR
-                && databaseResource.getRequest().getStatus() == Request.Status.ERROR) {
-            if (databaseResource.getData() != null) {
-                // device that is not in gudid has device model information in database
-                autoPopulatedDeviceLiveData.setValue(databaseResource);
-            } else {
-                // device could not auto populated
-                // TODO make error message in strings
-                autoPopulatedDeviceLiveData.setValue(new Resource<>(null, new Request(null, Request.Status.ERROR)));
-            }
-        } else if (gudidResource.getRequest().getStatus() == Request.Status.SUCCESS
+        if (gudidResource.getRequest().getStatus() == Request.Status.ERROR && gudidResource.getRequest().getResourceString() == R.string.error_something_wrong) {
+            autoPopulatedDeviceLiveData.setValue(gudidResource);
+        }
+        else if (databaseResource.getRequest().getStatus() == Request.Status.ERROR && databaseResource.getRequest().getResourceString() == R.string.error_something_wrong) {
+            autoPopulatedDeviceLiveData.setValue(databaseResource);
+        }
+        else if (gudidResource.getRequest().getStatus() == Request.Status.SUCCESS
                 && databaseResource.getRequest().getStatus() == Request.Status.ERROR) {
             if (databaseResource.getData() != null) {
                 // device that is in gudid also has device model information in database
-                DeviceModel gudidDeviceModel = gudidResource.getData();
                 DeviceModel databaseDeviceModel = databaseResource.getData();
-                databaseDeviceModel.addDeviceProduction(gudidDeviceModel.getProductions().get(0));
+                DeviceModel gudidDeviceModel = gudidResource.getData();
+                if (gudidResource.getData().getProductions().size() != 0) {
+                    databaseDeviceModel.addDeviceProduction(gudidDeviceModel.getProductions().get(0));
+                }
                 autoPopulatedDeviceLiveData.setValue(new Resource<>(databaseDeviceModel, new Request(null, Request.Status.SUCCESS)));
             } else {
                 // device that is in gudid and not in our database
                 autoPopulatedDeviceLiveData.setValue(gudidResource);
             }
+        } else {
+            // device that is not in gudid but has device model information in database
+            // device could not be auto populated (no data)
+            // or device is in our database
+            autoPopulatedDeviceLiveData.setValue(databaseResource);
+        }
 
-        }
-        else if (databaseResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-            // device is in our database
-            autoPopulatedDeviceLiveData.setValue(databaseSource.getValue());
-        }
+        // stop listening to these sources
         autoPopulatedDeviceLiveData.removeSource(databaseSource);
         autoPopulatedDeviceLiveData.removeSource(gudidSource);
     }
