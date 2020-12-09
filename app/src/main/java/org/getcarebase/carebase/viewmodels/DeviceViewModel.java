@@ -25,7 +25,7 @@ public class DeviceViewModel extends ViewModel {
 
     private final MediatorLiveData<Resource<DeviceModel>> autoPopulatedDeviceLiveData = new MediatorLiveData<>();
 
-    private MutableLiveData<Resource<DeviceModel>> deviceInFirebaseLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Resource<DeviceModel>> deviceInFirebaseLiveData = new MutableLiveData<>();
 
     // when a user tries to save a device this live data will be updated
     private final MutableLiveData<DeviceModel> saveDeviceLiveData = new MutableLiveData<>();
