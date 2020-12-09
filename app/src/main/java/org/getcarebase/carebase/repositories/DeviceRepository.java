@@ -258,6 +258,43 @@ public class DeviceRepository {
     }
 
     /**
+     * Gets full device information (device model, device production, costs, and procedures) from firebase.
+     * The di and udi are expected to be valid and in firestore
+     * TODO add function to get the procedures
+     */
+    public LiveData<Resource<DeviceModel>> getDeviceFromFirebase(final String di, final String udi) {
+        MutableLiveData<Resource<DeviceModel>> deviceLiveData = new MutableLiveData<>();
+        deviceLiveData.setValue(new Resource<>(null, new Request(null, Request.Status.LOADING)));
+        AtomicReference<Resource<DeviceModel>> deviceModelAtomicReference = new AtomicReference<>();
+        AtomicReference<Resource<DeviceProduction>> deviceProductionAtomicReference = new AtomicReference<>();
+        AtomicReference<Resource<List<Cost>>> costsAtomicReference = new AtomicReference<>();
+
+        Task<?> deviceModelTask = getDeviceModelFromFirestore(di,deviceModelAtomicReference);
+        Task<?> deviceProductionTask = getDeviceProductionFromFirestore(di,udi,deviceProductionAtomicReference);
+        Task<?> costsTask = getCostsFromFirestore(di,udi,costsAtomicReference);
+
+        Tasks.whenAllComplete(deviceModelTask,deviceProductionTask,costsTask).addOnCompleteListener(tasks -> {
+            if (tasks.isSuccessful()) {
+                try {
+                    DeviceModel deviceModel = deviceModelAtomicReference.get().getData();
+                    DeviceProduction deviceProduction = deviceProductionAtomicReference.get().getData();
+                    List<Cost> costs = costsAtomicReference.get().getData();
+                    deviceProduction.addCosts(costs);
+                    deviceModel.addDeviceProduction(deviceProduction);
+                    deviceLiveData.setValue(new Resource<>(deviceModel, new Request(null, Request.Status.SUCCESS)));
+                } catch (NullPointerException e) {
+                    Log.e(TAG,e.getMessage());
+                    deviceLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+                }
+            } else {
+                deviceLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+            }
+        });
+
+        return deviceLiveData;
+    }
+
+    /**
      * Helper method for autoPopulateFromDatabase
      * Retrieves DeviceModel from Firestore given a di and udi
      * Does not get procedures and costs associated with the device

@@ -22,7 +22,7 @@ public class DeviceProduction {
     private String physicalLocation;
     private int quantity;
     private String referenceNumber;
-    private List<Cost> costs = new ArrayList<>();
+    private final List<Cost> costs = new ArrayList<>();
 
     public DeviceProduction() {}
 
@@ -76,6 +76,10 @@ public class DeviceProduction {
 
     public void addCost(Cost cost) {
         costs.add(cost);
+    }
+
+    public void addCosts(List<Cost> costs) {
+        this.costs.addAll(costs);
     }
 
     @PropertyName("udi")
