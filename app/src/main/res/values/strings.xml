@@ -20,7 +20,14 @@
     <!--common errors start-->
     <string name="error_too_many_attempts">Too many attempts. Retry in 1 minute.</string>
     <string name="error_something_wrong">Something went wrong, please contact support</string>
+    <string name="error_device_lookup">Could not find device information</string>
+    <string name="error_partial_data_in_database">Only device model information is found for this device</string>
     <!--common errors end-->
+
+    <!--adding a device start-->
+    <string name="new_device_type_saved">New device type successfully saved</string>
+    <string name="new_physical_location_saved">New physical location successfully saved</string>
+    <!--adding a device end-->
 
     <!--template values start-->
     <string name="unit_quantity_value">%1$d Units</string>

@@ -1,5 +1,6 @@
 package org.getcarebase.carebase.models;
 
+import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
 import java.lang.reflect.Field;
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * immutable class representing the udi level information of a device
+ * class representing the udi level information of a device
  */
 public class DeviceProduction {
     private String uniqueDeviceIdentifier;
@@ -21,6 +22,7 @@ public class DeviceProduction {
     private String physicalLocation;
     private int quantity;
     private String referenceNumber;
+    private final List<Cost> costs = new ArrayList<>();
 
     public DeviceProduction() {}
 
@@ -72,6 +74,14 @@ public class DeviceProduction {
         this.referenceNumber = referenceNumber;
     }
 
+    public void addCost(Cost cost) {
+        costs.add(cost);
+    }
+
+    public void addCosts(List<Cost> costs) {
+        this.costs.addAll(costs);
+    }
+
     @PropertyName("udi")
     public String getUniqueDeviceIdentifier() {
         return uniqueDeviceIdentifier;
@@ -84,7 +94,7 @@ public class DeviceProduction {
     public String getTimeAdded() {
         return timeAdded;
     }
-    @PropertyName("expiration_date")
+    @PropertyName("expiration")
     public String getExpirationDate() {
         return expirationDate;
     }
@@ -101,11 +111,19 @@ public class DeviceProduction {
         return physicalLocation;
     }
     @PropertyName("quantity")
+    public String getStringQuantity() {
+        return Integer.toString(quantity);
+    }
+    @Exclude
     public int getQuantity() {
         return quantity;
     }
     @PropertyName("reference_number")
     public String getReferenceNumber() {
         return referenceNumber;
+    }
+    @Exclude
+    public List<Cost> getCosts() {
+        return costs;
     }
 }

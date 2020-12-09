@@ -31,10 +31,12 @@ public class DeviceModel {
         data.remove("name");
         this.company = (String) data.get("company");
         data.remove("company");
-        this.description = (String) data.get("description");
-        data.remove("description");
+        this.description = (String) data.get("device_description");
+        data.remove("device_description");
         this.equipmentType = (String) data.get("equipment_type");
         data.remove("equipment_type");
+        this.medicalSpecialty = (String) data.get("medical_specialty");
+        data.remove("medical_specialty");
         this.siteName = (String) data.get("site_name");
         data.remove("site_name");
         this.usage = (String) data.get("usage");
@@ -140,7 +142,7 @@ public class DeviceModel {
         map.put("device_description",description);
         map.put("di",deviceIdentifier);
         map.put("equipment_type",equipmentType);
-        map.put("medical_speciality",medicalSpecialty);
+        map.put("medical_specialty",medicalSpecialty);
         map.put("name",name);
         map.put("quantity",Integer.toString(quantity));
         map.put("site_name",siteName);
