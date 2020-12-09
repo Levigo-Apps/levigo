@@ -2,21 +2,19 @@ package org.getcarebase.carebase.repositories;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.api.AccessGUDIDAPI;
@@ -28,13 +26,12 @@ import org.getcarebase.carebase.models.DeviceProduction;
 import org.getcarebase.carebase.models.ParseUDIResponse;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
-import org.w3c.dom.Document;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -240,9 +237,9 @@ public class DeviceRepository {
                 @Override
                 public void onResponse(Call<ParseUDIResponse> call, retrofit2.Response<ParseUDIResponse> response) {
                     if (response.isSuccessful()) {
-                        getDeviceFromFirestore(Objects.requireNonNull(response.body()).getDi(), response.body().getUdi(), deviceLiveData);
+                        getAutoPopulatedDeviceFromFirestore(Objects.requireNonNull(response.body()).getDi(), response.body().getUdi(), deviceLiveData);
                     } else {
-                        getDeviceFromFirestore(udi, udi, deviceLiveData);
+                        getAutoPopulatedDeviceFromFirestore(udi, udi, deviceLiveData);
                     }
                 }
 
@@ -254,9 +251,8 @@ public class DeviceRepository {
             });
         } else {
             // if it is in hibcc format
-            getDeviceFromFirestore(udi,udi,deviceLiveData);
+            getAutoPopulatedDeviceFromFirestore(udi,udi,deviceLiveData);
         }
-
 
         return deviceLiveData;
     }
@@ -264,46 +260,82 @@ public class DeviceRepository {
     /**
      * Helper method for autoPopulateFromDatabase
      * Retrieves DeviceModel from Firestore given a di and udi
+     * Does not get procedures and costs associated with the device
      */
-    private void getDeviceFromFirestore(String di, String udi, MutableLiveData<Resource<DeviceModel>> deviceLiveData) {
-        DocumentReference deviceModelReference = inventoryReference.document(di);
-        // get device model information
-        deviceModelReference.get().addOnCompleteListener(diTask -> {
-            if (diTask.isSuccessful()) {
-                DocumentSnapshot document = Objects.requireNonNull(diTask.getResult());
-                if (document.exists()) {
-                    DeviceModel deviceModel = new DeviceModel(Objects.requireNonNull(document.getData()));
-                    // get device production information
-                    deviceModelReference.collection("udis").document(udi).get().addOnCompleteListener(udiTask -> {
-                        if (udiTask.isSuccessful()) {
-                            DocumentSnapshot udiDocument = Objects.requireNonNull(udiTask.getResult());
-                            if (udiDocument.exists()) {
-                                DeviceProduction deviceProduction = new DeviceProduction(Objects.requireNonNull(udiDocument.getData()));
-                                deviceModel.addDeviceProduction(deviceProduction);
-                                deviceLiveData.setValue(new Resource<>(deviceModel,new Request(null, Request.Status.SUCCESS)));
-                            }
-                            else {
-                                // device production information is not in the database (partial data)
-                                deviceLiveData.setValue(new Resource<>(deviceModel,new Request(R.string.error_partial_data_in_database, Request.Status.ERROR)));
-                            }
-                        }
-                        else {
-                            // something went wrong during device production retrieval
-                            deviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
-                        }
-                    });
+    private void getAutoPopulatedDeviceFromFirestore(String di, String udi, MutableLiveData<Resource<DeviceModel>> deviceLiveData) {
+        AtomicReference<Resource<DeviceModel>> deviceModelAtomicReference = new AtomicReference<>();
+        AtomicReference<Resource<DeviceProduction>> deviceProductionAtomicReference = new AtomicReference<>();
+
+        Task<?> deviceModelTask = getDeviceModelFromFirestore(di,deviceModelAtomicReference);
+        Task<?> deviceProductionTask = getDeviceProductionFromFirestore(di,udi,deviceProductionAtomicReference);
+
+        Tasks.whenAllComplete(deviceModelTask,deviceProductionTask).addOnCompleteListener(tasks -> {
+            Resource<DeviceModel> deviceModelResource = deviceModelAtomicReference.get();
+            Resource<DeviceProduction> deviceProductionResource = deviceProductionAtomicReference.get();
+            if (deviceModelResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                DeviceModel deviceModel = deviceModelResource.getData();
+                if (deviceProductionResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                    DeviceProduction deviceProduction = deviceProductionResource.getData();
+                    deviceModel.addDeviceProduction(deviceProduction);
+                    deviceLiveData.setValue(new Resource<>(deviceModel,new Request(null, Request.Status.SUCCESS)));
+                } else if (deviceProductionResource.getRequest().getStatus() == Request.Status.ERROR) {
+                    deviceLiveData.setValue(new Resource<>(deviceModel,new Request(R.string.error_partial_data_in_database, Request.Status.ERROR)));
                 }
-                else {
-                    // device with given di is not in database
-                    deviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_device_lookup, Request.Status.ERROR)));
-                }
-            }
-            else {
-                // something went wrong during device model retrieval
-                deviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+            } else if (deviceModelResource.getRequest().getStatus() == Request.Status.ERROR) {
+                deviceLiveData.setValue(deviceModelResource);
             }
         });
+    }
 
+    private Task<?> getDeviceModelFromFirestore(final String di, final AtomicReference<Resource<DeviceModel>> deviceModelAtomicReference) {
+        Task<DocumentSnapshot> deviceModelTask = inventoryReference.document(di).get();
+        deviceModelTask.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = Objects.requireNonNull(task.getResult());
+                if (document.exists()) {
+                    deviceModelAtomicReference.set(new Resource<>(new DeviceModel(document.getData()),new Request(null,Request.Status.SUCCESS)));
+                } else {
+                    deviceModelAtomicReference.set(new Resource<>(null,new Request(R.string.error_device_lookup, Request.Status.ERROR)));
+                }
+            } else {
+                deviceModelAtomicReference.set(new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+            }
+        });
+        return deviceModelTask;
+    }
+
+    private Task<?> getDeviceProductionFromFirestore(final String di, final String udi, final AtomicReference<Resource<DeviceProduction>> deviceProductionAtomicReference) {
+        Task<DocumentSnapshot> deviceProductionTask = inventoryReference.document(di).collection("udis").document(udi).get();
+        deviceProductionTask.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = Objects.requireNonNull(task.getResult());
+                if (document.exists()) {
+                    deviceProductionAtomicReference.set(new Resource<>(new DeviceProduction(document.getData()),new Request(null, Request.Status.SUCCESS)));
+                } else {
+                    deviceProductionAtomicReference.set(new Resource<>(null,new Request(R.string.error_device_lookup, Request.Status.ERROR)));
+                }
+            } else {
+                deviceProductionAtomicReference.set(new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+            }
+        });
+        return deviceProductionTask;
+    }
+
+    private Task<?> getCostsFromFirestore(final String di, final String udi, final AtomicReference<Resource<List<Cost>>> costsAtomicReference) {
+        Task<QuerySnapshot> costsTask = inventoryReference.document(di).collection("udis").document(udi).collection("equipment_cost").get();
+        costsTask.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot costSnapshots = task.getResult();
+                List<Cost> costs = new ArrayList<>();
+                for (QueryDocumentSnapshot documentSnapshot : costSnapshots) {
+                    costs.add(documentSnapshot.toObject(Cost.class));
+                }
+                costsAtomicReference.set(new Resource<>(costs,new Request(null, Request.Status.SUCCESS)));
+            } else {
+                costsAtomicReference.set(new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+            }
+        });
+        return costsTask;
     }
 
     /**
