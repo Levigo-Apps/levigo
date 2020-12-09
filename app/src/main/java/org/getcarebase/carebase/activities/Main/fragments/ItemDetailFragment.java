@@ -4,10 +4,9 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -15,74 +14,51 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.SetOptions;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
-import org.getcarebase.carebase.R;
-import org.getcarebase.carebase.activities.Main.InventoryTemplate;
+import org.getcarebase.carebase.R;;
+import org.getcarebase.carebase.models.Cost;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceProduction;
-import org.getcarebase.carebase.models.User;
-import org.getcarebase.carebase.utils.Resource;
 import org.getcarebase.carebase.viewmodels.DeviceViewModel;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -104,13 +80,6 @@ public class ItemDetailFragment extends Fragment {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final CollectionReference usersRef = db.collection("users");
 
-    private DocumentReference typeRef;
-    private CollectionReference siteRef;
-    private DocumentReference physLocRef;
-
-
-    InventoryTemplate udiDocument;
-
     private static final String TAG = ItemDetailFragment.class.getSimpleName();
     private Activity parent;
     private Calendar myCalendar;
@@ -121,8 +90,6 @@ public class ItemDetailFragment extends Fragment {
     private AutoCompleteTextView equipmentType;
     private TextInputEditText company;
     private TextInputEditText otherType_text;
-    private TextInputEditText otherPhysicalLoc_text;
-    private TextInputEditText otherSite_text;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText deviceDescription;
     private TextInputEditText expiration;
@@ -147,7 +114,6 @@ public class ItemDetailFragment extends Fragment {
     private RadioButton multiUse;
     private Button addSizeButton;
 
-    String di = "";
     private String itemQuantity = "0";
     private String diQuantity = "0";
     private int emptySizeFieldCounter = 0;
@@ -210,7 +176,6 @@ public class ItemDetailFragment extends Fragment {
             "Ultrasound/Imaging related",
             "Venous Access (Catheters, Central Lines, Introducers, Tunnelers)",
             "Other");
-    private final List<String> SITES = Arrays.asList("Other");
     private final List<String> PHYSICAL_LOCATIONS = Arrays.asList(
             "Box - Central Lines",
             "Box - Picc Lines",
@@ -245,20 +210,7 @@ public class ItemDetailFragment extends Fragment {
     private LinearLayout physicalLocationConstrainLayout;
     private LinearLayout typeConstrainLayout;
 
-
-    // firebase key labels to avoid hard-coded paths
-    private final String NAME_KEY = "name";
-    private final String TYPE_KEY = "equipment_type";
-    private final String COMPANY_KEY = "company";
-    private final String SITE_KEY = "site_name";
-    private final String SPECIALTY_KEY = "medical_specialty";
-    private final String DESCRIPTION_KEY = "device_description";
-    private final String USAGE_KEY = "usage";
-    private final String PHYSICALLOC_KEY = "physical_location";
-    private final String QUANTITY_KEY = "quantity";
-
     private float dp;
-    private View rightView;
 
     private DeviceViewModel deviceViewModel;
     private View rootView;
@@ -329,67 +281,9 @@ public class ItemDetailFragment extends Fragment {
             deviceViewModel.setupDeviceRepository();
             setupOptionFields();
             setupAutoPopulate();
+            setupSaveDevice();
+            handleArguments();
         });
-
-
-
-        // Get user information in "users" collection
-//        final DocumentReference currentUserRef = usersRef.document(userId);
-//        currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                String toastMessage;
-//                if (task.isSuccessful()) {
-//                    DocumentSnapshot document = task.getResult();
-//                    if (Objects.requireNonNull(document).exists()) {
-//                        try {
-//
-//                            mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
-//                            mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
-//                            mUser = Objects.requireNonNull(document.get("email")).toString();
-//                            mHospitalName = Objects.requireNonNull(document.get("hospital_name")).toString();
-//
-//
-//                            typeRef = db.collection("networks").document(mNetworkId).collection("hospitals")
-//                                    .document(mHospitalId).collection("types").document("type_options");
-//                            siteRef = db.collection("networks").document(mNetworkId)
-//                                    .collection("hospitals");
-//                            physLocRef = db.collection("networks").document(mNetworkId)
-//                                    .collection("hospitals").document(mHospitalId)
-//                                    .collection("physical_locations").document("locations");
-//
-//                            //get pending equipment info
-//                            if (getArguments() != null) {
-//                                String barcode = getArguments().getString("barcode");
-//                                boolean isPending = getArguments().getBoolean("pending_udi");
-//                                editingExisting = getArguments().getBoolean("editingExisting");
-//                                if (isPending) {
-//                                    getPendingSpecs(barcode);
-//                                }
-//                                udiEditText.setText(barcode);
-//                                if (editingExisting) {
-//                                    udiEditText.setEnabled(false);
-//                                    autoPopulateButton.setEnabled(false);
-//                                    autopopulateNonGudid(barcode, getArguments().getString("di"), rightView);
-//                                }
-//                            }
-//                        } catch (NullPointerException e) {
-//                            toastMessage = "Error retrieving user information; Please contact support";
-//                            Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-//                        }
-//                    } else {
-//                        // document for user doesn't exist
-//                        toastMessage = "User not found; Please contact support";
-//                        Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-//                    }
-//                } else {
-//                    toastMessage = "User lookup failed; Please try again and contact support if issue persists";
-//                    Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-//                    Log.d(TAG, "get failed with ", task.getException());
-//                }
-//            }
-//        });
-
 
         // NumberPicker Dialog for NumberAdded field
         numberAdded.setOnClickListener(new View.OnClickListener() {
@@ -408,25 +302,20 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-
-        //set TextWatcher for required fields
-        setTextWatcherRequired();
-
-
-        autoPopulateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String barcode = Objects.requireNonNull(udiEditText.getText()).toString();
+        autoPopulateButton.setOnClickListener(view -> {
+            String barcode = Objects.requireNonNull(udiEditText.getText()).toString().trim();
+            if (!barcode.isEmpty()) {
                 deviceViewModel.autoPopulatedScannedBarcode(barcode);
+                hideKeyboard();
             }
         });
+
         addSizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 addEmptySizeOption(view);
             }
         });
-
 
         //TimePicker dialog pops up when clicked on the icon
         timeInLayout.setEndIconOnClickListener(new View.OnClickListener() {
@@ -435,8 +324,6 @@ public class ItemDetailFragment extends Fragment {
                 timeInLayoutPicker(view);
             }
         });
-
-
 
         // going back to the scanner view
         rescanButton.setOnClickListener(new View.OnClickListener() {
@@ -447,9 +334,9 @@ public class ItemDetailFragment extends Fragment {
                 integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
                 integrator.setBarcodeImageEnabled(true);
                 integrator.initiateScan();
-//                parent.onBackPressed();
             }
         });
+
         //going back to inventory view
         topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -464,38 +351,6 @@ public class ItemDetailFragment extends Fragment {
                 }
             }
         });
-
-        TextWatcher costWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-            private String current = "";
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(!charSequence.toString().equals(current)){
-                    costEditText.removeTextChangedListener(this);
-                    String cleanString = charSequence.toString().replaceAll("[$,.]", "");
-                    double parsed = Double.parseDouble(cleanString);
-                    String formatted = NumberFormat.getCurrencyInstance().format((parsed/100));
-
-                    current = formatted;
-                    costEditText.setText(formatted);
-                    costEditText.setSelection(formatted.length());
-                    costEditText.addTextChangedListener(this);
-                }
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-
-            }
-        };
-        costEditText.addTextChangedListener(costWatcher);
-
-
 
         // date picker for expiration date if entered manually
         final DatePickerDialog.OnDateSetListener date_exp = new DatePickerDialog.OnDateSetListener() {
@@ -542,54 +397,55 @@ public class ItemDetailFragment extends Fragment {
         });
 
         // saves data into database
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //hardcoded
-                if ((checkAutocompleteTexts && checkEditTexts)) {
-                    saveData(rootView, "networks", mNetworkId, "hospitals",
-                            mHospitalId, "departments",
-                            "default_department", "dis");
+        saveButton.setOnClickListener(v -> saveData());
+        return rootView;
+    }
 
-                    deletePendingUdi(Objects.requireNonNull(udiEditText.getText()).toString().trim());
-                } else {
-                    Toast.makeText(rootView.getContext(), "Please fill out all required fields", Toast.LENGTH_SHORT).show();
-                }
+    private void hideKeyboard() {
+        try {
+            InputMethodManager imm = (InputMethodManager) Objects.requireNonNull(getActivity()).getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+        } catch (Exception e) {
+            Log.d(TAG,"Keyboard not open");
+        }
+    }
+
+    private void setupSaveDevice() {
+        deviceViewModel.getSaveDeviceRequestLiveData().observe(getViewLifecycleOwner(),request -> {
+            if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().remove(this).commit();
+                Snackbar.make(getActivity().findViewById(R.id.activity_main), "Equipment Saved", Snackbar.LENGTH_LONG).show();
+            } else {
+                Log.d(TAG,"error while saving device");
+                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
             }
         });
-
-        if (getArguments() != null) {
-            String barcode = getArguments().getString("barcode");
-            procedureInfo = (HashMap<String, String>) getArguments().getSerializable("procedure_info");
-            procedureUdisList = (List<HashMap<String, Object>>) getArguments().getSerializable("udi_quantity");
-            if (procedureInfo != null && procedureInfo.size() != 0) {
-                isProcedureInfoReturned = true;
-            }
-            if (procedureUdisList != null && procedureUdisList.size() > 0) {
-                isUdisReturned = true;
-            }
-            udiEditText.setText(barcode);
-            autoPopulate(rootView);
-
-        }
-        return rootView;
     }
 
     private void setupAutoPopulate() {
         deviceViewModel.getAutoPopulatedDeviceLiveData().observe(getViewLifecycleOwner(), deviceModelResource -> {
             if (deviceModelResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 DeviceModel deviceModel = deviceModelResource.getData();
-                DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
+                if (deviceModel.getProductions().size() != 0) {
+                    DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
+                    expiration.setText(deviceProduction.getExpirationDate());
+                    expiration.setEnabled(deviceProduction.getExpirationDate() == null);
+                    physicalLocation.setText(deviceProduction.getPhysicalLocation());
+                    lotNumber.setText(deviceProduction.getLotNumber());
+                    lotNumber.setEnabled(deviceProduction.getLotNumber() == null);
+                    referenceNumber.setText(deviceProduction.getReferenceNumber());
+                    referenceNumber.setEnabled(deviceProduction.getReferenceNumber() == null);
+                    notes.setText(deviceProduction.getNotes());
+                    notes.setEnabled(deviceProduction.getNotes() == null);
+                }
+
                 deviceIdentifier.setText(deviceModel.getDeviceIdentifier());
                 deviceIdentifier.setEnabled(deviceModel.getDeviceIdentifier() == null);
                 nameEditText.setText(deviceModel.getName());
                 nameEditText.setEnabled(deviceModel.getName() == null);
                 quantity.setText(Integer.toString(deviceModel.getQuantity()));
                 quantity.setEnabled(false);
-                expiration.setText(deviceProduction.getExpirationDate());
-                expiration.setEnabled(deviceProduction.getExpirationDate() == null);
                 hospitalName.setText(deviceModel.getSiteName());
-                physicalLocation.setText(deviceProduction.getPhysicalLocation());
                 equipmentType.setText(deviceModel.getEquipmentType());
                 if (deviceModel.getUsage() != null && deviceModel.getUsage().equals("Single Use")) {
                     singleUseButton.setChecked(true);
@@ -600,20 +456,14 @@ public class ItemDetailFragment extends Fragment {
                 medicalSpeciality.setText(deviceModel.getMedicalSpecialty());
                 deviceDescription.setText(deviceModel.getDescription());
                 deviceDescription.setEnabled(deviceModel.getDescription() == null);
-                lotNumber.setText(deviceProduction.getLotNumber());
-                lotNumber.setEnabled(deviceProduction.getLotNumber() == null);
-                referenceNumber.setText(deviceProduction.getReferenceNumber());
-                referenceNumber.setEnabled(deviceProduction.getReferenceNumber() == null);
                 company.setText(deviceModel.getCompany());
                 company.setEnabled(deviceModel.getCompany() == null);
-                notes.setText(deviceProduction.getNotes());
-                notes.setEnabled(deviceProduction.getNotes() == null);
-                numberAdded.setText(Integer.toString(deviceProduction.getQuantity()));
+                numberAdded.setText("1");
                 for (Map.Entry<String,Object> specification : deviceModel.getSpecificationList()) {
                     addItemSpecs(specification.getKey(),specification.getValue().toString(),rootView);
                 }
             } else if (deviceModelResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR) {
-                somethingWentWrong();
+                Snackbar.make(rootView, deviceModelResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
             }
         });
     }
@@ -625,17 +475,23 @@ public class ItemDetailFragment extends Fragment {
         // set up device types
         final ArrayAdapter<String> deviceTypeAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
         deviceViewModel.getDeviceTypesLiveData().observe(getViewLifecycleOwner(), deviceTypesResource -> {
-            if(deviceTypesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+            if (deviceTypesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 deviceTypeAdapter.clear();
                 deviceTypeAdapter.addAll(DEVICE_TYPES);
                 deviceTypeAdapter.addAll(Arrays.asList(deviceTypesResource.getData()));
             } else {
                 Log.d(TAG,"Unable to fetch device types");
-                somethingWentWrong();
+                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
             }
         });
         equipmentType.setAdapter(deviceTypeAdapter);
         equipmentType.setOnItemClickListener((adapterView, view, position, row) -> addTypeOptionField(adapterView, view, position));
+
+        deviceViewModel.getSaveDeviceTypeRequestLiveData().observe(getViewLifecycleOwner(), request -> {
+            if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS || request.getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR) {
+                Snackbar.make(rootView, request.getResourceString(), Snackbar.LENGTH_LONG).show();
+            }
+        });
 
         // set up sites
         final ArrayAdapter<String> sitesAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
@@ -643,14 +499,12 @@ public class ItemDetailFragment extends Fragment {
             if(sitesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 sitesAdapter.clear();
                 sitesAdapter.addAll(Arrays.asList(sitesResource.getData()));
-                sitesAdapter.addAll(SITES);
             } else {
                 Log.d(TAG,"Unable to fetch sites");
-                somethingWentWrong();
+                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
             }
         });
         hospitalName.setAdapter(sitesAdapter);
-        hospitalName.setOnItemClickListener((adapterView, view, position, id) -> addNewSite(adapterView, view, position));
 
         // set up physical locations
         final ArrayAdapter<String> physicalLocationsAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
@@ -661,15 +515,34 @@ public class ItemDetailFragment extends Fragment {
                 physicalLocationsAdapter.addAll(Arrays.asList(physicalLocationsResource.getData()));
             } else {
                 Log.d(TAG,"Unable to fetch physical locations");
-                somethingWentWrong();
+                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
             }
         });
         physicalLocation.setAdapter(physicalLocationsAdapter);
         physicalLocation.setOnItemClickListener((adapterView, view, position, id) -> addNewLoc(adapterView, view, position));
+
+        deviceViewModel.getSavePhysicalLocationRequestLiveData().observe(getViewLifecycleOwner(),request -> {
+            if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS || request.getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR) {
+                Snackbar.make(rootView, request.getResourceString(), Snackbar.LENGTH_LONG).show();
+            }
+        });
     }
 
-    private void somethingWentWrong() {
-        Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
+    public void handleArguments() {
+        if (getArguments() != null) {
+            String barcode = getArguments().getString("barcode");
+            boolean isPending = getArguments().getBoolean("pending_udi");
+            procedureInfo = (HashMap<String, String>) getArguments().getSerializable("procedure_info");
+            procedureUdisList = (List<HashMap<String, Object>>) getArguments().getSerializable("udi_quantity");
+            if (procedureInfo != null && procedureInfo.size() != 0) {
+                isProcedureInfoReturned = true;
+            }
+            if (procedureUdisList != null && procedureUdisList.size() > 0) {
+                isUdisReturned = true;
+            }
+            udiEditText.setText(barcode);
+            deviceViewModel.autoPopulatedScannedBarcode(barcode);
+        }
     }
 
     private void getPendingSpecs(final String barcode) {
@@ -740,82 +613,67 @@ public class ItemDetailFragment extends Fragment {
         mTimePicker.show();
     }
 
-    private void setTextWatcherRequired() {
+    // not in mvvm style - need to use data bindings
+    // packages all the fields into a DeviceModel object
+    private DeviceModel isFieldsValid() {
+        boolean isValid = true;
 
-        TextWatcher autoCompleteTextWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        List<EditText> requiredEditTexts = new ArrayList<>(allSizeOptions);
+        requiredEditTexts.addAll(Arrays.asList(udiEditText, deviceIdentifier, nameEditText, expiration,
+                hospitalName, physicalLocation, equipmentType, lotNumber, company, numberAdded, dateIn, timeIn));
+        for (EditText editText : requiredEditTexts) {
+            if (editText.getText().toString().trim().isEmpty()) {
+                isValid = false;
             }
+        }
+        if (isValid) {
+            DeviceModel deviceModel = new DeviceModel();
+            deviceModel.setDeviceIdentifier(Objects.requireNonNull(deviceIdentifier.getText()).toString().trim());
+            deviceModel.setName(Objects.requireNonNull(nameEditText.getText()).toString().trim());
+            deviceModel.setCompany(Objects.requireNonNull(company.getText()).toString().trim());
+            deviceModel.setDescription(Objects.requireNonNull(deviceDescription.getText()).toString().trim());
+            deviceModel.setEquipmentType(equipmentType.getText().toString().trim());
+            deviceModel.setMedicalSpecialty(Objects.requireNonNull(medicalSpeciality.getText()).toString().trim());
+            deviceModel.setSiteName(hospitalName.getText().toString().trim());
+            int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
+            final RadioButton radioButton = rootView.findViewById(radioButtonInt);
+            final String usage = radioButton.getText().toString();
+            deviceModel.setUsage(usage);
+            int currentQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
+            int amount = Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
+            deviceModel.setQuantity(currentQuantity + amount);
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-                for (AutoCompleteTextView editText : new AutoCompleteTextView[]{equipmentType,
-                        hospitalName, physicalLocation}) {
-                    if ((editText.getText().toString().trim().isEmpty())) {
-                        checkAutocompleteTexts = false;
-                        return;
-                    }
+            if (allSizeOptions.size() > 0) {
+                int i = 0;
+                while (i < allSizeOptions.size()) {
+                    String key = Objects.requireNonNull(allSizeOptions.get(i++).getText()).toString().trim();
+                    String value = Objects.requireNonNull(allSizeOptions.get(i++).getText()).toString().trim();
+                    deviceModel.addSpecification(key,value);
                 }
-
-                checkAutocompleteTexts = true;
-            }
-        };
-        equipmentType.addTextChangedListener(autoCompleteTextWatcher);
-        hospitalName.addTextChangedListener(autoCompleteTextWatcher);
-        physicalLocation.addTextChangedListener(autoCompleteTextWatcher);
-
-
-        TextWatcher editTextWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            DeviceProduction deviceProduction = new DeviceProduction();
+            deviceProduction.setUniqueDeviceIdentifier(Objects.requireNonNull(udiEditText.getText()).toString().trim());
+            deviceProduction.setDateAdded(Objects.requireNonNull(dateIn.getText()).toString().trim());
+            deviceProduction.setTimeAdded(Objects.requireNonNull(timeIn.getText()).toString().trim());
+            deviceProduction.setExpirationDate(Objects.requireNonNull(expiration.getText()).toString().trim());
+            deviceProduction.setLotNumber(Objects.requireNonNull(lotNumber.getText()).toString().trim());
+            deviceProduction.setNotes(Objects.requireNonNull(notes.getText()).toString().trim());
+            deviceProduction.setPhysicalLocation(physicalLocation.getText().toString().trim());
+            deviceProduction.setQuantity(amount);
+            deviceModel.addDeviceProduction(deviceProduction);
 
+            if(!Objects.requireNonNull(costEditText.getText()).toString().trim().isEmpty()){
+                String cleanString = costEditText.getText().toString().replaceAll("[$,.]", "");
+                double packagePrice = Double.parseDouble(cleanString) / 100;
+                Cost cost = new Cost(Objects.requireNonNull(dateIn.getText()).toString(),amount,packagePrice);
+                deviceProduction.addCost(cost);
             }
 
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-                for (TextInputEditText editText : new TextInputEditText[]{udiEditText, nameEditText,
-                        company, expiration, lotNumber, referenceNumber, numberAdded, deviceIdentifier,
-                        dateIn, timeIn}) {
-                    if (Objects.requireNonNull(editText.getText()).toString().trim().isEmpty()) {
-                        checkEditTexts = false;
-                        return;
-                    }
-
-                }
-
-                checkEditTexts = true;
-            }
-        };
-
-        udiEditText.addTextChangedListener(editTextWatcher);
-        nameEditText.addTextChangedListener(editTextWatcher);
-        company.addTextChangedListener(editTextWatcher);
-        expiration.addTextChangedListener(editTextWatcher);
-        lotNumber.addTextChangedListener(editTextWatcher);
-        referenceNumber.addTextChangedListener(editTextWatcher);
-        numberAdded.addTextChangedListener(editTextWatcher);
-        deviceIdentifier.addTextChangedListener(editTextWatcher);
-        dateIn.addTextChangedListener(editTextWatcher);
-        timeIn.addTextChangedListener(editTextWatcher);
-
-
-
+            return deviceModel;
+        }
+        return null;
     }
-
-
-
-
 
     private void incrementNumberAdded() {
         int newNumber = 0;
@@ -830,7 +688,6 @@ public class ItemDetailFragment extends Fragment {
 
 
     private void showNumberPicker(View view, final TextInputEditText editTextAdded) {
-
         final Dialog d = new Dialog(view.getContext());
         d.setTitle("NumberPicker");
         d.setContentView(R.layout.dialog);
@@ -841,30 +698,21 @@ public class ItemDetailFragment extends Fragment {
         np.setMinValue(0);   // min value 0
 
         np.setWrapSelectorWheel(true);
-        b1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                editTextAdded.setText(String.valueOf(np.getValue())); //set the value to textview
-                d.dismiss();
-            }
+        b1.setOnClickListener(v -> {
+            //set the value to textview
+            editTextAdded.setText(String.valueOf(np.getValue()));
+            d.dismiss();
         });
-        b2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                d.dismiss(); // dismiss the dialog
-            }
-        });
+        b2.setOnClickListener(v -> d.dismiss());
         d.show();
 
     }
-
 
     // adds new row of size text views if users clicks on a button
     int rowIndex = 1;
     int rowLoc = 1;
 
     private void addEmptySizeOption(View view) {
-
         Log.d(TAG, "Adding empty size option!");
         emptySizeFieldCounter++;
         LinearLayout layoutSize = new LinearLayout(getContext());
@@ -909,14 +757,8 @@ public class ItemDetailFragment extends Fragment {
             linearLayout.addView(removeSizeButton, linearLayout.indexOfChild(addSizeButton));
         }
 
-        removeSizeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                removeEmptySizeOption();
-            }
-        });
+        removeSizeButton.setOnClickListener(buttonView -> removeEmptySizeOption());
         isAddSizeButtonClicked = false;
-
     }
 
     //removes one row of size text entry
@@ -969,7 +811,6 @@ public class ItemDetailFragment extends Fragment {
         layoutSize.addView(sizeKeyLayout);
         layoutSize.addView(sizeValueLayout);
 
-
         allSizeOptions.add(sizeKey);
         allSizeOptions.add(sizeValue);
         linearLayout.addView(layoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
@@ -980,86 +821,47 @@ public class ItemDetailFragment extends Fragment {
     // adds new text field if users choose "other" for type
     private void addTypeOptionField(final AdapterView<?> adapterView, View view, int i) {
         String selected = (String) adapterView.getItemAtPosition(i);
-        TextInputLayout other_type_layout;
+        TextInputLayout otherTypeLayout;
         if (selected.equals("Other")) {
             saveButton.setEnabled(false);
             chosenType = true;
-            other_type_layout = (TextInputLayout) View.inflate(view.getContext(),
+            otherTypeLayout = (TextInputLayout) View.inflate(view.getContext(),
                     R.layout.activity_itemdetail_materialcomponent, null);
-            other_type_layout.setHint("Enter type");
-            other_type_layout.setGravity(Gravity.END);
-            other_type_layout.setId(View.generateViewId());
-            otherType_text = new TextInputEditText(other_type_layout.getContext());
+            otherTypeLayout.setHint("Enter type");
+            otherTypeLayout.setGravity(Gravity.END);
+            otherTypeLayout.setId(View.generateViewId());
+            EditText otherTypeEditText = new TextInputEditText(otherTypeLayout.getContext());
+
+            otherTypeEditText.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
+            otherTypeLayout.addView(otherType_text);
+            linearLayout.addView(otherTypeLayout, 1 + linearLayout.indexOfChild(typeConstrainLayout));
+
+            MaterialButton submitTypeButton = new MaterialButton(view.getContext(),
+                    null, R.attr.materialButtonOutlinedStyle);
+            submitTypeButton.setText(R.string.otherType_lbl);
+            submitTypeButton.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
+                    WRAP_CONTENT));
+            otherTypeLayout.addView(submitTypeButton);
+
             TextWatcher typeTextWatcher = new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                }
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
                 @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                }
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
                 @Override
                 public void afterTextChanged(Editable editable) {
-                    if (!(otherType_text.toString().trim().isEmpty())) {
-                        saveButton.setEnabled(true);
+                    if (editable.toString().trim().isEmpty()) {
+                        submitTypeButton.setEnabled(true);
                     }
                 }
             };
-            otherType_text.addTextChangedListener(typeTextWatcher);
+            otherTypeEditText.addTextChangedListener(typeTextWatcher);
 
-            otherType_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
-            other_type_layout.addView(otherType_text);
-            linearLayout.addView(other_type_layout, 1 + linearLayout.indexOfChild(typeConstrainLayout));
-
-            MaterialButton submit_otherType = new MaterialButton(view.getContext(),
-                    null, R.attr.materialButtonOutlinedStyle);
-            submit_otherType.setText(R.string.otherType_lbl);
-            submit_otherType.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-                    WRAP_CONTENT));
-            other_type_layout.addView(submit_otherType);
-
-            submit_otherType.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(view.getContext(), Objects.requireNonNull(otherType_text.getText()).toString(), Toast.LENGTH_SHORT).show();
-                    Map<String, Object> newType = new HashMap<>();
-                    newType.put("type_" + (++typeCounter), otherType_text.getText().toString());
-                    if (typeCounter == 1) {
-                        typeRef.set(newType)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                        Log.d(TAG, e.toString());
-                                    }
-                                });
-                    } else {
-                        typeRef.update(newType)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                        Log.d(TAG, e.toString());
-                                    }
-                                });
-                    }
-
-                }
+            submitTypeButton.setOnClickListener(submitTypeView -> {
+                deviceViewModel.saveDeviceType(Objects.requireNonNull(otherType_text.getText()).toString().trim());
+                saveButton.setEnabled(true);
             });
         } else if (chosenType) {
             chosenType = false;
@@ -1068,170 +870,48 @@ public class ItemDetailFragment extends Fragment {
         }
     }
 
-    private void addNewSite(final AdapterView<?> adapterView, View view, int i) {
+    private void addNewLoc(final AdapterView<?> adapterView, View view, int i) {
         String selected = (String) adapterView.getItemAtPosition(i);
-        TextInputLayout other_site_layout;
+        final TextInputLayout otherPhysicalLocationLayout;
         if (selected.equals("Other")) {
             saveButton.setEnabled(false);
-            chosenSite = true;
-            other_site_layout = (TextInputLayout) View.inflate(view.getContext(),
-                    R.layout.activity_itemdetail_materialcomponent, null);
-            other_site_layout.setHint("Enter site");
-            other_site_layout.setId(View.generateViewId());
-            other_site_layout.setGravity(Gravity.END);
-            otherSite_text = new TextInputEditText(other_site_layout.getContext());
-            TextWatcher siteTextWatcher = new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    if (!(otherSite_text.toString().trim().isEmpty())) {
-                        saveButton.setEnabled(true);
-                    }
-                }
-            };
-            otherSite_text.addTextChangedListener(siteTextWatcher);
-            otherSite_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
-            other_site_layout.addView(otherSite_text);
-            linearLayout.addView(other_site_layout, 1 + linearLayout.indexOfChild(siteConstrainLayout));
-
-            MaterialButton submitOtherSite = new MaterialButton(view.getContext(),
-                    null, R.attr.materialButtonOutlinedStyle);
-            submitOtherSite.setText(R.string.submitSite_lbl);
-            submitOtherSite.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-                    WRAP_CONTENT));
-            other_site_layout.addView(submitOtherSite);
-            submitOtherSite.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(view.getContext(), Objects.requireNonNull(otherSite_text.getText()).toString(), Toast.LENGTH_SHORT).show();
-                    Map<String, Object> newType = new HashMap<>();
-                    newType.put("site_" + (++siteCounter), otherSite_text.getText().toString());
-                    if (siteCounter == 1) {
-                        siteRef.document("site_options").set(newType)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                        Log.d(TAG, e.toString());
-                                    }
-                                });
-                    } else {
-                        siteRef.document("site_options").update(newType)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                        Log.d(TAG, e.toString());
-                                    }
-                                });
-                    }
-                }
-            });
-        } else if (chosenSite) {
-            saveButton.setEnabled(true);
-            chosenSite = false;
-            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(siteConstrainLayout));
-        }
-    }
-
-    private void addNewLoc(final AdapterView<?> adapterView, View view, int i) {
-        String selectedLoc = (String) adapterView.getItemAtPosition(i);
-        final TextInputLayout other_physicaloc_layout;
-        if (selectedLoc.equals("Other")) {
-            saveButton.setEnabled(false);
             chosenLocation = true;
-            other_physicaloc_layout = (TextInputLayout) View.inflate(view.getContext(),
-                    R.layout.activity_itemdetail_materialcomponent, null);
-            other_physicaloc_layout.setHint("Enter physical location");
-            other_physicaloc_layout.setGravity(Gravity.END);
-            other_physicaloc_layout.setId(View.generateViewId());
-            otherPhysicalLoc_text = new TextInputEditText(other_physicaloc_layout.getContext());
+            otherPhysicalLocationLayout = (TextInputLayout) View.inflate(view.getContext(), R.layout.activity_itemdetail_materialcomponent, null);
+            otherPhysicalLocationLayout.setHint("Enter physical location");
+            otherPhysicalLocationLayout.setGravity(Gravity.END);
+            otherPhysicalLocationLayout.setId(View.generateViewId());
+            EditText otherPhysicalLocationEditText = new TextInputEditText(otherPhysicalLocationLayout.getContext());
+            otherPhysicalLocationEditText.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
+            otherPhysicalLocationLayout.addView(otherPhysicalLocationEditText);
+            linearLayout.addView(otherPhysicalLocationLayout, 1 + linearLayout.indexOfChild(physicalLocationConstrainLayout));
+
+            MaterialButton submitPhysicalLocationButton = new MaterialButton(view.getContext(), null, R.attr.materialButtonOutlinedStyle);
+            submitPhysicalLocationButton.setText(R.string.submitLocation_lbl);
+            submitPhysicalLocationButton.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
+                    WRAP_CONTENT));
+            otherPhysicalLocationLayout.addView(submitPhysicalLocationButton);
             TextWatcher physicalLocationWatcher = new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
                 @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
                 @Override
                 public void afterTextChanged(Editable editable) {
-                    if (!(otherPhysicalLoc_text.toString().trim().isEmpty())) {
-                        saveButton.setEnabled(true);
+                    if (!(editable.toString().trim().isEmpty())) {
+                       submitPhysicalLocationButton.setEnabled(true);
                     }
                 }
             };
-            otherPhysicalLoc_text.addTextChangedListener(physicalLocationWatcher);
-            otherPhysicalLoc_text.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
-            other_physicaloc_layout.addView(otherPhysicalLoc_text);
-            linearLayout.addView(other_physicaloc_layout, 1 + linearLayout.indexOfChild(physicalLocationConstrainLayout));
+            otherPhysicalLocationEditText.addTextChangedListener(physicalLocationWatcher);
 
-            MaterialButton submit_otherPhysicalLoc = new MaterialButton(view.getContext(),
-                    null, R.attr.materialButtonOutlinedStyle);
-            submit_otherPhysicalLoc.setText(R.string.submitLocation_lbl);
-            submit_otherPhysicalLoc.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-                    WRAP_CONTENT));
-            other_physicaloc_layout.addView(submit_otherPhysicalLoc);
-
-            submit_otherPhysicalLoc.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(view.getContext(), Objects.requireNonNull(otherPhysicalLoc_text.getText()).toString(), Toast.LENGTH_SHORT).show();
-                    Map<String, Object> newType = new HashMap<>();
-                    newType.put("loc_" + (++locCounter), otherPhysicalLoc_text.getText().toString());
-                    if (locCounter == 1) {
-                        physLocRef.set(newType)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                        Log.d(TAG, e.toString());
-                                    }
-                                });
-                    } else {
-                        physLocRef.update(newType)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(adapterView.getContext(), "Your input has been saved", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(adapterView.getContext(), "Error while saving your input", Toast.LENGTH_SHORT).show();
-                                        Log.d(TAG, e.toString());
-                                    }
-                                });
-                    }
-                }
+            submitPhysicalLocationButton.setOnClickListener(submitPhysicalLocationView -> {
+                hideKeyboard();
+                deviceViewModel.savePhysicalLocation(Objects.requireNonNull(otherPhysicalLocationEditText.getText()).toString().trim());
+                saveButton.setEnabled(true);
             });
+
         } else if (chosenLocation) {
             saveButton.setEnabled(true);
             chosenLocation = false;
@@ -1239,635 +919,12 @@ public class ItemDetailFragment extends Fragment {
         }
     }
 
-    public void saveToDB(String name_str, String type_str, String company_str, String di_str, String site_name_str,
-                         String description_str, String medical_speciality_str, Object singleOrMultiUse, final String barcode_str,
-                         String numberAddedStr, String lotNumber_str, String expiration_str, String quantityStr, String currentTime_str,
-                         String physical_location_str, String referenceNumber_str, String notes_str, String currentDate_str,
-                         View view, String NETWORKS, String NETWORK, String SITES, String SITE, String DEPARTMENTS, String DEPARTMENT,
-                         String PRODUCTDIS) {
-        // saving di-specific identifiers using HashMap
-        Map<String, Object> diDoc = new HashMap<>();
-        diDoc.put(NAME_KEY, name_str);
-        diDoc.put(TYPE_KEY, type_str);
-        diDoc.put(COMPANY_KEY, company_str);
-        String DI_KEY = "di";
-        diDoc.put(DI_KEY, di_str);
-        diDoc.put(SITE_KEY, site_name_str);
-        diDoc.put(DESCRIPTION_KEY, description_str);
-        diDoc.put(SPECIALTY_KEY, medical_speciality_str);
-        diDoc.put(USAGE_KEY, singleOrMultiUse);
-        diDoc.put(QUANTITY_KEY, diQuantity);
-
-        DocumentReference diRef = db.collection(NETWORKS).document(NETWORK)
-                .collection(SITES).document(SITE).collection(DEPARTMENTS)
-                .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str);
-        diRef.set(diDoc)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        successful_save();
-//                        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, e.toString());
-                    }
-                });
-
-        // saving udi-specific identifiers using InventoryTemplate class to store multiple items at once
-        udiDocument = new InventoryTemplate(barcode_str, numberAddedStr, lotNumber_str,
-                expiration_str, quantityStr, currentTime_str, physical_location_str, referenceNumber_str,
-                notes_str, currentDate_str);
-
-        DocumentReference udiRef = db.collection(NETWORKS).document(NETWORK)
-                .collection(SITES).document(SITE).collection(DEPARTMENTS)
-                .document(DEPARTMENT).collection(PRODUCTDIS).document(di_str)
-                .collection("udis").document(barcode_str);
-
-
-        saveEquipmentCost(udiRef,costEditText,numberAdded,dateIn);
-
-        //saving data of InventoryTemplate to database
-        udiRef.set(udiDocument, SetOptions.merge())
-                //in case of success
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        if (isProcedureInfoReturned) {
-                            AddEquipmentFragment fragment = new AddEquipmentFragment();
-                            Bundle bundle = new Bundle();
-                            bundle.putString("barcode", barcode_str);
-                            bundle.putSerializable("procedure_info", (Serializable) procedureInfo);
-                            if (isUdisReturned) {
-                                bundle.putSerializable("procedure_udi", (Serializable) procedureUdisList);
-                            }
-                            fragment.setArguments(bundle);
-                            FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
-
-                            //clears other fragments
-                            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                            fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
-                            fragmentTransaction.add(R.id.activity_main, fragment);
-                            fragmentTransaction.addToBackStack(null);
-                            fragmentTransaction.commit();
-                        }
-                        successful_save();
-//                        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                // in case of failure
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, e.toString());
-                    }
-                });
-
-
-        if (allSizeOptions.size() > 0) {
-            int i = 0;
-            Map<String, Object> sizeOptions = new HashMap<>();
-            while (i < allSizeOptions.size()) {
-                sizeOptions.put(Objects.requireNonNull(allSizeOptions.get(i++).getText()).toString().trim(),
-                        Objects.requireNonNull(allSizeOptions.get(i++).getText()).toString().trim());
-            }
-            diRef.update(sizeOptions)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Error while saving data!", Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, e.toString());
-                        }
-                    });
-        }
-
-
-    }
-
-    // method for saving data to firebase cloud firestore
-    public void saveData(final View view, final String NETWORKS, final String NETWORK, final String SITES, final String SITE,
-                         final String DEPARTMENTS, final String DEPARTMENT, final String PRODUCTDIS) {
-
-        Log.d(TAG, "SAVING");
-
-
-        final String name_str = Objects.requireNonNull(nameEditText.getText()).toString();
-        final String company_str = Objects.requireNonNull(company.getText()).toString();
-        final String medical_speciality_str = Objects.requireNonNull(medicalSpeciality.getText()).toString();
-        final String di_str = Objects.requireNonNull(deviceIdentifier.getText()).toString();
-        final String description_str = Objects.requireNonNull(deviceDescription.getText()).toString();
-        final String lotNumber_str = Objects.requireNonNull(lotNumber.getText()).toString();
-        final String referenceNumber_str = Objects.requireNonNull(referenceNumber.getText()).toString();
-        final String expiration_str = Objects.requireNonNull(expiration.getText()).toString();
-        final String currentDate_str = Objects.requireNonNull(dateIn.getText()).toString();
-        final String numberAddedStr = Objects.requireNonNull(numberAdded.getText()).toString();
-
-        diQuantity = String.valueOf(Integer.parseInt(diQuantity) +
-                Integer.parseInt(numberAdded.getText().toString()));
-
-
-        String site_name;
-        if (chosenSite) {
-             site_name = Objects.requireNonNull(otherSite_text.getText()).toString();
+    private void saveData() {
+        DeviceModel deviceModel = isFieldsValid();
+        if (deviceModel != null) {
+            deviceViewModel.saveDevice(deviceModel);
         } else {
-             site_name = hospitalName.getText().toString();
+            Snackbar.make(rootView, "Please fill all required fields", Snackbar.LENGTH_LONG).show();
         }
-        final String site_name_str = site_name;
-
-        String physical_location;
-        if (chosenLocation) {
-            physical_location = Objects.requireNonNull(otherPhysicalLoc_text.getText()).toString().trim();
-        } else {
-            physical_location = physicalLocation.getText().toString().trim();
-        }
-        final String physical_location_str = physical_location;
-
-        String type;
-        if (chosenType) {
-            type = Objects.requireNonNull(otherType_text.getText()).toString();
-        } else {
-            type = equipmentType.getText().toString();
-        }
-        final String type_str = type;
-        final String currentTime_str = Objects.requireNonNull(timeIn.getText()).toString();
-        final String notes_str = Objects.requireNonNull(notes.getText()).toString();
-
-
-        int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
-        final RadioButton radioButton = view.findViewById(radioButtonInt);
-        final String singleOrMultiUse = radioButton.getText().toString();
-
-        if (!isDi) {
-            //regular barcodes
-            final String barcode_str = Objects.requireNonNull(udiEditText.getText()).toString();
-            int newTotalQuantity = Integer.parseInt(itemQuantity) +
-                    Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
-            final String quantityStr = String.valueOf(newTotalQuantity);
-
-            saveToDB(name_str,type_str,company_str, di_str,site_name_str, description_str, medical_speciality_str,
-                    singleOrMultiUse, barcode_str, numberAddedStr, lotNumber_str, expiration_str, quantityStr,
-                    currentTime_str, physical_location_str, referenceNumber_str, notes_str, currentDate_str,
-                    view, NETWORKS, NETWORK, SITES, SITE, DEPARTMENTS, DEPARTMENT,PRODUCTDIS);
-
-        } else {
-            //hibcc barcodes: alter the udi string and check for quantity
-            String udi_str = Objects.requireNonNull(udiEditText.getText()).toString();
-            String mmyy_str = (expiration_str.substring(5, 7) + expiration_str.substring(2, 4));
-            udi_str = udi_str + "$$" + mmyy_str + lotNumber_str;
-            final String barcode_str = udi_str;
-
-            DocumentReference newUdiDoc = db.collection("networks").document(mNetworkId)
-                    .collection("hospitals").document(mHospitalId).collection("departments")
-                    .document("default_department").collection("dis").document(di)
-                    .collection("udis").document(barcode_str);
-
-            newUdiDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (Objects.requireNonNull(document).exists()) {
-                            if (document.get("quantity") != null) {
-                                itemQuantity = document.getString(QUANTITY_KEY);
-                            } else {
-                                itemQuantity = "0";
-                            }
-
-                        }
-                        int newTotalQuantity = Integer.parseInt(itemQuantity) +
-                                Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
-                        final String quantityStr = String.valueOf(newTotalQuantity);
-                        saveToDB(name_str,type_str,company_str, di_str,site_name_str,
-                                description_str, medical_speciality_str, singleOrMultiUse, barcode_str, numberAddedStr, lotNumber_str,
-                                expiration_str, quantityStr, currentTime_str, physical_location_str, referenceNumber_str,
-                                notes_str, currentDate_str, view, NETWORKS, NETWORK, SITES, SITE, DEPARTMENTS, DEPARTMENT,PRODUCTDIS);
-                    }
-                }
-            });
-
-        }
-
-    }
-
-    private void saveEquipmentCost(DocumentReference udiRef, TextInputEditText costEditText, TextInputEditText numberAdded, TextInputEditText dateIn){
-        if(Objects.requireNonNull(costEditText.getText()).toString().length() > 0){
-            Map<String, Object> costInfo = new HashMap<>();
-            String cleanString = costEditText.getText().toString().replaceAll("[$,.]", "");
-            double parsed = Double.parseDouble(cleanString) / 100;
-            double pricePerUnit = parsed / Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
-            double roundOff = Math.round(pricePerUnit * 100.0) / 100.0;
-
-            costInfo.put("cost_date", Objects.requireNonNull(dateIn.getText()).toString());
-            costInfo.put("number_added",numberAdded.getText().toString());
-            costInfo.put("package_price",parsed);
-            costInfo.put("unit_price",roundOff);
-            costInfo.put("user",mUser);
-
-            udiRef.collection("equipment_cost")
-                    .add(costInfo)
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                @Override
-                public void onSuccess(DocumentReference documentReference) {
-                    Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
-                }
-            })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error adding document", e);
-                        }
-                    });
-
-        }
-    }
-
-    private void successful_save() {
-        // quit out fragment
-        Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().remove(this).commit();
-        Toast.makeText(getActivity(), "equipment saved", Toast.LENGTH_SHORT).show();
-    }
-
-    private void autoPopulate(final View view) {
-        rightView = view;
-        String udiStr = Objects.requireNonNull(udiEditText.getText()).toString();
-        String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
-
-        if (udiStr.equals("")) {
-            return;
-            // Some UDI starts with '+'; need to strip + and last character and send as a di
-        } else if (udiStr.charAt(0) == '+') {
-            udiStr = udiStr.substring(1, udiStr.length() - 1);
-            url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?di=";
-            isDi = true;
-            di = udiStr;
-
-        }
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(parent);
-        url = url + udiStr;
-
-        // Request a string response from the provided URL.
-        final String finalUdiStr = udiStr;
-        final String finalUdiStr1 = udiStr;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        JSONObject responseJson;
-                        try {
-                            responseJson = new JSONObject(response);
-//                            Log.d(TAG, "RESPONSE: " + response);
-                            if (responseJson.has("udi")) {
-                                JSONObject udi = responseJson.getJSONObject("udi");
-
-                                if (udi.has("lotNumber")) {
-                                    lotNumber.setText(udi.getString("lotNumber"));
-                                    lotNumber.setEnabled(false);
-                                    lotNumber.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-                                }
-                                if (udi.has("expirationDate")) {
-                                    expiration.setText(udi.getString("expirationDate"));
-                                    expiration.setEnabled(false);
-                                }
-                                if (udi.has("di")) {
-                                    di = udi.getString("di");
-                                    deviceIdentifier.setText(udi.getString("di"));
-                                    deviceIdentifier.setEnabled(false);
-                                }
-                            }
-                            if (isDi) {
-                                deviceIdentifier.setText(di);
-                                deviceIdentifier.setEnabled(false);
-                            }
-                            if (responseJson.has("gudid") && responseJson.getJSONObject("gudid").has("device")) {
-                                JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
-
-                                if (deviceInfo.has("companyName")) {
-                                    company.setText(deviceInfo.getString("companyName"));
-                                    company.setEnabled(false);
-                                    company.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-                                }
-                                if (deviceInfo.has("gmdnTerms")) {
-                                    nameEditText.setText(deviceInfo.getJSONObject("gmdnTerms").getJSONArray("gmdn").getJSONObject(0).getString("gmdnPTName"));
-                                    nameEditText.setEnabled(false);
-                                    nameEditText.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-                                }
-                                if (deviceInfo.has("deviceDescription")) {
-                                    deviceDescription.setText(deviceInfo.getString("deviceDescription"));
-                                    deviceDescription.setEnabled(false);
-                                    deviceDescription.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-                                }
-                                if (deviceInfo.has("catalogNumber")) {
-                                    referenceNumber.setText(deviceInfo.getString("catalogNumber"));
-                                    referenceNumber.setEnabled(false);
-                                }
-                                if (deviceInfo.has("deviceCount")) {
-                                    numberAdded.setText(deviceInfo.getString("deviceCount"));
-                                }
-                                if (deviceInfo.has("deviceSizes") && deviceInfo.getJSONObject("deviceSizes").has("deviceSize")) {
-                                    JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
-                                    for (int i = 0; i < deviceSizeArray.length(); ++i) {
-                                        int colonIndex;
-                                        String k;
-                                        String v;
-                                        JSONObject currentSizeObject = deviceSizeArray.getJSONObject(i);
-                                        k = currentSizeObject.getString("sizeType");
-                                        if (k.equals("Device Size Text, specify")) {
-                                            String customSizeText = currentSizeObject.getString("sizeText");
-                                            // Key, Value usually separated by colon
-                                            colonIndex = customSizeText.indexOf(":");
-                                            if (colonIndex == -1) {
-                                                // If no colon, save whole field as "value"
-                                                k = "Custom Key";
-                                                v = customSizeText;
-                                            } else {
-                                                k = customSizeText.substring(0, colonIndex);
-                                                v = customSizeText.substring(colonIndex + 1).trim();
-                                            }
-                                        } else {
-                                            v = currentSizeObject.getJSONObject("size").getString("value")
-                                                    + " "
-                                                    + currentSizeObject.getJSONObject("size").getString("unit");
-                                        }
-                                        addItemSpecs(k, v, view);
-                                    }
-                                }
-                                autoPopulateFromDatabase(finalUdiStr, di, view);
-                            }
-
-                            if (responseJson.has("productCodes")) {
-                                JSONArray productCodes = responseJson.getJSONArray("productCodes");
-                                StringBuilder medicalSpecialties = new StringBuilder();
-                                for (int i = 0; i < productCodes.length(); i++) {
-                                    medicalSpecialties.append(productCodes.getJSONObject(i).getString("medicalSpecialty"));
-                                    medicalSpecialties.append("; ");
-                                }
-                                medicalSpecialties = new StringBuilder(medicalSpecialties.substring(0, medicalSpecialties.length() - 2));
-
-                                medicalSpeciality.setText(medicalSpecialties.toString());
-                                medicalSpeciality.setEnabled(false);
-                                medicalSpeciality.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-                            }
-                        } catch (JSONException e) {
-                            FirebaseCrashlytics.getInstance().recordException(e);
-                            e.printStackTrace();
-//                            Log.d(TAG, "ERROR: "+ e.getMessage());
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                FirebaseCrashlytics.getInstance().recordException(error);
-//                Log.d(TAG, "Error in parsing barcode");
-                //Call checkValidUdi
-//                nonGudidUdi(finalUdiStr1, view);
-                setValidDi(finalUdiStr, view);
-            }
-        });
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
-    }
-
-    //if its valid udi, set diTextView with valid Di
-    //Call parseUDi
-    private void setValidDi(final String udiStr, final View view) {
-        RequestQueue queue = Volley.newRequestQueue(parent);
-        String url ="https://accessgudid.nlm.nih.gov/api/v2/parse_udi.json?udi=";
-        url = url + udiStr;
-
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-            new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    JSONObject responseJson;
-                    try {
-                        responseJson = new JSONObject(response);
-                        if (responseJson.has("udi")) {
-                            String udi = responseJson.getString("udi");
-                            if (responseJson.has("di")) {
-                                di = responseJson.getString("di");
-                                deviceIdentifier.setText(di);
-                                autoPopulateFromDatabase(udiStr, di, view);
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } ,
-            new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    FirebaseCrashlytics.getInstance().recordException(error);
-                    nonGudidUdi(udiStr, view);
-                }
-            });
-        queue.add(stringRequest);
-    }
-
-    private void notInDatabaseError(View view) {
-        new MaterialAlertDialogBuilder(view.getContext())
-                .setTitle("Equipment status")
-                .setMessage("Equipment has not been stored in inventory yet.\n" +
-                        "Please fill out all fields carefully")
-                .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
-                })
-                .show();
-    }
-
-    private void nonGudidUdi(final String udiStr, final View view) {
-
-        if (Objects.requireNonNull(udiEditText.getText()).toString().length() <= 0 && (!editingExisting)) {
-            Toast.makeText(parent, "Please enter barcode and click on Autopopulate again", Toast.LENGTH_LONG).show();
-            deviceIdentifier.setError("Enter device identifier (DI)");
-        } else if (udiEditText.getText().toString().length() > 0 && (!editingExisting)) {
-            DocumentReference udiDocRef = db.collection("networks").document(mNetworkId)
-                    .collection("hospitals").document(mHospitalId).collection("departments")
-                    .document("default_department").collection("dis")
-                    .document(udiStr).collection("udis").document(udiStr);
-
-
-            udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (Objects.requireNonNull(document).exists()) {
-                            autoPopulateFromDatabase(udiStr, udiStr, view);
-                            Toast.makeText(parent, "Equipment already exists in inventory, " +
-                                    "please fill out remaining fields", Toast.LENGTH_SHORT).show();
-                        } else {
-                            notInDatabaseError(view);
-                            Log.d(TAG, "No such document");
-                        }
-                    } else {
-                        //Call
-                        Log.d(TAG, "get failed with ", task.getException());
-                    }
-                }
-            });
-        }
-        TextWatcher deviceIdentifierWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                if (deviceIdentifier.getText().toString().length() > 0) {
-                    deviceIdentifier.setError(null);
-                }
-
-            }
-        };
-        deviceIdentifier.addTextChangedListener(deviceIdentifierWatcher);
-    }
-
-
-    private void autopopulateNonGudid(String barcode, String di, View view) {
-        autoPopulateFromDatabase(barcode, di, view);
-    }
-
-    private void autoPopulateFromDatabase(final String udiStr, String di, final View view) {
-        DocumentReference udiDocRef;
-        DocumentReference diDocRef;
-        udiDocRef = db.collection("networks").document(mNetworkId)
-                .collection("hospitals").document(mHospitalId).collection("departments")
-                .document("default_department").collection("dis").document(di)
-                .collection("udis").document(udiStr);
-        diDocRef = db.collection("networks").document(mNetworkId)
-                .collection("hospitals").document(mHospitalId).collection("departments")
-                .document("default_department").collection("dis").document(di);
-
-        diDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        if (document.get(COMPANY_KEY) != null && Objects.requireNonNull(company.getText()).toString().length() <= 0) {
-                            company.setText(document.getString(COMPANY_KEY));
-                            company.setEnabled(false);
-                        }
-                        if (document.get(SITE_KEY) != null && hospitalName.getText().toString().length() <= 0) {
-                            hospitalName.setText(document.getString(SITE_KEY));
-                            hospitalName.setEnabled(false);
-                        }
-                        if (document.get("di") != null && Objects.requireNonNull(deviceIdentifier.getText()).toString().length() <= 0) {
-                            deviceIdentifier.setText(document.getString("di"));
-                            deviceIdentifier.setEnabled(false);
-                        }
-
-                        if (document.get(DESCRIPTION_KEY) != null) {
-                            deviceDescription.setText(document.getString(DESCRIPTION_KEY));
-                            deviceDescription.setEnabled(false);
-                        }
-                        if (document.get(SPECIALTY_KEY) != null && Objects.requireNonNull(medicalSpeciality.getText()).toString().length() <= 0) {
-                            medicalSpeciality.setText(document.getString(SPECIALTY_KEY));
-                            medicalSpeciality.setEnabled(false);
-                        }
-                        if (document.get(NAME_KEY) != null && Objects.requireNonNull(nameEditText.getText()).toString().length() <= 0) {
-                            nameEditText.setText(document.getString(NAME_KEY));
-                            nameEditText.setEnabled(false);
-                        }
-
-                        if (document.get(TYPE_KEY) != null && equipmentType.getText().toString().length() <= 0) {
-                            equipmentType.setText(document.getString(TYPE_KEY));
-                            equipmentType.setEnabled(false);
-                        }
-                        if (document.get(SITE_KEY) != null && hospitalName.getText().toString().length() <= 0) {
-                            hospitalName.setText(document.getString(SITE_KEY));
-                            hospitalName.setEnabled(false);
-                        }
-                        if (document.get(QUANTITY_KEY) != null) {
-                            diQuantity = document.getString(QUANTITY_KEY);
-                        } else {
-                            diQuantity = "0";
-                        }
-                        if (document.get(USAGE_KEY) != null) {
-                            String usage = document.getString(USAGE_KEY);
-                            if (Objects.requireNonNull(usage).equalsIgnoreCase("Single Use")) {
-                                singleUseButton.setChecked(true);
-                            } else if (usage.equalsIgnoreCase("Reusable")) {
-                                multiUse.setChecked(true);
-                            }
-                        }
-                    } else {
-                        diQuantity = "0";
-                        notInDatabaseError(view);
-                        Log.d(TAG, "Di doesn't exist in database ", task.getException());
-                    }
-                } else {
-                    Log.d(TAG, "Failed with: ", task.getException());
-                }
-            }
-        });
-
-        udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        if (document.get("quantity") != null) {
-                            itemQuantity = document.getString(QUANTITY_KEY);
-                            quantity.setText(itemQuantity);
-                        } else {
-                            itemQuantity = "0";
-                            quantity.setText("0");
-                        }
-                        if (document.get(PHYSICALLOC_KEY) != null) {
-                            physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
-
-                        }
-
-                        if (document.get("reference_number") != null && Objects.requireNonNull(referenceNumber.getText()).toString().length() <= 0) {
-                            referenceNumber.setText(document.getString("reference_number"));
-                            referenceNumber.setEnabled(false);
-                        }
-                        if (document.get("expiration") != null && Objects.requireNonNull(expiration.getText()).toString().length() <= 0) {
-                            expiration.setText(document.getString("expiration"));
-                            expiration.setEnabled(false);
-                        }
-                        if (document.get("lot_number") != null && Objects.requireNonNull(lotNumber.getText()).toString().length() <= 0) {
-                            lotNumber.setText(document.getString("lot_number"));
-                            lotNumber.setEnabled(false);
-                        }
-                        if (document.get("notes") != null) {
-                            notes.setText(document.getString("notes"));
-                        }
-
-                    } else {
-                        itemQuantity = "0";
-                        quantity.setText("0");
-//                        Log.d(TAG, "Document does not exist!");
-                    }
-//                    quantity.setText(document.getString(QUANTITY_KEY));
-                    quantity.setEnabled(false);
-                } else {
-                    Log.d(TAG, "Failed with: ", task.getException());
-                }
-            }
-        });
     }
 }
