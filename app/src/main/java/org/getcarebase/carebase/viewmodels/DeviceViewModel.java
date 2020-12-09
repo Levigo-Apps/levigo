@@ -95,11 +95,11 @@ public class DeviceViewModel extends ViewModel {
         return autoPopulatedDeviceLiveData;
     }
 
-    public LiveData<Resource<DeviceModel>> getDeviceInFireBaseLiveData() {
+    public LiveData<Resource<DeviceModel>> getDeviceInFirebaseLiveData() {
         return deviceInFirebaseLiveData;
     }
 
-    public void updateFireStoreLiveData(String di, String udi) {
+    public void updateDeviceInFirebaseLiveData(String di, String udi) {
         LiveData<Resource<DeviceModel>> liveData = deviceRepository.getDeviceFromFirebase(di, udi);
         deviceInFirebaseLiveData.setValue(liveData.getValue());
     }
