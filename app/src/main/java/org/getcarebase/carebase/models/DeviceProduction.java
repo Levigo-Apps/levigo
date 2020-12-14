@@ -23,9 +23,11 @@ public class DeviceProduction {
     private int quantity;
     private String referenceNumber;
     private final List<Cost> costs = new ArrayList<>();
+    private final List<Procedure> procedures = new ArrayList<>();
 
     public DeviceProduction() {}
 
+    // TODO use firebase @PropertyName and @Exclude to construct object
     public DeviceProduction(Map<String,Object> data) {
         this.uniqueDeviceIdentifier = (String) data.get("udi");
         this.dateAdded = (String) data.get("current_date");
@@ -82,6 +84,14 @@ public class DeviceProduction {
         this.costs.addAll(costs);
     }
 
+    public void addProcedure(Procedure procedure) {
+        procedures.add(procedure);
+    }
+
+    public void addProcedures(List<Procedure> procedures) {
+        this.procedures.addAll(procedures);
+    }
+
     @PropertyName("udi")
     public String getUniqueDeviceIdentifier() {
         return uniqueDeviceIdentifier;
@@ -125,5 +135,9 @@ public class DeviceProduction {
     @Exclude
     public List<Cost> getCosts() {
         return costs;
+    }
+    @Exclude
+    public List<Procedure> getProcedures() {
+        return procedures;
     }
 }
