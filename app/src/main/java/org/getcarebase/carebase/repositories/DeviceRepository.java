@@ -24,6 +24,7 @@ import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceModelGUDIDDeserializer;
 import org.getcarebase.carebase.models.DeviceProduction;
 import org.getcarebase.carebase.models.ParseUDIResponse;
+import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
@@ -223,6 +224,33 @@ public class DeviceRepository {
     }
 
     /**
+     * Saves the procedure information into every device used in the procedure
+     * @param procedures a list of procedures that fundamentally are all the same but rather there
+     *                   is a entry for each device used in the procedure
+     * @return a Request object detailing the status of the request.
+     */
+    public LiveData<Request> saveProcedure(List<Procedure> procedures) {
+        MutableLiveData<Request> saveProceduresRequest = new MutableLiveData<>();
+        List<Task<?>> tasks = new ArrayList<>();
+
+        for (Procedure procedure : procedures) {
+            DocumentReference deviceProductionReference = inventoryReference.document(procedure.getDeviceIdentifier())
+                    .collection("udis").document(procedure.getUniqueDeviceIdentifier());
+            tasks.add(deviceProductionReference.collection("procedures").add(procedure));
+        }
+
+        Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                saveProceduresRequest.setValue(new Request(null, Request.Status.SUCCESS));
+            } else {
+                // TODO make resource error string
+                saveProceduresRequest.setValue(new Request(null, Request.Status.ERROR));
+            }
+        });
+        return saveProceduresRequest;
+    }
+
+    /**
      * Gets the current device in firestore if it exists. The udi given will be parsed to get its di.
      * @param udi the udi that is scanned.
      * @return The DeviceModel information that is in the database, if the device production information
@@ -260,7 +288,6 @@ public class DeviceRepository {
     /**
      * Gets full device information (device model, device production, costs, and procedures) from firebase.
      * The di and udi are expected to be valid and in firestore
-     * TODO add function to get the procedures
      */
     public LiveData<Resource<DeviceModel>> getDeviceFromFirebase(final String di, final String udi) {
         MutableLiveData<Resource<DeviceModel>> deviceLiveData = new MutableLiveData<>();
@@ -268,18 +295,22 @@ public class DeviceRepository {
         AtomicReference<Resource<DeviceModel>> deviceModelAtomicReference = new AtomicReference<>();
         AtomicReference<Resource<DeviceProduction>> deviceProductionAtomicReference = new AtomicReference<>();
         AtomicReference<Resource<List<Cost>>> costsAtomicReference = new AtomicReference<>();
+        AtomicReference<Resource<List<Procedure>>> proceduresAtomicReference = new AtomicReference<>();
 
         Task<?> deviceModelTask = getDeviceModelFromFirestore(di,deviceModelAtomicReference);
         Task<?> deviceProductionTask = getDeviceProductionFromFirestore(di,udi,deviceProductionAtomicReference);
-        Task<?> costsTask = getCostsFromFirestore(di,udi,costsAtomicReference);
+        Task<?> costsTask = getDeviceCostsFromFirestore(di,udi,costsAtomicReference);
+        Task<?> proceduresTask = getDeviceProceduresFromFirestore(di,udi,proceduresAtomicReference);
 
-        Tasks.whenAllComplete(deviceModelTask,deviceProductionTask,costsTask).addOnCompleteListener(tasks -> {
+        Tasks.whenAllComplete(deviceModelTask,deviceProductionTask,costsTask,proceduresTask).addOnCompleteListener(tasks -> {
             if (tasks.isSuccessful()) {
                 try {
                     DeviceModel deviceModel = deviceModelAtomicReference.get().getData();
                     DeviceProduction deviceProduction = deviceProductionAtomicReference.get().getData();
                     List<Cost> costs = costsAtomicReference.get().getData();
                     deviceProduction.addCosts(costs);
+                    List<Procedure> procedures = proceduresAtomicReference.get().getData();
+                    deviceProduction.addProcedures(procedures);
                     deviceModel.addDeviceProduction(deviceProduction);
                     deviceLiveData.setValue(new Resource<>(deviceModel, new Request(null, Request.Status.SUCCESS)));
                 } catch (NullPointerException e) {
@@ -358,7 +389,7 @@ public class DeviceRepository {
         return deviceProductionTask;
     }
 
-    private Task<?> getCostsFromFirestore(final String di, final String udi, final AtomicReference<Resource<List<Cost>>> costsAtomicReference) {
+    private Task<?> getDeviceCostsFromFirestore(final String di, final String udi, final AtomicReference<Resource<List<Cost>>> costsAtomicReference) {
         Task<QuerySnapshot> costsTask = inventoryReference.document(di).collection("udis").document(udi).collection("equipment_cost").get();
         costsTask.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -373,6 +404,23 @@ public class DeviceRepository {
             }
         });
         return costsTask;
+    }
+
+    private Task<?> getDeviceProceduresFromFirestore(final String di, final String udi, final AtomicReference<Resource<List<Procedure>>> proceduresAtomicReference) {
+        Task<QuerySnapshot> proceduresTask = inventoryReference.document(di).collection("udis").document(udi).collection("procedures").get();
+        proceduresTask.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot procedureSnapshots = task.getResult();
+                List<Procedure> procedures = new ArrayList<>();
+                for (QueryDocumentSnapshot documentSnapshot : procedureSnapshots) {
+                    procedures.add(documentSnapshot.toObject(Procedure.class));
+                }
+                proceduresAtomicReference.set(new Resource<>(procedures,new Request(null, Request.Status.SUCCESS)));
+            } else {
+                proceduresAtomicReference.set(new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+            }
+        });
+        return proceduresTask;
     }
 
     /**
