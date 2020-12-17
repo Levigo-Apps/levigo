@@ -532,8 +532,7 @@ public class ItemDetailFragment extends Fragment {
         if (getArguments() != null) {
             String barcode = getArguments().getString("barcode");
             boolean isPending = getArguments().getBoolean("pending_udi");
-            procedureInfo = (HashMap<String, String>) getArguments().getSerializable("procedure_info");
-            procedureUdisList = (List<HashMap<String, Object>>) getArguments().getSerializable("udi_quantity");
+
             if (procedureInfo != null && procedureInfo.size() != 0) {
                 isProcedureInfoReturned = true;
             }

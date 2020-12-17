@@ -236,6 +236,9 @@ public class DeviceRepository {
         for (Procedure procedure : procedures) {
             DocumentReference deviceProductionReference = inventoryReference.document(procedure.getDeviceIdentifier())
                     .collection("udis").document(procedure.getUniqueDeviceIdentifier());
+            // update the device's quantity
+            tasks.add(deviceProductionReference.update("quantity",procedure.getNewQuantity()));
+            // save the procedure
             tasks.add(deviceProductionReference.collection("procedures").add(procedure));
         }
 
