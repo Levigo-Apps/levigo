@@ -10,13 +10,32 @@ public class Procedure {
     private String deviceIdentifier;
     private String uniqueDeviceIdentifier;
     private String accessionNumber;
-    private String amountUsed;
+    private int amountUsed;
+    // TODO change device production quantity to type int instead of string in firebase
+    private String newQuantity;
     private String fluoroTime;
     private String date;
-    private String type;
+    private String name;
     private String roomTime;
     private String timeIn;
     private String timeOut;
+
+    public Procedure() {}
+
+    // helper constructor for procedure form
+    public Procedure(DeviceUsage deviceUsage, Procedure procedureDetails) {
+        this.deviceIdentifier = deviceUsage.getDeviceIdentifier();
+        this.uniqueDeviceIdentifier = deviceUsage.getUniqueDeviceIdentifier();
+        this.amountUsed = deviceUsage.getAmountUsed();
+        this.newQuantity = Integer.toString(deviceUsage.getNewQuantity());
+        this.accessionNumber = procedureDetails.getAccessionNumber();
+        this.fluoroTime = procedureDetails.getFluoroTime();
+        this.date = procedureDetails.getDate();
+        this.name = procedureDetails.getName();
+        this.roomTime = procedureDetails.getRoomTime();
+        this.timeIn = procedureDetails.getTimeIn();
+        this.timeOut = procedureDetails.getTimeOut();
+    }
 
     @Exclude
     public String getDeviceIdentifier() {
@@ -49,13 +68,18 @@ public class Procedure {
     }
 
     @PropertyName("amount_used")
-    public String getAmountUsed() {
+    public int getAmountUsed() {
         return amountUsed;
     }
 
     @PropertyName("amount_used")
-    public void setAmountUsed(String amountUsed) {
+    public void setAmountUsed(int amountUsed) {
         this.amountUsed = amountUsed;
+    }
+
+    @Exclude
+    public String getNewQuantity() {
+        return newQuantity;
     }
 
     @PropertyName("fluoro_time")
@@ -68,24 +92,24 @@ public class Procedure {
         this.fluoroTime = fluoroTime;
     }
 
-    @PropertyName("procedure_date")
+    @PropertyName("date")
     public String getDate() {
         return date;
     }
 
-    @PropertyName("procedure_date")
+    @PropertyName("date")
     public void setDate(String date) {
         this.date = date;
     }
 
-    @PropertyName("procedure_used")
-    public String getType() {
-        return type;
+    @PropertyName("name")
+    public String getName() {
+        return name;
     }
 
-    @PropertyName("procedure_used")
-    public void setType(String type) {
-        this.type = type;
+    @PropertyName("name")
+    public void setName(String name) {
+        this.name = name;
     }
 
     @PropertyName("room_time")
