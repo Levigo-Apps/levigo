@@ -1,7 +1,9 @@
-package org.getcarebase.carebase.activities.Main.fragments;
+ package org.getcarebase.carebase.activities.Main.fragments;
 
+import android.accounts.AccountManagerFuture;
 import android.app.Activity;
 import android.content.res.ColorStateList;
+import android.database.Observable;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -19,6 +21,10 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -31,44 +37,32 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import org.getcarebase.carebase.R;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.getcarebase.carebase.models.Cost;
+import org.getcarebase.carebase.models.DeviceModel;
+import org.getcarebase.carebase.models.DeviceProduction;
+import org.getcarebase.carebase.viewmodels.DeviceViewModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class ItemDetailViewFragment extends Fragment {
+ public class ItemDetailViewFragment extends Fragment {
 
-    private static final String TAG = ItemDetailViewFragment.class.getSimpleName();
     private Activity parent;
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final CollectionReference usersRef = db.collection("users");
 
     private String mNetworkId;
     private String mHospitalId;
     private String itemQuantity;
     private String currentDate;
     private String currentTime;
-    private String returnedDi;
-    private int procedureCount;
-    private final String TYPE_KEY = "equipment_type";
-    private final String SITE_KEY = "site_name";
-    private final String USAGE_KEY = "usage";
-    private final String PHYSICALLOC_KEY = "physical_location";
-    private final String QUANTITY_KEY = "quantity";
+    private DeviceViewModel deviceViewModel;
 
 
     private LinearLayout linearLayout;
@@ -141,55 +135,58 @@ public class ItemDetailViewFragment extends Fragment {
         costLayout = rootView.findViewById(R.id.cost_linearlayout);
         costIcon = rootView.findViewById(R.id.cost_plus);
         ImageView itemNameEdit = rootView.findViewById(R.id.itemname_edit);
+        deviceViewModel = new ViewModelProvider(this).get(DeviceViewModel.class);
 
+        deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
+            deviceViewModel.setupDeviceRepository();
+            String barcode = getArguments().getString("barcode");
+            udi.setText(barcode);
+            String di = getArguments().getString("di");
+            deviceViewModel.updateDeviceInFirebaseLiveData(di, barcode);
 
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
+            deviceViewModel.getDeviceInFirebaseLiveData().observe(getViewLifecycleOwner(), resourceData -> {
+                if (resourceData.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+                    DeviceModel deviceModel = resourceData.getData();
 
-        final DocumentReference currentUserRef = usersRef.document(userId);
-        currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                String toastMessage;
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        try {
-                            mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
-                            mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
+                    type.setText(deviceModel.getEquipmentType());
+                    hospitalName.setText(deviceModel.getSiteName());
+                    String usageStr = deviceModel.getUsage();
+                    usage.setText(usageStr);
+                    deviceDescription.setText(deviceModel.getDescription());
+                    deviceIdentifier.setText(deviceModel.getDeviceIdentifier());
+                    medicalSpecialty.setText(deviceModel.getMedicalSpecialty());
+                    itemName.setText(deviceModel.getName());
+                    manufacturer.setText(deviceModel.getCompany());
 
-                            if (getArguments() != null) {
-                                String barcode = getArguments().getString("barcode");
-                                udi.setText(barcode);
-                                returnedDi = getArguments().getString("di");
-                                Log.d(TAG, "DI: " + returnedDi + "| UDI: " + barcode);
-                                autoPopulateFromDatabase(returnedDi, barcode, rootView);
-                                getItemSpecs(rootView,barcode);
-                            }
-                        } catch (NullPointerException e) {
-                            toastMessage = "Error retrieving user information; Please contact support";
-                            Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        // document for user doesn't exist
-                        toastMessage = "User not found; Please contact support";
-                        Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                    DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
+                    expiration.setText(deviceProduction.getExpirationDate());
+                    lotNumber.setText(deviceProduction.getLotNumber());
+                    notes.setText(deviceProduction.getNotes());
+                    physicalLocation.setText(deviceProduction.getPhysicalLocation());
+                    itemQuantity = deviceProduction.getStringQuantity();
+                    quantity.setText(itemQuantity);
+                    currentDate = deviceProduction.getDateAdded();
+                    currentTime = deviceProduction.getTimeAdded();
+                    lastUpdate.setText(String.format("%s\n%s", currentDate, currentTime));
+                    referenceNumber.setText(deviceProduction.getReferenceNumber());
+
+                    addCostInfo(deviceProduction.getCosts(), rootView);
+
+                    for (Map.Entry<String, Object> specification : deviceModel.getSpecificationList()) {
+                        addItemSpecs(specification.getKey(), specification.getValue().toString(), rootView);
                     }
-                } else {
-                    toastMessage = "User lookup failed; Please try again and contact support if issue persists";
-                    Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "get failed with ", task.getException());
                 }
-            }
+                else if (resourceData.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR){
+                    Toast.makeText(parent.getApplicationContext(), resourceData.getRequest().getResourceString(), Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
 
-        topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (parent != null)
-                    parent.onBackPressed();
-            }
+
+        topToolBar.setNavigationOnClickListener(view -> {
+            if (parent != null)
+                parent.onBackPressed();
         });
 
         final boolean[] isSpecsMaximized = {false};
@@ -235,79 +232,6 @@ public class ItemDetailViewFragment extends Fragment {
         return rootView;
     }
 
-
-    private void getItemSpecs(final View view, String udi) {
-        String udiStr = udi;
-        if (udiStr.equals("")) {
-            return;
-            // Some UDI starts with '+'; needs to strip plus sign and last letter in order to be recognized
-        } else if (udiStr.charAt(0) == '+') {
-            udiStr = udiStr.replaceFirst("[+]", "01");
-        }
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(parent);
-        String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
-        url = url + udiStr;
-
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        JSONObject responseJson;
-                        try {
-                            responseJson = new JSONObject(response);
-                            if (responseJson.has("gudid") && responseJson.getJSONObject("gudid").has("device")) {
-                                JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
-
-                                if (deviceInfo.has("deviceSizes") && deviceInfo.getJSONObject("deviceSizes").has("deviceSize")) {
-                                    JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
-                                    for (int i = 0; i < deviceSizeArray.length(); ++i) {
-                                        int colonIndex;
-                                        String k;
-                                        String v;
-                                        JSONObject currentSizeObject = deviceSizeArray.getJSONObject(i);
-                                        k = currentSizeObject.getString("sizeType");
-                                        if (k.equals("Device Size Text, specify")) {
-                                            String customSizeText = currentSizeObject.getString("sizeText");
-                                            // Key, Value usually separated by colon
-                                            colonIndex = customSizeText.indexOf(":");
-                                            if (colonIndex == -1) {
-                                                // If no colon, save whole field as "value"
-                                                k = "Custom Key";
-                                                v = customSizeText;
-                                            } else {
-                                                k = customSizeText.substring(0, colonIndex);
-                                                v = customSizeText.substring(colonIndex + 1).trim();
-                                            }
-                                        } else {
-                                            v = currentSizeObject.getJSONObject("size").getString("value")
-                                                    + " "
-                                                    + currentSizeObject.getJSONObject("size").getString("unit");
-                                        }
-                                        addItemSpecs(k, v, view);
-                                    }
-                                }
-                            }
-
-                        } catch (JSONException e) {
-                            FirebaseCrashlytics.getInstance().recordException(e);
-                            e.printStackTrace();
-//                            Log.d(TAG, "ERROR: "+ e.getMessage());
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                FirebaseCrashlytics.getInstance().recordException(error);
-//                Log.d(TAG, "Error in parsing barcode");
-            }
-        });
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
-
-    }
-
     private void addItemSpecs(String key, String value, View view) {
 
         LinearLayout eachItemSpecsLayout = new LinearLayout(view.getContext());
@@ -348,129 +272,6 @@ public class ItemDetailViewFragment extends Fragment {
         eachItemSpecsLayout.addView(specsValue);
 
         itemSpecsLinearLayout.addView(eachItemSpecsLayout);
-    }
-
-    private void autoPopulateFromDatabase(final String di, final String udiStr, final View view) {
-        final DocumentReference udiDocRef;
-        DocumentReference diDocRef;
-
-        udiDocRef = db.collection("networks").document(mNetworkId)
-                .collection("hospitals").document(mHospitalId).collection("departments")
-                .document("default_department").collection("dis").document(di)
-                .collection("udis").document(udiStr);
-
-
-        diDocRef = db.collection("networks").document(mNetworkId)
-                .collection("hospitals").document(mHospitalId).collection("departments")
-                .document("default_department").collection("dis").document(di);
-
-
-        diDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        if (document.get(TYPE_KEY) != null) {
-                            type.setText(document.getString(TYPE_KEY));
-                        }
-                        if (document.get(SITE_KEY) != null) {
-                            hospitalName.setText(document.getString(SITE_KEY));
-                        }
-                        if (document.get(USAGE_KEY) != null) {
-                            String usageStr = document.getString(USAGE_KEY);
-                            usage.setText(usageStr);
-                        }
-                        if (document.get("device_description") != null && deviceDescription.getText().toString().length() <= 0) {
-                            deviceDescription.setText(document.getString("device_description"));
-                        }
-                        if (document.get("di") != null && deviceIdentifier.getText().toString().length() <= 0) {
-                            deviceIdentifier.setText(document.getString("di"));
-                        }
-                        if (document.get("medical_specialty") != null && medicalSpecialty.getText().toString().length() <= 0) {
-                            medicalSpecialty.setText(document.getString("medical_specialty"));
-                        }
-                        if (document.get("name") != null && itemName.getText().toString().length() <= 0) {
-                            itemName.setText(document.getString("name"));
-                        }
-                        if (document.get("company") != null && manufacturer.getText().toString().length() <= 0) {
-                            manufacturer.setText(document.getString("company"));
-                        }
-
-                    } else {
-                        Log.d(TAG, "Document does not exist!");
-                    }
-                } else {
-                    Log.d(TAG, "Failed with: ", task.getException());
-                }
-            }
-        });
-
-        getCostInfo(udiDocRef,view);
-
-        udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        if (document.get("procedure_number") != null) {
-                            procedureCount = Integer.parseInt(
-                                    Objects.requireNonNull(document.getString("procedure_number")));
-                            getProcedureInfo(procedureCount, di, udiStr, view);
-                        } else {
-                            procedureCount = 0;
-                        }
-                        if (document.get("expiration") != null) {
-                            expiration.setText(document.getString("expiration"));
-                        }
-                        if (document.get("lot_number") != null && lotNumber.getText().toString().length() <= 0) {
-                            lotNumber.setText(document.getString("lot_number"));
-                        }
-                        if (document.get("notes") != null) {
-                            notes.setText(document.getString("notes"));
-                        }
-                        if (document.get("physical_location") != null) {
-                            physicalLocation.setText(document.getString("physical_location"));
-                        }
-                        if (document.get("quantity") != null) {
-                            itemQuantity = document.getString(QUANTITY_KEY);
-                            quantity.setText(itemQuantity);
-                        } else {
-                            itemQuantity = "0";
-                            quantity.setText("0");
-                        }
-                        if (document.get(PHYSICALLOC_KEY) != null) {
-                            physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
-                        }
-                        if (document.get("current_date") != null) {
-                            currentDate = document.getString("current_date");
-                        }
-                        if (document.get("current_time") != null) {
-                            currentTime = document.getString("current_time");
-                            lastUpdate.setText(String.format("%s\n%s", currentDate, currentTime));
-                        }
-                        if (document.get("notes") != null) {
-                            notes.setText(document.getString("notes"));
-                        }
-                        if (document.get("reference_number") != null && referenceNumber.getText().toString().length() <= 0) {
-                            referenceNumber.setText(document.getString("reference_number"));
-                        }
-                    } else {
-                        itemQuantity = "0";
-                        quantity.setText("0");
-                        procedureCount = 0;
-                        Log.d(TAG, "Document does not exist!");
-                    }
-                    quantity.setText(document.getString(QUANTITY_KEY));
-                    quantity.setFocusable(false);
-                } else {
-                    procedureCount = 0;
-                    Log.d(TAG, "Failed with: ", task.getException());
-                }
-            }
-        });
-
     }
 
     private void getProcedureInfo(final int procedureCount, String di,
@@ -892,27 +693,9 @@ public class ItemDetailViewFragment extends Fragment {
 
     }
 
-    private void getCostInfo(DocumentReference udiRef, final View view){
-        udiRef.collection("equipment_cost")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                                costDoc.add(document.getData());
-                            }
-                            addCostInfo(costDoc,view);
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
 
-    }
-
-    private void addCostInfo(List<Map> costDoc,View view){
-        if(costDoc.size() > 0) {
+    private void addCostInfo(List<Cost> costs,View view){
+        if(costs.size() > 0) {
             int i;
             final LinearLayout costInfoLayout = new LinearLayout(view.getContext());
             costInfoLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -920,7 +703,7 @@ public class ItemDetailViewFragment extends Fragment {
             costInfoLayout.setOrientation(LinearLayout.VERTICAL);
             costInfoLayout.setVisibility(View.GONE);
 
-            for (i = 0; i < costDoc.size(); i++) {
+            for (i = 0; i < costs.size(); i++) {
 
                 final LinearLayout eachEquipmentLayout = new LinearLayout(view.getContext());
                 eachEquipmentLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -949,7 +732,7 @@ public class ItemDetailViewFragment extends Fragment {
                 costParams.weight = (float) 1.0;
                 costDateText.setLayoutParams(costParams);
                 TextInputEditText dateText = new TextInputEditText(costDateText.getContext());
-                dateText.setText(Objects.requireNonNull(costDoc.get(i).get("cost_date")).toString());
+                dateText.setText(costs.get(i).getCostDate());
                 dateText.setBackgroundColor(Color.WHITE);
                 dateText.setFocusable(false);
                 costDateText.addView(dateText);
@@ -995,7 +778,7 @@ public class ItemDetailViewFragment extends Fragment {
                 packageParams.weight = (float) 1.0;
                 packagePriceText.setLayoutParams(packageParams);
                 TextInputEditText packagePriceEditText = new TextInputEditText(packagePriceText.getContext());
-                packagePriceEditText.setText(String.format("$ %s", Objects.requireNonNull(costDoc.get(i).get("package_price")).toString()));
+                packagePriceEditText.setText(String.format("$ %s", costs.get(i).getPackagePrice()));
                 packagePriceEditText.setBackgroundColor(Color.WHITE);
                 packagePriceEditText.setFocusable(false);
                 packagePriceText.addView(packagePriceEditText);
@@ -1030,7 +813,7 @@ public class ItemDetailViewFragment extends Fragment {
                 numberAddedParams.weight = (float) 1.0;
                 numberAddedText.setLayoutParams(numberAddedParams);
                 TextInputEditText numberAddedEditText = new TextInputEditText(numberAddedText.getContext());
-                numberAddedEditText.setText(Objects.requireNonNull(costDoc.get(i).get("number_added")).toString());
+                numberAddedEditText.setText(costs.get(i).getNumberAdded());
                 numberAddedEditText.setBackgroundColor(Color.WHITE);
                 numberAddedEditText.setFocusable(false);
                 numberAddedText.addView(numberAddedEditText);
@@ -1065,7 +848,7 @@ public class ItemDetailViewFragment extends Fragment {
                 unitCostTextParams.weight = (float) 1.0;
                 unitCostText.setLayoutParams(unitCostTextParams);
                 TextInputEditText unitCostEditText = new TextInputEditText(unitCostText.getContext());
-                unitCostEditText.setText(String.format("$ %s", Objects.requireNonNull(costDoc.get(i).get("unit_price")).toString()));
+                unitCostEditText.setText(String.format("$ %s", costs.get(i).getUnitPrice()));
                 unitCostEditText.setBackgroundColor(Color.WHITE);
                 unitCostEditText.setFocusable(false);
                 unitCostText.addView(unitCostEditText);
