@@ -1,6 +1,7 @@
 package org.getcarebase.carebase.activities.Main.fragments;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,7 +13,6 @@ import android.widget.LinearLayout;
 
 import android.widget.TextView;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -36,7 +36,7 @@ import org.getcarebase.carebase.viewmodels.ProcedureViewModel;
 import java.util.Objects;
 
 public class AddEquipmentFragment extends Fragment {
-    private static final String TAG = AddEquipmentFragment.class.getSimpleName();
+    public static final String TAG = AddEquipmentFragment.class.getSimpleName();
     private LinearLayout procedureDetailsView;
     private ProcedureViewModel procedureViewModel;
 
@@ -62,7 +62,7 @@ public class AddEquipmentFragment extends Fragment {
                 newUsedDevicesAdapter.notifyDataSetChanged();
             }
             else if (request.getStatus() == Request.Status.ERROR) {
-                if (request.getResourceString() != R.string.error_device_lookup) {
+                if (request.getResourceString() == R.string.error_device_lookup) {
                     offerEquipmentScan(rootView,procedureViewModel.getScannedDevice());
                 } else {
                     Snackbar.make(rootView, request.getResourceString(), Snackbar.LENGTH_LONG).show();
@@ -73,18 +73,24 @@ public class AddEquipmentFragment extends Fragment {
         procedureViewModel.getSaveProcedureRequestLiveData().observe(getViewLifecycleOwner(),request -> {
             if (request.getStatus() == Request.Status.SUCCESS) {
                 // go back to main activity
-                requireActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                Snackbar.make(requireActivity().findViewById(R.id.activity_main), "Equipment Saved", Snackbar.LENGTH_LONG).show();
+                requireActivity().setResult(Activity.RESULT_OK);
+                procedureViewModel.goToInventory();
             } else if (request.getStatus() == Request.Status.ERROR) {
                 Snackbar.make(rootView, request.getResourceString(), Snackbar.LENGTH_LONG).show();
             }
         });
 
-        topToolBar.setNavigationOnClickListener(view -> requireActivity().getSupportFragmentManager().popBackStack());
+        topToolBar.setNavigationOnClickListener(view -> procedureViewModel.goToProcedureDetails());
 
         addBarcode.setOnClickListener(view -> startScanner());
 
-        saveButton.setOnClickListener(view -> procedureViewModel.saveProcedure());
+        saveButton.setOnClickListener(view -> {
+            if (devicesUsedRecyclerView.getAdapter().getItemCount() == 0) {
+                Snackbar.make(rootView, R.string.error_procedure_no_devices, Snackbar.LENGTH_LONG).show();
+            } else {
+                procedureViewModel.saveProcedure();
+            }
+        });
 
         return rootView;
     }
@@ -144,7 +150,7 @@ public class AddEquipmentFragment extends Fragment {
                     // fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
-                    fragmentTransaction.add(R.id.activity_main, fragment);
+                    fragmentTransaction.add(R.id.add_procedure_frame_layout, fragment);
                     fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.commit();
                 })
