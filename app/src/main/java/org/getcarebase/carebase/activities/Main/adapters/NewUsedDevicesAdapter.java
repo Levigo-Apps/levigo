@@ -17,7 +17,7 @@ import java.util.List;
 
 public class NewUsedDevicesAdapter extends RecyclerView.Adapter<NewUsedDevicesAdapter.ViewHolder>{
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView udiTextView;
         public TextView quantityTextView;
         public ImageView incrementQuantityButton;
@@ -32,7 +32,7 @@ public class NewUsedDevicesAdapter extends RecyclerView.Adapter<NewUsedDevicesAd
         }
     }
 
-    private List<DeviceUsage> devices;
+    private final List<DeviceUsage> devices;
 
     public NewUsedDevicesAdapter(List<DeviceUsage> devices) {
         this.devices = devices;
@@ -51,7 +51,7 @@ public class NewUsedDevicesAdapter extends RecyclerView.Adapter<NewUsedDevicesAd
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DeviceUsage deviceUsage = devices.get(position);
         holder.udiTextView.setText(deviceUsage.getUniqueDeviceIdentifier());
-        holder.quantityTextView.setText(Integer.toString(deviceUsage.getAmountUsed()));
+        holder.quantityTextView.setText(holder.quantityTextView.getContext().getResources().getQuantityString(R.plurals.number_of_units,deviceUsage.getAmountUsed(),deviceUsage.getAmountUsed()));
         holder.incrementQuantityButton.setOnClickListener(view -> {
             deviceUsage.incrementAmountUsed();
             notifyItemChanged(position);

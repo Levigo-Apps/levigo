@@ -247,7 +247,7 @@ public class DeviceRepository {
                 saveProceduresRequest.setValue(new Request(null, Request.Status.SUCCESS));
             } else {
                 // TODO make resource error string
-                saveProceduresRequest.setValue(new Request(null, Request.Status.ERROR));
+                saveProceduresRequest.setValue(new Request(R.string.error_something_wrong, Request.Status.ERROR));
             }
         });
         return saveProceduresRequest;

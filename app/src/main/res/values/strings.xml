@@ -32,10 +32,16 @@
 
     <!--entering a new procedure start-->
     <string name="error_device_already_entered">The device has already been recorded</string>
+    <string name="error_procedure_no_devices">Please scan the devices used in the procedure</string>
     <!--entering a new procedure start-->
 
     <!--template values start-->
+    <!--Depreciated-->
     <string name="unit_quantity_value">%1$d Units</string>
+    <plurals name="number_of_units">
+        <item quantity="one">%d unit</item>
+        <item quantity="other">%d units</item>
+    </plurals>
     <!--template values end-->
 
     <string name="notes_lbl">Notes</string>

@@ -1,7 +1,5 @@
 package org.getcarebase.carebase.viewmodels;
 
-import android.util.Pair;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
@@ -20,10 +18,14 @@ import org.getcarebase.carebase.utils.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class ProcedureViewModel extends ViewModel {
     private final List<DeviceUsage> devicesUsed = new ArrayList<>();
+
+    // represents the current page that the user is on
+    // 0 - entering procedure details
+    // 1 - recording devices used in the procedures
+    private final MutableLiveData<Integer> currentStep = new MutableLiveData<>(0);
     // The procedure that is to be saved to all the devices - di and udi are null
     private Procedure procedureDetails;
 
@@ -57,6 +59,22 @@ public class ProcedureViewModel extends ViewModel {
         authRepository = new FirebaseAuthRepository();
     }
 
+    public LiveData<Integer> getCurrentStep() {
+        return currentStep;
+    }
+
+    public void goToProcedureDetails() {
+        currentStep.setValue(0);
+    }
+
+    public void goToDeviceUsed() {
+        currentStep.setValue(1);
+    }
+
+    public void goToInventory() {
+        currentStep.setValue(-1);
+    }
+
     public LiveData<Resource<User>> getUserLiveData() {
         if (userLiveData == null) {
             userLiveData = authRepository.getUser();
@@ -87,6 +105,11 @@ public class ProcedureViewModel extends ViewModel {
 
     public void addDeviceUsed(final String barcode) {
         addDeviceLiveData.setValue(barcode);
+    }
+
+    public void retryDeviceUsed() {
+        Objects.requireNonNull(addDeviceLiveData.getValue());
+        addDeviceLiveData.setValue(addDeviceLiveData.getValue());
     }
 
     public String getScannedDevice() {

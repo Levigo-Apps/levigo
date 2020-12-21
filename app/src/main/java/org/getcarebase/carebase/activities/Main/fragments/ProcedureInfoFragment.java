@@ -5,47 +5,27 @@ import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.Procedure;
-import org.getcarebase.carebase.viewmodels.DeviceViewModel;
 import org.getcarebase.carebase.viewmodels.ProcedureViewModel;
 
-import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,7 +33,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -61,10 +40,8 @@ import java.util.Random;
 
 public class ProcedureInfoFragment extends Fragment {
 
-    private static final String TAG = ProcedureInfoFragment.class.getSimpleName();
-    private Activity parent;
+    public static final String TAG = ProcedureInfoFragment.class.getSimpleName();
 
-    private TextInputLayout accessionNumber;
     private AutoCompleteTextView procedureNameEditText;
     private TextInputEditText procedureDateEditText;
     private TextInputEditText timeInEditText;
@@ -80,7 +57,6 @@ public class ProcedureInfoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_procedureinfo, container, false);
-        parent = getActivity();
         myCalendar = Calendar.getInstance();
         TextInputLayout dateLayout = rootView.findViewById(R.id.procedureinfo_date_layout);
         TextInputLayout timeInLayout = rootView.findViewById(R.id.procedureinfo_timeIn_layout);
@@ -92,7 +68,6 @@ public class ProcedureInfoFragment extends Fragment {
         roomTimeEditText = rootView.findViewById(R.id.procedure_roomTime);
         fluoroTimeEditText = rootView.findViewById(R.id.procedure_fluoroTime);
         accessionNumberEditText = rootView.findViewById(R.id.procedure_accessionNumber);
-        accessionNumber = rootView.findViewById(R.id.procedureinfo_accessionNumber_layout);
         List<String> procedureNames = new ArrayList<>();
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
         Button continueButton = rootView.findViewById(R.id.procedure_continue_button);
@@ -100,11 +75,12 @@ public class ProcedureInfoFragment extends Fragment {
         procedureViewModel = new ViewModelProvider(requireActivity()).get(ProcedureViewModel.class);
         procedureViewModel.getUserLiveData().observe(getViewLifecycleOwner(),userResource -> procedureViewModel.setupDeviceRepository());
 
-        topToolBar.setNavigationOnClickListener(view -> requireActivity().getSupportFragmentManager().popBackStack());
+        topToolBar.setNavigationOnClickListener(view -> procedureViewModel.goToInventory());
 
         continueButton.setOnClickListener(view -> {
             if (validateFields()) {
-                navigateToAddDevicesUsed();
+                // Go to add devices used screen
+                procedureViewModel.goToDeviceUsed();
             } else {
                 Snackbar.make(rootView, R.string.error_missing_required_fields, Snackbar.LENGTH_LONG).show();
             }
@@ -178,7 +154,7 @@ public class ProcedureInfoFragment extends Fragment {
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override
             public void afterTextChanged(Editable editable) {
-                    calculateRoomTime(Objects.requireNonNull(timeInEditText.getText()).toString(),
+                calculateRoomTime(Objects.requireNonNull(timeInEditText.getText()).toString(),
                             Objects.requireNonNull(timeOutEditText.getText()).toString(),roomTimeEditText);
             }
         };
@@ -187,17 +163,6 @@ public class ProcedureInfoFragment extends Fragment {
         timeOutEditText.addTextChangedListener(textWatcher);
 
         return rootView;
-    }
-
-    // Go to add equipment screen
-    private void navigateToAddDevicesUsed(){
-        AddEquipmentFragment fragment = new AddEquipmentFragment();
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
-        fragmentTransaction.add(R.id.activity_main, fragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
     }
 
     private void calculateRoomTime(String timeIn, String timeOut, TextInputEditText roomTime){
