@@ -22,6 +22,7 @@
     <string name="error_something_wrong">Something went wrong, please contact support</string>
     <string name="error_device_lookup">Could not find device information</string>
     <string name="error_partial_data_in_database">Only device model information is found for this device</string>
+    <string name="error_missing_required_fields">Please enter all required fields</string>
     <!--common errors end-->
 
     <!--adding a device start-->
@@ -29,8 +30,18 @@
     <string name="new_physical_location_saved">New physical location successfully saved</string>
     <!--adding a device end-->
 
+    <!--entering a new procedure start-->
+    <string name="error_device_already_entered">The device has already been recorded</string>
+    <string name="error_procedure_no_devices">Please scan the devices used in the procedure</string>
+    <!--entering a new procedure start-->
+
     <!--template values start-->
+    <!--Depreciated-->
     <string name="unit_quantity_value">%1$d Units</string>
+    <plurals name="number_of_units">
+        <item quantity="one">%d unit</item>
+        <item quantity="other">%d units</item>
+    </plurals>
     <!--template values end-->
 
     <string name="notes_lbl">Notes</string>

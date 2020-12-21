@@ -40,6 +40,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -60,6 +61,7 @@ import org.getcarebase.carebase.viewmodels.InventoryViewModel;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int RC_HANDLE_CAMERA_PERM = 1;
+    private static final int RC_ADD_PROCEDURE = 2;
 
     private RecyclerView inventoryScroll;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -152,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) {
             String contents = result.getContents();
@@ -163,6 +166,10 @@ public class MainActivity extends AppCompatActivity {
             }
             if (result.getBarcodeImagePath() != null) {
                 Log.d(TAG, "" + result.getBarcodeImagePath());
+            }
+        } else if (requestCode == RC_ADD_PROCEDURE) {
+            if (resultCode == RESULT_OK) {
+                Snackbar.make(findViewById(R.id.activity_main),"Procedure Saved", Snackbar.LENGTH_LONG).show();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -246,20 +253,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void startProcedureInfo(String barcode) {
-        ProcedureInfoFragment fragment = new ProcedureInfoFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString("barcode", barcode);
-        fragment.setArguments(bundle);
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        //clears other fragments
-        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
-        fragmentTransaction.add(R.id.activity_main, fragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+    public void startProcedureInfo() {
+        startActivityForResult(new Intent(this, AddProcedureActivity.class),RC_ADD_PROCEDURE);
     }
     
     public void signOut() {
@@ -309,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.procedureInfo:
-                startProcedureInfo("");
+                startProcedureInfo();
                 return true;
 
             default:
