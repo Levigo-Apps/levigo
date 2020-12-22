@@ -67,7 +67,7 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/procedure_date_lbl"
+                    android:hint="@string/procedure_date_label"
                     app:endIconMode="custom"
                     app:endIconDrawable="@drawable/calendar"
                     app:endIconTint="@color/colorPrimary"
