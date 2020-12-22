@@ -24,7 +24,9 @@ public class DeviceViewModel extends ViewModel {
     private LiveData<Resource<User>> userLiveData;
 
     private final MediatorLiveData<Resource<DeviceModel>> autoPopulatedDeviceLiveData = new MediatorLiveData<>();
-    
+
+    private LiveData<Resource<DeviceModel>> deviceInFirebaseLiveData;
+
     // when a user tries to save a device this live data will be updated
     private final MutableLiveData<DeviceModel> saveDeviceLiveData = new MutableLiveData<>();
 
@@ -91,6 +93,14 @@ public class DeviceViewModel extends ViewModel {
 
     public LiveData<Resource<DeviceModel>> getAutoPopulatedDeviceLiveData() {
         return autoPopulatedDeviceLiveData;
+    }
+
+    public LiveData<Resource<DeviceModel>> getDeviceInFirebaseLiveData() {
+        return deviceInFirebaseLiveData;
+    }
+
+    public void updateDeviceInFirebaseLiveData(String di, String udi) {
+        deviceInFirebaseLiveData = deviceRepository.getDeviceFromFirebase(di, udi);
     }
 
     public void autoPopulatedScannedBarcode(String barcode) {

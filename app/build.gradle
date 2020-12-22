@@ -55,6 +55,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:20.2.4'
 
     implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
+    implementation 'androidx.viewpager:viewpager:1.0.0'
 
 
     testImplementation 'junit:junit:4.12'

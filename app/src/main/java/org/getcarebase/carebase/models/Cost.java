@@ -27,8 +27,8 @@ public class Cost {
     }
 
     @PropertyName("number_added")
-    public void setNumberAdded(int numberAdded) {
-        this.numberAdded = numberAdded;
+    public void setNumberAdded(String numberAdded) {
+        this.numberAdded = Integer.parseInt(numberAdded);
     }
 
     @PropertyName("package_price")
