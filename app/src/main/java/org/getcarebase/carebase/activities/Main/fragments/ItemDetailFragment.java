@@ -31,6 +31,7 @@ import android.widget.TimePicker;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -54,6 +55,7 @@ import org.getcarebase.carebase.models.Cost;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceProduction;
 import org.getcarebase.carebase.viewmodels.DeviceViewModel;
+import org.getcarebase.carebase.viewmodels.ProcedureViewModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -203,9 +205,6 @@ public class ItemDetailFragment extends Fragment {
             "Shelf - Micropuncture sets/Wires",
             "Other");
 
-    HashMap<String, String> procedureInfo;
-    private List<HashMap<String, Object>> procedureUdisList;
-
     private LinearLayout siteConstrainLayout;
     private LinearLayout physicalLocationConstrainLayout;
     private LinearLayout typeConstrainLayout;
@@ -341,9 +340,8 @@ public class ItemDetailFragment extends Fragment {
         topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FragmentManager fragmentManager = getFragmentManager();
-                if (Objects.requireNonNull(fragmentManager).getBackStackEntryCount() > 0) {
-                    fragmentManager.popBackStack();
+                if (requireActivity().getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                    requireActivity().getSupportFragmentManager().popBackStack();
                 } else {
                     if (parent != null) {
                         parent.onBackPressed();
@@ -413,8 +411,20 @@ public class ItemDetailFragment extends Fragment {
     private void setupSaveDevice() {
         deviceViewModel.getSaveDeviceRequestLiveData().observe(getViewLifecycleOwner(),request -> {
             if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().remove(this).commit();
-                Snackbar.make(getActivity().findViewById(R.id.activity_main), "Equipment Saved", Snackbar.LENGTH_LONG).show();
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                // if addEquipmentFragment is in the backstack tell the fragment to retry getting the
+                // device from the database
+                Fragment addEquipmentFragment = fragmentManager.findFragmentByTag(AddEquipmentFragment.TAG);
+                View nextView = requireActivity().findViewById(R.id.activity_main);
+                if (addEquipmentFragment != null) {
+                    ProcedureViewModel procedureViewModel = new ViewModelProvider(requireActivity()).get(ProcedureViewModel.class);
+                    procedureViewModel.retryDeviceUsed();
+                    nextView = addEquipmentFragment.getView();
+                }
+
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.remove(this).commit();
+                Snackbar.make(nextView, "Device saved to inventory", Snackbar.LENGTH_LONG).show();
             } else {
                 Log.d(TAG,"error while saving device");
                 Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
@@ -532,14 +542,6 @@ public class ItemDetailFragment extends Fragment {
         if (getArguments() != null) {
             String barcode = getArguments().getString("barcode");
             boolean isPending = getArguments().getBoolean("pending_udi");
-            procedureInfo = (HashMap<String, String>) getArguments().getSerializable("procedure_info");
-            procedureUdisList = (List<HashMap<String, Object>>) getArguments().getSerializable("udi_quantity");
-            if (procedureInfo != null && procedureInfo.size() != 0) {
-                isProcedureInfoReturned = true;
-            }
-            if (procedureUdisList != null && procedureUdisList.size() > 0) {
-                isUdisReturned = true;
-            }
             udiEditText.setText(barcode);
             deviceViewModel.autoPopulatedScannedBarcode(barcode);
         }
