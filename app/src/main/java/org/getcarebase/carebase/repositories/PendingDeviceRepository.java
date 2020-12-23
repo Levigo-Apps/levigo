@@ -1,16 +1,15 @@
 package org.getcarebase.carebase.repositories;
 
-import androidx.annotation.NonNull;
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.PendingDevice;
@@ -24,6 +23,8 @@ public class PendingDeviceRepository {
     private static final String TAG = "PendingDeviceRepository";
 
     private final CollectionReference pendingDevicesReference;
+
+    private final List<PendingDevice> pendingDevices = new ArrayList<>();
 
     public PendingDeviceRepository(final String networkId, final String hospitalId) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -59,18 +60,30 @@ public class PendingDeviceRepository {
     }
 
     public LiveData<Resource<List<PendingDevice>>> getPendingDevices() {
-        MutableLiveData<Resource<List<PendingDevice>>> pendingDevicesMutableLiveData = new MutableLiveData<>();
-        pendingDevicesReference.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                List<PendingDevice> pendingDevices = new ArrayList<>();
-                if (task.getResult() != null ){
-                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                        pendingDevices.add(documentSnapshot.toObject(PendingDevice.class));
+        Resource<List<PendingDevice>> loadingPendingDeviceResource = new Resource<>(pendingDevices,new Request(null, Request.Status.LOADING));
+        MutableLiveData<Resource<List<PendingDevice>>> pendingDevicesMutableLiveData = new MutableLiveData<>(loadingPendingDeviceResource);
+        pendingDevicesReference.addSnapshotListener((snapshots, e) -> {
+            if (e != null || snapshots == null) {
+                Log.w(TAG, "listen:error", e);
+                pendingDevicesMutableLiveData.setValue(new Resource<>(pendingDevices, new Request(null,Request.Status.ERROR)));
+            } else {
+                for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                    switch (dc.getType()) {
+                        case ADDED:
+                            pendingDevices.add(dc.getDocument().toObject(PendingDevice.class));
+                            break;
+                        case MODIFIED:
+                            String modifiedId = dc.getDocument().getId();
+                            pendingDevices.removeIf(pendingDevice -> pendingDevice.getId().equals(modifiedId));
+                            pendingDevices.add(dc.getDocument().toObject(PendingDevice.class));
+                            break;
+                        case REMOVED:
+                            String removedId = dc.getDocument().getId();
+                            pendingDevices.removeIf(pendingDevice -> pendingDevice.getId().equals(removedId));
+                            break;
                     }
                 }
                 pendingDevicesMutableLiveData.setValue(new Resource<>(pendingDevices,new Request(null,Request.Status.SUCCESS)));
-            } else {
-                pendingDevicesMutableLiveData.setValue(new Resource<>(null, new Request(null,Request.Status.ERROR)));
             }
         });
         return pendingDevicesMutableLiveData;
