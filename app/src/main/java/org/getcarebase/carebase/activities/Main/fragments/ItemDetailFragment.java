@@ -54,6 +54,8 @@ import org.getcarebase.carebase.R;;
 import org.getcarebase.carebase.models.Cost;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceProduction;
+import org.getcarebase.carebase.models.PendingDevice;
+import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.DeviceViewModel;
 import org.getcarebase.carebase.viewmodels.ProcedureViewModel;
 
@@ -468,7 +470,9 @@ public class ItemDetailFragment extends Fragment {
                 deviceDescription.setEnabled(deviceModel.getDescription() == null);
                 company.setText(deviceModel.getCompany());
                 company.setEnabled(deviceModel.getCompany() == null);
-                numberAdded.setText("1");
+                if (numberAdded.getText() == null || numberAdded.getText().toString().trim().isEmpty()) {
+                    numberAdded.setText("1");
+                }
                 for (Map.Entry<String,Object> specification : deviceModel.getSpecificationList()) {
                     addItemSpecs(specification.getKey(),specification.getValue().toString(),rootView);
                 }
@@ -540,64 +544,37 @@ public class ItemDetailFragment extends Fragment {
 
     public void handleArguments() {
         if (getArguments() != null) {
-            String barcode = getArguments().getString("barcode");
-            boolean isPending = getArguments().getBoolean("pending_udi");
-            udiEditText.setText(barcode);
-            deviceViewModel.autoPopulatedScannedBarcode(barcode);
+            String barcode;
+            String pendingDeviceId;
+            if ((barcode = getArguments().getString("barcode")) != null) {
+                udiEditText.setText(barcode);
+                deviceViewModel.autoPopulatedScannedBarcode(barcode);
+            // this device is a pending device
+            } else if ((pendingDeviceId = getArguments().getString("pending_device_id")) != null) {
+                deviceViewModel.getPendingDeviceLiveData().observe(getViewLifecycleOwner(),pendingDeviceResource -> {
+                    if (pendingDeviceResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                        setPendingDataFields(pendingDeviceResource.getData());
+                    } else if (pendingDeviceResource.getRequest().getStatus() == Request.Status.ERROR) {
+                        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                        fragmentManager.popBackStack();
+                        Fragment fragment = fragmentManager.findFragmentByTag(PendingUdiFragment.TAG);
+                        Snackbar.make(Objects.requireNonNull(fragment).requireView(),pendingDeviceResource.getRequest().getResourceString(),Snackbar.LENGTH_LONG).show();
+                    }
+                });
+                deviceViewModel.setPendingDeviceIdLiveData(pendingDeviceId);
+            }
+
         }
     }
 
-    private void getPendingSpecs(final String barcode) {
-        DocumentReference docRef = db.collection("networks").document(mNetworkId)
-                .collection("hospitals").document(mHospitalId).collection("departments")
-                .document("default_department").collection("pending_udis").document(barcode);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        List<Map> list = new ArrayList<>();
-                        Map<String, Object> map = document.getData();
-                        if (map != null) {
-                            list.add(map);
-                        }
-                        autopopulatePendingData(list);
-                    }
-                }
-            }
-        });
-    }
-
-    private void deletePendingUdi(String barcode) {
-        CollectionReference CollectionRef = db.collection("networks").document(mNetworkId)
-                .collection("hospitals").document(mHospitalId).collection("departments")
-                .document("default_department").collection("pending_udis");
-
-        CollectionRef.document(barcode)
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error deleting document", e);
-                    }
-                });
-    }
-
-    private void autopopulatePendingData(List<Map> list) {
-        hospitalName.setText(Objects.requireNonNull(list.get(0).get("site_name")).toString());
-        dateIn.setText(Objects.requireNonNull(list.get(0).get("date_in")).toString());
-        notes.setText(Objects.requireNonNull(list.get(0).get("notes")).toString());
-        timeIn.setText(Objects.requireNonNull(list.get(0).get("time_in")).toString());
-        udiEditText.setText(Objects.requireNonNull(list.get(0).get("udi")).toString());
-        numberAdded.setText(Objects.requireNonNull(list.get(0).get("number_added")).toString());
-        physicalLocation.setText(Objects.requireNonNull(list.get(0).get("physical_location")).toString());
+    private void setPendingDataFields(PendingDevice pendingDevice) {
+        hospitalName.setText(pendingDevice.getSiteName());
+        dateIn.setText(pendingDevice.getDateAdded());
+        notes.setText(pendingDevice.getNotes());
+        timeIn.setText(pendingDevice.getTimeAdded());
+        udiEditText.setText(pendingDevice.getUniqueDeviceIdentifier());
+        numberAdded.setText(pendingDevice.getQuantity());
+        physicalLocation.setText(pendingDevice.getPhysicalLocation());
     }
 
     private void timeInLayoutPicker(View view) {
