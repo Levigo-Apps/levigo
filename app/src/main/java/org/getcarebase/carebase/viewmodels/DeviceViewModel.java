@@ -9,9 +9,11 @@ import androidx.lifecycle.ViewModel;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
+import org.getcarebase.carebase.models.PendingDevice;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
 import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
+import org.getcarebase.carebase.repositories.PendingDeviceRepository;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
@@ -19,6 +21,7 @@ import java.util.Objects;
 
 public class DeviceViewModel extends ViewModel {
     private DeviceRepository deviceRepository;
+    private PendingDeviceRepository pendingDeviceRepository;
     private final FirebaseAuthRepository authRepository;
 
     private LiveData<Resource<User>> userLiveData;
@@ -27,17 +30,24 @@ public class DeviceViewModel extends ViewModel {
 
     private LiveData<Resource<DeviceModel>> deviceInFirebaseLiveData;
 
-    // when a user tries to save a device this live data will be updated
-    private final MutableLiveData<DeviceModel> saveDeviceLiveData = new MutableLiveData<>();
-
     private final MutableLiveData<String> saveDeviceTypeLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> savePhysicalLocationLiveData = new MutableLiveData<>();
 
-    // requests to save a device will be sent to this live data
-    private final LiveData<Request> saveDeviceRequestLiveData = Transformations.switchMap(saveDeviceLiveData, deviceModel -> deviceRepository.saveDevice(deviceModel));
-
     private final LiveData<Request> saveDeviceTypeRequestLiveData = Transformations.switchMap(saveDeviceTypeLiveData, deviceType -> deviceRepository.saveDeviceType(deviceType));
     private final LiveData<Request> savePhysicalLocationRequestLiveData = Transformations.switchMap(savePhysicalLocationLiveData, physicalLocation -> deviceRepository.savePhysicalLocation(physicalLocation));
+
+    private final MutableLiveData<String> pendingDeviceIdLiveData = new MutableLiveData<>();
+    private final LiveData<Resource<PendingDevice>> pendingDeviceLiveData = Transformations.switchMap(pendingDeviceIdLiveData,pendingDeviceId -> pendingDeviceRepository.getPendingDevice(pendingDeviceId));
+
+    // when a user tries to save a device this live data will be updated
+    private final MutableLiveData<DeviceModel> saveDeviceLiveData = new MutableLiveData<>();
+    // requests to save a device will be sent to this live data
+    private final LiveData<Request> saveDeviceRequestLiveData = Transformations.switchMap(saveDeviceLiveData, deviceModel -> {
+        if (pendingDeviceIdLiveData.getValue() != null) {
+            pendingDeviceRepository.removePendingDevice(pendingDeviceIdLiveData.getValue());
+        }
+        return deviceRepository.saveDevice(deviceModel);
+    });
 
     public DeviceViewModel() {
         authRepository = new FirebaseAuthRepository();
@@ -53,6 +63,7 @@ public class DeviceViewModel extends ViewModel {
     public void setupDeviceRepository() {
         User user = Objects.requireNonNull(userLiveData.getValue()).getData();
         deviceRepository = new DeviceRepository(user.getNetworkId(), user.getHospitalId());
+        pendingDeviceRepository = new PendingDeviceRepository(user.getNetworkId(),user.getHospitalId());
     }
 
     public LiveData<Resource<String[]>> getDeviceTypesLiveData() {
@@ -101,6 +112,14 @@ public class DeviceViewModel extends ViewModel {
 
     public void updateDeviceInFirebaseLiveData(String di, String udi) {
         deviceInFirebaseLiveData = deviceRepository.getDeviceFromFirebase(di, udi);
+    }
+
+    public void setPendingDeviceIdLiveData(String pendingDeviceId) {
+       pendingDeviceIdLiveData.setValue(pendingDeviceId);
+    }
+
+    public LiveData<Resource<PendingDevice>> getPendingDeviceLiveData() {
+        return pendingDeviceLiveData;
     }
 
     public void autoPopulatedScannedBarcode(String barcode) {
