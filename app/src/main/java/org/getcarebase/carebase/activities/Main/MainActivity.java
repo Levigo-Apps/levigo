@@ -54,6 +54,7 @@ import org.getcarebase.carebase.activities.Main.fragments.ItemDetailOfflineFragm
 import org.getcarebase.carebase.activities.Main.fragments.ItemDetailViewFragment;
 import org.getcarebase.carebase.activities.Main.fragments.PendingUdiFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ProcedureInfoFragment;
+import org.getcarebase.carebase.models.PendingDevice;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.InventoryViewModel;
@@ -247,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
-        fragmentTransaction.add(R.id.activity_main, fragment);
+        fragmentTransaction.add(R.id.activity_main, fragment, PendingUdiFragment.TAG);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
 
