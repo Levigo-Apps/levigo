@@ -43,7 +43,7 @@ public class NewUsedDevicesAdapter extends RecyclerView.Adapter<NewUsedDevicesAd
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View deviceView = inflater.inflate(R.layout.procedure_item, parent, false);
+        View deviceView = inflater.inflate(R.layout.new_procedure_device_item, parent, false);
         return new ViewHolder(deviceView);
     }
 
