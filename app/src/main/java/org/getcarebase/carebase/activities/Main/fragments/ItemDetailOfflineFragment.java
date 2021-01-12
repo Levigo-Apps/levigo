@@ -22,6 +22,8 @@ import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TimePicker;
 import android.widget.Toast;
+import android.widget.Toolbar;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -74,14 +76,6 @@ public class ItemDetailOfflineFragment extends Fragment {
     private TextInputEditText dateIn;
     private TextInputEditText timeIn;
 
-
-    private TextInputLayout siteLocationLayout;
-    private ArrayList<String> SITELOC;
-
-    private boolean chosenSite;
-    private boolean checkProcedureFields;
-    private boolean checkAutoComplete;
-    private boolean chosenItem;
     MaterialButton rescanButton;
     MaterialButton saveButton;
 
@@ -89,6 +83,7 @@ public class ItemDetailOfflineFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_itemdetailoffline, container, false);
         final Calendar myCalendar = Calendar.getInstance();
+        final MaterialToolbar toolbar = rootView.findViewById(R.id.topAppBar);
         udi = rootView.findViewById(R.id.detail_udi);
         siteLocation = rootView.findViewById(R.id.detail_site_location);
         physicalLocation = rootView.findViewById(R.id.detail_physical_location);
@@ -96,17 +91,11 @@ public class ItemDetailOfflineFragment extends Fragment {
         notes = rootView.findViewById(R.id.detail_notes);
         dateIn = rootView.findViewById(R.id.detail_in_date);
         timeIn = rootView.findViewById(R.id.detail_in_time);
-        siteLocationLayout = rootView.findViewById(R.id.siteLocationLayout);
         TextInputLayout numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
         TextInputLayout dateInLayout = rootView.findViewById(R.id.in_date_layout);
         TextInputLayout timeInLayout = rootView.findViewById(R.id.in_time_layout);
         rescanButton = rootView.findViewById(R.id.detail_rescan_button);
         saveButton = rootView.findViewById(R.id.detail_save_button);
-        SITELOC = new ArrayList<>();
-        chosenSite = false;
-        checkAutoComplete = false;
-        checkProcedureFields = false;
-        chosenItem = false;
 
         PendingDeviceViewModel pendingDeviceViewModel = new ViewModelProvider(this).get(PendingDeviceViewModel.class);
 
@@ -121,7 +110,7 @@ public class ItemDetailOfflineFragment extends Fragment {
         numberAddedLayout.setEndIconOnClickListener(view -> incrementNumberAdded());
 
         //TimePicker dialog pops up when clicked on the icon
-        timeInLayout.setEndIconOnClickListener(view -> timeInLayoutPicker(view));
+        timeInLayout.setEndIconOnClickListener(this::timeInLayoutPicker);
 
         // going back to the scanner view
         rescanButton.setOnClickListener(view -> {
@@ -161,6 +150,8 @@ public class ItemDetailOfflineFragment extends Fragment {
                 Snackbar.make(requireView(), R.string.error_missing_required_fields, Snackbar.LENGTH_LONG).show();
             }
         });
+
+        toolbar.setNavigationOnClickListener(view -> requireActivity().onBackPressed());
 
         if (getArguments() != null) {
             String barcode = getArguments().getString("barcode");
