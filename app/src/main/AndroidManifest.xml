@@ -54,7 +54,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.Login.SignUpActivity">
+        <activity android:name=".activities.Login.SignUpFragment">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.getcarebase.carebase.activities.Login.LoginActivity" />

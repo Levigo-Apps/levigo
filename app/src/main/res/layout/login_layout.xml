@@ -98,6 +98,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:id="@+id/forgot_password_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
@@ -106,8 +107,8 @@
                         android:textSize="12sp" />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/materialButton"
                         style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:id="@+id/register_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"

@@ -4,27 +4,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="15dp"
     android:background="@android:color/white">
 
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/main_toolbar"
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/fui_transparent"
-        app:layout_collapseMode="pin"
+        android:background="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@android:drawable/ic_menu_sort_by_size"
-        app:titleTextColor="@color/colorPrimaryDark"
-        app:title="ResetPassword" />
+        app:navigationIcon="@drawable/icon_back"
+        app:titleTextColor="@android:color/white"
+        app:title="Reset Password" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
-        android:layout_weight="3">
+        android:layout_weight="3"
+        android:layout_margin="8dp">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout_invitationCode"
