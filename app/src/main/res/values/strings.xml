@@ -13,12 +13,44 @@
     <string name="forgot_your_password_label">Forgot password</string>
     <string name="forgot_password_email_sent">If there is an account with that email, a password reset email has been sent</string>
     <string name="error_invalid_invitation">Invalid invitation code</string>
+    <string name="account_created">Account created. Welcome!</string>
+    <string name="user_not_signed_in">User not signed in</string>
     <!--login/signup screen end-->
 
     <!--common errors start-->
     <string name="error_too_many_attempts">Too many attempts. Retry in 1 minute.</string>
     <string name="error_something_wrong">Something went wrong, please contact support</string>
+    <string name="error_device_lookup">Could not find device information</string>
+    <string name="error_partial_data_in_database">Only device model information is found for this device</string>
+    <string name="error_missing_required_fields">Please enter all required fields</string>
     <!--common errors end-->
+
+    <!--adding a device start-->
+    <string name="new_device_type_saved">New device type successfully saved</string>
+    <string name="new_physical_location_saved">New physical location successfully saved</string>
+    <!--adding a device end-->
+
+    <!--procedures start-->
+    <string name="error_device_already_entered">The device has already been recorded</string>
+    <string name="error_procedure_no_devices">Please scan the devices used in the procedure</string>
+    <string name="procedure_date_label">Procedure Date</string>
+    <string name="accession_number_label">Accession Number</string>
+    <string name="procedure_name_label">Procedure Name</string>
+    <string name="amount_used_label">Amount Used</string>
+    <string name="room_time_out_label">Room Time Out</string>
+    <string name="room_time_in_label">Room Time In</string>
+    <string name="room_time_label">Room Time</string>
+    <string name="fluoro_time_label">Fluoro Time</string>
+    <!--procedures end-->
+
+    <!--template values start-->
+    <!--Depreciated-->
+    <string name="unit_quantity_value">%1$d Units</string>
+    <plurals name="number_of_units">
+        <item quantity="one">%d unit</item>
+        <item quantity="other">%d units</item>
+    </plurals>
+    <!--template values end-->
 
     <string name="notes_lbl">Notes</string>
     <string name="save_lbl">Save</string>
@@ -58,10 +90,7 @@
     <string name="cancelButton_label">Cancel</string>
     <string name="usage_label">Usage</string>
     <string name="name_label">Name</string>
-    <string name="procedureName_lbl">Procedure Name</string>
-    <string name="AccessionNumber_lbl">Accession Number</string>
     <string name="itemsUsed_lbl">Number of Items Used</string>
-    <string name="procedureDate_lbl">Procedure Date</string>
     <string name="barcode_udi_label">Barcode | UDI</string>
     <string name="device_identifier_label">Device Identifier</string>
     <string name="quantity_label">Quantity</string>
@@ -85,12 +114,6 @@
     <string name="msg_token_fmt">\"%s\"</string>
     <string name="increment_button_description">increment button</string>
     <string name="tap_to_generate_a_new_accession_number_label">Tap to generate a new accession number</string>
-    <string name="room_time_out_label">Room time out</string>
-    <string name="room_time_in_label">Room time in</string>
-    <string name="procedure_name_label">Procedure name</string>
-    <string name="procedure_date_lbl">Procedure date</string>
-    <string name="fluoroTime_lbl">Fluoro time</string>
-    <string name="roomTime_lbl">Room time</string>
     <string name="purchaseDate_lbl">Purchase date</string>
     <string name="packageCost_lbl">Package cost</string>
     <string name="units_lbl">Number of units</string>
@@ -115,14 +138,12 @@
     <string name="cancel_lbl">Cancel</string>
     <string name="equipment_cost_lbl">Equipment Cost</string>
     <string name="pending_equipment_lbl">Pending equipment</string>
-    <string name="room_time_label">Room time</string>
     <string name="add_a_procedure_lbl">Add a procedure</string>
     <string name="name_of_equipment_lbl">Name of Equipment</string>
     <string name="udi_lbl">UDI</string>
     <string name="new_procedure_lbl">New procedure</string>
     <string name="room_time_lbl">Room time</string>
     <string name="fluoro_time_lbl">Fluoro time</string>
-    <string name="accession_number_lbl">Accession number</string>
     <string name="expiration_date_lbl">Expiration Date</string>
 
 </resources>

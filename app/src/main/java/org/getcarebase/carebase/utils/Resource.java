@@ -1,24 +1,24 @@
 package org.getcarebase.carebase.utils;
 
 /**
- * A wrapper class that carries information about the data requested
- * @param <T> data type
+ * A immutable wrapper class that carries information about the data requested
+ * @param <T> data's type
  */
 public class Resource<T> {
-    public enum Status {
-        SUCCESS,
-        LOADING,
-        ERROR
+    private T data;
+    private Request request;
+
+    public Resource (T data, Request request) {
+        this.data = data;
+        this.request = request;
     }
 
-    public T data = null;
-    public Integer resourceString = null;
-    public Status status;
+    public T getData() {
+        return data;
+    }
 
-    public Resource (T data, Integer resourceString, Status status) {
-        this.data = data;
-        this.resourceString = resourceString;
-        this.status = status;
+    public Request getRequest() {
+        return request;
     }
 }
 

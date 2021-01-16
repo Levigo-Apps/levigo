@@ -1,7 +1,9 @@
-package org.getcarebase.carebase.activities.Main.fragments;
+ package org.getcarebase.carebase.activities.Main.fragments;
 
+import android.accounts.AccountManagerFuture;
 import android.app.Activity;
 import android.content.res.ColorStateList;
+import android.database.Observable;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -19,6 +21,13 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -31,54 +40,41 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.squareup.okhttp.internal.Internal;
 
 import org.getcarebase.carebase.R;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.getcarebase.carebase.activities.Main.adapters.ProceduresAdapter;
+import org.getcarebase.carebase.models.Cost;
+import org.getcarebase.carebase.models.DeviceModel;
+import org.getcarebase.carebase.models.DeviceProduction;
+import org.getcarebase.carebase.viewmodels.DeviceViewModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class ItemDetailViewFragment extends Fragment {
+ public class ItemDetailViewFragment extends Fragment {
 
-    private static final String TAG = ItemDetailViewFragment.class.getSimpleName();
     private Activity parent;
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final CollectionReference usersRef = db.collection("users");
 
     private String mNetworkId;
     private String mHospitalId;
     private String itemQuantity;
     private String currentDate;
     private String currentTime;
-    private String returnedDi;
-    private int procedureCount;
-    private final String TYPE_KEY = "equipment_type";
-    private final String SITE_KEY = "site_name";
-    private final String USAGE_KEY = "usage";
-    private final String PHYSICALLOC_KEY = "physical_location";
-    private final String QUANTITY_KEY = "quantity";
+    private DeviceViewModel deviceViewModel;
 
 
     private LinearLayout linearLayout;
-    private LinearLayout usageLinearLayout;
     private LinearLayout itemSpecsLinearLayout;
     private LinearLayout costLayout;
 
-
     private ImageView specificationLayout;
-    private ImageView usageLayout;
     private ImageView costIcon;
     private TextView itemName;
     private TextView udi;
@@ -95,8 +91,7 @@ public class ItemDetailViewFragment extends Fragment {
     private TextView manufacturer;
     private TextView lastUpdate;
     private TextView notes;
-    private TextView deviceDescription;
-    private List<Map> procedureDoc;
+    private TextView deviceDescription;;
     private List<Map> costDoc;
 
     private float dp;
@@ -126,11 +121,8 @@ public class ItemDetailViewFragment extends Fragment {
         notes = rootView.findViewById(R.id.notes_edittext);
         deviceDescription = rootView.findViewById(R.id.devicedescription_edittext);
         specificationLayout = rootView.findViewById(R.id.specifications_plus);
-        usageLayout = rootView.findViewById(R.id.usage_plus);
-        procedureDoc = new ArrayList<>();
         linearLayout = rootView.findViewById(R.id.itemdetailviewonly_linearlayout);
         LinearLayout specsLinearLayout = rootView.findViewById(R.id.specs_linearlayout);
-        usageLinearLayout = rootView.findViewById(R.id.usage_linearlayout);
         itemSpecsLinearLayout = new LinearLayout(rootView.getContext());
         itemSpecsLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -142,54 +134,76 @@ public class ItemDetailViewFragment extends Fragment {
         costIcon = rootView.findViewById(R.id.cost_plus);
         ImageView itemNameEdit = rootView.findViewById(R.id.itemname_edit);
 
-
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-
-        final DocumentReference currentUserRef = usersRef.document(userId);
-        currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                String toastMessage;
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        try {
-                            mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
-                            mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
-
-                            if (getArguments() != null) {
-                                String barcode = getArguments().getString("barcode");
-                                udi.setText(barcode);
-                                returnedDi = getArguments().getString("di");
-                                Log.d(TAG, "DI: " + returnedDi + "| UDI: " + barcode);
-                                autoPopulateFromDatabase(returnedDi, barcode, rootView);
-                                getItemSpecs(rootView,barcode);
-                            }
-                        } catch (NullPointerException e) {
-                            toastMessage = "Error retrieving user information; Please contact support";
-                            Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        // document for user doesn't exist
-                        toastMessage = "User not found; Please contact support";
-                        Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    toastMessage = "User lookup failed; Please try again and contact support if issue persists";
-                    Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
+        LinearLayout proceduresDropdown = rootView.findViewById(R.id.procedures_dropdown);
+        RecyclerView proceduresRecyclerView = rootView.findViewById(R.id.procedures_recycler_view);
+        proceduresRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        proceduresRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(),
+                DividerItemDecoration.VERTICAL));
+        ImageView procedureToggleButton = rootView.findViewById(R.id.procedures_toggle_button);
+        proceduresDropdown.setOnClickListener(view -> {
+            if (proceduresRecyclerView.getVisibility() == View.VISIBLE) {
+                proceduresRecyclerView.setVisibility(View.GONE);
+                procedureToggleButton.setImageResource(R.drawable.ic_baseline_plus);
+            } else {
+                proceduresRecyclerView.setVisibility(View.VISIBLE);
+                procedureToggleButton.setImageResource(R.drawable.icon_minimize);
             }
         });
 
 
-        topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (parent != null)
-                    parent.onBackPressed();
-            }
+        deviceViewModel = new ViewModelProvider(this).get(DeviceViewModel.class);
+
+        deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
+            deviceViewModel.setupDeviceRepository();
+            String barcode = getArguments().getString("barcode");
+            udi.setText(barcode);
+            String di = getArguments().getString("di");
+            deviceViewModel.updateDeviceInFirebaseLiveData(di, barcode);
+
+            deviceViewModel.getDeviceInFirebaseLiveData().observe(getViewLifecycleOwner(), resourceData -> {
+                if (resourceData.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+                    DeviceModel deviceModel = resourceData.getData();
+
+                    type.setText(deviceModel.getEquipmentType());
+                    hospitalName.setText(deviceModel.getSiteName());
+                    String usageStr = deviceModel.getUsage();
+                    usage.setText(usageStr);
+                    deviceDescription.setText(deviceModel.getDescription());
+                    deviceIdentifier.setText(deviceModel.getDeviceIdentifier());
+                    medicalSpecialty.setText(deviceModel.getMedicalSpecialty());
+                    itemName.setText(deviceModel.getName());
+                    manufacturer.setText(deviceModel.getCompany());
+
+                    DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
+                    expiration.setText(deviceProduction.getExpirationDate());
+                    lotNumber.setText(deviceProduction.getLotNumber());
+                    notes.setText(deviceProduction.getNotes());
+                    physicalLocation.setText(deviceProduction.getPhysicalLocation());
+                    itemQuantity = deviceProduction.getStringQuantity();
+                    quantity.setText(itemQuantity);
+                    currentDate = deviceProduction.getDateAdded();
+                    currentTime = deviceProduction.getTimeAdded();
+                    lastUpdate.setText(String.format("%s\n%s", currentDate, currentTime));
+                    referenceNumber.setText(deviceProduction.getReferenceNumber());
+
+                    addCostInfo(deviceProduction.getCosts(), rootView);
+
+                    for (Map.Entry<String, Object> specification : deviceModel.getSpecificationList()) {
+                        addItemSpecs(specification.getKey(), specification.getValue().toString(), rootView);
+                    }
+
+                    ProceduresAdapter proceduresAdapter = new ProceduresAdapter(deviceProduction.getProcedures());
+                    proceduresRecyclerView.setAdapter(proceduresAdapter);
+                }
+                else if (resourceData.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR){
+                    Toast.makeText(parent.getApplicationContext(), resourceData.getRequest().getResourceString(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+
+        topToolBar.setNavigationOnClickListener(view -> {
+            if (parent != null)
+                parent.onBackPressed();
         });
 
         final boolean[] isSpecsMaximized = {false};
@@ -235,79 +249,6 @@ public class ItemDetailViewFragment extends Fragment {
         return rootView;
     }
 
-
-    private void getItemSpecs(final View view, String udi) {
-        String udiStr = udi;
-        if (udiStr.equals("")) {
-            return;
-            // Some UDI starts with '+'; needs to strip plus sign and last letter in order to be recognized
-        } else if (udiStr.charAt(0) == '+') {
-            udiStr = udiStr.replaceFirst("[+]", "01");
-        }
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(parent);
-        String url = "https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?udi=";
-        url = url + udiStr;
-
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        JSONObject responseJson;
-                        try {
-                            responseJson = new JSONObject(response);
-                            if (responseJson.has("gudid") && responseJson.getJSONObject("gudid").has("device")) {
-                                JSONObject deviceInfo = responseJson.getJSONObject("gudid").getJSONObject("device");
-
-                                if (deviceInfo.has("deviceSizes") && deviceInfo.getJSONObject("deviceSizes").has("deviceSize")) {
-                                    JSONArray deviceSizeArray = deviceInfo.getJSONObject("deviceSizes").getJSONArray("deviceSize");
-                                    for (int i = 0; i < deviceSizeArray.length(); ++i) {
-                                        int colonIndex;
-                                        String k;
-                                        String v;
-                                        JSONObject currentSizeObject = deviceSizeArray.getJSONObject(i);
-                                        k = currentSizeObject.getString("sizeType");
-                                        if (k.equals("Device Size Text, specify")) {
-                                            String customSizeText = currentSizeObject.getString("sizeText");
-                                            // Key, Value usually separated by colon
-                                            colonIndex = customSizeText.indexOf(":");
-                                            if (colonIndex == -1) {
-                                                // If no colon, save whole field as "value"
-                                                k = "Custom Key";
-                                                v = customSizeText;
-                                            } else {
-                                                k = customSizeText.substring(0, colonIndex);
-                                                v = customSizeText.substring(colonIndex + 1).trim();
-                                            }
-                                        } else {
-                                            v = currentSizeObject.getJSONObject("size").getString("value")
-                                                    + " "
-                                                    + currentSizeObject.getJSONObject("size").getString("unit");
-                                        }
-                                        addItemSpecs(k, v, view);
-                                    }
-                                }
-                            }
-
-                        } catch (JSONException e) {
-                            FirebaseCrashlytics.getInstance().recordException(e);
-                            e.printStackTrace();
-//                            Log.d(TAG, "ERROR: "+ e.getMessage());
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                FirebaseCrashlytics.getInstance().recordException(error);
-//                Log.d(TAG, "Error in parsing barcode");
-            }
-        });
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
-
-    }
-
     private void addItemSpecs(String key, String value, View view) {
 
         LinearLayout eachItemSpecsLayout = new LinearLayout(view.getContext());
@@ -350,569 +291,9 @@ public class ItemDetailViewFragment extends Fragment {
         itemSpecsLinearLayout.addView(eachItemSpecsLayout);
     }
 
-    private void autoPopulateFromDatabase(final String di, final String udiStr, final View view) {
-        final DocumentReference udiDocRef;
-        DocumentReference diDocRef;
 
-        udiDocRef = db.collection("networks").document(mNetworkId)
-                .collection("hospitals").document(mHospitalId).collection("departments")
-                .document("default_department").collection("dis").document(di)
-                .collection("udis").document(udiStr);
-
-
-        diDocRef = db.collection("networks").document(mNetworkId)
-                .collection("hospitals").document(mHospitalId).collection("departments")
-                .document("default_department").collection("dis").document(di);
-
-
-        diDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        if (document.get(TYPE_KEY) != null) {
-                            type.setText(document.getString(TYPE_KEY));
-                        }
-                        if (document.get(SITE_KEY) != null) {
-                            hospitalName.setText(document.getString(SITE_KEY));
-                        }
-                        if (document.get(USAGE_KEY) != null) {
-                            String usageStr = document.getString(USAGE_KEY);
-                            usage.setText(usageStr);
-                        }
-                        if (document.get("device_description") != null && deviceDescription.getText().toString().length() <= 0) {
-                            deviceDescription.setText(document.getString("device_description"));
-                        }
-                        if (document.get("di") != null && deviceIdentifier.getText().toString().length() <= 0) {
-                            deviceIdentifier.setText(document.getString("di"));
-                        }
-                        if (document.get("medical_specialty") != null && medicalSpecialty.getText().toString().length() <= 0) {
-                            medicalSpecialty.setText(document.getString("medical_specialty"));
-                        }
-                        if (document.get("name") != null && itemName.getText().toString().length() <= 0) {
-                            itemName.setText(document.getString("name"));
-                        }
-                        if (document.get("company") != null && manufacturer.getText().toString().length() <= 0) {
-                            manufacturer.setText(document.getString("company"));
-                        }
-
-                    } else {
-                        Log.d(TAG, "Document does not exist!");
-                    }
-                } else {
-                    Log.d(TAG, "Failed with: ", task.getException());
-                }
-            }
-        });
-
-        getCostInfo(udiDocRef,view);
-
-        udiDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        if (document.get("procedure_number") != null) {
-                            procedureCount = Integer.parseInt(
-                                    Objects.requireNonNull(document.getString("procedure_number")));
-                            getProcedureInfo(procedureCount, di, udiStr, view);
-                        } else {
-                            procedureCount = 0;
-                        }
-                        if (document.get("expiration") != null) {
-                            expiration.setText(document.getString("expiration"));
-                        }
-                        if (document.get("lot_number") != null && lotNumber.getText().toString().length() <= 0) {
-                            lotNumber.setText(document.getString("lot_number"));
-                        }
-                        if (document.get("notes") != null) {
-                            notes.setText(document.getString("notes"));
-                        }
-                        if (document.get("physical_location") != null) {
-                            physicalLocation.setText(document.getString("physical_location"));
-                        }
-                        if (document.get("quantity") != null) {
-                            itemQuantity = document.getString(QUANTITY_KEY);
-                            quantity.setText(itemQuantity);
-                        } else {
-                            itemQuantity = "0";
-                            quantity.setText("0");
-                        }
-                        if (document.get(PHYSICALLOC_KEY) != null) {
-                            physicalLocation.setText(document.getString(PHYSICALLOC_KEY));
-                        }
-                        if (document.get("current_date") != null) {
-                            currentDate = document.getString("current_date");
-                        }
-                        if (document.get("current_time") != null) {
-                            currentTime = document.getString("current_time");
-                            lastUpdate.setText(String.format("%s\n%s", currentDate, currentTime));
-                        }
-                        if (document.get("notes") != null) {
-                            notes.setText(document.getString("notes"));
-                        }
-                        if (document.get("reference_number") != null && referenceNumber.getText().toString().length() <= 0) {
-                            referenceNumber.setText(document.getString("reference_number"));
-                        }
-                    } else {
-                        itemQuantity = "0";
-                        quantity.setText("0");
-                        procedureCount = 0;
-                        Log.d(TAG, "Document does not exist!");
-                    }
-                    quantity.setText(document.getString(QUANTITY_KEY));
-                    quantity.setFocusable(false);
-                } else {
-                    procedureCount = 0;
-                    Log.d(TAG, "Failed with: ", task.getException());
-                }
-            }
-        });
-
-    }
-
-    private void getProcedureInfo(final int procedureCount, String di,
-                                  String udiStr, final View view) {
-        final int[] check = {0};
-        DocumentReference procedureRef;
-        for (int i = 0; i < procedureCount; i++) {
-            procedureRef = db.collection("networks").document(mNetworkId)
-                    .collection("hospitals").document(mHospitalId).collection("departments")
-                    .document("default_department").collection("dis").document(di)
-                    .collection("udis").document(udiStr).collection("procedures")
-                    .document("procedure_" + (i + 1));
-
-            procedureRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (Objects.requireNonNull(document).exists()) {
-                            Map<String, Object> map = document.getData();
-                            if (map != null) {
-                                check[0]++;
-                                procedureDoc.add(map);
-                            }
-                        }
-                        final boolean[] isUsageMaximized = {false};
-                        final LinearLayout isItemUsedLinearLayout = view.findViewById(R.id.isitemused_linear);
-                        if (check[0] == procedureCount) {
-                            usageLayout.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    if (isUsageMaximized[0]) {
-                                        usageLayout.setImageResource(R.drawable.ic_baseline_plus);
-                                        isItemUsedLinearLayout.setVisibility(View.GONE);
-                                        linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout) + 1)
-                                                .setVisibility(View.GONE);
-                                        linearLayout.getChildAt(linearLayout.indexOfChild(usageLinearLayout) + 2)
-                                                .setVisibility(View.GONE);
-                                        isUsageMaximized[0] = false;
-
-
-                                    } else {
-                                        usageLayout.setImageResource(R.drawable.icon_minimize);
-                                        isItemUsedLinearLayout.setVisibility(View.VISIBLE);
-                                        addProcedureInfoFields(procedureDoc, view);
-                                        isUsageMaximized[0] = true;
-
-                                    }
-                                }
-                            });
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-
-    private void addProcedureInfoFields(final List<Map> procedureDoc, View view) {
-        int i;
-        final LinearLayout procedureInfoLayout = new LinearLayout(view.getContext());
-        procedureInfoLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        procedureInfoLayout.setOrientation(LinearLayout.VERTICAL);
-
-
-        for (i = 0; i < procedureDoc.size(); i++) {
-
-            final LinearLayout eachProcedureLayout = new LinearLayout(view.getContext());
-            eachProcedureLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT));
-            eachProcedureLayout.setOrientation(LinearLayout.HORIZONTAL);
-            eachProcedureLayout.setBaselineAligned(false);
-
-            final TextInputLayout procedureDateHeader = new TextInputLayout(view.getContext());
-            LinearLayout.LayoutParams procedureHeaderParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            procedureHeaderParams.weight = (float) 1.0;
-            procedureDateHeader.setLayoutParams(procedureHeaderParams);
-            TextInputEditText dateKey = new TextInputEditText(procedureDateHeader.getContext());
-            dateKey.setBackgroundColor(Color.WHITE);
-            dateKey.setText(R.string.procedureDate_lbl);
-            dateKey.setTypeface(dateKey.getTypeface(), Typeface.BOLD);
-            dateKey.setFocusable(false);
-            procedureDateHeader.addView(dateKey);
-
-
-            final TextInputLayout procedureDateText = new TextInputLayout(view.getContext());
-            LinearLayout.LayoutParams procedureParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            procedureParams.weight = (float) 1.0;
-            procedureDateText.setLayoutParams(procedureParams);
-
-            TextInputEditText dateText = new TextInputEditText(procedureDateText.getContext());
-            Object dateObject = procedureDoc.get(i).get("procedure_date");
-            dateText.setBackgroundColor(Color.WHITE);
-            dateText.setText(Objects.requireNonNull(dateObject).toString());
-            dateText.setFocusable(false);
-            procedureDateText.addView(dateText);
-            procedureDateText.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
-            procedureDateText.setEndIconDrawable(R.drawable.ic_baseline_plus);
-            procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
-                    getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
-
-            eachProcedureLayout.addView(procedureDateHeader);
-            eachProcedureLayout.addView(procedureDateText);
-            procedureInfoLayout.addView(eachProcedureLayout);
-
-
-            final boolean[] isMaximized = {false};
-            addProcedureSubFields(procedureInfoLayout, view, procedureDoc, i, eachProcedureLayout);
-            procedureDateText.setEndIconOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (isMaximized[0]) {
-                        procedureInfoLayout.getChildAt((procedureInfoLayout.indexOfChild(eachProcedureLayout)) + 1).setVisibility(View.GONE);
-                        procedureDateText.setEndIconDrawable(R.drawable.ic_baseline_plus);
-                        procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
-                                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
-                        isMaximized[0] = false;
-
-
-                    } else {
-                        procedureInfoLayout.getChildAt((procedureInfoLayout.indexOfChild(eachProcedureLayout)) + 1).setVisibility(View.VISIBLE);
-                        procedureDateText.setEndIconDrawable(R.drawable.icon_minimize);
-                        procedureDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
-                                getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
-                        isMaximized[0] = true;
-
-                    }
-                }
-            });
-        }
-
-        linearLayout.addView(procedureInfoLayout, linearLayout.indexOfChild(usageLinearLayout) + 2);
-    }
-
-    private void addProcedureSubFields(LinearLayout procedureInfoLayout, View view,
-                                       List<Map> procedureDoc, int item, LinearLayout procedureInfo) {
-        LinearLayout subFieldsLayout = new LinearLayout(view.getContext());
-        subFieldsLayout.setOrientation(LinearLayout.VERTICAL);
-
-        GridLayout procedureName = new GridLayout(view.getContext());
-        procedureName.setColumnCount(2);
-        procedureName.setRowCount(1);
-        GridLayout.LayoutParams procedureNameHeaderParams = new GridLayout.LayoutParams();
-        procedureNameHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureNameHeaderParams.width = usageLinearLayout.getWidth() / 2;
-        procedureNameHeaderParams.rowSpec = GridLayout.spec(0);
-        procedureNameHeaderParams.columnSpec = GridLayout.spec(0);
-        procedureNameHeaderParams.setMargins(0, 0, 0, 5);
-        TextInputLayout procedureNameHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureNameHeaderLayout.setLayoutParams(procedureNameHeaderParams);
-        TextInputEditText procedureNameHeaderEditText = new TextInputEditText(procedureNameHeaderLayout.getContext());
-        procedureNameHeaderEditText.setBackgroundColor(Color.WHITE);
-        procedureNameHeaderEditText.setText(R.string.procedureName_lbl);
-        procedureNameHeaderEditText.setTypeface(procedureNameHeaderEditText.getTypeface(), Typeface.BOLD);
-        procedureNameHeaderLayout.addView(procedureNameHeaderEditText);
-        procedureNameHeaderEditText.setFocusable(false);
-
-
-        GridLayout.LayoutParams procedureNameParams = new GridLayout.LayoutParams();
-        procedureNameParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureNameParams.width = usageLinearLayout.getWidth() / 2;
-        procedureNameParams.rowSpec = GridLayout.spec(0);
-        procedureNameParams.columnSpec = GridLayout.spec(1);
-        procedureNameParams.setMargins(0, 0, 0, 5);
-        TextInputLayout procedureNameLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureNameLayout.setLayoutParams(procedureNameParams);
-        TextInputEditText procedureNameEditText = new TextInputEditText(procedureNameLayout.getContext());
-        procedureNameEditText.setBackgroundColor(Color.WHITE);
-        procedureNameEditText.setText(Objects.requireNonNull(procedureDoc.get(item).get("procedure_used")).toString());
-        procedureNameLayout.addView(procedureNameEditText);
-        procedureNameEditText.setFocusable(false);
-        procedureName.addView(procedureNameHeaderLayout);
-        procedureName.addView(procedureNameLayout);
-
-
-        GridLayout procedureTimeIn = new GridLayout(view.getContext());
-        procedureTimeIn.setColumnCount(2);
-        procedureTimeIn.setRowCount(1);
-        GridLayout.LayoutParams procedureTimeInHeaderParams = new GridLayout.LayoutParams();
-        procedureTimeInHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureTimeInHeaderParams.width = linearLayout.getWidth() / 2;
-        procedureTimeInHeaderParams.rowSpec = GridLayout.spec(0);
-        procedureTimeInHeaderParams.columnSpec = GridLayout.spec(0);
-        procedureTimeInHeaderParams.setMargins(0, 0, 0, 5);
-        TextInputLayout procedureTimeHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureTimeHeaderLayout.setLayoutParams(procedureTimeInHeaderParams);
-        TextInputEditText procedureTimeHeaderEditText = new TextInputEditText(procedureTimeHeaderLayout.getContext());
-        procedureTimeHeaderEditText.setText(R.string.procedureTimeIn_label);
-        procedureTimeHeaderEditText.setBackgroundColor(Color.WHITE);
-        procedureTimeHeaderEditText.setTypeface(procedureTimeHeaderEditText.getTypeface(), Typeface.BOLD);
-        procedureTimeHeaderLayout.addView(procedureTimeHeaderEditText);
-        procedureTimeHeaderEditText.setFocusable(false);
-
-        GridLayout.LayoutParams procedureTimeParams = new GridLayout.LayoutParams();
-        procedureTimeParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureTimeParams.width = linearLayout.getWidth() / 2;
-        procedureTimeParams.rowSpec = GridLayout.spec(0);
-        procedureTimeParams.columnSpec = GridLayout.spec(1);
-        procedureTimeParams.setMargins(0, 0, 0, 5);
-
-        TextInputLayout procedureTimeInLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureTimeInLayout.setLayoutParams(procedureTimeParams);
-        TextInputEditText procedureTimeEditText = new TextInputEditText(procedureTimeInLayout.getContext());
-        procedureTimeEditText.setBackgroundColor(Color.WHITE);
-        procedureTimeEditText.setText(Objects.requireNonNull(procedureDoc.get(item).get("time_in")).toString());
-
-        procedureTimeInLayout.addView(procedureTimeEditText);
-        procedureTimeEditText.setFocusable(false);
-        procedureTimeIn.addView(procedureTimeHeaderLayout);
-        procedureTimeIn.addView(procedureTimeInLayout);
-
-
-        GridLayout procedureTimeOut = new GridLayout(view.getContext());
-        procedureTimeOut.setColumnCount(2);
-        procedureTimeOut.setRowCount(1);
-        GridLayout.LayoutParams procedureTimeOutHeaderParams = new GridLayout.LayoutParams();
-        procedureTimeOutHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureTimeOutHeaderParams.width = linearLayout.getWidth() / 2;
-        procedureTimeOutHeaderParams.rowSpec = GridLayout.spec(0);
-        procedureTimeOutHeaderParams.columnSpec = GridLayout.spec(0);
-        procedureTimeOutHeaderParams.setMargins(0, 0, 0, 5);
-        TextInputLayout procedureTimeOutHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureTimeOutHeaderLayout.setLayoutParams(procedureTimeOutHeaderParams);
-        TextInputEditText procedureTimeOutHeaderEditText = new TextInputEditText(procedureTimeOutHeaderLayout.getContext());
-        procedureTimeOutHeaderEditText.setText(R.string.procedureTimeOut_label);
-        procedureTimeOutHeaderEditText.setBackgroundColor(Color.WHITE);
-        procedureTimeOutHeaderEditText.setTypeface(procedureTimeOutHeaderEditText.getTypeface(), Typeface.BOLD);
-        procedureTimeOutHeaderEditText.setFocusable(false);
-        procedureTimeOutHeaderLayout.addView(procedureTimeOutHeaderEditText);
-
-        GridLayout.LayoutParams procedureTimeOutParams = new GridLayout.LayoutParams();
-        procedureTimeOutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureTimeOutParams.width = linearLayout.getWidth() / 2;
-        procedureTimeOutParams.rowSpec = GridLayout.spec(0);
-        procedureTimeOutParams.columnSpec = GridLayout.spec(1);
-        procedureTimeOutParams.setMargins(0, 0, 0, 5);
-
-        TextInputLayout procedureTimeOutLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureTimeOutLayout.setLayoutParams(procedureTimeParams);
-        TextInputEditText procedureTimeOutEditText = new TextInputEditText(procedureTimeOutLayout.getContext());
-        procedureTimeOutEditText.setBackgroundColor(Color.WHITE);
-        procedureTimeOutEditText.setText(Objects.requireNonNull(procedureDoc.get(item).get("time_out")).toString());
-        procedureTimeOutEditText.setFocusable(false);
-        procedureTimeOutLayout.addView(procedureTimeOutEditText);
-        procedureTimeOut.addView(procedureTimeOutHeaderLayout);
-        procedureTimeOut.addView(procedureTimeOutLayout);
-
-        GridLayout procedureFluoroTime = new GridLayout(view.getContext());
-        procedureFluoroTime.setColumnCount(2);
-        procedureFluoroTime.setRowCount(1);
-        GridLayout.LayoutParams procedureFluoroTimeHeaderParams = new GridLayout.LayoutParams();
-        procedureFluoroTimeHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureFluoroTimeHeaderParams.width = linearLayout.getWidth() / 2;
-        procedureFluoroTimeHeaderParams.rowSpec = GridLayout.spec(0);
-        procedureFluoroTimeHeaderParams.columnSpec = GridLayout.spec(0);
-        procedureFluoroTimeHeaderParams.setMargins(0, 0, 0, 5);
-        TextInputLayout procedureFluoroTimeHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureFluoroTimeHeaderLayout.setLayoutParams(procedureFluoroTimeHeaderParams);
-        TextInputEditText procedureFluoroTimeHeaderEditText = new TextInputEditText(procedureFluoroTimeHeaderLayout.getContext());
-        procedureFluoroTimeHeaderEditText.setText(R.string.fluoroTime_lbl);
-        procedureFluoroTimeHeaderEditText.setBackgroundColor(Color.WHITE);
-        procedureFluoroTimeHeaderEditText.setTypeface(procedureFluoroTimeHeaderEditText.getTypeface(), Typeface.BOLD);
-        procedureFluoroTimeHeaderEditText.setFocusable(false);
-        procedureFluoroTimeHeaderLayout.addView(procedureFluoroTimeHeaderEditText);
-
-
-        GridLayout.LayoutParams procedureFluoroTimeParams = new GridLayout.LayoutParams();
-        procedureFluoroTimeParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureFluoroTimeParams.width = linearLayout.getWidth() / 2;
-        procedureFluoroTimeParams.rowSpec = GridLayout.spec(0);
-        procedureFluoroTimeParams.columnSpec = GridLayout.spec(1);
-        procedureFluoroTimeParams.setMargins(0, 0, 0, 5);
-        TextInputLayout procedureFluoroTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureFluoroTimeLayout.setLayoutParams(procedureFluoroTimeParams);
-        TextInputEditText procedureFluoroTimeEditText = new TextInputEditText(procedureFluoroTimeLayout.getContext());
-        procedureFluoroTimeEditText.setBackgroundColor(Color.WHITE);
-        procedureFluoroTimeEditText.setText(Objects.requireNonNull(procedureDoc.get(item).get("fluoro_time")).toString());
-        procedureFluoroTimeEditText.setFocusable(false);
-        procedureFluoroTimeLayout.addView(procedureFluoroTimeEditText);
-        procedureFluoroTime.addView(procedureFluoroTimeHeaderLayout);
-        procedureFluoroTime.addView(procedureFluoroTimeLayout);
-
-
-        GridLayout procedureRoomTime = new GridLayout(view.getContext());
-        procedureRoomTime.setColumnCount(2);
-        procedureRoomTime.setRowCount(1);
-        GridLayout.LayoutParams procedureRoomTimeHeaderParams = new GridLayout.LayoutParams();
-        procedureRoomTimeHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureRoomTimeHeaderParams.width = linearLayout.getWidth() / 2;
-        procedureRoomTimeHeaderParams.rowSpec = GridLayout.spec(0);
-        procedureRoomTimeHeaderParams.columnSpec = GridLayout.spec(0);
-        procedureRoomTimeHeaderParams.setMargins(0, 0, 0, 5);
-        TextInputLayout procedureRoomTimeHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureRoomTimeHeaderLayout.setLayoutParams(procedureRoomTimeHeaderParams);
-        TextInputEditText procedureRoomTimeHeaderEditText = new TextInputEditText(procedureRoomTimeHeaderLayout.getContext());
-        procedureRoomTimeHeaderEditText.setText(R.string.roomTime_lbl);
-        procedureRoomTimeHeaderEditText.setBackgroundColor(Color.WHITE);
-        procedureRoomTimeHeaderEditText.setTypeface(procedureRoomTimeHeaderEditText.getTypeface(), Typeface.BOLD);
-        procedureRoomTimeHeaderEditText.setFocusable(false);
-        procedureRoomTimeHeaderLayout.addView(procedureRoomTimeHeaderEditText);
-
-
-        GridLayout.LayoutParams procedureRoomTimeParams = new GridLayout.LayoutParams();
-        procedureRoomTimeParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureRoomTimeParams.width = linearLayout.getWidth() / 2;
-        procedureRoomTimeParams.rowSpec = GridLayout.spec(0);
-        procedureRoomTimeParams.columnSpec = GridLayout.spec(1);
-        procedureRoomTimeParams.setMargins(0, 0, 0, 5);
-        TextInputLayout procedureRoomTimeLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        procedureRoomTimeLayout.setLayoutParams(procedureRoomTimeParams);
-        TextInputEditText procedureRoomTimeEditText = new TextInputEditText(procedureRoomTimeLayout.getContext());
-        procedureRoomTimeEditText.setBackgroundColor(Color.WHITE);
-        procedureRoomTimeEditText.setText(Objects.requireNonNull(procedureDoc.get(item).get("room_time")).toString());
-        procedureRoomTimeEditText.setFocusable(false);
-        procedureRoomTimeLayout.addView(procedureRoomTimeEditText);
-        procedureRoomTime.addView(procedureRoomTimeHeaderLayout);
-        procedureRoomTime.addView(procedureRoomTimeLayout);
-
-
-        GridLayout procedureAccession = new GridLayout(view.getContext());
-        procedureAccession.setColumnCount(2);
-        procedureAccession.setRowCount(1);
-        GridLayout.LayoutParams procedureAccessionHeaderParams = new GridLayout.LayoutParams();
-        procedureAccessionHeaderParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureAccessionHeaderParams.width = linearLayout.getWidth() / 2;
-        procedureAccessionHeaderParams.rowSpec = GridLayout.spec(0);
-        procedureAccessionHeaderParams.columnSpec = GridLayout.spec(0);
-        procedureAccessionHeaderParams.setMargins(0, 0, 0, 5);
-        TextInputLayout accessionHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        accessionHeaderLayout.setLayoutParams(procedureAccessionHeaderParams);
-        TextInputEditText accessionHeaderEditText = new TextInputEditText(accessionHeaderLayout.getContext());
-        accessionHeaderEditText.setBackgroundColor(Color.WHITE);
-        accessionHeaderEditText.setText(R.string.AccessionNumber_lbl);
-        accessionHeaderEditText.setTypeface(accessionHeaderEditText.getTypeface(), Typeface.BOLD);
-        accessionHeaderLayout.addView(accessionHeaderEditText);
-        accessionHeaderEditText.setFocusable(false);
-
-
-        GridLayout.LayoutParams procedureAccessionParams = new GridLayout.LayoutParams();
-        procedureAccessionParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureAccessionParams.width = linearLayout.getWidth() / 2;
-        procedureAccessionParams.rowSpec = GridLayout.spec(0);
-        procedureAccessionParams.columnSpec = GridLayout.spec(1);
-        procedureAccessionParams.setMargins(0, 0, 0, 5);
-        TextInputLayout accessionLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        accessionLayout.setLayoutParams(procedureAccessionParams);
-        TextInputEditText accessionEditText = new TextInputEditText(accessionLayout.getContext());
-        accessionEditText.setBackgroundColor(Color.WHITE);
-        accessionEditText.setText(Objects.requireNonNull(procedureDoc.get(item).get("accession_number")).toString());
-        accessionLayout.addView(accessionEditText);
-        accessionEditText.setFocusable(false);
-        procedureAccession.addView(accessionHeaderLayout);
-        procedureAccession.addView(accessionLayout);
-
-        GridLayout procedureItemUsed = new GridLayout(view.getContext());
-        procedureItemUsed.setColumnCount(2);
-        procedureItemUsed.setRowCount(1);
-
-        GridLayout.LayoutParams procedureItemUsedHeader = new GridLayout.LayoutParams();
-        procedureItemUsedHeader.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureItemUsedHeader.width = linearLayout.getWidth() / 2;
-        procedureItemUsedHeader.rowSpec = GridLayout.spec(0);
-        procedureItemUsedHeader.columnSpec = GridLayout.spec(0);
-        procedureItemUsedHeader.setMargins(0, 0, 0, 5);
-        TextInputLayout itemUsedHeaderLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        itemUsedHeaderLayout.setLayoutParams(procedureItemUsedHeader);
-        TextInputEditText itemUsedHeaderEditText = new TextInputEditText(itemUsedHeaderLayout.getContext());
-        itemUsedHeaderEditText.setBackgroundColor(Color.WHITE);
-        itemUsedHeaderEditText.setText(R.string.itemsUsed_lbl);
-        itemUsedHeaderEditText.setTypeface(itemUsedHeaderEditText.getTypeface(), Typeface.BOLD);
-        itemUsedHeaderLayout.addView(itemUsedHeaderEditText);
-        itemUsedHeaderEditText.setFocusable(false);
-
-        GridLayout.LayoutParams procedureItemUsedLayout = new GridLayout.LayoutParams();
-        procedureItemUsedLayout.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        procedureItemUsedLayout.width = usageLinearLayout.getWidth() / 2;
-        procedureItemUsedLayout.rowSpec = GridLayout.spec(0);
-        procedureItemUsedLayout.columnSpec = GridLayout.spec(1);
-        procedureItemUsedLayout.setMargins(0, 0, 0, 5);
-        TextInputLayout itemUsedLayout = (TextInputLayout) View.inflate(view.getContext(),
-                R.layout.activity_itemdetail_materialcomponent, null);
-        TextInputEditText itemUsedEditText = new TextInputEditText(itemUsedLayout.getContext());
-        itemUsedLayout.setLayoutParams(procedureItemUsedLayout);
-        itemUsedEditText.setBackgroundColor(Color.WHITE);
-        itemUsedEditText.setText(Objects.requireNonNull(procedureDoc.get(item).get("amount_used")).toString());
-        itemUsedLayout.addView(itemUsedEditText);
-        itemUsedEditText.setFocusable(false);
-
-        procedureItemUsed.addView(itemUsedHeaderLayout);
-        procedureItemUsed.addView(itemUsedLayout);
-
-        subFieldsLayout.addView(procedureName);
-        subFieldsLayout.addView(procedureTimeIn);
-        subFieldsLayout.addView(procedureTimeOut);
-        subFieldsLayout.addView(procedureRoomTime);
-        subFieldsLayout.addView(procedureFluoroTime);
-        subFieldsLayout.addView(procedureAccession);
-        subFieldsLayout.addView(procedureItemUsed);
-        procedureInfoLayout.addView(subFieldsLayout, (procedureInfoLayout.indexOfChild(procedureInfo)) + 1);
-        procedureInfoLayout.getChildAt(procedureInfoLayout.indexOfChild(procedureInfo) + 1).setVisibility(View.GONE);
-
-    }
-
-    private void getCostInfo(DocumentReference udiRef, final View view){
-        udiRef.collection("equipment_cost")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                                costDoc.add(document.getData());
-                            }
-                            addCostInfo(costDoc,view);
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-
-    }
-
-    private void addCostInfo(List<Map> costDoc,View view){
-        if(costDoc.size() > 0) {
+    private void addCostInfo(List<Cost> costs,View view){
+        if(costs.size() > 0) {
             int i;
             final LinearLayout costInfoLayout = new LinearLayout(view.getContext());
             costInfoLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -920,7 +301,7 @@ public class ItemDetailViewFragment extends Fragment {
             costInfoLayout.setOrientation(LinearLayout.VERTICAL);
             costInfoLayout.setVisibility(View.GONE);
 
-            for (i = 0; i < costDoc.size(); i++) {
+            for (i = 0; i < costs.size(); i++) {
 
                 final LinearLayout eachEquipmentLayout = new LinearLayout(view.getContext());
                 eachEquipmentLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -949,7 +330,7 @@ public class ItemDetailViewFragment extends Fragment {
                 costParams.weight = (float) 1.0;
                 costDateText.setLayoutParams(costParams);
                 TextInputEditText dateText = new TextInputEditText(costDateText.getContext());
-                dateText.setText(Objects.requireNonNull(costDoc.get(i).get("cost_date")).toString());
+                dateText.setText(costs.get(i).getCostDate());
                 dateText.setBackgroundColor(Color.WHITE);
                 dateText.setFocusable(false);
                 costDateText.addView(dateText);
@@ -995,7 +376,7 @@ public class ItemDetailViewFragment extends Fragment {
                 packageParams.weight = (float) 1.0;
                 packagePriceText.setLayoutParams(packageParams);
                 TextInputEditText packagePriceEditText = new TextInputEditText(packagePriceText.getContext());
-                packagePriceEditText.setText(String.format("$ %s", Objects.requireNonNull(costDoc.get(i).get("package_price")).toString()));
+                packagePriceEditText.setText(String.format("$ %s", costs.get(i).getPackagePrice()));
                 packagePriceEditText.setBackgroundColor(Color.WHITE);
                 packagePriceEditText.setFocusable(false);
                 packagePriceText.addView(packagePriceEditText);
@@ -1030,7 +411,7 @@ public class ItemDetailViewFragment extends Fragment {
                 numberAddedParams.weight = (float) 1.0;
                 numberAddedText.setLayoutParams(numberAddedParams);
                 TextInputEditText numberAddedEditText = new TextInputEditText(numberAddedText.getContext());
-                numberAddedEditText.setText(Objects.requireNonNull(costDoc.get(i).get("number_added")).toString());
+                numberAddedEditText.setText(Integer.toString(costs.get(i).getNumberAdded()));
                 numberAddedEditText.setBackgroundColor(Color.WHITE);
                 numberAddedEditText.setFocusable(false);
                 numberAddedText.addView(numberAddedEditText);
@@ -1065,7 +446,7 @@ public class ItemDetailViewFragment extends Fragment {
                 unitCostTextParams.weight = (float) 1.0;
                 unitCostText.setLayoutParams(unitCostTextParams);
                 TextInputEditText unitCostEditText = new TextInputEditText(unitCostText.getContext());
-                unitCostEditText.setText(String.format("$ %s", Objects.requireNonNull(costDoc.get(i).get("unit_price")).toString()));
+                unitCostEditText.setText(String.format("$ %s", costs.get(i).getUnitPrice()));
                 unitCostEditText.setBackgroundColor(Color.WHITE);
                 unitCostEditText.setFocusable(false);
                 unitCostText.addView(unitCostEditText);
