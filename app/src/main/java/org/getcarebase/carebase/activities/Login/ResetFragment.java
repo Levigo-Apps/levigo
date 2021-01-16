@@ -30,6 +30,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -67,7 +69,7 @@ public class ResetFragment extends Fragment {
         resetButton = rootView.findViewById(R.id.send_reset_link_button);
         authViewModel = new ViewModelProvider(requireActivity()).get(AuthViewModel.class);
         MaterialToolbar toolbar = rootView.findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+        toolbar.setNavigationOnClickListener(v -> Navigation.findNavController(requireActivity(),R.id.main_content).popBackStack());
 
         emailField.addTextChangedListener(new TextWatcher() {
             @Override

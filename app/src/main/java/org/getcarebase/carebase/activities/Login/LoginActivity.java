@@ -18,22 +18,16 @@ package org.getcarebase.carebase.activities.Login;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.firebase.FirebaseApp;
 
 import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.R;
-import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.utils.Request;
-import org.getcarebase.carebase.utils.Resource;
 import org.getcarebase.carebase.viewmodels.AuthViewModel;
 
 /**
@@ -41,13 +35,13 @@ import org.getcarebase.carebase.viewmodels.AuthViewModel;
  */
 
 public class LoginActivity extends AppCompatActivity {
-    private static final String TAG = LoginActivity.class.getSimpleName();
+    private static final String TAG = LoginActivity.class.getName();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FirebaseApp.initializeApp(this);
-        setContentView(R.layout.login_host);
+        setContentView(R.layout.login_host_layout);
         AuthViewModel authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
         authViewModel.getUserLiveData().observe(this, userResource -> {
@@ -55,17 +49,6 @@ public class LoginActivity extends AppCompatActivity {
                 signUserIn();
             }
         });
-
-        // go to login screen
-        if (savedInstanceState == null) {
-            Fragment loginFragment = new LoginFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container,loginFragment,LoginFragment.TAG)
-                    .commit();
-        }
-
-        // try to sign in with current user
-        authViewModel.getUser();
     }
 
     private void signUserIn() {

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -99,18 +100,10 @@ public class LoginFragment extends Fragment {
     }
 
     public void navigateToSignUpFragment(final View view) {
-        Fragment signUpFragment = new SignUpFragment();
-        requireActivity().getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_container,signUpFragment,SignUpFragment.TAG)
-                .addToBackStack(null)
-                .commit();
+        Navigation.findNavController(requireActivity(),R.id.main_content).navigate(R.id.action_loginFragment_to_signUpFragment);
     }
 
     public void navigateToResetFragment(final View view) {
-        Fragment resetFragment = new ResetFragment();
-        requireActivity().getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_container,resetFragment,ResetFragment.TAG)
-                .addToBackStack(null)
-                .commit();
+        Navigation.findNavController(requireActivity(),R.id.main_content).navigate(R.id.action_loginFragment_to_resetFragment);
     }
 }

@@ -35,6 +35,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.snackbar.Snackbar;
@@ -109,7 +111,7 @@ public class SignUpFragment extends Fragment {
         demoButton.setOnClickListener(this::demoLogin);
 
         MaterialToolbar toolbar = rootView.findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+        toolbar.setNavigationOnClickListener(v -> Navigation.findNavController(requireActivity(),R.id.main_content).popBackStack());
 
         invitationCodeBox.addTextChangedListener(new TextWatcher() {
             @Override
