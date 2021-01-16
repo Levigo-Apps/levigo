@@ -38,6 +38,7 @@ import android.text.TextWatcher;
 
 
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 import org.getcarebase.carebase.viewmodels.AuthViewModel;
 
@@ -76,11 +77,11 @@ public class ResetActivity extends AppCompatActivity {
 
     public void resetWithEmail(View view) {
         String email = mEmailField.getText().toString().trim();
-        authViewModel.resetPasswordWithEmail(email).observe(this, new Observer<Resource<Object>>() {
+        authViewModel.resetPasswordWithEmail(email).observe(this, new Observer<Request>() {
             @Override
-            public void onChanged(Resource<Object> result) {
+            public void onChanged(Request request) {
                 finish();
-                Toast.makeText(getApplicationContext(), result.resourceString, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), request.getResourceString(), Toast.LENGTH_LONG).show();
             }
         });
     }

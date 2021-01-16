@@ -52,6 +52,7 @@ import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.models.InvitationCode;
 import org.getcarebase.carebase.models.User;
+import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 import org.getcarebase.carebase.viewmodels.AuthViewModel;
 
@@ -83,6 +84,22 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
+        authViewModel.getUserLiveData().observe(this, new Observer<Resource<User>>() {
+            @Override
+            public void onChanged(Resource<User> userResource) {
+                if (userResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                    Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                    if (userResource.getRequest().getResourceString() != null) {
+                        Toast.makeText(getApplicationContext(), userResource.getRequest().getResourceString(), Toast.LENGTH_LONG).show();
+                    }
+                    startActivity(mainActivityIntent);
+                    finish();
+                }
+                else if (userResource.getRequest().getStatus() == Request.Status.ERROR) {
+                    Toast.makeText(getApplicationContext(), userResource.getRequest().getResourceString(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
 
         networkNameTextView = findViewById(R.id.signup_network_name);
         hospitalNameTextView = findViewById(R.id.signup_site_name);
@@ -115,7 +132,7 @@ public class SignUpActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {}
         });
 
         submitInvitationCode.setOnClickListener(new View.OnClickListener() {
@@ -163,37 +180,23 @@ public class SignUpActivity extends AppCompatActivity {
         result.observe(this, new Observer<Resource<InvitationCode>>() {
             @Override
             public void onChanged(Resource<InvitationCode> invitationCodeResource) {
-                if (invitationCodeResource.status == Resource.Status.SUCCESS) {
-                    InvitationCode code = invitationCodeResource.data;
+                if (invitationCodeResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                    InvitationCode code = invitationCodeResource.getData();
                     // Display authorized network and hospital
                     networkNameTextView.setText(code.getNetworkName());
                     hospitalNameTextView.setText(code.getHospitalName());
                     emailPasswordLayout.setVisibility(View.VISIBLE);
                     invitationCodeLayout.setEnabled(false);
                 }
-                else if (invitationCodeResource.status == Resource.Status.ERROR) {
-                    Toast.makeText(getApplicationContext(), invitationCodeResource.resourceString, Toast.LENGTH_LONG).show();
+                else if (invitationCodeResource.getRequest().getStatus() == Request.Status.ERROR) {
+                    Toast.makeText(getApplicationContext(), invitationCodeResource.getRequest().getResourceString(), Toast.LENGTH_LONG).show();
                 }
             }
         });
     }
 
     private void createUser(final String email, final String password) {
-        LiveData<Resource<User>> result = authViewModel.createUser(email,password);
-        result.observe(this, new Observer<Resource<User>>() {
-            @Override
-            public void onChanged(Resource<User> userResource) {
-                if (userResource.status == Resource.Status.SUCCESS) {
-                    Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
-                    startActivity(mainActivityIntent);
-                    finish();
-                    Toast.makeText(getApplicationContext(), "Account created. Welcome!",Toast.LENGTH_LONG).show();
-                }
-                else if (userResource.status == Resource.Status.ERROR) {
-                    Toast.makeText(getApplicationContext(), userResource.resourceString, Toast.LENGTH_LONG).show();
-                }
-            }
-        });
+        authViewModel.createUser(email,password);
     }
 
     public void composeEmail(View view) {
@@ -207,20 +210,6 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     public void demoLogin(View view) {
-        LiveData<Resource<User>> result = authViewModel.signInWithEmailAndPassword("demo_user@getcarebase.org", "demo_user");
-        result.observe(this, new Observer<Resource<User>>() {
-            @Override
-            public void onChanged(Resource<User> userResource) {
-                if (userResource.status == Resource.Status.SUCCESS) {
-                    Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
-                    startActivity(mainActivityIntent);
-                    finish();
-                }
-                else if (userResource.status == Resource.Status.ERROR) {
-                    Toast.makeText(getApplicationContext(), userResource.resourceString, Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-
+        authViewModel.signInWithEmailAndPassword("demo_user@getcarebase.org", "demo_user");
     }
 }

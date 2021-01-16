@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="@color/colorBackground"
     android:orientation="vertical"
     tools:context=".activities.Main.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/main_app_bar"
         android:background="@color/colorPrimary"
         android:elevation="0dp"
         android:fitsSystemWindows="true"
+        app:layout_constraintTop_toTopOf="parent"
         app:elevation="0dp">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -24,10 +26,6 @@
             app:contentScrim="@color/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:statusBarScrim="@color/colorPrimary">
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/main_toolbar"
@@ -45,7 +43,7 @@
             android:textAlignment="center"
             android:textAppearance="@style/TitleAppBarStyle"
             android:textColor="@android:color/white"
-            android:textSize="30dp" />
+            android:textSize="30sp" />
 
         <TextView
             android:id="@+id/main_user_email_textview"
@@ -53,17 +51,34 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:textColor="@android:color/white"
-            android:textSize="15dp" />
+            android:textSize="15sp" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/main_categories"
+    <TextView
+        android:id="@+id/main_inventory_textview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/colorBackground"
-        android:nestedScrollingEnabled="true"
-        android:orientation="vertical"
-        android:scrollbars="vertical"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="@string/inventory_lbl"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/main_app_bar"/>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/main_swipe_refresh_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/main_inventory_textview">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/main_categories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="true"
+            android:orientation="vertical"
+            android:scrollbars="vertical"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"/>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

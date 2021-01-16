@@ -17,18 +17,26 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TimePicker;
 import android.widget.Toast;
+import android.widget.Toolbar;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -41,9 +49,14 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.models.PendingDevice;
+import org.getcarebase.carebase.utils.Request;
+import org.getcarebase.carebase.viewmodels.PendingDeviceViewModel;
+import org.getcarebase.carebase.viewmodels.ProcedureViewModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
@@ -53,47 +66,24 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class ItemDetailOfflineFragment extends Fragment {
+    public static final String TAG = ItemDetailOfflineFragment.class.getSimpleName();
 
-    private static final String TAG = ItemDetailOfflineFragment.class.getSimpleName();
-    private Activity parent;
-
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final CollectionReference usersRef = db.collection("users");
-    private LinearLayout linearLayout;
-
-    private String mNetworkId;
-    private String mHospitalId;
-    private String mHospitalName;
     private TextInputEditText udi;
-    private AutoCompleteTextView siteLocation;
+    private TextInputEditText siteLocation;
     private TextInputEditText physicalLocation;
     private TextInputEditText numberAdded;
     private TextInputEditText notes;
     private TextInputEditText dateIn;
     private TextInputEditText timeIn;
-    private TextInputEditText otherSite_text;
 
-    private TextInputLayout siteLocationLayout;
-    private ArrayList<String> SITELOC;
-
-    private boolean chosenSite;
-    private boolean checkProcedureFields;
-    private boolean checkAutoComplete;
-    private boolean chosenItem;
     MaterialButton rescanButton;
     MaterialButton saveButton;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState) {
-
         final View rootView = inflater.inflate(R.layout.fragment_itemdetailoffline, container, false);
-        parent = getActivity();
-        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(true)
-                .build();
-        db.setFirestoreSettings(settings);
         final Calendar myCalendar = Calendar.getInstance();
-        linearLayout = rootView.findViewById(R.id.itemdetailoffline_linearlayout);
+        final MaterialToolbar toolbar = rootView.findViewById(R.id.topAppBar);
         udi = rootView.findViewById(R.id.detail_udi);
         siteLocation = rootView.findViewById(R.id.detail_site_location);
         physicalLocation = rootView.findViewById(R.id.detail_physical_location);
@@ -101,179 +91,68 @@ public class ItemDetailOfflineFragment extends Fragment {
         notes = rootView.findViewById(R.id.detail_notes);
         dateIn = rootView.findViewById(R.id.detail_in_date);
         timeIn = rootView.findViewById(R.id.detail_in_time);
-        siteLocationLayout = rootView.findViewById(R.id.siteLocationLayout);
         TextInputLayout numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
         TextInputLayout dateInLayout = rootView.findViewById(R.id.in_date_layout);
         TextInputLayout timeInLayout = rootView.findViewById(R.id.in_time_layout);
         rescanButton = rootView.findViewById(R.id.detail_rescan_button);
         saveButton = rootView.findViewById(R.id.detail_save_button);
-        SITELOC = new ArrayList<>();
-        chosenSite = false;
-        checkAutoComplete = false;
-        checkProcedureFields = false;
-        chosenItem = false;
-        MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
 
-        TextWatcher textWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-            @Override
-            public void afterTextChanged(Editable editable) {
+        PendingDeviceViewModel pendingDeviceViewModel = new ViewModelProvider(this).get(PendingDeviceViewModel.class);
 
-                checkProcedureFields = validateFields(new TextInputEditText[]{udi,
-                        numberAdded, dateIn, timeIn});
-
-                for(TextInputEditText textInputEditText : new TextInputEditText[]{udi, physicalLocation,
-                        numberAdded, dateIn, timeIn}){
-                    TextInputLayout textInputLayout = (TextInputLayout) textInputEditText.getParent().getParent();
-                    if(Objects.requireNonNull(textInputEditText.getText()).toString().length() > 0){
-                        textInputLayout.setHelperText(null);
-                        textInputLayout.setBoxStrokeColor(getResources().getColor(R.color.colorPrimary,parent.getTheme()));
-                    }
-                }
-
-                if(!(siteLocation.getText().toString().isEmpty())){
-                    checkAutoComplete = true;
-                    siteLocationLayout.setHelperText(null);
-                    siteLocationLayout.setBoxStrokeColor(getResources().getColor(R.color.colorPrimary,parent.getTheme()));
-                }
-            }
-        };
-        udi.addTextChangedListener(textWatcher);
-        physicalLocation.addTextChangedListener(textWatcher);
-        numberAdded.addTextChangedListener(textWatcher);
-        dateIn.addTextChangedListener(textWatcher);
-        timeIn.addTextChangedListener(textWatcher);
-        siteLocation.addTextChangedListener(textWatcher);
-
-
-        topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (parent != null)
-                    parent.onBackPressed();
-            }
+        pendingDeviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(),userResource -> {
+            siteLocation.setText(userResource.getData().getHospitalName());
+            pendingDeviceViewModel.setupPendingDeviceRepository();
         });
 
-
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-
-
-
-        final DocumentReference currentUserRef = usersRef.document(userId);
-        currentUserRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                String toastMessage;
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (Objects.requireNonNull(document).exists()) {
-                        try {
-                            mNetworkId = Objects.requireNonNull(document.get("network_id")).toString();
-                            mHospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
-                            mHospitalName = Objects.requireNonNull(document.get("hospital_name")).toString();
-                            setAdapter(rootView);
-                        } catch (NullPointerException e) {
-                            toastMessage = "Error retrieving user information; Please contact support";
-                            Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        // document for user doesn't exist
-                        toastMessage = "User not found; Please contact support";
-                        Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    toastMessage = "User lookup failed; Please try again and contact support if issue persists";
-                    Toast.makeText(parent.getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
-            }
-        });
-
-        numberAdded.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showNumberPicker(rootView, numberAdded);
-            }
-        });
+        numberAdded.setOnClickListener(view -> showNumberPicker(rootView, numberAdded));
 
         // incrementing number by 1 when clicked on the end icon
-        numberAddedLayout.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                incrementNumberAdded();
-            }
-        });
+        numberAddedLayout.setEndIconOnClickListener(view -> incrementNumberAdded());
 
         //TimePicker dialog pops up when clicked on the icon
-        timeInLayout.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                timeInLayoutPicker(view);
-            }
-        });
+        timeInLayout.setEndIconOnClickListener(this::timeInLayoutPicker);
 
         // going back to the scanner view
-        rescanButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                IntentIntegrator integrator = new IntentIntegrator(getActivity());
-                integrator.setCaptureActivity(CaptureActivity.class);
-                integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-                integrator.setBarcodeImageEnabled(true);
-                integrator.initiateScan();
-            }
+        rescanButton.setOnClickListener(view -> {
+            IntentIntegrator integrator = new IntentIntegrator(getActivity());
+            integrator.setCaptureActivity(CaptureActivity.class);
+            integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
+            integrator.setBarcodeImageEnabled(true);
+            integrator.initiateScan();
         });
 
         // date picker for date in if entered manually
-        final DatePickerDialog.OnDateSetListener dateInListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-                myCalendar.set(Calendar.YEAR, i);
-                myCalendar.set(Calendar.MONTH, i1);
-                myCalendar.set(Calendar.DAY_OF_MONTH, i2);
-                String myFormat = "yyyy/MM/dd";
-                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                dateIn.setText(String.format("%s", sdf.format(myCalendar.getTime())));
-            }
+        final DatePickerDialog.OnDateSetListener dateInListener = (datePicker, i, i1, i2) -> {
+            myCalendar.set(Calendar.YEAR, i);
+            myCalendar.set(Calendar.MONTH, i1);
+            myCalendar.set(Calendar.DAY_OF_MONTH, i2);
+            String myFormat = "yyyy/MM/dd";
+            SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+            dateIn.setText(String.format("%s", sdf.format(myCalendar.getTime())));
         };
 
-        dateInLayout.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new DatePickerDialog(view.getContext(), dateInListener, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        });
+        dateInLayout.setEndIconOnClickListener(view -> new DatePickerDialog(view.getContext(), dateInListener, myCalendar
+                .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                myCalendar.get(Calendar.DAY_OF_MONTH)).show());
 
 
         // saves data into database
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(checkProcedureFields && checkAutoComplete) {
-                    if (chosenSite && !(chosenItem)) {
-                            Toast.makeText(parent, "Please enter hospital name", Toast.LENGTH_SHORT).show();
-                            return;
-                    }
-                    saveData("networks", mNetworkId, "hospitals",
-                            mHospitalId, "departments",
-                            "default_department", "pending_udis");
-
-                }else{
-                    changeBoxStroke(new TextInputEditText[]{udi,
-                            numberAdded, dateIn, timeIn}, siteLocation);
-                    Toast.makeText(parent, "Please fill out all fields", Toast.LENGTH_LONG).show();
-                }
-
-                }
+        saveButton.setOnClickListener(v -> {
+            PendingDevice pendingDevice = validateFields();
+            if (pendingDevice != null) {
+                pendingDeviceViewModel.savePendingDevice(pendingDevice);
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.remove(this).commit();
+                Snackbar.make(requireActivity().findViewById(R.id.activity_main), "Pending device saved for later approval", Snackbar.LENGTH_LONG).show();
+            } else {
+                changeBoxStroke(new TextInputEditText[]{udi,numberAdded, dateIn, timeIn, siteLocation, physicalLocation});
+                Snackbar.make(requireView(), R.string.error_missing_required_fields, Snackbar.LENGTH_LONG).show();
+            }
         });
+
+        toolbar.setNavigationOnClickListener(view -> requireActivity().onBackPressed());
+
         if (getArguments() != null) {
             String barcode = getArguments().getString("barcode");
             udi.setText(barcode);
@@ -282,142 +161,31 @@ public class ItemDetailOfflineFragment extends Fragment {
         return rootView;
     }
 
-    private boolean validateFields(TextInputEditText[] fields) {
-        for (TextInputEditText currentField : fields) {
-            if (Objects.requireNonNull(currentField.getText()).toString().length() <= 0) {
-                return false;
+    private PendingDevice validateFields() {
+        for (EditText currentField : new EditText[]{udi,siteLocation,physicalLocation,numberAdded,dateIn,timeIn}) {
+            if (Objects.requireNonNull(currentField.getText()).toString().trim().length() <= 0) {
+                return null;
             }
         }
-        return true;
+        PendingDevice pendingDevice = new PendingDevice();
+        pendingDevice.setUniqueDeviceIdentifier(Objects.requireNonNull(udi.getText()).toString().trim());
+        pendingDevice.setSiteName(Objects.requireNonNull(siteLocation.getText()).toString().trim());
+        pendingDevice.setPhysicalLocation(Objects.requireNonNull(physicalLocation.getText()).toString().trim());
+        pendingDevice.setQuantity(Objects.requireNonNull(numberAdded.getText()).toString().trim());
+        pendingDevice.setNotes(Objects.requireNonNull(notes.getText()).toString().trim());
+        pendingDevice.setDateAdded(Objects.requireNonNull(dateIn.getText()).toString().trim());
+        pendingDevice.setTimeAdded(Objects.requireNonNull(timeIn.getText()).toString().trim());
+        return pendingDevice;
     }
 
-    private void changeBoxStroke(TextInputEditText[] fields, AutoCompleteTextView autoCompleteTextView) {
+    private void changeBoxStroke(TextInputEditText[] fields) {
         for (TextInputEditText currentField : fields) {
             if (Objects.requireNonNull(currentField.getText()).toString().length() <= 0) {
                 TextInputLayout textInputLayout = (TextInputLayout) currentField.getParent().getParent();
-                textInputLayout.setBoxStrokeColor(getResources().getColor(R.color.design_default_color_error,parent.getTheme()));
-                textInputLayout.setHelperText(textInputLayout.getHint() + " is required");
+                textInputLayout.setBoxStrokeColor(getResources().getColor(R.color.design_default_color_error,requireActivity().getTheme()));
+                textInputLayout.setHelperText(getText(R.string.fui_required_field));
                 textInputLayout.setHelperTextTextAppearance(R.style.error_appearance);
             }
-        }
-
-        if (autoCompleteTextView.getText().toString().isEmpty()) {
-            checkAutoComplete = false;
-            siteLocationLayout.setBoxStrokeColor(getResources().getColor(R.color.design_default_color_error,parent.getTheme()));
-            siteLocationLayout.setHelperText(siteLocationLayout.getHint() + " is required");
-            siteLocationLayout.setHelperTextTextAppearance(R.style.error_appearance);
-        }
-
-    }
-
-    public void saveData(String NETWORKS, String NETWORK, String SITES, String SITE,
-                         String DEPARTMENTS, String DEPARTMENT, String PENDING) {
-
-
-        Log.d(TAG, "SAVING");
-        String udiStr = Objects.requireNonNull(udi.getText()).toString();
-        String dateInStr = Objects.requireNonNull(dateIn.getText()).toString();
-        String timeInStr = Objects.requireNonNull(timeIn.getText()).toString();
-        String numberAddedStr = Objects.requireNonNull(numberAdded.getText()).toString();
-
-        String siteNameStr;
-        if (chosenSite) {
-            siteNameStr = Objects.requireNonNull(otherSite_text.getText()).toString();
-        } else {
-            siteNameStr = siteLocation.getText().toString();
-        }
-        String physicalLocationStr = Objects.requireNonNull(physicalLocation.getText()).toString().trim();
-
-        String notesStr = Objects.requireNonNull(notes.getText()).toString();
-
-
-        // saving data
-        Map<String, Object> equipmentMap = new HashMap<>();
-        equipmentMap.put("udi", udiStr);
-        equipmentMap.put("date_in", dateInStr);
-        equipmentMap.put("time_in", timeInStr);
-        equipmentMap.put("number_added", numberAddedStr);
-        equipmentMap.put("site_name", siteNameStr);
-        equipmentMap.put("physical_location", physicalLocationStr);
-        equipmentMap.put("notes", notesStr);
-
-
-        DocumentReference pendingRef = db.collection(NETWORKS).document(NETWORK)
-                .collection(SITES).document(SITE).collection(DEPARTMENTS)
-                .document(DEPARTMENT).collection(PENDING).document(udi.getText().toString());
-        pendingRef.set(equipmentMap)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(parent, "Equipment has been stored for later approval", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing document", e);
-                    }
-                });
-
-    }
-
-    // Dropdown menu for Site Location field
-    public void setAdapter(View rootView){
-        final ArrayAdapter<String> adapterSite =
-                new ArrayAdapter<>(
-                        rootView.getContext(),
-                        R.layout.dropdown_menu_popup_item,
-                        SITELOC);
-        adapterSite.add("Other");
-        System.out.println(mHospitalName);
-        adapterSite.add(mHospitalName);
-        siteLocation.setAdapter(adapterSite);
-        siteLocation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                addNewSite(adapterView, view, i);
-            }
-        });
-
-    }
-
-    private void addNewSite(final AdapterView<?> adapterView, View view, int i) {
-        String selected = (String) adapterView.getItemAtPosition(i);
-        TextInputLayout other_site_layout;
-        if (selected.equals("Other") && !chosenSite) {
-            chosenSite = true;
-            other_site_layout = (TextInputLayout) View.inflate(view.getContext(),
-                    R.layout.activity_itemdetail_materialcomponent, null);
-            other_site_layout.setHint("Enter site");
-            other_site_layout.setId(View.generateViewId());
-            other_site_layout.setGravity(Gravity.END);
-            otherSite_text = new TextInputEditText(other_site_layout.getContext());
-            TextWatcher siteTextWatcher = new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    if (!(otherSite_text.toString().trim().isEmpty())) {
-                     chosenItem = true;
-                    }
-                }
-            };
-            otherSite_text.addTextChangedListener(siteTextWatcher);
-            otherSite_text.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-            other_site_layout.addView(otherSite_text);
-            linearLayout.addView(other_site_layout, 1 + linearLayout.indexOfChild(siteLocationLayout));
-        } else if (chosenSite) {
-            chosenSite = false;
-            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(siteLocationLayout));
         }
     }
 
@@ -448,7 +216,6 @@ public class ItemDetailOfflineFragment extends Fragment {
     }
 
     private void showNumberPicker(View view, final TextInputEditText editTextAdded) {
-
         final Dialog d = new Dialog(view.getContext());
         d.setTitle("NumberPicker");
         d.setContentView(R.layout.dialog);
@@ -473,6 +240,5 @@ public class ItemDetailOfflineFragment extends Fragment {
             }
         });
         d.show();
-
     }
 }

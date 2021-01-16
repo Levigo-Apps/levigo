@@ -84,17 +84,16 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/siteLocationLayout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense.ExposedDropdownMenu"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/site_location_label"
                     app:boxStrokeColor="@color/colorPrimary">
 
-                    <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_site_location"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:completionThreshold="1" />
+                        android:layout_height="wrap_content"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
