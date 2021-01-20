@@ -10,12 +10,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.MainActivity;
+import org.getcarebase.carebase.activities.Main.fragments.InventoryFragment;
 import org.getcarebase.carebase.models.DeviceProduction;
 
 import java.util.List;
 
 public class DeviceProductionsAdapter extends RecyclerView.Adapter<DeviceProductionsAdapter.DeviceProductionHolder> {
-    private final MainActivity activity;
+    private final InventoryFragment inventoryFragment;
     private final List<DeviceProduction> deviceProductions;
     private final String deviceIdentifier;
 
@@ -30,8 +31,8 @@ public class DeviceProductionsAdapter extends RecyclerView.Adapter<DeviceProduct
         }
     }
 
-    public DeviceProductionsAdapter(MainActivity activity, String deviceIdentifier, List<DeviceProduction> deviceProductions) {
-        this.activity = activity;
+    public DeviceProductionsAdapter(InventoryFragment inventoryFragment, String deviceIdentifier, List<DeviceProduction> deviceProductions) {
+        this.inventoryFragment = inventoryFragment;
         this.deviceProductions = deviceProductions;
         this.deviceIdentifier = deviceIdentifier;
     }
@@ -51,9 +52,9 @@ public class DeviceProductionsAdapter extends RecyclerView.Adapter<DeviceProduct
         holder.itemExpiration.setText(expiration);
 
         //TODO PLURAL
-        holder.itemQuantity.setText(activity.getString(R.string.unit_quantity_value,deviceProduction.getQuantity()));
+        holder.itemQuantity.setText(inventoryFragment.getString(R.string.unit_quantity_value,deviceProduction.getQuantity()));
 
-        holder.itemView.setOnClickListener(view -> activity.startItemViewOnly(deviceProduction.getUniqueDeviceIdentifier(), deviceIdentifier));
+        holder.itemView.setOnClickListener(view -> inventoryFragment.showDeviceDetail(deviceIdentifier,deviceProduction.getUniqueDeviceIdentifier()));
     }
 
     @Override

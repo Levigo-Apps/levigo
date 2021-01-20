@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.MainActivity;
+import org.getcarebase.carebase.activities.Main.fragments.InventoryFragment;
 import org.getcarebase.carebase.models.DeviceModel;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder> {
-    private final MainActivity activity;
+    private final InventoryFragment inventoryFragment;
     private Map<String, List<DeviceModel>> categoricalInventory;
 
     public static class TypesHolder extends RecyclerView.ViewHolder {
@@ -46,8 +47,8 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
         }
     }
 
-    public TypesAdapter(MainActivity activity) {
-        this.activity = activity;
+    public TypesAdapter(InventoryFragment inventoryFragment) {
+        this.inventoryFragment = inventoryFragment;
     }
 
     public void setCategoricalInventory(Map<String, List<DeviceModel>> categoricalInventory) {
@@ -68,8 +69,8 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
 
         holder.itemType.setText(category.getKey());
 
-        DeviceModelsAdapter deviceModelsAdapter = new DeviceModelsAdapter(activity, category.getValue());
-        LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
+        DeviceModelsAdapter deviceModelsAdapter = new DeviceModelsAdapter(inventoryFragment, category.getValue());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(inventoryFragment.getContext());
         holder.itemDIs.setLayoutManager(layoutManager);
         holder.itemDIs.setAdapter(deviceModelsAdapter);
     }
