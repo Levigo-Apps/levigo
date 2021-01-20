@@ -56,7 +56,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
- public class ItemDetailViewFragment extends Fragment {
+public class ItemDetailViewFragment extends Fragment {
+    public static final String TAG = ItemDetailViewFragment.class.getName();
 
     private Activity parent;
 
@@ -100,7 +101,7 @@ import java.util.Objects;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        dp = Objects.requireNonNull(getContext()).getResources().getDisplayMetrics().density;
+        dp = requireContext().getResources().getDisplayMetrics().density;
         final View rootView = inflater.inflate(R.layout.fragment_viewonlyitemdetail, container, false);
         parent = getActivity();
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
@@ -234,7 +235,7 @@ import java.util.Objects;
                 bundle.putString("di", deviceIdentifier.getText().toString());
                 fragment.setArguments(bundle);
 
-                FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
 //            //clears other fragments
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
@@ -337,7 +338,7 @@ import java.util.Objects;
                 costDateText.setEndIconMode(TextInputLayout.END_ICON_CUSTOM);
                 costDateText.setEndIconDrawable(R.drawable.ic_baseline_plus);
                 costDateText.setEndIconTintList(ColorStateList.valueOf(getResources().
-                        getColor(R.color.colorPrimary, Objects.requireNonNull(getActivity()).getTheme())));
+                        getColor(R.color.colorPrimary, requireActivity().getTheme())));
 
                 eachEquipmentLayout.addView(costDateHeader);
                 eachEquipmentLayout.addView(costDateText);

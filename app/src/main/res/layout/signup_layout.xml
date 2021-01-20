@@ -45,7 +45,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/invitationcode_lbl"
                     android:shadowColor="@color/colorPrimaryDark"
-                    android:textColor="@color/colorCustomBlack" />
+                    android:textColor="@color/colorGrey" />
             </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -72,7 +72,7 @@
                 android:backgroundTint="@color/colorPrimary"
                 android:text="@string/your_network_lbl"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/colorCustomBlack" />
+                android:textColor="@color/colorGrey" />
 
             <TextView
                 android:id="@+id/signup_network_name"
@@ -80,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorPrimary"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="@color/colorCustomBlack"
+                android:textColor="@color/colorGrey"
                 android:textStyle="bold" />
 
 
@@ -89,7 +89,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/your_hospital_lbl"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/colorCustomBlack" />
+                android:textColor="@color/colorGrey" />
 
             <TextView
                 android:id="@+id/signup_site_name"
