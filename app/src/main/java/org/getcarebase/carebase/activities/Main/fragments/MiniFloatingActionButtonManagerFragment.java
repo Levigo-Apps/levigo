@@ -31,8 +31,7 @@ public class MiniFloatingActionButtonManagerFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        LinearLayout fabLayout = requireActivity().findViewById(R.id.fab_layout);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, @Nullable Bundle savedInstanceState) {
         toggleOptionsFAB = requireActivity().findViewById(R.id.toggle_options_fab);
         rotateOpenAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.rotate_open);
         rotateCloseAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.rotate_close);
@@ -40,7 +39,7 @@ public class MiniFloatingActionButtonManagerFragment extends Fragment {
         fadeOutDownAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.fade_out_down);
         toggleOptionsFAB.setOnClickListener(this::onToggleOptionsButtonClicked);
         for (FloatingActionButton fab : miniFABs) {
-            fabLayout.addView(fab,0);
+            container.addView(fab,0);
         }
         return super.onCreateView(inflater, container, savedInstanceState);
     }

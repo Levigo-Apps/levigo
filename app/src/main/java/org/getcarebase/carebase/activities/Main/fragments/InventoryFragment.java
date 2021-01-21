@@ -11,6 +11,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -43,13 +44,13 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
         swipeRefreshLayout = rootView.findViewById(R.id.main_swipe_refresh_container);
 
         inventoryViewModel = new ViewModelProvider(requireActivity()).get(InventoryViewModel.class);
-
-        FloatingActionButton scanDeviceFAB = (FloatingActionButton) inflater.inflate(R.layout.mini_scan_device_fab, container, false);
+        LinearLayout fabLayout = requireActivity().findViewById(R.id.fab_layout);
+        FloatingActionButton scanDeviceFAB = (FloatingActionButton) inflater.inflate(R.layout.mini_scan_device_fab,fabLayout, false);
         scanDeviceFAB.setOnClickListener(view -> ((MainActivity) requireActivity()).startScanner());
-        FloatingActionButton manualAddDeviceFAB = (FloatingActionButton) inflater.inflate(R.layout.mini_manual_add_device_fab,container,false);
+        FloatingActionButton manualAddDeviceFAB = (FloatingActionButton) inflater.inflate(R.layout.mini_manual_add_device_fab,fabLayout,false);
         manualAddDeviceFAB.setOnClickListener(view -> ((MainActivity) requireActivity()).startItemForm(""));
         miniFABs = new FloatingActionButton[] {scanDeviceFAB,manualAddDeviceFAB};
-        super.onCreateView(inflater,container,savedInstanceState);
+        super.onCreateView(inflater,fabLayout,savedInstanceState);
 
         initInventory();
 

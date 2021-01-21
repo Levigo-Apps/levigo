@@ -10,7 +10,11 @@
         <item name="android:textColorSecondary">@android:color/white</item>
     </style>
 
-    <style name="Widget.Carebase.ToolBar.PrimaryNoShadow" parent="@style/Widget.MaterialComponents.Toolbar.Primary">
+    <style name="Widget.Carebase.ToolBar.Gradient" parent="Widget.MaterialComponents.Toolbar.Primary">
+        <item name="android:background">@drawable/gradient_bg_primary</item>
+    </style>
+
+    <style name="Widget.Carebase.ToolBar.GradientNoShadow" parent="@style/Widget.Carebase.ToolBar.Gradient">
         <item name="android:elevation">0dp</item>
     </style>
 
