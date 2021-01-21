@@ -59,6 +59,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.navigation:navigation-fragment:2.3.2'
     implementation 'androidx.navigation:navigation-ui:2.3.2'
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
 
 
     testImplementation 'junit:junit:4.12'

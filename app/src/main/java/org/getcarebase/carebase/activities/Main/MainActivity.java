@@ -36,14 +36,18 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Login.LoginActivity;
+import org.getcarebase.carebase.activities.Main.adapters.HomePagerAdapter;
 import org.getcarebase.carebase.activities.Main.fragments.InventoryFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ItemDetailFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ItemDetailOfflineFragment;
@@ -66,23 +70,35 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_host_layout);
         toolbar = findViewById(R.id.toolbar);
+
         // get user info
         inventoryViewModel = new ViewModelProvider(this).get(InventoryViewModel.class);
         inventoryViewModel.getUserLiveData().observe(this, userResource -> {
             if (userResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                 User currentUser = userResource.getData();
                 toolbar.setTitle(currentUser.getHospitalName());
-                // start inventory fragment once we get user
-                InventoryFragment inventoryFragment = new InventoryFragment();
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.main_content,inventoryFragment)
-                        .commit();
+                setUpViewPager();
             } else if (userResource.getRequest().getStatus() == Request.Status.ERROR) {
                 Snackbar.make(findViewById(R.id.activity_main), userResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
             }
         });
 
         getPermissions();
+    }
+
+    private void setUpViewPager() {
+        HomePagerAdapter adapter = new HomePagerAdapter(this);
+        ViewPager2 viewPager = findViewById(R.id.home_view_pager);
+        viewPager.setAdapter(adapter);
+        TabLayout tabLayout = findViewById(R.id.home_tab_layout);
+        new TabLayoutMediator(tabLayout,viewPager,(tab, position) -> {
+            switch (position) {
+                case 0: tab.setText("Inventory");
+                    break;
+                case 1: tab.setText("Procedures");
+                    break;
+            }
+        }).attach();
     }
 
     private boolean isNetworkAvailable() {
