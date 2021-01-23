@@ -12,9 +12,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.models.DeviceUsage;
 import org.getcarebase.carebase.models.Procedure;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public class ProceduresAdapter extends RecyclerView.Adapter<ProceduresAdapter.ViewHolder> {
@@ -49,9 +51,11 @@ public class ProceduresAdapter extends RecyclerView.Adapter<ProceduresAdapter.Vi
     }
 
     private final List<Procedure> procedures;
+    private final String uniqueDeviceIdentifier;
 
-    public ProceduresAdapter(List<Procedure> procedures) {
+    public ProceduresAdapter(List<Procedure> procedures, final String uniqueDeviceIdentifier) {
         this.procedures = procedures;
+        this.uniqueDeviceIdentifier = uniqueDeviceIdentifier;
     }
 
     @NonNull
@@ -79,7 +83,11 @@ public class ProceduresAdapter extends RecyclerView.Adapter<ProceduresAdapter.Vi
         holder.procedureDateView.setText(procedure.getDate());
         holder.accessionNumberView.setText(procedure.getAccessionNumber());
         holder.procedureNameView.setText(procedure.getName());
-        holder.amountUsedView.setText(holder.amountUsedView.getContext().getResources().getQuantityString(R.plurals.number_of_units,procedure.getAmountUsed(),procedure.getAmountUsed()));
+        Optional<DeviceUsage> usage = procedure.getDeviceUsages().stream().filter(deviceUsage -> deviceUsage.getUniqueDeviceIdentifier().equals(uniqueDeviceIdentifier)).findFirst();
+        if (usage.isPresent()) {
+            int amountUsed = usage.get().getAmountUsed();
+            holder.amountUsedView.setText(holder.amountUsedView.getContext().getResources().getQuantityString(R.plurals.number_of_units,amountUsed,amountUsed));
+        }
         holder.roomTimeInView.setText(procedure.getTimeIn());
         holder.roomTimeOutView.setText(procedure.getTimeOut());
         holder.roomTimeView.setText(procedure.getRoomTime());
