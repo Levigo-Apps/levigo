@@ -1,52 +1,33 @@
  package org.getcarebase.carebase.activities.Main.fragments;
 
-import android.accounts.AccountManagerFuture;
 import android.app.Activity;
 import android.content.res.ColorStateList;
-import android.database.Observable;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.squareup.okhttp.internal.Internal;
 
 import org.getcarebase.carebase.R;
-import org.getcarebase.carebase.activities.Main.adapters.ProceduresAdapter;
+import org.getcarebase.carebase.activities.Main.adapters.DeviceProceduresAdapter;
 import org.getcarebase.carebase.models.Cost;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceProduction;
@@ -193,8 +174,8 @@ public class ItemDetailViewFragment extends Fragment {
                         addItemSpecs(specification.getKey(), specification.getValue().toString(), rootView);
                     }
 
-                    ProceduresAdapter proceduresAdapter = new ProceduresAdapter(deviceProduction.getProcedures(),deviceProduction.getUniqueDeviceIdentifier());
-                    proceduresRecyclerView.setAdapter(proceduresAdapter);
+                    DeviceProceduresAdapter deviceProceduresAdapter = new DeviceProceduresAdapter(deviceProduction.getProcedures(),deviceProduction.getUniqueDeviceIdentifier());
+                    proceduresRecyclerView.setAdapter(deviceProceduresAdapter);
                 }
                 else if (resourceData.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR){
                     Toast.makeText(parent.getApplicationContext(), resourceData.getRequest().getResourceString(), Toast.LENGTH_SHORT).show();
