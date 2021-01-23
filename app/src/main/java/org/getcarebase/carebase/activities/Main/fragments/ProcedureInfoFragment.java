@@ -73,7 +73,6 @@ public class ProcedureInfoFragment extends Fragment {
         Button continueButton = rootView.findViewById(R.id.procedure_continue_button);
 
         procedureViewModel = new ViewModelProvider(requireActivity()).get(ProcedureViewModel.class);
-        procedureViewModel.getUserLiveData().observe(getViewLifecycleOwner(),userResource -> procedureViewModel.setupDeviceRepository());
 
         topToolBar.setNavigationOnClickListener(view -> procedureViewModel.goToInventory());
 
