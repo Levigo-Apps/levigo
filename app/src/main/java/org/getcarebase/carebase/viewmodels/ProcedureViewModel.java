@@ -12,6 +12,7 @@ import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
 import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
+import org.getcarebase.carebase.repositories.ProcedureRepository;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
@@ -26,10 +27,11 @@ public class ProcedureViewModel extends ViewModel {
     // 0 - entering procedure details
     // 1 - recording devices used in the procedures
     private final MutableLiveData<Integer> currentStep = new MutableLiveData<>(0);
-    // The procedure that is to be saved to all the devices - di and udi are null
+
     private Procedure procedureDetails;
 
     private DeviceRepository deviceRepository;
+    private ProcedureRepository procedureRepository;
     private final FirebaseAuthRepository authRepository;
     private LiveData<Resource<User>> userLiveData;
 
@@ -52,8 +54,8 @@ public class ProcedureViewModel extends ViewModel {
         return resource.getRequest();
     });
 
-    private final MutableLiveData<List<Procedure>> saveProcedureLiveData = new MutableLiveData<>();
-    private final LiveData<Request> saveProcedureRequestLiveData = Transformations.switchMap(saveProcedureLiveData, procedures -> deviceRepository.saveProcedure(procedures));
+    private final MutableLiveData<Procedure> saveProcedureLiveData = new MutableLiveData<>();
+    private final LiveData<Request> saveProcedureRequestLiveData = Transformations.switchMap(saveProcedureLiveData, procedures -> procedureRepository.saveProcedure(procedures));
 
     public ProcedureViewModel() {
         authRepository = new FirebaseAuthRepository();
@@ -82,9 +84,10 @@ public class ProcedureViewModel extends ViewModel {
         return userLiveData;
     }
 
-    public void setupDeviceRepository() {
+    public void setupRepositories() {
         User user = Objects.requireNonNull(userLiveData.getValue()).getData();
         deviceRepository = new DeviceRepository(user.getNetworkId(), user.getHospitalId());
+        procedureRepository = new ProcedureRepository(user.getNetworkId(), user.getHospitalId());
     }
 
     public Procedure getProcedureDetails() {
@@ -125,11 +128,7 @@ public class ProcedureViewModel extends ViewModel {
         if (devicesUsed.size() == 0) {
             throw new Error("a procedure must have used at least one device");
         }
-        List<Procedure> procedures = new ArrayList<>();
-        for (DeviceUsage usage : devicesUsed) {
-            Procedure procedure = new Procedure(usage,procedureDetails);
-            procedures.add(procedure);
-        }
-        saveProcedureLiveData.setValue(procedures);
+        procedureDetails.setDeviceUsages(devicesUsed);
+        saveProcedureLiveData.setValue(procedureDetails);
     }
 }
