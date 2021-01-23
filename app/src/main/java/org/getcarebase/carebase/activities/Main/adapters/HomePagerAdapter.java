@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import org.getcarebase.carebase.activities.Main.fragments.InventoryFragment;
+import org.getcarebase.carebase.activities.Main.fragments.ProceduresFragment;
 
 public class HomePagerAdapter extends FragmentStateAdapter {
 
@@ -20,7 +21,7 @@ public class HomePagerAdapter extends FragmentStateAdapter {
         switch (position) {
             case 0: return new InventoryFragment();
             // TODO change to ProcedureFragment
-            case 1: return new Fragment();
+            case 1: return new ProceduresFragment();
             default: return new Fragment();
         }
     }

@@ -90,6 +90,7 @@ public class ProcedureRepository {
                for (QueryDocumentSnapshot procedureSnapshot : task.getResult()) {
                    procedures.add(procedureSnapshot.toObject(Procedure.class));
                }
+               proceduresLiveData.setValue(new Resource<>(procedures,new Request(null, Request.Status.SUCCESS)));
            } else {
                proceduresLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
            }

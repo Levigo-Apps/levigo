@@ -27,7 +27,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,15 +45,14 @@ import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
 import org.getcarebase.carebase.R;
-import org.getcarebase.carebase.activities.Login.LoginActivity;
 import org.getcarebase.carebase.activities.Main.adapters.HomePagerAdapter;
-import org.getcarebase.carebase.activities.Main.fragments.InventoryFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ItemDetailFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ItemDetailOfflineFragment;
 import org.getcarebase.carebase.activities.Main.fragments.PendingUdiFragment;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.InventoryViewModel;
+import org.getcarebase.carebase.viewmodels.ProceduresViewModel;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -63,8 +61,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
 
-    private InventoryViewModel inventoryViewModel;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
 
         // get user info
-        inventoryViewModel = new ViewModelProvider(this).get(InventoryViewModel.class);
+        InventoryViewModel inventoryViewModel = new ViewModelProvider(this).get(InventoryViewModel.class);
         inventoryViewModel.getUserLiveData().observe(this, userResource -> {
             if (userResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                 User currentUser = userResource.getData();
@@ -219,13 +215,13 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(new Intent(this, AddProcedureActivity.class),RC_ADD_PROCEDURE);
     }
     
-    public void signOut() {
-        inventoryViewModel.signOut();
-        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
-    }
+//    public void signOut() {
+//        inventoryViewModel.signOut();
+//        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        startActivity(intent);
+//        finish();
+//    }
     
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -259,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
 //                }
 //                return true;
             case R.id.logout:
-                signOut();
+                //signOut();
                 return true;
 //            case R.id.pendingUdiFragment:
 //                startPendingEquipment("");

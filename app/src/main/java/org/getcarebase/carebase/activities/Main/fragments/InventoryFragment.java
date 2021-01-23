@@ -25,7 +25,7 @@ import org.getcarebase.carebase.viewmodels.InventoryViewModel;
 public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
 
     private View rootView;
-    private RecyclerView inventoryScroll;
+    private RecyclerView inventoryRecyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private TypesAdapter typesAdapter;
 
@@ -39,9 +39,9 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.inventory_layout, container, false);
-        inventoryScroll = rootView.findViewById(R.id.main_categories);
-        swipeRefreshLayout = rootView.findViewById(R.id.main_swipe_refresh_container);
+        rootView = inflater.inflate(R.layout.generic_swipe_refresh_list_layout, container, false);
+        inventoryRecyclerView = rootView.findViewById(R.id.recycler_view);
+        swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
 
         inventoryViewModel = new ViewModelProvider(requireActivity()).get(InventoryViewModel.class);
         LinearLayout fabLayout = requireActivity().findViewById(R.id.fab_layout);
@@ -59,10 +59,10 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
 
     private void initInventory() {
         RecyclerView.LayoutManager inventoryLayoutManager = new LinearLayoutManager(getContext());
-        inventoryScroll.setLayoutManager(inventoryLayoutManager);
+        inventoryRecyclerView.setLayoutManager(inventoryLayoutManager);
 
         typesAdapter = new TypesAdapter(this);
-        inventoryScroll.setAdapter(typesAdapter);
+        inventoryRecyclerView.setAdapter(typesAdapter);
 
         inventoryViewModel.getCategoricalInventoryLiveData().observe(getViewLifecycleOwner(), mapResource -> {
             if (mapResource.getRequest().getStatus() == Request.Status.SUCCESS) {
