@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,6 +24,7 @@ import org.getcarebase.carebase.models.Cost;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceModelGUDIDDeserializer;
 import org.getcarebase.carebase.models.DeviceProduction;
+import org.getcarebase.carebase.models.DeviceUsage;
 import org.getcarebase.carebase.models.ParseUDIResponse;
 import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.utils.Request;
@@ -33,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -42,13 +45,14 @@ import retrofit2.Response;
  * This is class should handle all of the logic of saving and retrieving for a device.
  */
 public class DeviceRepository {
-    private static final String TAG = "DeviceRepository";
+    private static final String TAG = DeviceRepository.class.getName();
     private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     private final AccessGUDIDAPI accessGUDIDAPI = AccessGUDIDAPIInstanceFactory.getRetrofitInstance(DeviceModel.class, new DeviceModelGUDIDDeserializer()).create(AccessGUDIDAPI.class);
 
     private final String networkId;
     private final String hospitalId;
     private final CollectionReference inventoryReference;
+    private final CollectionReference proceduresReference;
     private final DocumentReference deviceTypesReference;
     private final DocumentReference physicalLocationsReference;
 
@@ -59,6 +63,10 @@ public class DeviceRepository {
                 .collection("hospitals").document(hospitalId)
                 .collection("departments").document("default_department")
                 .collection("dis");
+        proceduresReference = firestore.collection("networks").document(networkId)
+                .collection("hospitals").document(hospitalId)
+                .collection("departments").document("default_department")
+                .collection("procedures");
         deviceTypesReference = firestore.collection("networks").document(networkId)
                 .collection("hospitals").document(hospitalId)
                 .collection("types").document("type_options");
@@ -224,36 +232,6 @@ public class DeviceRepository {
     }
 
     /**
-     * Saves the procedure information into every device used in the procedure
-     * @param procedures a list of procedures that fundamentally are all the same but rather there
-     *                   is a entry for each device used in the procedure
-     * @return a Request object detailing the status of the request.
-     */
-    public LiveData<Request> saveProcedure(List<Procedure> procedures) {
-        MutableLiveData<Request> saveProceduresRequest = new MutableLiveData<>();
-        List<Task<?>> tasks = new ArrayList<>();
-
-        for (Procedure procedure : procedures) {
-            DocumentReference deviceProductionReference = inventoryReference.document(procedure.getDeviceIdentifier())
-                    .collection("udis").document(procedure.getUniqueDeviceIdentifier());
-            // update the device's quantity
-            tasks.add(deviceProductionReference.update("quantity",procedure.getNewQuantity()));
-            // save the procedure
-            tasks.add(deviceProductionReference.collection("procedures").add(procedure));
-        }
-
-        Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                saveProceduresRequest.setValue(new Request(null, Request.Status.SUCCESS));
-            } else {
-                // TODO make resource error string
-                saveProceduresRequest.setValue(new Request(R.string.error_something_wrong, Request.Status.ERROR));
-            }
-        });
-        return saveProceduresRequest;
-    }
-
-    /**
      * Gets the current device in firestore if it exists. The udi given will be parsed to get its di.
      * @param udi the udi that is scanned.
      * @return The DeviceModel information that is in the database, if the device production information
@@ -410,9 +388,9 @@ public class DeviceRepository {
     }
 
     private Task<?> getDeviceProceduresFromFirestore(final String di, final String udi, final AtomicReference<Resource<List<Procedure>>> proceduresAtomicReference) {
-        Task<QuerySnapshot> proceduresTask = inventoryReference.document(di).collection("udis").document(udi).collection("procedures").get();
+        Task<QuerySnapshot> proceduresTask = proceduresReference.whereArrayContains("udis",udi).get();
         proceduresTask.addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
+            if (task.isSuccessful() && task.getResult() != null) {
                 QuerySnapshot procedureSnapshots = task.getResult();
                 List<Procedure> procedures = new ArrayList<>();
                 for (QueryDocumentSnapshot documentSnapshot : procedureSnapshots) {

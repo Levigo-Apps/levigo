@@ -3,59 +3,23 @@ package org.getcarebase.carebase.models;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
+import java.util.List;
+
 /**
- * represents usage of a device
+ * represents a medical operation
  */
 public class Procedure {
-    private String deviceIdentifier;
-    private String uniqueDeviceIdentifier;
+    private String procedureId;
     private String accessionNumber;
-    private int amountUsed;
-    // TODO change device production quantity to type int instead of string in firebase
-    private String newQuantity;
     private String fluoroTime;
     private String date;
     private String name;
     private String roomTime;
     private String timeIn;
     private String timeOut;
+    private List<DeviceUsage> deviceUsages;
 
     public Procedure() {}
-
-    // helper constructor for procedure form
-    public Procedure(DeviceUsage deviceUsage, Procedure procedureDetails) {
-        this.deviceIdentifier = deviceUsage.getDeviceIdentifier();
-        this.uniqueDeviceIdentifier = deviceUsage.getUniqueDeviceIdentifier();
-        this.amountUsed = deviceUsage.getAmountUsed();
-        this.newQuantity = Integer.toString(deviceUsage.getNewQuantity());
-        this.accessionNumber = procedureDetails.getAccessionNumber();
-        this.fluoroTime = procedureDetails.getFluoroTime();
-        this.date = procedureDetails.getDate();
-        this.name = procedureDetails.getName();
-        this.roomTime = procedureDetails.getRoomTime();
-        this.timeIn = procedureDetails.getTimeIn();
-        this.timeOut = procedureDetails.getTimeOut();
-    }
-
-    @Exclude
-    public String getDeviceIdentifier() {
-        return deviceIdentifier;
-    }
-
-    @Exclude
-    public void setDeviceIdentifier(String deviceIdentifier) {
-        this.deviceIdentifier = deviceIdentifier;
-    }
-
-    @Exclude
-    public String getUniqueDeviceIdentifier() {
-        return uniqueDeviceIdentifier;
-    }
-
-    @Exclude
-    public void setUniqueDeviceIdentifier(String uniqueDeviceIdentifier) {
-        this.uniqueDeviceIdentifier = uniqueDeviceIdentifier;
-    }
 
     @PropertyName("accession_number")
     public String getAccessionNumber() {
@@ -65,21 +29,6 @@ public class Procedure {
     @PropertyName("accession_number")
     public void setAccessionNumber(String accessionNumber) {
         this.accessionNumber = accessionNumber;
-    }
-
-    @PropertyName("amount_used")
-    public int getAmountUsed() {
-        return amountUsed;
-    }
-
-    @PropertyName("amount_used")
-    public void setAmountUsed(int amountUsed) {
-        this.amountUsed = amountUsed;
-    }
-
-    @Exclude
-    public String getNewQuantity() {
-        return newQuantity;
     }
 
     @PropertyName("fluoro_time")
@@ -140,5 +89,15 @@ public class Procedure {
     @PropertyName("time_out")
     public void setTimeOut(String timeOut) {
         this.timeOut = timeOut;
+    }
+
+    @PropertyName("device_usages")
+    public List<DeviceUsage> getDeviceUsages() {
+        return deviceUsages;
+    }
+
+    @PropertyName("device_usages")
+    public void setDeviceUsages(List<DeviceUsage> deviceUsages) {
+        this.deviceUsages = deviceUsages;
     }
 }
