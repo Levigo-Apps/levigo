@@ -14,14 +14,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.activities.Main.adapters.ProceduresAdapter;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.ProceduresViewModel;
 
-public class ProceduresFragment extends MiniFloatingActionButtonManagerFragment {
+public class ProceduresFragment extends FloatingActionButtonManagerFragment {
 
     private View rootView;
     private RecyclerView proceduresRecyclerView;
@@ -75,4 +77,9 @@ public class ProceduresFragment extends MiniFloatingActionButtonManagerFragment 
         return rootView;
     }
 
+    @Override
+    public void onMainFloatingActionButtonClicked(View view) {
+        // start add procedure screen
+        ((MainActivity) requireActivity()).startProcedureInfo();
+    }
 }
