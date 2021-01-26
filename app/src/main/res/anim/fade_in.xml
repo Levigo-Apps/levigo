@@ -15,9 +15,17 @@
   ~ limitations under the License.
   -->
 
-<set xmlns:android="http://schemas.android.com/apk/res/android">
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fillAfter="true">
+
+    <scale android:fromXScale="0.0" android:fromYScale="0.0"
+        android:toXScale="1.0" android:toYScale="1.0"
+        android:pivotX="50%" android:pivotY="50%"
+        android:duration="@android:integer/config_shortAnimTime"
+        android:fillBefore="false" />
+
     <alpha
-        android:duration="@android:integer/config_mediumAnimTime"
+        android:duration="@android:integer/config_longAnimTime"
         android:fromAlpha="0.0"
         android:toAlpha="1.0"/>
 </set>

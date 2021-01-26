@@ -20,8 +20,8 @@ import org.getcarebase.carebase.R;
  * Manages Floating Action Button of the home screen
  * Any fragment of the home must extend this fragment if fragment has floating action button actions
  */
-public class MiniFloatingActionButtonManagerFragment extends Fragment {
-    private FloatingActionButton toggleOptionsFAB;
+public class MiniFloatingActionButtonManagerFragment extends FloatingActionButtonManagerFragment {
+    private ViewGroup container;
     protected FloatingActionButton[] miniFABs;
     private Animation rotateOpenAnimation;
     private Animation rotateCloseAnimation;
@@ -32,19 +32,34 @@ public class MiniFloatingActionButtonManagerFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, @Nullable Bundle savedInstanceState) {
-        toggleOptionsFAB = requireActivity().findViewById(R.id.toggle_options_fab);
+        this.container = container;
         rotateOpenAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.rotate_open);
         rotateCloseAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.rotate_close);
         fadeInUpAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.fade_in_up);
         fadeOutDownAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.fade_out_down);
-        toggleOptionsFAB.setOnClickListener(this::onToggleOptionsButtonClicked);
-        for (FloatingActionButton fab : miniFABs) {
-            container.addView(fab,0);
-        }
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
-    public void onToggleOptionsButtonClicked(final View view) {
+    @Override
+    public void onResume() {
+        // add mini fab buttons
+        for (FloatingActionButton fab : miniFABs) {
+            container.addView(fab,0);
+        }
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        // remove mini fab buttons
+        for (FloatingActionButton fab : miniFABs) {
+            container.removeView(fab);
+        }
+        super.onPause();
+    }
+
+
+    public void onMainFloatingActionButtonClicked(final View view) {
         setFABVisibilities(isOptionsShown);
         setFABAnimations(isOptionsShown);
         isOptionsShown = !isOptionsShown;
@@ -64,12 +79,12 @@ public class MiniFloatingActionButtonManagerFragment extends Fragment {
 
     public void setFABAnimations(final boolean isOptionsShown) {
         if (isOptionsShown) {
-            toggleOptionsFAB.startAnimation(rotateCloseAnimation);
+            mainFAB.startAnimation(rotateCloseAnimation);
             for (FloatingActionButton fab : miniFABs) {
                 fab.startAnimation(fadeOutDownAnimation);
             }
         } else {
-            toggleOptionsFAB.startAnimation(rotateOpenAnimation);
+            mainFAB.startAnimation(rotateOpenAnimation);
             for (FloatingActionButton fab : miniFABs) {
                 fab.startAnimation(fadeInUpAnimation);
             }
