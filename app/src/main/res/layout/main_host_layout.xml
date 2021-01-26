@@ -6,7 +6,6 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
     tools:context=".activities.Main.MainActivity">
@@ -16,8 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/gradient_bg_primary"
-        app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
-        app:elevation="0dp">
+        app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"

@@ -52,7 +52,6 @@ import org.getcarebase.carebase.activities.Main.fragments.PendingUdiFragment;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.InventoryViewModel;
-import org.getcarebase.carebase.viewmodels.ProceduresViewModel;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -73,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
             if (userResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                 User currentUser = userResource.getData();
                 toolbar.setTitle(currentUser.getHospitalName());
+                toolbar.inflateMenu(R.menu.main_toolbar);
                 setUpViewPager();
             } else if (userResource.getRequest().getStatus() == Request.Status.ERROR) {
                 Snackbar.make(findViewById(R.id.activity_main), userResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
