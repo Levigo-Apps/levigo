@@ -1,5 +1,6 @@
 package org.getcarebase.carebase.activities.Main.fragments;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -32,6 +34,13 @@ public class ProceduresFragment extends MiniFloatingActionButtonManagerFragment 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.generic_swipe_refresh_list_layout, container, false);
         proceduresRecyclerView = rootView.findViewById(R.id.recycler_view);
+
+        // set up list divider
+        Drawable divider = getContext().getDrawable(R.drawable.divider);
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL);
+        itemDecoration.setDrawable(divider);
+        proceduresRecyclerView.addItemDecoration(itemDecoration);
+
         swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
 
         proceduresViewModel = new ViewModelProvider(requireActivity()).get(ProceduresViewModel.class);

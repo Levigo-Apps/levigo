@@ -1,22 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:minHeight="72dp"
+    android:padding="16dp"
+    android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/name_text_view"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Procedure Name"
-        />
+        android:orientation="vertical"
+        android:layout_weight="1">
+        <TextView
+            android:id="@+id/name_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            tools:text="Procedure Name"/>
 
-    <TextView
-        android:id="@+id/date_text_view"
+        <org.getcarebase.carebase.views.LabeledTextView
+            android:id="@+id/date_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:textColor="@color/colorGrey"
+            app:label_text="Date"
+            app:show_label="false"
+            tools:text="1/23/2021"
+            />
+
+        <org.getcarebase.carebase.views.LabeledTextView
+            android:id="@+id/time_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:textColor="@color/colorGrey"
+            android:visibility="gone"
+            app:label_text="Time" />
+
+        <org.getcarebase.carebase.views.LabeledTextView
+            android:id="@+id/room_time_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:textColor="@color/colorGrey"
+            android:visibility="gone"
+            app:label_text="Room Time"/>
+
+        <org.getcarebase.carebase.views.LabeledTextView
+            android:id="@+id/accession_number_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:textColor="@color/colorGrey"
+            android:visibility="gone"
+            app:label_text="Accession Number"/>
+
+        <org.getcarebase.carebase.views.LabeledTextView
+            android:id="@+id/device_usage_count_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:textColor="@color/colorGrey"
+            android:visibility="gone"
+            app:label_text="Number Of Devices Used"/>
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/buttons_layout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="09/21/2021"
-        />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_weight="0">
+
+        <ImageButton
+            android:id="@+id/dropdown"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:tint="@color/colorGrey"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_baseline_arrow_drop_down_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/view_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="View"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </LinearLayout>
