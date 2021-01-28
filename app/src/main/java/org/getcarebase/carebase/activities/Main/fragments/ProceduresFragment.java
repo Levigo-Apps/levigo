@@ -8,13 +8,13 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.getcarebase.carebase.R;
@@ -31,11 +31,17 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
 
     private ProceduresViewModel proceduresViewModel;
 
+    public interface ProcedureClickCallback {
+        void showProcedureDetail(final String procedureId);
+    }
+
+    private final ProceduresFragment.ProcedureClickCallback procedureClickCallback = this::showProcedureDetail;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.generic_swipe_refresh_list_layout, container, false);
-        proceduresRecyclerView = rootView.findViewById(R.id.recycler_view);
+        RecyclerView proceduresRecyclerView = rootView.findViewById(R.id.recycler_view);
 
         // set up list divider
         Drawable divider = getContext().getDrawable(R.drawable.divider);
@@ -59,7 +65,7 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
         RecyclerView.LayoutManager inventoryLayoutManager = new LinearLayoutManager(getContext());
         proceduresRecyclerView.setLayoutManager(inventoryLayoutManager);
 
-        ProceduresAdapter proceduresAdapter = new ProceduresAdapter();
+        ProceduresAdapter proceduresAdapter = new ProceduresAdapter(procedureClickCallback);
         proceduresRecyclerView.setAdapter(proceduresAdapter);
 
         proceduresViewModel.getProceduresLiveData().observe(getViewLifecycleOwner(), proceduresResource -> {
@@ -81,5 +87,17 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
     public void onMainFloatingActionButtonClicked(View view) {
         // start add procedure screen
         ((MainActivity) requireActivity()).startProcedureInfo();
+    }
+
+    public void showProcedureDetail(final String procedureId) {
+        Fragment fragment = new ProcedureDetailFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("procedure_id",procedureId);
+        fragment.setArguments(bundle);
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.activity_main,fragment,ProcedureDetailFragment.TAG)
+                .addToBackStack(null)
+                .commit();
     }
 }
