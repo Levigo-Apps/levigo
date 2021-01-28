@@ -25,14 +25,14 @@ import java.util.stream.Collectors;
  */
 public class ProcedureRepository {
     private static final String TAG = ProcedureRepository.class.getName();
-    private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
     private final CollectionReference proceduresReference;
     private final CollectionReference inventoryReference;
 
-    private List<Procedure> procedures;
+    private final List<Procedure> procedures;
 
     public ProcedureRepository(final String networkId, final String hospitalId) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         inventoryReference = firestore.collection("networks").document(networkId)
                 .collection("hospitals").document(hospitalId)
                 .collection("departments").document("default_department")
@@ -96,5 +96,19 @@ public class ProcedureRepository {
            }
         });
         return proceduresLiveData;
+    }
+
+    public LiveData<Resource<Procedure>> getProcedure(String procedureId) {
+        MutableLiveData<Resource<Procedure>> procedureLiveData = new MutableLiveData<>();
+        proceduresReference.document(procedureId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                Procedure procedure = task.getResult().toObject(Procedure.class);
+                procedureLiveData.setValue(new Resource<>(procedure,new Request(null,Request.Status.SUCCESS)));
+            }
+            else {
+                procedureLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong,Request.Status.ERROR)));
+            }
+        });
+        return procedureLiveData;
     }
 }

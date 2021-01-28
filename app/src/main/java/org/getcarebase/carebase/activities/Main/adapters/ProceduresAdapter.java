@@ -6,13 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.activities.Main.fragments.ProceduresFragment;
 import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.views.LabeledTextView;
 
@@ -46,6 +46,11 @@ public class ProceduresAdapter extends RecyclerView.Adapter<ProceduresAdapter.Vi
 
     private final List<Procedure> procedures = new ArrayList<>();
     private final List<Boolean> procedureVisibilities = new ArrayList<>();
+    private final ProceduresFragment.ProcedureClickCallback procedureClickCallback;
+
+    public ProceduresAdapter(ProceduresFragment.ProcedureClickCallback procedureClickCallback) {
+        this.procedureClickCallback = procedureClickCallback;
+    }
 
     public void setProcedures(List<Procedure> procedures) {
         this.procedures.clear();
@@ -72,6 +77,7 @@ public class ProceduresAdapter extends RecyclerView.Adapter<ProceduresAdapter.Vi
         holder.roomTimeView.setValue(procedure.getRoomTime());
         holder.accessionNumberView.setValue(procedure.getAccessionNumber());
         holder.deviceUsageCountView.setValue(Integer.toString(procedure.getDeviceUsages().size()));
+        holder.viewButton.setOnClickListener(view -> procedureClickCallback.showProcedureDetail(procedure.getProcedureId()));
 
         holder.dropdownToggleButton.setOnClickListener(view -> {
             if (!procedureVisibilities.get(position)) {

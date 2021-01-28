@@ -1,5 +1,6 @@
 package org.getcarebase.carebase.models;
 
+import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
@@ -20,6 +21,16 @@ public class Procedure {
     private List<DeviceUsage> deviceUsages;
 
     public Procedure() {}
+
+    @DocumentId
+    public String getProcedureId() {
+        return procedureId;
+    }
+
+    @DocumentId
+    public void setProcedureId(String procedureId) {
+        this.procedureId = procedureId;
+    }
 
     @PropertyName("accession_number")
     public String getAccessionNumber() {

@@ -21,7 +21,7 @@ public class LabeledTextView extends AppCompatTextView {
 
         try {
             label = a.getText(R.styleable.LabeledTextView_label_text);
-            value = a.getText(R.styleable.LabeledTextView_text_value);
+            value = a.getText(R.styleable.LabeledTextView_value_text);
             showLabel = a.getBoolean(R.styleable.LabeledTextView_show_label,true);
         } finally {
             a.recycle();
