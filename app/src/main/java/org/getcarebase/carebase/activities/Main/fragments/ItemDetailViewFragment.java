@@ -192,7 +192,7 @@ import java.util.Objects;
                         addItemSpecs(specification.getKey(), specification.getValue().toString(), rootView);
                     }
 
-                    ProceduresAdapter proceduresAdapter = new ProceduresAdapter(deviceProduction.getProcedures());
+                    ProceduresAdapter proceduresAdapter = new ProceduresAdapter(deviceProduction.getProcedures(),deviceProduction.getUniqueDeviceIdentifier());
                     proceduresRecyclerView.setAdapter(proceduresAdapter);
                 }
                 else if (resourceData.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR){
