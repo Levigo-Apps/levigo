@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorBackground"
     android:orientation="vertical"
+    android:elevation="5dp"
     android:theme="@style/AppTheme">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -13,7 +14,7 @@
         android:layout_height="?attr/actionBarSize"
         app:navigationIcon="@drawable/icon_back"
         app:title="Equipment Specifications"
-        style="@style/Widget.MaterialComponents.Toolbar.Primary" />
+        style="@style/Widget.Carebase.ToolBar.Gradient" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
