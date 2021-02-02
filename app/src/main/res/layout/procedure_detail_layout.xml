@@ -51,44 +51,20 @@
             android:columnCount="2"
             android:rowCount="3"
             android:useDefaultMargins="true">
-
-            <LinearLayout
+            
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/date_text_view"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_columnWeight="1">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/calendar"
-                    android:tint="@color/colorGrey" />
-                <TextView
-                    android:id="@+id/date_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:paddingLeft="8dp"
-                    android:lines="1"
-                    tools:text="2021/01/26"/>
-            </LinearLayout>
+                android:layout_columnWeight="1"
+                app:label_text="Date" />
 
-            <LinearLayout
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/room_time_text_view"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_columnWeight="1">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/clock"
-                    android:tint="@color/colorGrey" />
-                <TextView
-                    android:id="@+id/room_time_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:paddingStart="8dp"
-                    android:lines="1"
-                    tools:text="70 Minutes"/>
-            </LinearLayout>
+                android:layout_columnWeight="1"
+                app:label_text="Time" />
 
             <org.getcarebase.carebase.views.DetailLabeledTextView
                 android:id="@+id/time_start_text_view"

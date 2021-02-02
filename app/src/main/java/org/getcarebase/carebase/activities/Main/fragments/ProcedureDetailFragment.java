@@ -36,8 +36,8 @@ public class ProcedureDetailFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.procedure_detail_layout,container,false);
         MaterialToolbar toolbar = rootView.findViewById(R.id.toolbar);
         TextView nameView = rootView.findViewById(R.id.name_text_view);
-        TextView dateView = rootView.findViewById(R.id.date_text_view);
-        TextView timeView = rootView.findViewById(R.id.room_time_text_view);
+        DetailLabeledTextView dateView = rootView.findViewById(R.id.date_text_view);
+        DetailLabeledTextView timeView = rootView.findViewById(R.id.room_time_text_view);
         DetailLabeledTextView timeStartView = rootView.findViewById(R.id.time_start_text_view);
         DetailLabeledTextView timeEndView = rootView.findViewById(R.id.time_end_text_view);
         DetailLabeledTextView fluoroTimeView = rootView.findViewById(R.id.fluoro_time_text_view);
@@ -72,8 +72,8 @@ public class ProcedureDetailFragment extends Fragment {
             if (procedureResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                 Procedure procedure = procedureResource.getData();
                 nameView.setText(procedure.getName());
-                dateView.setText(procedure.getDate());
-                timeView.setText(procedure.getRoomTime());
+                dateView.setTextValue(procedure.getDate());
+                timeView.setTextValue(procedure.getRoomTime());
                 timeStartView.setTextValue(procedure.getTimeIn());
                 timeEndView.setTextValue(procedure.getTimeOut());
                 fluoroTimeView.setTextValue(procedure.getFluoroTime());
