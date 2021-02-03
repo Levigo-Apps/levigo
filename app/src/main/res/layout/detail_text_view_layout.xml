@@ -6,22 +6,19 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <TextView
-        android:id="@+id/value"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:textAlignment="center"
-        android:background="@drawable/rounded_corners_background"
-        android:text="?attr/value_text"
-        tools:text="value" />
-
-    <TextView
         android:id="@+id/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:textColor="@color/colorLightGrey"
         android:text="?attr/label_text"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"
         tools:text="label"/>
+
+    <TextView
+        android:id="@+id/value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="8dp"
+        android:text="?attr/value_text"
+        tools:text="value" />
 
 </LinearLayout>
