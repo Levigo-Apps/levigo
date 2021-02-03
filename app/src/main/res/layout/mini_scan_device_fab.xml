@@ -1,12 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.floatingactionbutton.FloatingActionButton
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/scan_device_fab"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:src="@drawable/icon_camera"
-    android:visibility="invisible"
-    app:fabSize="mini"
-    style="@style/Widget.Carebase.MiniFloatingActionButton" />
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="gone"
+    android:orientation="vertical">
+    <TextView
+        android:id="@+id/scan_device_fab_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scan Device"
+        />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/scan_device_fab"
+        style="@style/Widget.Carebase.MiniFloatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icon_camera"
+        android:visibility="visible"
+        android:layout_toRightOf="@id/scan_device_fab_label"
+        app:fabSize="mini" />
+</LinearLayout>
+
+
+
 
