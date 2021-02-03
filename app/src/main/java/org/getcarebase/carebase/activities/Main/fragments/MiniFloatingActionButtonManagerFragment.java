@@ -1,5 +1,6 @@
 package org.getcarebase.carebase.activities.Main.fragments;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -63,6 +65,9 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
         setFABVisibilities(isOptionsShown);
         setFABAnimations(isOptionsShown);
         isOptionsShown = !isOptionsShown;
+        Toast.makeText(getActivity(), "Hello", Toast.LENGTH_SHORT).show();
+        FloatingActionButton tmp = (FloatingActionButton) view.findViewById(R.id.toggle_options_fab);
+        tmp.setBackgroundColor(Color.BLACK);
     }
 
     public void setFABVisibilities(final boolean isOptionsShown) {
