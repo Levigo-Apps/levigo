@@ -48,7 +48,9 @@ public class Procedure {
     }
 
     @PropertyName("fluoro_time")
-    public void setFluoroTime(String fluoroTime) { this.fluoroTime = fluoroTime; }
+    public void setFluoroTime(String fluoroTime) {
+        this.fluoroTime = fluoroTime;
+    }
 
     @PropertyName("date")
     public String getDate() {
@@ -76,7 +78,9 @@ public class Procedure {
     }
 
     @PropertyName("room_time")
-    public void setRoomTime(String roomTime) { this.roomTime = roomTime; }
+    public void setRoomTime(String roomTime) {
+        this.roomTime = roomTime;
+    }
 
     @PropertyName("time_in")
     public String getTimeIn() {
