@@ -186,7 +186,6 @@ public class ProcedureInfoFragment extends Fragment {
             String totalTime = (hours * 60 + mins) + "";
             roomTime.setText(totalTime);
         }catch(ParseException e){
-
             e.printStackTrace();
         }
     }
