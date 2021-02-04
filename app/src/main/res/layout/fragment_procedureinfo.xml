@@ -138,7 +138,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/room_time_label"
-                    app:boxStrokeColor="@color/colorPrimary">
+                    app:boxStrokeColor="@color/colorPrimary"
+                    app:suffixText="minutes">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/procedure_roomTime"
@@ -153,13 +154,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/fluoro_time_lbl"
-                    app:boxStrokeColor="@color/colorPrimary">
+                    app:boxStrokeColor="@color/colorPrimary"
+                    app:suffixText="minutes">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/procedure_fluoroTime"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        />
+                        android:inputType="numberSigned" />
                 </com.google.android.material.textfield.TextInputLayout>
 
 
