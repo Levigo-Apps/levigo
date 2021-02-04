@@ -48,7 +48,7 @@ public class Procedure {
     }
 
     @PropertyName("fluoro_time")
-    public void setFluoroTime(String fluoroTime) { this.fluoroTime = fluoroTime + " minutes"; }
+    public void setFluoroTime(String fluoroTime) { this.fluoroTime = fluoroTime; }
 
     @PropertyName("date")
     public String getDate() {

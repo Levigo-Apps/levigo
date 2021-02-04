@@ -186,6 +186,7 @@ public class ProcedureInfoFragment extends Fragment {
             String totalTime = (hours * 60 + mins) + "";
             roomTime.setText(totalTime);
         }catch(ParseException e){
+
             e.printStackTrace();
         }
     }
@@ -203,8 +204,8 @@ public class ProcedureInfoFragment extends Fragment {
         procedure.setDate(procedureDateEditText.getText().toString().trim());
         procedure.setTimeIn(timeInEditText.getText().toString().trim());
         procedure.setTimeOut(timeOutEditText.getText().toString().trim());
-        procedure.setRoomTime(roomTimeEditText.getText().toString().trim());
-        procedure.setFluoroTime(fluoroTimeEditText.getText().toString().trim());
+        procedure.setRoomTime(roomTimeEditText.getText().toString().trim() + " minutes");
+        procedure.setFluoroTime(fluoroTimeEditText.getText().toString().trim() + " minutes");
         procedure.setAccessionNumber(accessionNumberEditText.getText().toString().trim());
 
         procedureViewModel.setProcedureDetails(procedure);
