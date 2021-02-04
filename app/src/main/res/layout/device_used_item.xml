@@ -28,7 +28,7 @@
             android:lines="1"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:autoSizeTextType="uniform"
-            app:autoSizeMinTextSize="9sp"
+            app:autoSizeMinTextSize="8sp"
             app:autoSizeMaxTextSize="12sp"
             app:autoSizeStepGranularity="2sp"
             android:textColor="@color/colorGrey"
@@ -42,7 +42,8 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_gravity="center_vertical"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textColor="@color/colorGrey"
         tools:text="3 Units"/>
 
 </LinearLayout>
