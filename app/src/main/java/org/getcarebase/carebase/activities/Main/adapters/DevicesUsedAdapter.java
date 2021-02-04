@@ -18,12 +18,12 @@ import java.util.List;
 
 public class DevicesUsedAdapter extends RecyclerView.Adapter<DevicesUsedAdapter.ViewHolder> {
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView udiView;
+        TextView nameView;
         TextView countView;
 
         public ViewHolder(@NonNull View view) {
             super(view);
-            udiView = view.findViewById(R.id.name_text_view);
+            nameView = view.findViewById(R.id.name_text_view);
             countView = view.findViewById(R.id.count_text_view);
         }
     }
@@ -50,7 +50,7 @@ public class DevicesUsedAdapter extends RecyclerView.Adapter<DevicesUsedAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DeviceUsage deviceUsage = deviceUsages.get(position);
-        holder.udiView.setText(deviceUsage.getName());
+        holder.nameView.setText(deviceUsage.getName());
         holder.countView.setText(resources.getQuantityString(R.plurals.number_of_units,deviceUsage.getAmountUsed(),deviceUsage.getAmountUsed()));
     }
 
