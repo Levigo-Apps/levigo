@@ -51,7 +51,7 @@
             android:columnCount="2"
             android:rowCount="3"
             android:useDefaultMargins="true">
-            
+
             <org.getcarebase.carebase.views.DetailLabeledTextView
                 android:id="@+id/date_text_view"
                 android:layout_width="0dp"
