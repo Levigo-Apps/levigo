@@ -47,8 +47,9 @@ public class ProcedureViewModel extends ViewModel {
         if (resource.getRequest().getStatus() == Request.Status.SUCCESS) {
             String di = resource.getData().getDeviceIdentifier();
             String udi = resource.getData().getProductions().get(0).getUniqueDeviceIdentifier();
+            String name = resource.getData().getName();
             int currentQuantity = resource.getData().getProductions().get(0).getQuantity();
-            DeviceUsage deviceUsage = new DeviceUsage(di,udi,currentQuantity);
+            DeviceUsage deviceUsage = new DeviceUsage(di,udi, name, currentQuantity);
             devicesUsed.add(deviceUsage);
         }
         return resource.getRequest();
