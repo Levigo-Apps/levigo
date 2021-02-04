@@ -50,7 +50,7 @@ public class DevicesUsedAdapter extends RecyclerView.Adapter<DevicesUsedAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DeviceUsage deviceUsage = deviceUsages.get(position);
-        holder.udiView.setText(deviceUsage.getUniqueDeviceIdentifier());
+        holder.udiView.setText(deviceUsage.getName());
         holder.countView.setText(resources.getQuantityString(R.plurals.number_of_units,deviceUsage.getAmountUsed(),deviceUsage.getAmountUsed()));
     }
 
