@@ -64,7 +64,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                app:label_text="Room Time" />
+                app:label_text="Time" />
 
             <org.getcarebase.carebase.views.DetailLabeledTextView
                 android:id="@+id/time_start_text_view"
