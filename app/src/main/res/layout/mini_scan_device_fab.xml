@@ -2,14 +2,19 @@
 <LinearLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:visibility="gone"
-    android:orientation="vertical">
+    android:orientation="horizontal"
+    android:paddingRight="20dp">
     <TextView
         android:id="@+id/scan_device_fab_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corners_background_borderless"
+        android:elevation="6dp"
+        android:padding="4dp"
+        android:paddingHorizontal="4dp"
         android:text="Scan Device"
         />
 
