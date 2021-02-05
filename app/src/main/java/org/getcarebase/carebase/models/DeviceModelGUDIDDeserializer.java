@@ -33,13 +33,13 @@ public class DeviceModelGUDIDDeserializer implements JsonDeserializer<DeviceMode
             deviceModel.setDeviceIdentifier(udiObject.getAsJsonPrimitive("di").getAsString());
             deviceProduction.setUniqueDeviceIdentifier(udiObject.getAsJsonPrimitive("udi").getAsString());
             // TODO use `expirationDateFormat` to format expiration date
-            if (!udiObject.get("expirationDate").isJsonNull()) {
+            if (udiObject.get("expirationDate") != null && !udiObject.get("expirationDate").isJsonNull()) {
                 deviceProduction.setExpirationDate(udiObject.getAsJsonPrimitive("expirationDate").getAsString());
             }
-            if (!udiObject.get("lotNumber").isJsonNull()) {
+            if (udiObject.get("lotNumber") != null && !udiObject.get("lotNumber").isJsonNull()) {
                 deviceProduction.setLotNumber(udiObject.getAsJsonPrimitive("lotNumber").getAsString());
             }
-            if (!deviceObject.get("catalogNumber").isJsonNull()) {
+            if (deviceObject.get("catalogNumber") != null && !deviceObject.get("catalogNumber").isJsonNull()) {
                 deviceProduction.setReferenceNumber(deviceObject.getAsJsonPrimitive("catalogNumber").getAsString());
             }
             deviceProduction.setQuantity(deviceObject.getAsJsonPrimitive("deviceCount").getAsInt());
@@ -60,11 +60,15 @@ public class DeviceModelGUDIDDeserializer implements JsonDeserializer<DeviceMode
             JsonArray productCodes = jsonObject.getAsJsonArray("productCodes");
             StringBuilder medicalSpecialties = new StringBuilder();
             for (int i = 0; i < productCodes.size(); i++) {
-                medicalSpecialties.append(productCodes.get(i).getAsJsonObject().getAsJsonPrimitive("medicalSpecialty").getAsString());
-                medicalSpecialties.append("; ");
+                if (productCodes.get(i).getAsJsonObject().get("medicalSpecialty") != null && !productCodes.get(i).getAsJsonObject().get("medicalSpecialty").isJsonNull()) {
+                    medicalSpecialties.append(productCodes.get(i).getAsJsonObject().getAsJsonPrimitive("medicalSpecialty").getAsString());
+                    medicalSpecialties.append("; ");
+                }
             }
-            medicalSpecialties = new StringBuilder(medicalSpecialties.substring(0, medicalSpecialties.length() - 2));
-            deviceModel.setMedicalSpecialty(medicalSpecialties.toString());
+            if (medicalSpecialties.length() > 2) {
+                medicalSpecialties = new StringBuilder(medicalSpecialties.substring(0, medicalSpecialties.length() - 2));
+                deviceModel.setMedicalSpecialty(medicalSpecialties.toString());
+            }
         }
 
         // add device sizes to specifications
