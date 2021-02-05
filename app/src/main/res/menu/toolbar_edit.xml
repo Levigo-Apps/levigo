@@ -5,7 +5,6 @@
     <item
         android:id="@+id/itemname_edit"
         android:icon="@drawable/icon_edit"
-        android:iconTint="@android:color/white"
         android:title="Edit"
         app:showAsAction="ifRoom" />
 
