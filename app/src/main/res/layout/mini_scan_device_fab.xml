@@ -4,31 +4,28 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:visibility="gone"
     android:orientation="horizontal"
-    android:paddingRight="20dp">
+    android:layout_marginBottom="16dp"
+    android:visibility="invisible"
+    android:gravity="center_vertical">
+
     <TextView
         android:id="@+id/scan_device_fab_label"
-        android:layout_width="wrap_content"
+        android:layout_width="108dp"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_corners_background_borderless"
         android:elevation="6dp"
-        android:padding="4dp"
-        android:paddingHorizontal="4dp"
-        android:text="Scan Device"
-        />
+        android:paddingVertical="4dp"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:text="Scan Device" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/scan_device_fab"
         style="@style/Widget.Carebase.MiniFloatingActionButton"
+        android:clickable="false"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/icon_camera"
-        android:visibility="visible"
-        android:layout_toRightOf="@id/scan_device_fab_label"
         app:fabSize="mini" />
 </LinearLayout>
-
-
-
-
