@@ -28,7 +28,6 @@
     </style>
 
     <style name="Widget.Carebase.MiniFloatingActionButton" parent="Widget.MaterialComponents.FloatingActionButton">
-        <item name="android:layout_marginBottom">16dp</item>
         <item name="backgroundTint">@android:color/white</item>
         <item name="tint">@color/colorGrey</item>
     </style>

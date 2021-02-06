@@ -76,7 +76,7 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
     public void setFABVisibilities(final boolean isOptionsShown) {
         if (isOptionsShown) {
             for (View fab : miniFABs) {
-                fab.setVisibility(View.GONE);
+                fab.setVisibility(View.INVISIBLE);
             }
         } else {
             for (View fab : miniFABs) {
