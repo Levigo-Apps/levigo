@@ -1,610 +1,220 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
-    android:orientation="vertical"
     android:elevation="5dp"
-    android:theme="@style/AppTheme">
+    android:background="@android:color/white"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/topAppBar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
         app:navigationIcon="@drawable/icon_back"
-        app:title="Equipment Specifications"
-        style="@style/Widget.Carebase.ToolBar.Gradient" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="Equipment View"
+        style="@style/Widget.Carebase.ToolBar.Gradient"
+        app:menu="@menu/toolbar_edit" />
+
 
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/topAppBar"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+    <LinearLayout
+        android:id="@+id/detail_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="vertical"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_margin="16dp"
+        android:padding="16dp"
+        android:background="#FAFAFA"
+        android:elevation="2dp"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/itemdetailviewonly_linearlayout"
+        <TextView
+            android:id="@+id/itemname_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            tools:text="Angioplasty and Stint Insertion"
+            android:textSize="8pt"/>
+
+        <TextView
+            android:id="@+id/udi_edittext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="5pt"
+            android:textColor="@color/colorGrey"
+            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            tools:text="(01)997542937(17)201508(10)88325"/>
+
+        <View
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginHorizontal="12dp"
-            android:layout_marginBottom="44dp"
-            android:orientation="vertical">
+            android:layout_height="0.8dp"
+            android:layout_marginVertical="12dp"
+            android:background="@color/colorLightGrey"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Details"
+            android:textSize="5pt"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"/>
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:columnCount="2"
+            android:rowCount="5"
+            android:useDefaultMargins="true">
+
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/di_edittext"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="1dp"
-                android:background="@color/colorPrimary">
+                android:layout_columnWeight="1"
+                app:label_text="Device ID" />
 
-                <TextView
-                    android:id="@+id/itemname_text"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="5"
-                    android:padding="16dp"
-                    android:textAlignment="textStart"
-                    android:textColor="#ffffff"
-                    android:textSize="20sp" />
-
-                <ImageView
-                    android:id="@+id/itemname_edit"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="16dp"
-                    android:src="@drawable/icon_edit"
-                    android:tint="@android:color/white" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/quantity_edittext"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="1dp"
-                android:background="@android:color/white"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:layout_columnWeight="1"
+                app:label_text="Quantity" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/barcode_udi_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/barcode_edittext"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/physicallocation_edittext"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="1dp"
-                android:background="@android:color/white"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:layout_columnWeight="1"
+                app:label_text="Location" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/device_identifier_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/di_edittext"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/expiration_edittext"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="1dp"
-                android:background="@android:color/white"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:layout_columnWeight="1"
+                app:label_text="Expiration" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/quantity_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/quantity_edittext"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/usage_edittext"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="1dp"
-                android:background="@android:color/white"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:layout_columnWeight="1"
+                app:label_text="Use" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/expiration_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/expiration_edittext"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/unitcost_edittext"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="1dp"
-                android:background="@android:color/white"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:layout_columnWeight="1"
+                app:label_text="Cost / Unit" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/hospital_name_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/site_edittext"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/company_edittext"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="1dp"
-                android:background="@android:color/white"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:layout_columnWeight="1"
+                app:label_text="Manufacture" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/physical_location_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/physicallocation_edittext"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/lotnumber_edittext"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="1dp"
-                android:background="@android:color/white"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:layout_columnWeight="1"
+                app:label_text="Lot" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/type_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/type_edittext"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/referencenumber_edittext"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="1dp"
-                android:background="@android:color/white"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:layout_columnWeight="1"
+                app:label_text="Reference Number" />
+        </GridLayout>
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/usage_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.8dp"
+            android:layout_marginBottom="12dp"
+            android:background="@color/colorLightGrey"/>
 
-                <TextView
-                    android:id="@+id/usage_edittext"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:textSize="14sp" />
-            </LinearLayout>
+        <TextView
+            android:paddingVertical="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Specifications"
+            android:textSize="5pt"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:columnCount="2"
+            android:rowCount="2"
+            android:useDefaultMargins="true">
+
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/type_edittext"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="1dp"
-                android:background="@android:color/white"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:layout_columnWeight="1"
+                app:label_text="Type" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/medical_specialty_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/medicalspecialty_edittext"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/medicalspecialty_edittext"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="1dp"
-                android:background="@android:color/white"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:layout_columnWeight="1"
+                app:label_text="Specialty" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/device_description_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/devicedescription_edittext"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="1dp"
-                android:background="@android:color/white"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/reference_number_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/referencenumber_edittext"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="1dp"
-                android:background="@android:color/white"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/lot_number_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/lotnumber_edittext"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="1dp"
-                android:background="@android:color/white"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/manufacturer_company_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/company_edittext"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="1dp"
-                android:background="@android:color/white"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/last_update_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/lasteupdate_edittext"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="1dp"
-                android:background="@android:color/white"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/notes_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/notes_edittext"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/cost_linearlayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="5"
-                    android:padding="8dp"
-                    android:text="@string/cost_lbl"
-                    android:textColor="@android:color/black"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:id="@+id/cost_plus"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_baseline_plus"
-                    android:tint="@color/colorPrimary" />
-            </LinearLayout>
+        </GridLayout>
 
 
-            <LinearLayout
-                android:id="@+id/specs_linearlayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+        <org.getcarebase.carebase.views.DetailLabeledTextView
+            android:id="@+id/devicedescription_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:label_text="Description" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="5"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/specification_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.8dp"
+            android:layout_marginVertical="12dp"
+            android:background="@color/colorLightGrey"/>
 
-                <ImageView
-                    android:id="@+id/specifications_plus"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_baseline_plus"
-                    android:tint="@color/colorPrimary" />
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:columnCount="2"
+            android:rowCount="5"
+            android:useDefaultMargins="true">
 
-
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:id="@+id/procedures_dropdown"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="5"
-                    android:padding="8dp"
-                    android:text="@string/usage_label"
-                    android:textColor="@android:color/black"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:id="@+id/procedures_toggle_button"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_baseline_plus"
-                    android:tint="@color/colorPrimary" />
-            </LinearLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/procedures_recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="true"
-                android:orientation="vertical"
-                android:scrollbars="vertical"
-                android:visibility="gone">
-
-            </androidx.recyclerview.widget.RecyclerView>
-        </LinearLayout>
+        <org.getcarebase.carebase.views.DetailLabeledTextView
+            android:id="@+id/lasteupdate_edittext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            app:label_text="Updated" />
+        </GridLayout>
+    </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
