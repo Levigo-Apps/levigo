@@ -7,14 +7,15 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.getcarebase.carebase.R;
+
 
 /**
  * Manages Floating Action Button of the home screen
@@ -22,7 +23,7 @@ import org.getcarebase.carebase.R;
  */
 public class MiniFloatingActionButtonManagerFragment extends FloatingActionButtonManagerFragment {
     private ViewGroup container;
-    protected FloatingActionButton[] miniFABs;
+    protected View[] miniFABs;
     private Animation rotateOpenAnimation;
     private Animation rotateCloseAnimation;
     private Animation fadeInUpAnimation;
@@ -43,7 +44,7 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
     @Override
     public void onResume() {
         // add mini fab buttons
-        for (FloatingActionButton fab : miniFABs) {
+        for (View fab : miniFABs) {
             container.addView(fab,0);
         }
         super.onResume();
@@ -52,7 +53,7 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
     @Override
     public void onPause() {
         // remove mini fab buttons
-        for (FloatingActionButton fab : miniFABs) {
+        for (View fab : miniFABs) {
             container.removeView(fab);
         }
         super.onPause();
@@ -63,15 +64,22 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
         setFABVisibilities(isOptionsShown);
         setFABAnimations(isOptionsShown);
         isOptionsShown = !isOptionsShown;
+        FloatingActionButton tmp = (FloatingActionButton) view.findViewById(R.id.toggle_options_fab);
+        if (isOptionsShown) {
+            tmp.setBackgroundTintList(ContextCompat.getColorStateList(getActivity(),R.color.colorPrimaryDark));
+        } else {
+            tmp.setBackgroundTintList(ContextCompat.getColorStateList(getActivity(),R.color.colorPrimary));
+        }
+
     }
 
     public void setFABVisibilities(final boolean isOptionsShown) {
         if (isOptionsShown) {
-            for (FloatingActionButton fab : miniFABs) {
+            for (View fab : miniFABs) {
                 fab.setVisibility(View.INVISIBLE);
             }
         } else {
-            for (FloatingActionButton fab : miniFABs) {
+            for (View fab : miniFABs) {
                 fab.setVisibility(View.VISIBLE);
             }
         }
@@ -80,12 +88,12 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
     public void setFABAnimations(final boolean isOptionsShown) {
         if (isOptionsShown) {
             mainFAB.startAnimation(rotateCloseAnimation);
-            for (FloatingActionButton fab : miniFABs) {
+            for (View fab : miniFABs) {
                 fab.startAnimation(fadeOutDownAnimation);
             }
         } else {
             mainFAB.startAnimation(rotateOpenAnimation);
-            for (FloatingActionButton fab : miniFABs) {
+            for (View fab : miniFABs) {
                 fab.startAnimation(fadeInUpAnimation);
             }
         }

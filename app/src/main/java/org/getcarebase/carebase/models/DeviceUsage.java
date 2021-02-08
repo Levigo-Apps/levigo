@@ -9,14 +9,16 @@ import com.google.firebase.firestore.PropertyName;
 public class DeviceUsage {
     private String deviceIdentifier;
     private String uniqueDeviceIdentifier;
+    private String name;
     private int currentAmount;
     private int amountUsed;
 
     public DeviceUsage() {}
 
-    public DeviceUsage(String deviceIdentifier, String uniqueDeviceIdentifier, int currentAmount) {
+    public DeviceUsage(String deviceIdentifier, String uniqueDeviceIdentifier, String name, int currentAmount) {
         this.deviceIdentifier = deviceIdentifier;
         this.uniqueDeviceIdentifier = uniqueDeviceIdentifier;
+        this.name = name;
         this.currentAmount = currentAmount;
         this.amountUsed = 1;
     }
@@ -69,5 +71,15 @@ public class DeviceUsage {
     @PropertyName("udi")
     public void setUniqueDeviceIdentifier(java.lang.String uniqueDeviceIdentifier) {
         this.uniqueDeviceIdentifier = uniqueDeviceIdentifier;
+    }
+
+    @PropertyName("name")
+    public String getName() {
+        return name;
+    }
+
+    @PropertyName("name")
+    public void setName(String name) {
+        this.name = name;
     }
 }
