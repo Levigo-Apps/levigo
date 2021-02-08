@@ -7,6 +7,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/topAppBar"
         android:layout_width="match_parent"
@@ -16,6 +17,7 @@
         app:title="Equipment View"
         style="@style/Widget.Carebase.ToolBar.Gradient"
         app:menu="@menu/toolbar_edit" />
+
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
