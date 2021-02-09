@@ -23,6 +23,7 @@ import org.getcarebase.carebase.models.Cost;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceModelGUDIDDeserializer;
 import org.getcarebase.carebase.models.DeviceProduction;
+import org.getcarebase.carebase.models.Hospital;
 import org.getcarebase.carebase.models.ParseUDIResponse;
 import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.Shipment;
@@ -51,10 +52,10 @@ public class DeviceRepository {
     private final String networkId;
     private final String hospitalId;
     private final DocumentReference networkReference;
+    private final DocumentReference hospitalReference;
     private final CollectionReference inventoryReference;
     private final CollectionReference proceduresReference;
     private final CollectionReference shipmentReference;
-    private final DocumentReference deviceTypesReference;
     private final DocumentReference physicalLocationsReference;
 
 
@@ -62,11 +63,10 @@ public class DeviceRepository {
         this.networkId = networkId;
         this.hospitalId = hospitalId;
         networkReference = FirestoreReferences.getNetworkReference(networkId);
-        DocumentReference hospitalReference = FirestoreReferences.getHospitalReference(networkReference, hospitalId);
+        hospitalReference = FirestoreReferences.getHospitalReference(networkReference, hospitalId);
         inventoryReference = FirestoreReferences.getInventoryReference(hospitalReference);
         proceduresReference = FirestoreReferences.getProceduresReference(hospitalReference);
         shipmentReference = FirestoreReferences.getShipmentReference(hospitalReference);
-        deviceTypesReference = FirestoreReferences.getDeviceTypesReference(hospitalReference);
         physicalLocationsReference = FirestoreReferences.getPhysicalLocations(hospitalReference);
     }
 
@@ -74,44 +74,17 @@ public class DeviceRepository {
      * Gets the possible device types and updates the returned LiveData when changes are made
      * @return a LiveData containing a Resource with a String array
      */
-    public LiveData<Resource<String[]>> getDeviceTypeOptions() {
-        MutableLiveData<Resource<String[]>> deviceTypesLiveData = new MutableLiveData<>();
-        deviceTypesReference.addSnapshotListener((documentSnapshot, e) -> {
-            if (documentSnapshot != null && documentSnapshot.exists()) {
-                // convert to array of strings
-                Object[] objects = documentSnapshot.getData().values().toArray();
-                String[] types = (String[]) Arrays.asList(objects).toArray(new String[objects.length]);
-                Arrays.sort(types);
-                deviceTypesLiveData.setValue(new Resource<>(types,new Request(null, Request.Status.SUCCESS)));
-            }
-            else {
-                if (e != null) {
-                    Log.e(TAG, "Listen failed.", e);
-                }
-                // TODO make error message in strings
-                deviceTypesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
-            }
+    public LiveData<Resource<List<String>>> getDeviceTypeOptions() {
+        MutableLiveData<Resource<List<String>>> deviceTypesLiveData = new MutableLiveData<>();
+        hospitalReference.get().addOnCompleteListener(task -> {
+           if (task.isSuccessful() && task.getResult().exists()) {
+               Hospital hospital = task.getResult().toObject(Hospital.class);
+               deviceTypesLiveData.setValue(new Resource<>(hospital.getTypes(),new Request(null, Request.Status.SUCCESS)));
+           } else {
+               deviceTypesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+           }
         });
         return deviceTypesLiveData;
-    }
-
-    /**
-     * Saves new device type
-     * @param deviceType the device type to be added
-     * @return a LiveData of Request indicating whether the addition was successful
-     */
-    public LiveData<Request> saveDeviceType(String deviceType) {
-        MutableLiveData<Request> saveDeviceTypeRequest = new MutableLiveData<>();
-        // random key as key does not matter -> need to change doc to array in firebase
-        String key = "type_" + ((int) (Math.random() * 1000000) + 1);
-        deviceTypesReference.update(key,deviceType).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                saveDeviceTypeRequest.setValue(new Request(R.string.new_device_type_saved, Request.Status.SUCCESS));
-            } else {
-                saveDeviceTypeRequest.setValue(new Request(R.string.error_something_wrong, Request.Status.ERROR));
-            }
-        });
-        return saveDeviceTypeRequest;
     }
 
     /**
@@ -222,6 +195,9 @@ public class DeviceRepository {
             cost.setUser(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
             tasks.add(deviceProductionReference.collection("equipment_cost").add(cost));
         }
+
+        // update device_type collection count field
+        tasks.add(hospitalReference.update("device_types", FieldValue.arrayUnion(deviceModel.getEquipmentType())));
 
         Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
