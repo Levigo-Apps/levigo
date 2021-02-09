@@ -69,6 +69,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -178,8 +179,7 @@ public class ItemDetailFragment extends Fragment {
             "Tube",
             "Wire",
             "Ultrasound/Imaging related",
-            "Venous Access (Catheters, Central Lines, Introducers, Tunnelers)",
-            "Other");
+            "Venous Access (Catheters, Central Lines, Introducers, Tunnelers)");
     private final List<String> PHYSICAL_LOCATIONS = Arrays.asList(
             "Box - Central Lines",
             "Box - Picc Lines",
@@ -491,21 +491,16 @@ public class ItemDetailFragment extends Fragment {
         deviceViewModel.getDeviceTypesLiveData().observe(getViewLifecycleOwner(), deviceTypesResource -> {
             if (deviceTypesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 deviceTypeAdapter.clear();
-                deviceTypeAdapter.addAll(DEVICE_TYPES);
-                deviceTypeAdapter.addAll(Arrays.asList(deviceTypesResource.getData()));
+                List<String> types = new ArrayList<>(DEVICE_TYPES);
+                types.addAll(deviceTypesResource.getData());
+                types = types.stream().distinct().sorted().collect(Collectors.toList());
+                // display unique device types
+                deviceTypeAdapter.addAll(types);
             } else {
-                Log.d(TAG,"Unable to fetch device types");
                 Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
             }
         });
         equipmentType.setAdapter(deviceTypeAdapter);
-        equipmentType.setOnItemClickListener((adapterView, view, position, row) -> addTypeOptionField(adapterView, view, position));
-
-        deviceViewModel.getSaveDeviceTypeRequestLiveData().observe(getViewLifecycleOwner(), request -> {
-            if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS || request.getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR) {
-                Snackbar.make(rootView, request.getResourceString(), Snackbar.LENGTH_LONG).show();
-            }
-        });
 
         // set up sites
         final ArrayAdapter<String> sitesAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
@@ -794,59 +789,6 @@ public class ItemDetailFragment extends Fragment {
         allSizeOptions.add(sizeValue);
         linearLayout.addView(layoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
         rowIndex++;
-    }
-
-
-    // adds new text field if users choose "other" for type
-    private void addTypeOptionField(final AdapterView<?> adapterView, View view, int i) {
-        String selected = (String) adapterView.getItemAtPosition(i);
-        TextInputLayout otherTypeLayout;
-        if (selected.equals("Other")) {
-            saveButton.setEnabled(false);
-            chosenType = true;
-            otherTypeLayout = (TextInputLayout) View.inflate(view.getContext(),
-                    R.layout.activity_itemdetail_materialcomponent, null);
-            otherTypeLayout.setHint("Enter type");
-            otherTypeLayout.setGravity(Gravity.END);
-            otherTypeLayout.setId(View.generateViewId());
-            EditText otherTypeEditText = new TextInputEditText(otherTypeLayout.getContext());
-
-            otherTypeEditText.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
-            otherTypeLayout.addView(otherType_text);
-            linearLayout.addView(otherTypeLayout, 1 + linearLayout.indexOfChild(typeConstrainLayout));
-
-            MaterialButton submitTypeButton = new MaterialButton(view.getContext(),
-                    null, R.attr.materialButtonOutlinedStyle);
-            submitTypeButton.setText(R.string.otherType_lbl);
-            submitTypeButton.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-                    WRAP_CONTENT));
-            otherTypeLayout.addView(submitTypeButton);
-
-            TextWatcher typeTextWatcher = new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    if (editable.toString().trim().isEmpty()) {
-                        submitTypeButton.setEnabled(true);
-                    }
-                }
-            };
-            otherTypeEditText.addTextChangedListener(typeTextWatcher);
-
-            submitTypeButton.setOnClickListener(submitTypeView -> {
-                deviceViewModel.saveDeviceType(Objects.requireNonNull(otherType_text.getText()).toString().trim());
-                saveButton.setEnabled(true);
-            });
-        } else if (chosenType) {
-            chosenType = false;
-            saveButton.setEnabled(true);
-            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(typeConstrainLayout));
-        }
     }
 
     private void addNewLoc(final AdapterView<?> adapterView, View view, int i) {
