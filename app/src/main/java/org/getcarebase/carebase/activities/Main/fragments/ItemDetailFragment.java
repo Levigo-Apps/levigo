@@ -139,9 +139,11 @@ public class ItemDetailFragment extends Fragment {
     private final List<String> DEVICE_TYPES = Arrays.asList(
             "Balloon",
             "Biliary Stent",
+            "Brush",
             "Catheter",
             "Catheter Extraction Tool",
             "Catheter Securement Device",
+            "Compression Device",
             "Central Venous Access",
             "Chest (Bag, Catheter, Pneumo Kit, Thoracentesis Kit)",
             "Coaxial Needle",
