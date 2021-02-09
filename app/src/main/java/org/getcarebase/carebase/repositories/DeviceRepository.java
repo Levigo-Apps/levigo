@@ -390,13 +390,13 @@ public class DeviceRepository {
     private void getDeviceFromShipment(String di,String udi,MutableLiveData<Resource<DeviceModel>> shippedDeviceLiveData) {
         Task<QuerySnapshot> shipmentTask = shipmentReference.whereEqualTo("udi",udi).whereEqualTo("di",di).whereEqualTo("received",false).get();
         shipmentTask.addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null) {
+            if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
                 Shipment shipment = task.getResult().getDocuments().get(0).toObject(Shipment.class);
                 DocumentReference sourceHospitalReference = FirestoreReferences.getHospitalReference(networkReference,shipment.getSourceHospitalId());
                 CollectionReference sourceInventoryReference = FirestoreReferences.getInventoryReference(sourceHospitalReference);
                 getAutoPopulatedDeviceFromFirestore(sourceInventoryReference,shipment.getDi(),shipment.getUdi(),shippedDeviceLiveData,shipment);
             } else {
-                shippedDeviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.SUCCESS)));
+                shippedDeviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
             }
         });
     }
