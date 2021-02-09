@@ -10,18 +10,18 @@ public class DeviceUsage {
     private String deviceIdentifier;
     private String uniqueDeviceIdentifier;
     private String name;
-    private int currentAmount;
+    private int currentProductionAmount;
     private int amountUsed;
-    private int deviceModelQuantity;
+    private int currentModelQuantity;
 
     public DeviceUsage() {}
 
-    public DeviceUsage(String deviceIdentifier, String uniqueDeviceIdentifier, String name, int currentAmount, int deviceModelQuantity) {
+    public DeviceUsage(String deviceIdentifier, String uniqueDeviceIdentifier, String name, int currentProductionAmount, int currentModelQuantity) {
         this.deviceIdentifier = deviceIdentifier;
         this.uniqueDeviceIdentifier = uniqueDeviceIdentifier;
         this.name = name;
-        this.currentAmount = currentAmount;
-        this.deviceModelQuantity = deviceModelQuantity;
+        this.currentProductionAmount = currentProductionAmount;
+        this.currentModelQuantity = currentModelQuantity;
         this.amountUsed = 1;
     }
 
@@ -41,12 +41,12 @@ public class DeviceUsage {
     }
 
     @Exclude
-    public int getNewQuantity() {
-        return Math.max(0, currentAmount - amountUsed);
+    public int getNewProductionQuantity() {
+        return Math.max(0, currentProductionAmount - amountUsed);
     }
 
     @Exclude
-    public int getNewDeviceModelQuantity() { return Math.max(0, deviceModelQuantity - amountUsed); }
+    public int getNewModelQuantity() { return Math.max(0, currentModelQuantity - Math.min(currentProductionAmount, amountUsed)); }
 
     @PropertyName("amount_used")
     public int getAmountUsed() {
