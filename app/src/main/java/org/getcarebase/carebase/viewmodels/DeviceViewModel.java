@@ -17,6 +17,7 @@ import org.getcarebase.carebase.repositories.PendingDeviceRepository;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
+import java.util.List;
 import java.util.Objects;
 
 public class DeviceViewModel extends ViewModel {
@@ -30,10 +31,8 @@ public class DeviceViewModel extends ViewModel {
 
     private LiveData<Resource<DeviceModel>> deviceInFirebaseLiveData;
 
-    private final MutableLiveData<String> saveDeviceTypeLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> savePhysicalLocationLiveData = new MutableLiveData<>();
 
-    private final LiveData<Request> saveDeviceTypeRequestLiveData = Transformations.switchMap(saveDeviceTypeLiveData, deviceType -> deviceRepository.saveDeviceType(deviceType));
     private final LiveData<Request> savePhysicalLocationRequestLiveData = Transformations.switchMap(savePhysicalLocationLiveData, physicalLocation -> deviceRepository.savePhysicalLocation(physicalLocation));
 
     private final MutableLiveData<String> pendingDeviceIdLiveData = new MutableLiveData<>();
@@ -66,16 +65,8 @@ public class DeviceViewModel extends ViewModel {
         pendingDeviceRepository = new PendingDeviceRepository(user.getNetworkId(),user.getHospitalId());
     }
 
-    public LiveData<Resource<String[]>> getDeviceTypesLiveData() {
+    public LiveData<Resource<List<String>>> getDeviceTypesLiveData() {
         return deviceRepository.getDeviceTypeOptions();
-    }
-
-    public void saveDeviceType(String deviceType) {
-        saveDeviceTypeLiveData.setValue(deviceType);
-    }
-
-    public LiveData<Request> getSaveDeviceTypeRequestLiveData() {
-        return saveDeviceTypeRequestLiveData;
     }
 
     public LiveData<Resource<String[]>> getSitesLiveData() {
