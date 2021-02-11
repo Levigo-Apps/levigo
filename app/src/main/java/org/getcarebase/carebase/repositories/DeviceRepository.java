@@ -15,6 +15,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.api.AccessGUDIDAPI;
@@ -181,7 +182,7 @@ public class DeviceRepository {
         }
 
         DocumentReference deviceProductionReference = deviceModelReference.collection("udis").document(deviceProduction.getUniqueDeviceIdentifier());
-        tasks.add(deviceProductionReference.set(deviceProduction));
+        tasks.add(deviceProductionReference.set(deviceProduction.toMap(), SetOptions.merge()));
 
         if (deviceProduction.getCosts().size() != 0) {
             Cost cost = deviceProduction.getCosts().get(0);
