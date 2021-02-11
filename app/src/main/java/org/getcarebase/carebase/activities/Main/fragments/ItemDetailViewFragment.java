@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -114,6 +115,7 @@ public class ItemDetailViewFragment extends Fragment {
         costDoc = new ArrayList<>();
         costLayout = rootView.findViewById(R.id.cost_linearlayout);
         costIcon = rootView.findViewById(R.id.cost_plus);
+        ImageView shipDevice = rootView.findViewById(R.id.shipEquipment);
         ImageView itemNameEdit = rootView.findViewById(R.id.itemname_edit);
 
         LinearLayout proceduresDropdown = rootView.findViewById(R.id.procedures_dropdown);
@@ -226,7 +228,24 @@ public class ItemDetailViewFragment extends Fragment {
             }
         });
 
+        shipDevice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "ship device clicked");
+                ShipDeviceFragment fragment = new ShipDeviceFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("name", itemName.getText().toString());
+                fragment.setArguments(bundle);
 
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+//            //clears other fragments
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+                fragmentTransaction.add(R.id.activity_main, fragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+        });
 
         return rootView;
     }
