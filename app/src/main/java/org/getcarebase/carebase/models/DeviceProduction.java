@@ -1,6 +1,7 @@
 package org.getcarebase.carebase.models;
 
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.PropertyName;
 
 import java.lang.reflect.Field;
@@ -94,6 +95,20 @@ public class DeviceProduction {
 
     public void addProcedures(List<Procedure> procedures) {
         this.procedures.addAll(procedures);
+    }
+
+    public Map<String,Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("udi", uniqueDeviceIdentifier);
+        map.put("current_date",dateAdded);
+        map.put("current_time",timeAdded);
+        map.put("expiration",expirationDate);
+        map.put("lot_number",lotNumber);
+        map.put("notes",notes);
+        map.put("physical_location",notes);
+        map.put("quantity", FieldValue.increment(quantity));
+        map.put("reference_number",referenceNumber);
+        return map;
     }
 
     @PropertyName("udi")
