@@ -29,6 +29,10 @@ public class DetailLabeledTextView extends LinearLayout {
         labelTextView.setText(label);
     }
 
+    public CharSequence getTextValue() {
+        return valueTextView.getText();
+    }
+
     public void setTextValue(CharSequence value) {
         valueTextView.setText(value);
         invalidate();
