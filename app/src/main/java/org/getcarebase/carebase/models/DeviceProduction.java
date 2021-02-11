@@ -36,7 +36,11 @@ public class DeviceProduction {
         this.lotNumber = (String) data.get("lot_number");
         this.notes = (String) data.get("notes");
         this.physicalLocation = (String) data.get("physical_location");
-        this.quantity = Integer.parseInt((String) data.get("quantity"));
+        try {
+            this.quantity = Integer.parseInt((String) data.get("quantity"));
+        } catch(ClassCastException e) {
+            this.quantity = ((Long) data.get("quantity")).intValue();
+        }
         this.referenceNumber = (String) data.get("reference_number");
     }
 
@@ -120,11 +124,11 @@ public class DeviceProduction {
     public String getPhysicalLocation() {
         return physicalLocation;
     }
-    @PropertyName("quantity")
+    @Exclude
     public String getStringQuantity() {
         return Integer.toString(quantity);
     }
-    @Exclude
+    @PropertyName("quantity")
     public int getQuantity() {
         return quantity;
     }
