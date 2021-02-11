@@ -16,6 +16,13 @@
         app:title="Equipment Specifications"
         style="@style/Widget.Carebase.ToolBar.Gradient" />
 
+    <ImageView
+        android:id="@+id/shipEquipment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:srcCompat="@drawable/ic_arrow_forward_ios_white_24dp" />
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
@@ -607,4 +614,5 @@
             </androidx.recyclerview.widget.RecyclerView>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
 </LinearLayout>

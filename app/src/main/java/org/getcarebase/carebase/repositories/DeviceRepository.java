@@ -5,15 +5,14 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -24,7 +23,7 @@ import org.getcarebase.carebase.models.Cost;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceModelGUDIDDeserializer;
 import org.getcarebase.carebase.models.DeviceProduction;
-import org.getcarebase.carebase.models.DeviceUsage;
+import org.getcarebase.carebase.models.Hospital;
 import org.getcarebase.carebase.models.ParseUDIResponse;
 import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.utils.Request;
@@ -35,7 +34,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -51,14 +49,16 @@ public class DeviceRepository {
 
     private final String networkId;
     private final String hospitalId;
+    private final DocumentReference hospitalReference;
     private final CollectionReference inventoryReference;
     private final CollectionReference proceduresReference;
-    private final DocumentReference deviceTypesReference;
     private final DocumentReference physicalLocationsReference;
 
     public DeviceRepository(String networkId, String hospitalId) {
         this.networkId = networkId;
         this.hospitalId = hospitalId;
+        hospitalReference = firestore.collection("networks").document(networkId)
+                .collection("hospitals").document(hospitalId);
         inventoryReference = firestore.collection("networks").document(networkId)
                 .collection("hospitals").document(hospitalId)
                 .collection("departments").document("default_department")
@@ -67,9 +67,6 @@ public class DeviceRepository {
                 .collection("hospitals").document(hospitalId)
                 .collection("departments").document("default_department")
                 .collection("procedures");
-        deviceTypesReference = firestore.collection("networks").document(networkId)
-                .collection("hospitals").document(hospitalId)
-                .collection("types").document("type_options");
         physicalLocationsReference = firestore.collection("networks").document(networkId)
                 .collection("hospitals").document(hospitalId)
                 .collection("physical_locations").document("locations");
@@ -79,44 +76,17 @@ public class DeviceRepository {
      * Gets the possible device types and updates the returned LiveData when changes are made
      * @return a LiveData containing a Resource with a String array
      */
-    public LiveData<Resource<String[]>> getDeviceTypeOptions() {
-        MutableLiveData<Resource<String[]>> deviceTypesLiveData = new MutableLiveData<>();
-        deviceTypesReference.addSnapshotListener((documentSnapshot, e) -> {
-            if (documentSnapshot != null && documentSnapshot.exists()) {
-                // convert to array of strings
-                Object[] objects = documentSnapshot.getData().values().toArray();
-                String[] types = (String[]) Arrays.asList(objects).toArray(new String[objects.length]);
-                Arrays.sort(types);
-                deviceTypesLiveData.setValue(new Resource<>(types,new Request(null, Request.Status.SUCCESS)));
-            }
-            else {
-                if (e != null) {
-                    Log.e(TAG, "Listen failed.", e);
-                }
-                // TODO make error message in strings
-                deviceTypesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
-            }
+    public LiveData<Resource<List<String>>> getDeviceTypeOptions() {
+        MutableLiveData<Resource<List<String>>> deviceTypesLiveData = new MutableLiveData<>();
+        hospitalReference.get().addOnCompleteListener(task -> {
+           if (task.isSuccessful() && task.getResult().exists()) {
+               Hospital hospital = task.getResult().toObject(Hospital.class);
+               deviceTypesLiveData.setValue(new Resource<>(hospital.getTypes(),new Request(null, Request.Status.SUCCESS)));
+           } else {
+               deviceTypesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+           }
         });
         return deviceTypesLiveData;
-    }
-
-    /**
-     * Saves new device type
-     * @param deviceType the device type to be added
-     * @return a LiveData of Request indicating whether the addition was successful
-     */
-    public LiveData<Request> saveDeviceType(String deviceType) {
-        MutableLiveData<Request> saveDeviceTypeRequest = new MutableLiveData<>();
-        // random key as key does not matter -> need to change doc to array in firebase
-        String key = "type_" + ((int) (Math.random() * 1000000) + 1);
-        deviceTypesReference.update(key,deviceType).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                saveDeviceTypeRequest.setValue(new Request(R.string.new_device_type_saved, Request.Status.SUCCESS));
-            } else {
-                saveDeviceTypeRequest.setValue(new Request(R.string.error_something_wrong, Request.Status.ERROR));
-            }
-        });
-        return saveDeviceTypeRequest;
     }
 
     /**
@@ -218,6 +188,9 @@ public class DeviceRepository {
             cost.setUser(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
             tasks.add(deviceProductionReference.collection("equipment_cost").add(cost));
         }
+
+        // update device_type collection count field
+        tasks.add(hospitalReference.update("device_types", FieldValue.arrayUnion(deviceModel.getEquipmentType())));
 
         Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
