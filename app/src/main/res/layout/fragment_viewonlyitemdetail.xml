@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
-        app:srcCompat="@drawable/ic_arrow_forward_ios_white_24dp" />
+        app:srcCompat="@drawable/ic_carebase_logo" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"

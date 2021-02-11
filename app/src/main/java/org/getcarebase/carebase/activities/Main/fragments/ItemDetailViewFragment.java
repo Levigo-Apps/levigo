@@ -232,6 +232,9 @@ public class ItemDetailViewFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "ship device clicked");
+
+                // Event isn't fired when the Image is clicked because the line above doesn't execute
+                // Don't think below lines are the issue
                 ShipDeviceFragment fragment = new ShipDeviceFragment();
                 Bundle bundle = new Bundle();
                 bundle.putString("name", itemName.getText().toString());
