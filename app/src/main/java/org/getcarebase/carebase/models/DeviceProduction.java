@@ -1,6 +1,7 @@
 package org.getcarebase.carebase.models;
 
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.PropertyName;
 
 import java.lang.reflect.Field;
@@ -36,7 +37,11 @@ public class DeviceProduction {
         this.lotNumber = (String) data.get("lot_number");
         this.notes = (String) data.get("notes");
         this.physicalLocation = (String) data.get("physical_location");
-        this.quantity = Integer.parseInt((String) data.get("quantity"));
+        try {
+            this.quantity = Integer.parseInt((String) data.get("quantity"));
+        } catch(ClassCastException e) {
+            this.quantity = ((Long) data.get("quantity")).intValue();
+        }
         this.referenceNumber = (String) data.get("reference_number");
     }
 
@@ -92,6 +97,20 @@ public class DeviceProduction {
         this.procedures.addAll(procedures);
     }
 
+    public Map<String,Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("udi", uniqueDeviceIdentifier);
+        map.put("current_date",dateAdded);
+        map.put("current_time",timeAdded);
+        map.put("expiration",expirationDate);
+        map.put("lot_number",lotNumber);
+        map.put("notes",notes);
+        map.put("physical_location",notes);
+        map.put("quantity", FieldValue.increment(quantity));
+        map.put("reference_number",referenceNumber);
+        return map;
+    }
+
     @PropertyName("udi")
     public String getUniqueDeviceIdentifier() {
         return uniqueDeviceIdentifier;
@@ -120,11 +139,11 @@ public class DeviceProduction {
     public String getPhysicalLocation() {
         return physicalLocation;
     }
-    @PropertyName("quantity")
+    @Exclude
     public String getStringQuantity() {
         return Integer.toString(quantity);
     }
-    @Exclude
+    @PropertyName("quantity")
     public int getQuantity() {
         return quantity;
     }
