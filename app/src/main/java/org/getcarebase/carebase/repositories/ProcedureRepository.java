@@ -1,5 +1,7 @@
 package org.getcarebase.carebase.repositories;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -17,6 +19,8 @@ import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -93,6 +97,17 @@ public class ProcedureRepository {
                for (QueryDocumentSnapshot procedureSnapshot : task.getResult()) {
                    procedures.add(procedureSnapshot.toObject(Procedure.class));
                }
+               Collections.sort(procedures, new Comparator<Procedure>() {
+                   @Override
+                   public int compare(Procedure t1, Procedure t2) {
+                       // check if the dates are not null
+                       if (t1.getDate() == null || t2.getDate() == null) {
+                           return 0;
+                       } else {
+                           return (t2.getDate()+t2.getTimeIn()).compareTo(t1.getDate()+t1.getTimeIn());
+                       }
+                   }
+               });
                proceduresLiveData.setValue(new Resource<>(procedures,new Request(null, Request.Status.SUCCESS)));
            } else {
                proceduresLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
