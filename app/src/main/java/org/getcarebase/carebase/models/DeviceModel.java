@@ -41,7 +41,11 @@ public class DeviceModel {
         data.remove("site_name");
         this.usage = (String) data.get("usage");
         data.remove("usage");
-        this.quantity = Integer.parseInt((String) data.get("quantity"));
+        try {
+            this.quantity = Integer.parseInt((String) data.get("quantity"));
+        } catch(ClassCastException e) {
+            this.quantity = ((Long) data.get("quantity")).intValue();
+        }
         data.remove("quantity");
         // put all remaining keys into the specification map
         specifications.putAll(data);
@@ -144,7 +148,8 @@ public class DeviceModel {
         map.put("equipment_type",equipmentType);
         map.put("medical_specialty",medicalSpecialty);
         map.put("name",name);
-        map.put("quantity",Integer.toString(quantity));
+//        map.put("quantity",Integer.toString(quantity));
+        map.put("quantity",quantity);
         map.put("site_name",siteName);
         map.put("usage",usage);
         map.putAll(specifications);
