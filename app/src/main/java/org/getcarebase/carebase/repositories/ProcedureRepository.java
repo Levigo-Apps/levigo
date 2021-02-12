@@ -1,7 +1,5 @@
 package org.getcarebase.carebase.repositories;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -9,8 +7,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.Query.Direction;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceUsage;
@@ -19,8 +20,6 @@ import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +33,7 @@ public class ProcedureRepository {
     private final CollectionReference inventoryReference;
 
     private final List<Procedure> procedures;
+    private DocumentSnapshot lastResult; // last procedure
 
     public ProcedureRepository(final String networkId, final String hospitalId) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -90,24 +90,26 @@ public class ProcedureRepository {
     }
 
     public LiveData<Resource<List<Procedure>>> getProcedures() {
-        procedures.clear();
+        Query queryLiveData;
         MutableLiveData<Resource<List<Procedure>>> proceduresLiveData = new MutableLiveData<>();
-        proceduresReference.get().addOnCompleteListener(task -> {
+        // Order procedures by date and limit the number of procedures to 5
+        if (lastResult == null) { //if there isn't procedures obtained
+            // cannot add .orderBy("time_in", "Direction.ASCENDING") will crash app
+            queryLiveData = proceduresReference.orderBy("date", Direction.DESCENDING).limit(5);
+        } else {
+            // Obtain the next 5 procedures
+            queryLiveData = proceduresReference.orderBy("date", Direction.DESCENDING).startAfter(lastResult).limit(5);
+        }
+        // After getting results, add results to procedures list
+        queryLiveData.get().addOnCompleteListener(task -> {
            if (task.isSuccessful()) {
                for (QueryDocumentSnapshot procedureSnapshot : task.getResult()) {
                    procedures.add(procedureSnapshot.toObject(Procedure.class));
                }
-               Collections.sort(procedures, new Comparator<Procedure>() {
-                   @Override
-                   public int compare(Procedure t1, Procedure t2) {
-                       // check if the dates are not null
-                       if (t1.getDate() == null || t2.getDate() == null) {
-                           return 0;
-                       } else {
-                           return (t2.getDate()+t2.getTimeIn()).compareTo(t1.getDate()+t1.getTimeIn());
-                       }
-                   }
-               });
+               // store the last procedure
+               if (task.getResult().size() > 0) {
+                   lastResult = task.getResult().getDocuments().get(task.getResult().size() -1);
+               }
                proceduresLiveData.setValue(new Resource<>(procedures,new Request(null, Request.Status.SUCCESS)));
            } else {
                proceduresLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
