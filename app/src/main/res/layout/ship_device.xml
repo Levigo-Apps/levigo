@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:elevation="5dp"
+    android:background="@android:color/white"
     android:orientation="vertical"
     android:theme="@style/AppTheme">
 
@@ -25,5 +27,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/name_label" />
+
+    <TextView
+        android:id="@+id/device_udi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/barcode_udi_label" />
+
+    <EditText
+        android:id="@+id/device_quantity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/quantity_label"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/device_dest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Destination"
+        android:inputType="textPersonName" />
+
+    <Button
+        android:id="@+id/save_shipment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:insetBottom="6dp"
+        android:text="@string/save_lbl" />
 
 </LinearLayout>

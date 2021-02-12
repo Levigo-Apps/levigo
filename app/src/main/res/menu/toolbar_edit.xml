@@ -7,5 +7,10 @@
         android:icon="@drawable/icon_edit"
         android:title="Edit"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/item_ship"
+        android:icon="@drawable/ic_arrow_forward_ios_white_24dp"
+        android:title="item_ship"
+        app:showAsAction="ifRoom" />
 
 </menu>
