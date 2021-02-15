@@ -94,25 +94,6 @@ public class ItemDetailViewFragment extends Fragment {
 //            }
 //            return false;
 //        });
-        topToolBar.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.itemname_edit) {
-                EditEquipmentFragment fragment = new EditEquipmentFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("barcode", Objects.requireNonNull(udi.getText().toString()));
-                bundle.putBoolean("editingExisting", true);
-                bundle.putString("di", deviceIdentifier.getTextValue().toString());
-                fragment.setArguments(bundle);
-
-                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
-                fragmentTransaction.add(R.id.activity_main, fragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-                return true;
-            }
-            return false;
-        });
 
         itemName = rootView.findViewById(R.id.itemname_text);
         udi = rootView.findViewById(R.id.udi_edittext);
@@ -133,6 +114,25 @@ public class ItemDetailViewFragment extends Fragment {
         deviceViewModel = new ViewModelProvider(this).get(DeviceViewModel.class);
 
         deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
+            topToolBar.setOnMenuItemClickListener(item -> {
+                if (item.getItemId() == R.id.itemname_edit) {
+                    EditEquipmentFragment fragment = new EditEquipmentFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("udi", Objects.requireNonNull(udi.getText().toString()));
+                    bundle.putBoolean("editingExisting", true);
+                    bundle.putString("di", deviceIdentifier.getTextValue().toString());
+                    fragment.setArguments(bundle);
+
+                    FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+                    fragmentTransaction.add(R.id.activity_main, fragment);
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
+                    return true;
+                }
+                return false;
+            });
             deviceViewModel.setupDeviceRepository();
             String barcode = getArguments().getString("barcode");
             udi.setText(barcode);

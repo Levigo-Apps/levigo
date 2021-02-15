@@ -19,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -46,6 +47,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -62,7 +64,7 @@ public class EditEquipmentFragment extends Fragment {
     // USER INPUT VALUES
     private TextInputEditText udiEditText;
     private TextInputEditText nameEditText;
-    private TextInputEditText styleEditText;
+    private TextInputEditText equipmentType;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText quantity;
     private TextInputEditText lotNumber;
@@ -73,7 +75,6 @@ public class EditEquipmentFragment extends Fragment {
     private TextInputEditText physicalLocation;
     private TextInputEditText company;
 //    private AutoCompleteTextView equipmentType;
-    private TextInputEditText equipmentType;
     private TextInputEditText medicalSpeciality;
     private TextInputEditText sizeEditText;
     private TextInputEditText lengthEditText;
@@ -83,6 +84,9 @@ public class EditEquipmentFragment extends Fragment {
     private LinearLayout linearLayout;
 
     private Button saveButton;
+
+    private String currentDate;
+    private String currentTime;
 
     private String itemQuantity = "0";
     private String diQuantity = "0";
@@ -216,7 +220,7 @@ public class EditEquipmentFragment extends Fragment {
         linearLayout = rootView.findViewById(R.id.editequipment_linearlayout);
         udiEditText = rootView.findViewById(R.id.detail_udi);
         nameEditText = rootView.findViewById(R.id.detail_name);
-        styleEditText = rootView.findViewById(R.id.detail_style);
+        equipmentType = rootView.findViewById(R.id.detail_type);
         deviceIdentifier = rootView.findViewById(R.id.detail_di);
         quantity = rootView.findViewById(R.id.detail_quantity);
         lotNumber = rootView.findViewById(R.id.detail_lot_number);
@@ -225,7 +229,6 @@ public class EditEquipmentFragment extends Fragment {
         costEditText = rootView.findViewById(R.id.detail_equipment_cost);
         physicalLocation = rootView.findViewById(R.id.detail_physical_location);
         company = rootView.findViewById(R.id.detail_company);
-        equipmentType = rootView.findViewById(R.id.detail_type);
         medicalSpeciality = rootView.findViewById(R.id.detail_medical_speciality);
         sizeEditText = rootView.findViewById(R.id.detail_size);
         lengthEditText = rootView.findViewById(R.id.detail_length);
@@ -260,10 +263,49 @@ public class EditEquipmentFragment extends Fragment {
         // instead of waiting again to get the user again
         deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
             deviceViewModel.setupDeviceRepository();
+            String udi = getArguments().getString("udi");
+            String di = getArguments().getString("di");
+            udiEditText.setText(udi);
+            deviceViewModel.updateDeviceInFirebaseLiveData(di, udi);
+            deviceViewModel.getDeviceInFirebaseLiveData().observe(getViewLifecycleOwner(), resourceData -> {
+                if (resourceData.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+                    DeviceModel deviceModel = resourceData.getData();
+
+                    nameEditText.setText(deviceModel.getName());
+                    nameEditText.setEnabled(deviceModel.getName() == null);
+                    equipmentType.setText(deviceModel.getEquipmentType());
+                    deviceIdentifier.setText(deviceModel.getDeviceIdentifier());
+                    deviceIdentifier.setEnabled(deviceModel.getDeviceIdentifier() == null);
+                    String usageStr = deviceModel.getUsage();
+                    usageEditText.setText(usageStr);
+                    company.setText(deviceModel.getCompany());
+                    company.setEnabled(deviceModel.getCompany() == null);
+                    medicalSpeciality.setText(deviceModel.getMedicalSpecialty());
+
+                    DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
+                    itemQuantity = deviceProduction.getStringQuantity();
+                    quantity.setText(itemQuantity);
+                    quantity.setEnabled(false);
+                    lotNumber.setText(deviceProduction.getLotNumber());
+                    lotNumber.setEnabled(deviceProduction.getLotNumber() == null);
+                    expiration.setText(deviceProduction.getExpirationDate());
+                    expiration.setEnabled(deviceProduction.getExpirationDate() == null);
+                    physicalLocation.setText(deviceProduction.getPhysicalLocation());
+                    currentDate = deviceProduction.getDateAdded();
+                    currentTime = deviceProduction.getTimeAdded();
+                    updateDateEditText.setText(currentDate);
+                    updateDateEditText.setEnabled(false);
+                    updateTimeEditText.setText(currentTime);
+                    updateTimeEditText.setEnabled(false);
+                }
+                else if (resourceData.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR){
+                    Toast.makeText(parent.getApplicationContext(), resourceData.getRequest().getResourceString(), Toast.LENGTH_SHORT).show();
+                }
+            });
 //            setupOptionFields();
 //            setupAutoPopulate();
 //            setupSaveDevice();
-            handleArguments();
+//            handleArguments();
         });
 
 //        // NumberPicker Dialog for NumberAdded field
@@ -339,39 +381,6 @@ public class EditEquipmentFragment extends Fragment {
         saveButton.setOnClickListener(v -> saveData());
         return rootView;
     }
-
-    public void handleArguments() {
-        if (getArguments() != null) {
-            String barcode;
-//            String pendingDeviceId;
-            if ((barcode = getArguments().getString("barcode")) != null) {
-                udiEditText.setText(barcode);
-                deviceViewModel.autoPopulatedScannedBarcode(barcode);
-                // this device is a pending device
-            }
-            // for newly scanned device?
-//            else if ((pendingDeviceId = getArguments().getString("pending_device_id")) != null) {
-//                deviceViewModel.getPendingDeviceLiveData().observe(getViewLifecycleOwner(),pendingDeviceResource -> {
-//                    if (pendingDeviceResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-//                        setPendingDataFields(pendingDeviceResource.getData());
-//                    } else if (pendingDeviceResource.getRequest().getStatus() == Request.Status.ERROR) {
-//                        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-//                        fragmentManager.popBackStack();
-//                        Fragment fragment = fragmentManager.findFragmentByTag(PendingUdiFragment.TAG);
-//                        Snackbar.make(Objects.requireNonNull(fragment).requireView(),pendingDeviceResource.getRequest().getResourceString(),Snackbar.LENGTH_LONG).show();
-//                    }
-//                });
-//                deviceViewModel.setPendingDeviceIdLiveData(pendingDeviceId);
-//            }
-
-        }
-    }
-
-//    private void setPendingDataFields(PendingDevice pendingDevice) {
-//        udiEditText.setText(pendingDevice.getUniqueDeviceIdentifier());
-//        quantity.setText(pendingDevice.getQuantity());
-//        physicalLocation.setText(pendingDevice.getPhysicalLocation());
-//    }
 
     private void saveData() {
         DeviceModel deviceModel = isFieldsValid();

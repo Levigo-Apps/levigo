@@ -23,6 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:scrollbars="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
@@ -80,12 +81,13 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Style"
+                android:layout_marginBottom="8dp"
+                android:hint="@string/type_lbl"
                 app:boxBackgroundColor="@color/filledBoxBackground"
                 app:boxStrokeColor="@color/colorPrimary">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/detail_style"
+                    android:id="@+id/detail_type"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -166,7 +168,7 @@
                     app:boxStrokeColor="@color/colorPrimary"
                     app:endIconDrawable="@drawable/calendar"
                     app:endIconMode="custom"
-                    app:endIconTint="@color/colorPrimary" >
+                    app:endIconTint="@color/colorPrimary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_expiration_date"
@@ -246,21 +248,6 @@
                 android:layout_marginBottom="8dp"
                 android:text="Specifications"
                 android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:hint="@string/type_lbl"
-                app:boxBackgroundColor="@color/filledBoxBackground"
-                app:boxStrokeColor="@color/colorPrimary">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/detail_type"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
