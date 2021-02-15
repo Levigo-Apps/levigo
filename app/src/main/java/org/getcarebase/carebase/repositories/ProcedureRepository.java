@@ -95,10 +95,10 @@ public class ProcedureRepository {
         // Order procedures by date and limit the number of procedures to 5
         if (lastResult == null) { //if there isn't procedures obtained
             // cannot add .orderBy("time_in", "Direction.ASCENDING") will crash app
-            queryLiveData = proceduresReference.orderBy("date", Direction.DESCENDING).limit(5);
+            queryLiveData = proceduresReference.orderBy("date", Direction.DESCENDING).orderBy("time_in", Direction.DESCENDING).limit(5);
         } else {
             // Obtain the next 5 procedures
-            queryLiveData = proceduresReference.orderBy("date", Direction.DESCENDING).startAfter(lastResult).limit(5);
+            queryLiveData = proceduresReference.orderBy("date", Direction.DESCENDING).orderBy("time_in", Direction.DESCENDING).startAfter(lastResult).limit(5);
         }
         // After getting results, add results to procedures list
         queryLiveData.get().addOnCompleteListener(task -> {
