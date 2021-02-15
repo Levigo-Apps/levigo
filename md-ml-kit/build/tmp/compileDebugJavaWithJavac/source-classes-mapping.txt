@@ -1,0 +1,2 @@
+com/google/mlkit/md/BuildConfig.java
+ com.google.mlkit.md.BuildConfig

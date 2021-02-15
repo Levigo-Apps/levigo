@@ -40,6 +40,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.mlkit.md.LiveBarcodeScanningActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
@@ -110,11 +111,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startScanner() {
-        IntentIntegrator integrator = new IntentIntegrator(this);
-        integrator.setCaptureActivity(CaptureActivity.class);
-        integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-        integrator.setBarcodeImageEnabled(true);
-        integrator.initiateScan();
+//        IntentIntegrator integrator = new IntentIntegrator(this);
+//        integrator.setCaptureActivity(CaptureActivity.class);
+//        integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
+//        integrator.setBarcodeImageEnabled(true);
+//        integrator.initiateScan();
+
+        Intent intent = new Intent(this, LiveBarcodeScanningActivity.class);
+        startActivity(intent);
     }
 
     private void getPermissions() {

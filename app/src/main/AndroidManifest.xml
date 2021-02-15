@@ -1,5 +1,6 @@
 <?xml version="1.1" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="org.getcarebase.carebase">
 
     <uses-permission android:name="android.permission.CAMERA" />
@@ -10,15 +11,14 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
-        android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher_blue_house_on_white"
         android:label="Carebase"
         android:roundIcon="@mipmap/ic_launcher_blue_house_on_white_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <service
-            android:name=".MyFirebaseMessagingService"
+        android:theme="@style/CarebaseAppTheme"
+        tools:replace="android:icon, android:label, android:roundIcon, android:theme">
+        <service android:name=".MyFirebaseMessagingService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -56,5 +56,4 @@
         </activity>
         <activity android:name=".activities.Main.FilterActivity" />
     </application>
-
 </manifest>

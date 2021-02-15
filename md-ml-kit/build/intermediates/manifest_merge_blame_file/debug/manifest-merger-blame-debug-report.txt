@@ -1,0 +1,115 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    xmlns:tools="http://schemas.android.com/tools"
+4    package="com.google.mlkit.md"
+5    android:installLocation="auto"
+6    android:versionCode="1"
+7    android:versionName="1.0" >
+8
+9    <uses-sdk
+10        android:minSdkVersion="24"
+10-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml
+11        android:targetSdkVersion="30" />
+11-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml
+12
+13    <uses-feature android:name="android.hardware.camera" />
+13-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:7:3-57
+13-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:7:17-55
+14
+15    <uses-permission android:name="android.permission.INTERNET" />
+15-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:9:3-64
+15-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:9:20-62
+16    <uses-permission android:name="android.permission.CAMERA" />
+16-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:10:3-62
+16-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:10:20-60
+17
+18    <application
+18-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:12:3-65:17
+19        android:allowBackup="false"
+19-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:13:7-34
+20        android:icon="@drawable/logo_mlkit"
+20-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:14:7-42
+21        android:label="@string/app_name"
+21-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:15:7-39
+22        android:supportsRtl="true"
+22-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:16:7-33
+23        android:theme="@style/AppTheme"
+23-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:17:7-38
+24        tools:ignore="GoogleAppIndexingWarning" >
+24-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:18:7-46
+25        <meta-data
+25-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:20:5-22:64
+26            android:name="com.google.android.gms.version"
+26-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:21:9-54
+27            android:value="@integer/google_play_services_version" />
+27-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:22:9-62
+28
+29        <activity
+29-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:24:5-32:16
+30            android:name="com.google.mlkit.md.MainActivity"
+30-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:25:9-56
+31            android:exported="true"
+31-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:26:9-32
+32            android:screenOrientation="portrait" >
+32-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:27:9-45
+33            <intent-filter>
+33-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:28:7-31:23
+34                <action android:name="android.intent.action.MAIN" />
+34-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:29:9-60
+34-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:29:17-58
+35
+36                <category android:name="android.intent.category.LAUNCHER" />
+36-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:30:9-68
+36-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:30:19-66
+37            </intent-filter>
+38        </activity>
+39        <activity
+39-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:34:5-38:16
+40            android:name="com.google.mlkit.md.LiveObjectDetectionActivity"
+40-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:35:9-71
+41            android:exported="false"
+41-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:36:9-33
+42            android:screenOrientation="portrait" >
+42-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:37:9-45
+43        </activity>
+44        <activity
+44-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:40:5-44:16
+45            android:name="com.google.mlkit.md.LiveBarcodeScanningActivity"
+45-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:41:9-71
+46            android:exported="false"
+46-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:42:9-33
+47            android:screenOrientation="portrait" >
+47-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:43:9-45
+48        </activity>
+49        <activity
+49-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:46:5-50:16
+50            android:name="com.google.mlkit.md.StaticObjectDetectionActivity"
+50-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:47:9-73
+51            android:exported="false"
+51-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:48:9-33
+52            android:screenOrientation="portrait" >
+52-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:49:9-45
+53        </activity>
+54        <activity
+54-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:52:5-56:16
+55            android:name="com.google.mlkit.md.CustomModelObjectDetectionActivity"
+55-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:53:9-78
+56            android:exported="false"
+56-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:54:9-33
+57            android:screenOrientation="portrait" >
+57-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:55:9-45
+58        </activity>
+59        <activity
+59-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:58:5-63:16
+60            android:name="com.google.mlkit.md.settings.SettingsActivity"
+60-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:59:9-69
+61            android:exported="false"
+61-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:60:9-33
+62            android:label="@string/settings_title"
+62-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:61:9-47
+63            android:screenOrientation="portrait" >
+63-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:62:9-45
+64        </activity>
+65    </application>
+66
+67</manifest>
