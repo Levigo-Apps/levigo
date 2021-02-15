@@ -187,28 +187,6 @@ public class EditEquipmentFragment extends Fragment {
     private DeviceViewModel deviceViewModel;
     private View rootView;
 
-//    public EditEquipmentFragment() {
-//        // Required empty public constructor
-//    }
-//
-//    /**
-//     * Use this factory method to create a new instance of
-//     * this fragment using the provided parameters.
-//     *
-//     * @param param1 Parameter 1.
-//     * @param param2 Parameter 2.
-//     * @return A new instance of fragment EditEquipmentFragment.
-//     */
-//    // TODO: Rename and change types and number of parameters
-//    public static EditEquipmentFragment newInstance(String param1, String param2) {
-//        EditEquipmentFragment fragment = new EditEquipmentFragment();
-//        Bundle args = new Bundle();
-//        args.putString(ARG_PARAM1, param1);
-//        args.putString(ARG_PARAM2, param2);
-//        fragment.setArguments(args);
-//        return fragment;
-//    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -244,25 +222,12 @@ public class EditEquipmentFragment extends Fragment {
 
         MaterialToolbar toolBar = rootView.findViewById(R.id.toolbar);
 
-//        siteConstrainLayout = rootView.findViewById(R.id.site_linearlayout);
-//        physicalLocationConstrainLayout = rootView.findViewById(R.id.physicalLocationLinearLayout);
-//        typeConstrainLayout = rootView.findViewById(R.id.typeLinearLayout);
-//        chosenType = false;
-//        chosenSite = false;
-//        isProcedureInfoReturned = false;
-//        chosenLocation = false;
-//        checkAutocompleteTexts = false;
-//        checkEditTexts = false;
-//        isUdisReturned = false;
-//        isAddSizeButtonClicked = true;
-//        editingExisting = false;
-
-
         deviceViewModel = new ViewModelProvider(this).get(DeviceViewModel.class);
         // if it is viable, find a way to get the user from inventoryViewModel from main activity
         // instead of waiting again to get the user again
         deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
             deviceViewModel.setupDeviceRepository();
+            // Set autopopulated fields
             String udi = getArguments().getString("udi");
             String di = getArguments().getString("di");
             udiEditText.setText(udi);
@@ -272,73 +237,39 @@ public class EditEquipmentFragment extends Fragment {
                     DeviceModel deviceModel = resourceData.getData();
 
                     nameEditText.setText(deviceModel.getName());
-                    nameEditText.setEnabled(deviceModel.getName() == null);
                     equipmentType.setText(deviceModel.getEquipmentType());
                     deviceIdentifier.setText(deviceModel.getDeviceIdentifier());
-                    deviceIdentifier.setEnabled(deviceModel.getDeviceIdentifier() == null);
                     String usageStr = deviceModel.getUsage();
                     usageEditText.setText(usageStr);
                     company.setText(deviceModel.getCompany());
-                    company.setEnabled(deviceModel.getCompany() == null);
                     medicalSpeciality.setText(deviceModel.getMedicalSpecialty());
 
                     DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
                     itemQuantity = deviceProduction.getStringQuantity();
                     quantity.setText(itemQuantity);
-                    quantity.setEnabled(false);
                     lotNumber.setText(deviceProduction.getLotNumber());
-                    lotNumber.setEnabled(deviceProduction.getLotNumber() == null);
                     expiration.setText(deviceProduction.getExpirationDate());
-                    expiration.setEnabled(deviceProduction.getExpirationDate() == null);
                     physicalLocation.setText(deviceProduction.getPhysicalLocation());
                     currentDate = deviceProduction.getDateAdded();
                     currentTime = deviceProduction.getTimeAdded();
                     updateDateEditText.setText(currentDate);
-                    updateDateEditText.setEnabled(false);
                     updateTimeEditText.setText(currentTime);
-                    updateTimeEditText.setEnabled(false);
+
+                    // Disable editing for some fields
+//                    nameEditText.setEnabled(deviceModel.getName() == null);
+//                    deviceIdentifier.setEnabled(deviceModel.getDeviceIdentifier() == null);
+//                    company.setEnabled(deviceModel.getCompany() == null);
+//                    quantity.setEnabled(false);
+//                    lotNumber.setEnabled(deviceProduction.getLotNumber() == null);
+//                    expiration.setEnabled(deviceProduction.getExpirationDate() == null);
+//                    updateDateEditText.setEnabled(false);
+//                    updateTimeEditText.setEnabled(false);
                 }
                 else if (resourceData.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR){
                     Toast.makeText(parent.getApplicationContext(), resourceData.getRequest().getResourceString(), Toast.LENGTH_SHORT).show();
                 }
             });
-//            setupOptionFields();
-//            setupAutoPopulate();
-//            setupSaveDevice();
-//            handleArguments();
         });
-
-//        // NumberPicker Dialog for NumberAdded field
-//        numberAdded.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                showNumberPicker(rootView, numberAdded);
-//            }
-//        });
-
-
-//        // incrementing number by 1 when clicked on the end icon
-//        numberAddedLayout.setEndIconOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                incrementNumberAdded();
-//            }
-//        });
-
-//        autoPopulateButton.setOnClickListener(view -> {
-//            String barcode = Objects.requireNonNull(udiEditText.getText()).toString().trim();
-//            if (!barcode.isEmpty()) {
-//                deviceViewModel.autoPopulatedScannedBarcode(barcode);
-//                hideKeyboard();
-//            }
-//        });
-
-//        addSizeButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                addEmptySizeOption(view);
-//            }
-//        });
 
 
         //going back to inventory view
