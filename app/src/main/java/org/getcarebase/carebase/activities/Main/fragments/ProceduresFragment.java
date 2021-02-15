@@ -78,6 +78,14 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
             }
         });
 
+        // On scroll of procedures recycler view will load more procedures
+        proceduresRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                proceduresViewModel.loadProcedures();
+            }
+        });
         swipeRefreshLayout.setOnRefreshListener(() -> proceduresViewModel.loadProcedures());
 
         return rootView;
