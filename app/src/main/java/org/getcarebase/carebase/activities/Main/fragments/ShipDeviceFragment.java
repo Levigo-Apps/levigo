@@ -73,6 +73,9 @@ public class ShipDeviceFragment extends Fragment {
             if ((barcode = getArguments().getString("barcode")) != null) {
                 deviceUdi.setText(barcode);
             }
+            if ((qty = getArguments().getString("qty")) != null) {
+                deviceQty.getEditText().setText(qty);
+            }
         }
     }
 }
