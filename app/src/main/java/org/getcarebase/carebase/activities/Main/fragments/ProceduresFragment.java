@@ -28,14 +28,20 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
     private View rootView;
     private RecyclerView proceduresRecyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
-
     private ProceduresViewModel proceduresViewModel;
 
     public interface ProcedureClickCallback {
         void showProcedureDetail(final String procedureId);
     }
 
+    // interface for reaching the bottom of a procedures list
+    public interface OnBottomReachedCallback {
+        void onBottomReached();
+    }
+
     private final ProceduresFragment.ProcedureClickCallback procedureClickCallback = this::showProcedureDetail;
+    // method will call load procedures
+    private final OnBottomReachedCallback onBottomReachedCallback = () -> proceduresViewModel.loadProcedures();
 
     @Nullable
     @Override
@@ -67,6 +73,7 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
 
         ProceduresAdapter proceduresAdapter = new ProceduresAdapter(procedureClickCallback);
         proceduresRecyclerView.setAdapter(proceduresAdapter);
+        proceduresAdapter.onBottomReached(onBottomReachedCallback);
 
         proceduresViewModel.getProceduresLiveData().observe(getViewLifecycleOwner(), proceduresResource -> {
             if (proceduresResource.getRequest().getStatus() == Request.Status.SUCCESS) {
@@ -77,17 +84,7 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
                 Snackbar.make(rootView,proceduresResource.getRequest().getResourceString(),Snackbar.LENGTH_LONG).show();
             }
         });
-
-        // On scroll of procedures recycler view will load more procedures
-        proceduresRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                proceduresViewModel.loadProcedures();
-            }
-        });
         swipeRefreshLayout.setOnRefreshListener(() -> proceduresViewModel.loadProcedures());
-
         return rootView;
     }
 
