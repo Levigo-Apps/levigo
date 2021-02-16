@@ -31,7 +31,6 @@ public class ProceduresAdapter extends RecyclerView.Adapter<ProceduresAdapter.Vi
         public ImageButton dropdownToggleButton;
         public Button viewButton;
 
-
         public ViewHolder(View view) {
             super(view);
             nameView = view.findViewById(R.id.name_text_view);
@@ -54,7 +53,7 @@ public class ProceduresAdapter extends RecyclerView.Adapter<ProceduresAdapter.Vi
         this.procedureClickCallback = procedureClickCallback;
     }
 
-    public void onBottomReached(ProceduresFragment.OnBottomReachedCallback onBottomReachedCallback) {
+    public void setOnBottmReachedCallback(ProceduresFragment.OnBottomReachedCallback onBottomReachedCallback) {
         this.onBottomReachedCallback = onBottomReachedCallback;
     }
 

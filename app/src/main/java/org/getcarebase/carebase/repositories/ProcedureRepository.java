@@ -92,13 +92,12 @@ public class ProcedureRepository {
     public LiveData<Resource<List<Procedure>>> getProcedures() {
         Query queryLiveData;
         MutableLiveData<Resource<List<Procedure>>> proceduresLiveData = new MutableLiveData<>();
-        // Order procedures by date and limit the number of procedures to 5
+        // Order procedures by date and time, limit the number of procedures to 10
         if (lastResult == null) { //if there isn't procedures obtained
-            // cannot add .orderBy("time_in", "Direction.ASCENDING") will crash app
-            queryLiveData = proceduresReference.orderBy("date", Direction.DESCENDING).orderBy("time_in", Direction.DESCENDING).limit(5);
+            queryLiveData = proceduresReference.orderBy("date", Direction.DESCENDING).orderBy("time_in", Direction.DESCENDING).limit(10);
         } else {
-            // Obtain the next 5 procedures
-            queryLiveData = proceduresReference.orderBy("date", Direction.DESCENDING).orderBy("time_in", Direction.DESCENDING).startAfter(lastResult).limit(5);
+            // Obtain the next 10 procedures
+            queryLiveData = proceduresReference.orderBy("date", Direction.DESCENDING).orderBy("time_in", Direction.DESCENDING).startAfter(lastResult).limit(10);
         }
         // After getting results, add results to procedures list
         queryLiveData.get().addOnCompleteListener(task -> {
