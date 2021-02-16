@@ -6,8 +6,10 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +40,7 @@ import org.getcarebase.carebase.models.DeviceProduction;
 import org.getcarebase.carebase.models.PendingDevice;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.DeviceViewModel;
+import org.getcarebase.carebase.viewmodels.ProcedureViewModel;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -87,6 +90,9 @@ public class EditEquipmentFragment extends Fragment {
 
     private String currentDate;
     private String currentTime;
+
+    private int modelQuantityBeforeEdit;
+    private int productionQuantityBeforeEdit;
 
     private String itemQuantity = "0";
     private String diQuantity = "0";
@@ -222,11 +228,14 @@ public class EditEquipmentFragment extends Fragment {
 
         MaterialToolbar toolBar = rootView.findViewById(R.id.toolbar);
 
+        allSizeOptions = new ArrayList<>();
+
         deviceViewModel = new ViewModelProvider(this).get(DeviceViewModel.class);
         // if it is viable, find a way to get the user from inventoryViewModel from main activity
         // instead of waiting again to get the user again
         deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
             deviceViewModel.setupDeviceRepository();
+            setupSaveDevice();
             // Set autopopulated fields
             String udi = getArguments().getString("udi");
             String di = getArguments().getString("di");
@@ -243,9 +252,11 @@ public class EditEquipmentFragment extends Fragment {
                     usageEditText.setText(usageStr);
                     company.setText(deviceModel.getCompany());
                     medicalSpeciality.setText(deviceModel.getMedicalSpecialty());
+                    modelQuantityBeforeEdit = deviceModel.getQuantity();
 
                     DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
                     itemQuantity = deviceProduction.getStringQuantity();
+                    productionQuantityBeforeEdit = deviceProduction.getQuantity();
                     quantity.setText(itemQuantity);
                     lotNumber.setText(deviceProduction.getLotNumber());
                     expiration.setText(deviceProduction.getExpirationDate());
@@ -255,15 +266,6 @@ public class EditEquipmentFragment extends Fragment {
                     updateDateEditText.setText(currentDate);
                     updateTimeEditText.setText(currentTime);
 
-                    // Disable editing for some fields
-//                    nameEditText.setEnabled(deviceModel.getName() == null);
-//                    deviceIdentifier.setEnabled(deviceModel.getDeviceIdentifier() == null);
-//                    company.setEnabled(deviceModel.getCompany() == null);
-//                    quantity.setEnabled(false);
-//                    lotNumber.setEnabled(deviceProduction.getLotNumber() == null);
-//                    expiration.setEnabled(deviceProduction.getExpirationDate() == null);
-//                    updateDateEditText.setEnabled(false);
-//                    updateTimeEditText.setEnabled(false);
                 }
                 else if (resourceData.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR){
                     Toast.makeText(parent.getApplicationContext(), resourceData.getRequest().getResourceString(), Toast.LENGTH_SHORT).show();
@@ -313,6 +315,21 @@ public class EditEquipmentFragment extends Fragment {
         return rootView;
     }
 
+    private void setupSaveDevice() {
+        deviceViewModel.getSaveDeviceRequestLiveData().observe(getViewLifecycleOwner(),request -> {
+            if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                View nextView = requireActivity().findViewById(R.id.activity_main);
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.remove(this).commit();
+                Snackbar.make(nextView, "Edits saved to inventory", Snackbar.LENGTH_LONG).show();
+            } else {
+                Log.d(TAG,"error while saving changes");
+                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
+            }
+        });
+    }
+
     private void saveData() {
         DeviceModel deviceModel = isFieldsValid();
         if (deviceModel != null) {
@@ -337,6 +354,10 @@ public class EditEquipmentFragment extends Fragment {
                 isValid = false;
             }
         }
+        if ( !isPositiveInteger(quantity) ) {
+            Snackbar.make(rootView, "Invalid input in field Quantity! Please enter positive integer.", Snackbar.LENGTH_LONG).show();
+            isValid = false;
+        }
         if (isValid) {
             DeviceModel deviceModel = new DeviceModel();
             deviceModel.setDeviceIdentifier(Objects.requireNonNull(deviceIdentifier.getText()).toString().trim());
@@ -344,8 +365,9 @@ public class EditEquipmentFragment extends Fragment {
             deviceModel.setCompany(Objects.requireNonNull(company.getText()).toString().trim());
             deviceModel.setEquipmentType(equipmentType.getText().toString().trim());
             deviceModel.setMedicalSpecialty(Objects.requireNonNull(medicalSpeciality.getText()).toString().trim());
-            int currentQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
-            deviceModel.setQuantity(currentQuantity);
+            int currentProductionQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
+            int quantityDifference = currentProductionQuantity - productionQuantityBeforeEdit;
+            deviceModel.setQuantity(modelQuantityBeforeEdit+quantityDifference);
             deviceModel.setUsage(usageEditText.getText().toString().trim());
 
             if (allSizeOptions.size() > 0) {
@@ -362,11 +384,26 @@ public class EditEquipmentFragment extends Fragment {
             deviceProduction.setExpirationDate(Objects.requireNonNull(expiration.getText()).toString().trim());
             deviceProduction.setLotNumber(Objects.requireNonNull(lotNumber.getText()).toString().trim());
             deviceProduction.setPhysicalLocation(physicalLocation.getText().toString().trim());
+            // set to number difference because FieldValue.increment() is used in DeviceProduction toMap()
+            deviceProduction.setQuantity(quantityDifference);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            deviceProduction.setDateAdded(dateFormat.format(myCalendar.getTime()));
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.US);
+            deviceProduction.setTimeAdded(timeFormat.format(myCalendar.getTime()));
             deviceModel.addDeviceProduction(deviceProduction);
 
             return deviceModel;
         }
         return null;
+    }
+
+    private boolean isPositiveInteger(TextInputEditText input) {
+        try {
+            return Integer.parseInt(input.getText().toString()) > 0;
+        } catch (Exception e) {
+            Snackbar.make(rootView, "Invalid input in field Quantity! Please enter positive integer.", Snackbar.LENGTH_LONG).show();
+            return false;
+        }
     }
 
 }

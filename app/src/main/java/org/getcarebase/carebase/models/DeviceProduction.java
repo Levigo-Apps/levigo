@@ -105,7 +105,7 @@ public class DeviceProduction {
         map.put("expiration",expirationDate);
         map.put("lot_number",lotNumber);
         map.put("notes",notes);
-        map.put("physical_location",notes);
+        map.put("physical_location",physicalLocation);
         map.put("quantity", FieldValue.increment(quantity));
         map.put("reference_number",referenceNumber);
         return map;
