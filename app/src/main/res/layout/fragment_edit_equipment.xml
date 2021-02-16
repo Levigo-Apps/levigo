@@ -137,6 +137,7 @@
                         android:id="@+id/detail_quantity"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:inputType="numberSigned"
                         android:layout_columnWeight="1" />
                 </com.google.android.material.textfield.TextInputLayout>
 
