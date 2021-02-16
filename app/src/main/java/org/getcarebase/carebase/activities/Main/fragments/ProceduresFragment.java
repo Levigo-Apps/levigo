@@ -73,7 +73,7 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
 
         ProceduresAdapter proceduresAdapter = new ProceduresAdapter(procedureClickCallback);
         proceduresRecyclerView.setAdapter(proceduresAdapter);
-        proceduresAdapter.onBottomReached(onBottomReachedCallback);
+        proceduresAdapter.setOnBottmReachedCallback(onBottomReachedCallback);
 
         proceduresViewModel.getProceduresLiveData().observe(getViewLifecycleOwner(), proceduresResource -> {
             if (proceduresResource.getRequest().getStatus() == Request.Status.SUCCESS) {
