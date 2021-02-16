@@ -31,6 +31,7 @@ public class ProceduresAdapter extends RecyclerView.Adapter<ProceduresAdapter.Vi
         public ImageButton dropdownToggleButton;
         public Button viewButton;
 
+
         public ViewHolder(View view) {
             super(view);
             nameView = view.findViewById(R.id.name_text_view);
@@ -47,9 +48,14 @@ public class ProceduresAdapter extends RecyclerView.Adapter<ProceduresAdapter.Vi
     private final List<Procedure> procedures = new ArrayList<>();
     private final List<Boolean> procedureVisibilities = new ArrayList<>();
     private final ProceduresFragment.ProcedureClickCallback procedureClickCallback;
+    private ProceduresFragment.OnBottomReachedCallback onBottomReachedCallback;
 
     public ProceduresAdapter(ProceduresFragment.ProcedureClickCallback procedureClickCallback) {
         this.procedureClickCallback = procedureClickCallback;
+    }
+
+    public void onBottomReached(ProceduresFragment.OnBottomReachedCallback onBottomReachedCallback) {
+        this.onBottomReachedCallback = onBottomReachedCallback;
     }
 
     public void setProcedures(List<Procedure> procedures) {
@@ -98,6 +104,10 @@ public class ProceduresAdapter extends RecyclerView.Adapter<ProceduresAdapter.Vi
                 procedureVisibilities.set(position,false);
             }
         });
+        // check if position is last and override the on bottom reached callback function
+        if ((position >= getItemCount() - 1)){
+            onBottomReachedCallback.onBottomReached();
+        }
     }
 
     @Override
