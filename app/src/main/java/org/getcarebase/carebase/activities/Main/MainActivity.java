@@ -43,7 +43,6 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.mlkit.md.LiveBarcodeScanningActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.journeyapps.barcodescanner.CaptureActivity;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.adapters.HomePagerAdapter;

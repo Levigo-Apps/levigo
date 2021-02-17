@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -88,6 +89,22 @@ public class ItemDetailViewFragment extends Fragment {
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
                 fragmentTransaction.add(R.id.activity_main, fragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+                return true;
+            }
+            if (item.getItemId() == R.id.item_ship) {
+                ShipDeviceFragment shipFragment = new ShipDeviceFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("barcode", Objects.requireNonNull(udi.getText().toString()));
+                bundle.putString("qty", quantity.getTextValue().toString());
+                bundle.putString("name", itemName.getText().toString());
+                shipFragment.setArguments(bundle);
+
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+                fragmentTransaction.add(R.id.activity_main, shipFragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
                 return true;

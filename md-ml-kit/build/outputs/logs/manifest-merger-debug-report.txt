@@ -83,14 +83,14 @@ ADDED from /Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidMa
 		ADDED from /Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:36:9-33
 	android:name
 		ADDED from /Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:35:9-71
-activity#com.google.mlkit.md.LiveBarcodeScanningActivity
+activity#org.getcarebase.carebase.activities.LiveBarcodeScanningActivity
 ADDED from /Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:40:5-44:16
 	android:screenOrientation
 		ADDED from /Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:43:9-45
 	android:exported
 		ADDED from /Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:42:9-33
 	android:name
-		ADDED from /Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:41:9-71
+		ADDED from /Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:41:9-87
 activity#com.google.mlkit.md.StaticObjectDetectionActivity
 ADDED from /Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:46:5-50:16
 	android:screenOrientation
