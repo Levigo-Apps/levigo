@@ -73,14 +73,11 @@ public class EditEquipmentFragment extends Fragment {
     private TextInputEditText lotNumber;
     private TextInputEditText expiration;
     private TextInputEditText usageEditText;
-    private TextInputEditText costEditText;
 //    private AutoCompleteTextView physicalLocation;
     private TextInputEditText physicalLocation;
     private TextInputEditText company;
 //    private AutoCompleteTextView equipmentType;
     private TextInputEditText medicalSpeciality;
-    private TextInputEditText sizeEditText;
-    private TextInputEditText lengthEditText;
     private TextInputEditText updateDateEditText;
     private TextInputEditText updateTimeEditText;
 
@@ -210,12 +207,9 @@ public class EditEquipmentFragment extends Fragment {
         lotNumber = rootView.findViewById(R.id.detail_lot_number);
         expiration = rootView.findViewById(R.id.detail_expiration_date);
         usageEditText = rootView.findViewById(R.id.detail_usage);
-        costEditText = rootView.findViewById(R.id.detail_equipment_cost);
         physicalLocation = rootView.findViewById(R.id.detail_physical_location);
         company = rootView.findViewById(R.id.detail_company);
         medicalSpeciality = rootView.findViewById(R.id.detail_medical_speciality);
-        sizeEditText = rootView.findViewById(R.id.detail_size);
-        lengthEditText = rootView.findViewById(R.id.detail_length);
         updateDateEditText = rootView.findViewById(R.id.detail_update_date);
         updateTimeEditText = rootView.findViewById(R.id.detail_update_time);
         saveButton = rootView.findViewById(R.id.detail_save_button);
@@ -224,7 +218,6 @@ public class EditEquipmentFragment extends Fragment {
         updateDateEditText.setText(dateFormat.format(new Date()));
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.US);
         updateTimeEditText.setText(timeFormat.format(new Date()));
-        TextInputLayout expirationTextLayout = rootView.findViewById(R.id.expiration_date_string);
 
         MaterialToolbar toolBar = rootView.findViewById(R.id.toolbar);
 
@@ -266,7 +259,18 @@ public class EditEquipmentFragment extends Fragment {
                     updateDateEditText.setText(currentDate);
                     updateTimeEditText.setText(currentTime);
 
+                    udiEditText.setEnabled(false);
+                    deviceIdentifier.setEnabled(deviceModel.getDeviceIdentifier() == null);
+                    lotNumber.setEnabled(deviceProduction.getLotNumber() == null);
+                    expiration.setEnabled(deviceProduction.getExpirationDate() == null);
+                    usageEditText.setEnabled(deviceModel.getUsage() == null);
+                    physicalLocation.setEnabled(deviceProduction.getPhysicalLocation() == null);
+                    company.setEnabled(deviceModel.getCompany() == null);
+                    medicalSpeciality.setEnabled(deviceModel.getMedicalSpecialty() == null);
+                    updateDateEditText.setEnabled(false);
+                    updateTimeEditText.setEnabled(false);
                 }
+
                 else if (resourceData.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR){
                     Toast.makeText(parent.getApplicationContext(), resourceData.getRequest().getResourceString(), Toast.LENGTH_SHORT).show();
                 }
@@ -285,28 +289,6 @@ public class EditEquipmentFragment extends Fragment {
                         parent.onBackPressed();
                     }
                 }
-            }
-        });
-
-        // date picker for expiration date if entered manually
-        final DatePickerDialog.OnDateSetListener date_exp = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-                myCalendar.set(Calendar.YEAR, i);
-                myCalendar.set(Calendar.MONTH, i1);
-                myCalendar.set(Calendar.DAY_OF_MONTH, i2);
-                String myFormat = "yyyy/MM/dd";
-                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                expiration.setText(String.format("%s", sdf.format(myCalendar.getTime())));
-            }
-        };
-
-        expirationTextLayout.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new DatePickerDialog(view.getContext(), date_exp, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
 
