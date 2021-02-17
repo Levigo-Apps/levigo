@@ -334,14 +334,17 @@ public class EditEquipmentFragment extends Fragment {
         DeviceModel deviceModel = isFieldsValid();
         if (deviceModel != null) {
             deviceViewModel.saveDevice(deviceModel);
-        } else {
-            Snackbar.make(rootView, "Please fill all required fields", Snackbar.LENGTH_LONG).show();
         }
     }
 
     // not in mvvm style - need to use data bindings
     // packages all the fields into a DeviceModel object
     private DeviceModel isFieldsValid() {
+        if ( !isPositiveInteger(quantity) ) {
+            Snackbar.make(rootView, "Invalid input in quantity field", Snackbar.LENGTH_LONG).show();
+            return null;
+        }
+
         boolean isValid = true;
 
         List<EditText> requiredEditTexts = new ArrayList<>(allSizeOptions);
@@ -354,10 +357,7 @@ public class EditEquipmentFragment extends Fragment {
                 isValid = false;
             }
         }
-        if ( !isPositiveInteger(quantity) ) {
-            Snackbar.make(rootView, "Invalid input in field Quantity! Please enter positive integer.", Snackbar.LENGTH_LONG).show();
-            isValid = false;
-        }
+
         if (isValid) {
             DeviceModel deviceModel = new DeviceModel();
             deviceModel.setDeviceIdentifier(Objects.requireNonNull(deviceIdentifier.getText()).toString().trim());
@@ -393,6 +393,8 @@ public class EditEquipmentFragment extends Fragment {
             deviceModel.addDeviceProduction(deviceProduction);
 
             return deviceModel;
+        } else {
+            Snackbar.make(rootView, "Please fill all required fields", Snackbar.LENGTH_LONG).show();
         }
         return null;
     }
