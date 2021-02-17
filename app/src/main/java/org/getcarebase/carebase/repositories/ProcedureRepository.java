@@ -7,8 +7,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.Query.Direction;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceUsage;
@@ -30,6 +33,7 @@ public class ProcedureRepository {
     private final CollectionReference inventoryReference;
 
     private final List<Procedure> procedures;
+    private DocumentSnapshot lastResult; // last procedure
 
     public ProcedureRepository(final String networkId, final String hospitalId) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -86,12 +90,24 @@ public class ProcedureRepository {
     }
 
     public LiveData<Resource<List<Procedure>>> getProcedures() {
-        procedures.clear();
+        Query queryLiveData;
         MutableLiveData<Resource<List<Procedure>>> proceduresLiveData = new MutableLiveData<>();
-        proceduresReference.get().addOnCompleteListener(task -> {
+        // Order procedures by date and time, limit the number of procedures to 10
+        if (lastResult == null) { //if there isn't procedures obtained
+            queryLiveData = proceduresReference.orderBy("date", Direction.DESCENDING).orderBy("time_in", Direction.DESCENDING).limit(10);
+        } else {
+            // Obtain the next 10 procedures
+            queryLiveData = proceduresReference.orderBy("date", Direction.DESCENDING).orderBy("time_in", Direction.DESCENDING).startAfter(lastResult).limit(10);
+        }
+        // After getting results, add results to procedures list
+        queryLiveData.get().addOnCompleteListener(task -> {
            if (task.isSuccessful()) {
                for (QueryDocumentSnapshot procedureSnapshot : task.getResult()) {
                    procedures.add(procedureSnapshot.toObject(Procedure.class));
+               }
+               // store the last procedure
+               if (task.getResult().size() > 0) {
+                   lastResult = task.getResult().getDocuments().get(task.getResult().size() -1);
                }
                proceduresLiveData.setValue(new Resource<>(procedures,new Request(null, Request.Status.SUCCESS)));
            } else {
