@@ -159,17 +159,13 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/expiration_date_string"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_columnWeight="1"
                     android:hint="@string/expiration_date_lbl"
                     app:boxBackgroundColor="@color/filledBoxBackground"
-                    app:boxStrokeColor="@color/colorPrimary"
-                    app:endIconDrawable="@drawable/calendar"
-                    app:endIconMode="custom"
-                    app:endIconTint="@color/colorPrimary">
+                    app:boxStrokeColor="@color/colorPrimary" >
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_expiration_date"
@@ -189,22 +185,6 @@
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_usage"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_columnWeight="1" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_columnWeight="1"
-                    android:hint="@string/costUnit_lbl"
-                    app:boxBackgroundColor="@color/filledBoxBackground"
-                    app:boxStrokeColor="@color/colorPrimary">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/detail_equipment_cost"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_columnWeight="1" />
@@ -272,38 +252,6 @@
                 android:orientation="horizontal"
                 android:rowCount="1"
                 android:useDefaultMargins="true">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_columnWeight="1"
-                    android:hint="Size"
-                    app:boxBackgroundColor="@color/filledBoxBackground"
-                    app:boxStrokeColor="@color/colorPrimary">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/detail_size"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_columnWeight="1" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_columnWeight="1"
-                    android:hint="Length"
-                    app:boxBackgroundColor="@color/filledBoxBackground"
-                    app:boxStrokeColor="@color/colorPrimary">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/detail_length"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_columnWeight="1" />
-                </com.google.android.material.textfield.TextInputLayout>
 
             </GridLayout>
 
