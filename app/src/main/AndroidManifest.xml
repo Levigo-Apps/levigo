@@ -18,20 +18,6 @@
         android:supportsRtl="true"
         android:theme="@style/CarebaseAppTheme"
         tools:replace="android:icon, android:label, android:roundIcon, android:theme">
-        <service android:name=".MyFirebaseMessagingService"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/colorAccent" />
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="Carebase" />
 
         <activity
             android:name=".activities.Main.MainActivity"
@@ -50,10 +36,8 @@
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.Main.FilterActivity" />
     </application>
 </manifest>
