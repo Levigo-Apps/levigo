@@ -29,7 +29,12 @@
             android:id="@+id/home_tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingVertical="8dp"
+            android:background="@color/colorPrimary"
             app:layout_scrollFlags="noScroll"
+            app:tabBackground="@color/colorPrimary"
+            app:tabTextColor="@color/white"
+            app:tabIndicatorColor="@color/white"
             style="@style/Widget.MaterialComponents.TabLayout">
         </com.google.android.material.tabs.TabLayout>
     </com.google.android.material.appbar.AppBarLayout>
@@ -38,9 +43,8 @@
         android:id="@+id/home_view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="8dp"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
-    </androidx.viewpager2.widget.ViewPager2>
+        android:layout_marginTop="16dp"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"></androidx.viewpager2.widget.ViewPager2>
 
     <LinearLayout
         android:id="@+id/fab_layout"

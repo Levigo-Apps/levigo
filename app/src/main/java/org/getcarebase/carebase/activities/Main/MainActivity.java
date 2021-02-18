@@ -93,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 1: tab.setText("Procedures");
                     break;
+                case 2: tab.setText("Analytics");
+                    break;
             }
         }).attach();
     }
