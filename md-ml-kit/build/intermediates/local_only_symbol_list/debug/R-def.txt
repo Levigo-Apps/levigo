@@ -122,6 +122,7 @@ id card_recycler_view
 id card_subtitle
 id card_title
 id close_button
+id continue_button
 id dot_view_container
 id flash_button
 id input_image_view

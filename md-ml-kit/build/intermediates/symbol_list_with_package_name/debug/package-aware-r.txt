@@ -1697,6 +1697,7 @@ id confirm_button
 id container
 id content
 id contentPanel
+id continue_button
 id coordinator
 id custom
 id customPanel

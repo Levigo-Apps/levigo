@@ -32,7 +32,7 @@ import com.google.mlkit.md.camera.WorkflowModel
 import com.google.mlkit.md.camera.WorkflowModel.WorkflowState
 
 /** Displays the bottom sheet to present barcode fields contained in the detected barcode.  */
-class BarcodeResultFragment : BottomSheetDialogFragment() {
+open class BarcodeResultFragment : BottomSheetDialogFragment() {
 
     override fun onCreateView(
         layoutInflater: LayoutInflater,

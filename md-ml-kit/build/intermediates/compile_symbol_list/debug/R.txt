@@ -1696,6 +1696,7 @@ int id confirm_button 0x0
 int id container 0x0
 int id content 0x0
 int id contentPanel 0x0
+int id continue_button 0x0
 int id coordinator 0x0
 int id custom 0x0
 int id customPanel 0x0

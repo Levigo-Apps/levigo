@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.common.internal.Objects;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.mlkit.md.barcodedetection.BarcodeField;
 import com.google.mlkit.md.barcodedetection.BarcodeProcessor;
 import com.google.mlkit.md.barcodedetection.BarcodeResultFragment;
@@ -19,6 +20,12 @@ import com.google.mlkit.md.camera.CameraSource;
 import com.google.mlkit.md.camera.CameraSourcePreview;
 import com.google.mlkit.md.camera.GraphicOverlay;
 import com.google.mlkit.md.camera.WorkflowModel;
+
+import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.models.DeviceModel;
+import org.getcarebase.carebase.utils.Request;
+import org.getcarebase.carebase.viewmodels.ScanningViewModel;
+import org.getcarebase.carebase.views.CarebaseBarcodeResultFragment;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,8 +39,12 @@ public class ScanningActivity extends AppCompatActivity {
     private GraphicOverlay graphicOverlay;
     private Chip promptChip;
     private AnimatorSet promptChipAnimator;
-    private WorkflowModel workflowModel;
-    private WorkflowModel.WorkflowState currentWorkflowState;
+
+    private ScanningViewModel scanningViewModel;
+
+    public interface ContinueCallback {
+        void onContinueClicked();
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,16 +63,26 @@ public class ScanningActivity extends AppCompatActivity {
         View closeButton = findViewById(com.google.mlkit.md.R.id.close_button);
         closeButton.setOnClickListener(view -> onBackPressed());
 
+        scanningViewModel = new ViewModelProvider(this).get(ScanningViewModel.class);
+        scanningViewModel.getUserLiveData().observe(this, userResource -> {
+            if (userResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                scanningViewModel.setDeviceRepository(userResource.getData().getNetworkId(),userResource.getData().getHospitalId());
+            } else if (userResource.getRequest().getStatus() == Request.Status.ERROR){
+                Snackbar.make(preview.getRootView(), R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
+            }
+        });
+
         setUpWorkflowModel();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        WorkflowModel workflowModel = scanningViewModel.getWorkflowModel();
         if (workflowModel != null) {
             workflowModel.markCameraFrozen();
         }
-        currentWorkflowState = WorkflowModel.WorkflowState.NOT_STARTED;
+        scanningViewModel.setCurrentWorkflowState(WorkflowModel.WorkflowState.NOT_STARTED);
         if (cameraSource != null) {
             cameraSource.setFrameProcessor(new BarcodeProcessor(graphicOverlay,workflowModel));
         }
@@ -73,13 +94,13 @@ public class ScanningActivity extends AppCompatActivity {
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        BarcodeResultFragment.Companion.dismiss(getSupportFragmentManager());
+        CarebaseBarcodeResultFragment.dismiss(getSupportFragmentManager());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        currentWorkflowState = WorkflowModel.WorkflowState.NOT_STARTED;
+        scanningViewModel.setCurrentWorkflowState(WorkflowModel.WorkflowState.NOT_STARTED);
         stopCameraPreview();
     }
 
@@ -94,6 +115,7 @@ public class ScanningActivity extends AppCompatActivity {
     }
 
     private void startCameraPreview() {
+        WorkflowModel workflowModel = scanningViewModel.getWorkflowModel();
         if (workflowModel != null && !workflowModel.isCameraLive() && cameraSource != null) {
             try {
                 workflowModel.markCameraLive();
@@ -109,6 +131,7 @@ public class ScanningActivity extends AppCompatActivity {
     }
 
     private void stopCameraPreview() {
+        WorkflowModel workflowModel = scanningViewModel.getWorkflowModel();
         if (workflowModel != null && workflowModel.isCameraLive()) {
             workflowModel.markCameraFrozen();
             if (preview != null) {
@@ -118,17 +141,18 @@ public class ScanningActivity extends AppCompatActivity {
     }
 
     private void setUpWorkflowModel() {
-        workflowModel = new ViewModelProvider(this).get(WorkflowModel.class);
+        WorkflowModel workflowModel = new ViewModelProvider(this).get(WorkflowModel.class);
+        scanningViewModel.setWorkflowModel(workflowModel);
 
         // Observes the workflow state changes, if happens, update the overlay view indicators and
         // camera preview state.
         workflowModel.getWorkflowState().observe(this,  workflowState -> {
-            if (workflowState == null || Objects.equal(currentWorkflowState, workflowState)) {
+            if (workflowState == null || Objects.equal(scanningViewModel.getCurrentWorkflowState(), workflowState)) {
                 return;
             }
 
-            currentWorkflowState = workflowState;
-            Log.d(TAG, "Current workflow state: " + currentWorkflowState.name());
+            scanningViewModel.setCurrentWorkflowState(workflowState);
+            Log.d(TAG, "Current workflow state: " + scanningViewModel.getCurrentWorkflowState().name());
 
 
             if (promptChip != null) {
@@ -168,20 +192,22 @@ public class ScanningActivity extends AppCompatActivity {
             }
         });
 
-        if (workflowModel != null && workflowModel.getDetectedBarcode() != null) {
-            workflowModel.getDetectedBarcode().observe(this, barcode -> {
-                if (barcode != null) {
-                    ArrayList<BarcodeField> barcodeFieldList = new ArrayList<>();
-                    if (barcode.getRawValue() != null) {
-                        barcodeFieldList.add(new BarcodeField("Raw Value", barcode.getRawValue()));
-                    }
-                    if (barcode.getDisplayValue() != null) {
-                        barcodeFieldList.add(new BarcodeField("Display Value", barcode.getDisplayValue()));
-                    }
-                    BarcodeResultFragment.Companion.show(getSupportFragmentManager(),barcodeFieldList);
-                }
-            });
-        }
+        scanningViewModel.getAutoPopulatedLiveData().observe(this,deviceModelResource -> {
+            if (deviceModelResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                DeviceModel deviceModel = deviceModelResource.getData();
+                ArrayList<BarcodeField> barcodeFieldList = new ArrayList<>();
+                barcodeFieldList.add(new BarcodeField("Name", deviceModel.getName()));
+                barcodeFieldList.add(new BarcodeField("Device Identifier", deviceModel.getDeviceIdentifier()));
+                barcodeFieldList.add(new BarcodeField("Description", deviceModel.getDescription()));
+                ContinueCallback callback = this::onContinueButtonClicked;
+                CarebaseBarcodeResultFragment.show(getSupportFragmentManager(),barcodeFieldList,callback);
+            } else if (deviceModelResource.getRequest().getStatus() == Request.Status.ERROR) {
+                Snackbar.make(preview.getRootView(),R.string.error_something_wrong,Snackbar.LENGTH_LONG).show();
+            }
+        });
+    }
 
+    public void onContinueButtonClicked() {
+        Log.d(TAG,"Clicked");
     }
 }
