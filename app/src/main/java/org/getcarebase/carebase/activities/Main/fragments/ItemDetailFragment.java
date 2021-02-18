@@ -639,6 +639,12 @@ public class ItemDetailFragment extends Fragment {
             deviceProduction.setQuantity(amount);
             deviceModel.addDeviceProduction(deviceProduction);
 
+            if (deviceViewModel.getAutoPopulatedDeviceLiveData().getValue() != null
+                    && deviceViewModel.getAutoPopulatedDeviceLiveData().getValue().getData() != null
+                    && deviceViewModel.getAutoPopulatedDeviceLiveData().getValue().getData().getShipment() != null) {
+                deviceModel.setShipment(deviceViewModel.getAutoPopulatedDeviceLiveData().getValue().getData().getShipment());
+            }
+
             if(!Objects.requireNonNull(costEditText.getText()).toString().trim().isEmpty()){
                 String cleanString = costEditText.getText().toString().replaceAll("[$,.]", "");
                 double packagePrice = Double.parseDouble(cleanString) / 100;
