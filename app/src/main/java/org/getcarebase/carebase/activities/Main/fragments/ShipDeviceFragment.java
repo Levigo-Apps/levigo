@@ -11,6 +11,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -18,6 +19,8 @@ import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.utils.Resource;
 import org.getcarebase.carebase.viewmodels.DeviceViewModel;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,13 +54,22 @@ public class ShipDeviceFragment extends Fragment {
         AutoCompleteTextView destOptions = (AutoCompleteTextView) deviceDest.getEditText();
 
         deviceViewModel = new ViewModelProvider(this).get(DeviceViewModel.class);
+
+        final ArrayAdapter<String> sitesAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
         deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
             deviceViewModel.setupDeviceRepository();
             LiveData<Resource<String[]>> siteOptions = deviceViewModel.getSitesLiveData();
-            Log.d(TAG, String.valueOf(siteOptions.getValue()));
-            destOptions.setAdapter(new ArrayAdapter(requireContext(), R.layout.dropdown_menu_popup_item,
-                    Collections.singletonList("Muhimbili")/*siteOptions.getValue().getData()*/));
+            deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
+                if(sitesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+                    sitesAdapter.clear();
+                    sitesAdapter.addAll(Arrays.asList(sitesResource.getData()));
+                } else {
+                    Log.d(TAG,"Unable to fetch sites");
+                    Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
+                }
+            });
         });
+        destOptions.setAdapter(sitesAdapter);
 
         // TODO: setup object to save destination input through device view model
         handleArguments();

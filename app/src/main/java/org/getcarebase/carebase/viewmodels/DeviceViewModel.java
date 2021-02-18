@@ -63,8 +63,6 @@ public class DeviceViewModel extends ViewModel {
 
     public void setupDeviceRepository() {
         User user = Objects.requireNonNull(userLiveData.getValue()).getData();
-        Log.d("DVM", user.getNetworkId());
-        Log.d("DVM", user.getHospitalId());
         deviceRepository = new DeviceRepository(user.getNetworkId(), user.getHospitalId());
         pendingDeviceRepository = new PendingDeviceRepository(user.getNetworkId(),user.getHospitalId());
     }
