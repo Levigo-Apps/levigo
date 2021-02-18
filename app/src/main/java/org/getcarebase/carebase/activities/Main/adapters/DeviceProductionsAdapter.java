@@ -11,12 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.activities.Main.fragments.InventoryFragment;
+import org.getcarebase.carebase.activities.Main.fragments.ModelListFragment;
 import org.getcarebase.carebase.models.DeviceProduction;
 
 import java.util.List;
 
 public class DeviceProductionsAdapter extends RecyclerView.Adapter<DeviceProductionsAdapter.DeviceProductionHolder> {
-    private final InventoryFragment inventoryFragment;
+    private final ModelListFragment modelListFragment;
     private final List<DeviceProduction> deviceProductions;
     private final String deviceIdentifier;
 
@@ -31,8 +32,8 @@ public class DeviceProductionsAdapter extends RecyclerView.Adapter<DeviceProduct
         }
     }
 
-    public DeviceProductionsAdapter(InventoryFragment inventoryFragment, String deviceIdentifier, List<DeviceProduction> deviceProductions) {
-        this.inventoryFragment = inventoryFragment;
+    public DeviceProductionsAdapter(ModelListFragment modelListFragment, String deviceIdentifier, List<DeviceProduction> deviceProductions) {
+        this.modelListFragment = modelListFragment;
         this.deviceProductions = deviceProductions;
         this.deviceIdentifier = deviceIdentifier;
     }
@@ -52,9 +53,9 @@ public class DeviceProductionsAdapter extends RecyclerView.Adapter<DeviceProduct
         holder.itemExpiration.setText(expiration);
 
         //TODO PLURAL
-        holder.itemQuantity.setText(inventoryFragment.getString(R.string.unit_quantity_value,deviceProduction.getQuantity()));
+        holder.itemQuantity.setText(modelListFragment.getString(R.string.unit_quantity_value,deviceProduction.getQuantity()));
 
-        holder.itemView.setOnClickListener(view -> inventoryFragment.showDeviceDetail(deviceIdentifier,deviceProduction.getUniqueDeviceIdentifier()));
+        holder.itemView.setOnClickListener(view -> modelListFragment.showDeviceDetail(deviceIdentifier,deviceProduction.getUniqueDeviceIdentifier()));
     }
 
     @Override

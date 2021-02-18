@@ -13,12 +13,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.activities.Main.fragments.InventoryFragment;
+import org.getcarebase.carebase.activities.Main.fragments.ModelListFragment;
 import org.getcarebase.carebase.models.DeviceModel;
 
 import java.util.List;
 
 public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapter.DeviceModelHolder> {
-    private final InventoryFragment inventoryFragment;
+    private final ModelListFragment modelListFragment;
     private final List<DeviceModel> deviceModels;
 
     public static class DeviceModelHolder extends RecyclerView.ViewHolder {
@@ -46,8 +47,9 @@ public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapte
         }
     }
 
-    public DeviceModelsAdapter(InventoryFragment inventoryFragment, List<DeviceModel> deviceModels) {
-        this.inventoryFragment = inventoryFragment;
+    public DeviceModelsAdapter(ModelListFragment modelListFragment, List<DeviceModel> deviceModels) {
+//        this.inventoryFragment = inventoryFragment;
+        this.modelListFragment = modelListFragment;
         this.deviceModels = deviceModels;
     }
 
@@ -62,12 +64,12 @@ public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapte
     public void onBindViewHolder(DeviceModelHolder holder, int position) {
         DeviceModel deviceModel = deviceModels.get(position);
         holder.itemName.setText(deviceModel.getName());
-        holder.itemQuantity.setText(inventoryFragment.getString(R.string.unit_quantity_value,deviceModel.getQuantity()));
+        holder.itemQuantity.setText(modelListFragment.getString(R.string.unit_quantity_value,deviceModel.getQuantity()));
         holder.itemDI.setText(deviceModel.getDeviceIdentifier());
 
-        DeviceProductionsAdapter deviceProductionsAdapter = new DeviceProductionsAdapter(inventoryFragment, deviceModel.getDeviceIdentifier(), deviceModel.getProductions());
+        DeviceProductionsAdapter deviceProductionsAdapter = new DeviceProductionsAdapter(modelListFragment, deviceModel.getDeviceIdentifier(), deviceModel.getProductions());
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(inventoryFragment.getContext());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(modelListFragment.getContext());
         holder.itemUDIs.setLayoutManager(layoutManager);
         holder.itemUDIs.setAdapter(deviceProductionsAdapter);
     }
