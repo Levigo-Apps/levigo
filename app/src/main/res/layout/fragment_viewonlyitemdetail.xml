@@ -115,12 +115,12 @@
                 android:layout_columnWeight="1"
                 app:label_text="Use" />
 
-            <org.getcarebase.carebase.views.DetailLabeledTextView
-                android:id="@+id/unitcost_edittext"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                app:label_text="Cost / Unit" />
+<!--            <org.getcarebase.carebase.views.DetailLabeledTextView-->
+<!--                android:id="@+id/unitcost_edittext"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_columnWeight="1"-->
+<!--                app:label_text="Cost / Unit" />-->
 
             <org.getcarebase.carebase.views.DetailLabeledTextView
                 android:id="@+id/company_edittext"
