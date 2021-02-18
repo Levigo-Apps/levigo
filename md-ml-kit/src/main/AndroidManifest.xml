@@ -38,7 +38,7 @@
     </activity>
 
     <activity
-        android:name="org.getcarebase.carebase.activities.LiveBarcodeScanningActivity"
+        android:name="com.google.mlkit.md.LiveBarcodeScanningActivity"
         android:exported="false"
         android:screenOrientation="portrait">
     </activity>

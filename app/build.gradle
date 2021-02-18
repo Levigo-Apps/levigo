@@ -63,6 +63,8 @@ dependencies {
 
     implementation 'com.firebaseui:firebase-ui-auth:6.2.0'
 
+    implementation 'com.google.mlkit:barcode-scanning:16.1.1'
+
     implementation project(":md-ml-kit")
 
     testImplementation 'junit:junit:4.12'

@@ -1896,6 +1896,9 @@ id uniform
 id unlabeled
 id up
 id view_offset_helper
+id view_tree_lifecycle_owner
+id view_tree_saved_state_registry_owner
+id view_tree_view_model_store_owner
 id visible
 id visible_removing_fragment_view_tag
 id wide

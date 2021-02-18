@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
 //        integrator.setBarcodeImageEnabled(true);
 //        integrator.initiateScan();
 
-        Intent intent = new Intent(this, LiveBarcodeScanningActivity.class);
+        Intent intent = new Intent(this, ScanningActivity.class);
         startActivity(intent);
     }
 

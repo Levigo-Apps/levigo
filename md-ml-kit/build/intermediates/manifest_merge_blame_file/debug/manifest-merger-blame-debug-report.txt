@@ -74,8 +74,8 @@
 43        </activity>
 44        <activity
 44-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:40:5-44:16
-45            android:name="org.getcarebase.carebase.activities.LiveBarcodeScanningActivity"
-45-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:41:9-87
+45            android:name="com.google.mlkit.md.LiveBarcodeScanningActivity"
+45-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:41:9-71
 46            android:exported="false"
 46-->/Users/dargus/Documents/carebase-android/md-ml-kit/src/main/AndroidManifest.xml:42:9-33
 47            android:screenOrientation="portrait" >

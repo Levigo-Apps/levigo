@@ -24,6 +24,12 @@
             android:windowSoftInputMode="adjustPan" />
 
         <activity
+            android:name=".activities.Main.ScanningActivity"
+            android:exported="false"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity
             android:name=".activities.Main.AddProcedureActivity"
             android:parentActivityName=".activities.Main.MainActivity"
             android:windowSoftInputMode="adjustPan"
