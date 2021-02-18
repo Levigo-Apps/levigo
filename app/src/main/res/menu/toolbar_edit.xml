@@ -4,8 +4,8 @@
 
     <item
         android:id="@+id/item_ship"
-        android:icon="@drawable/ic_baseline_forward_24"
-        android:title="item_ship"
+        android:title="@string/ship"
+
         app:showAsAction="ifRoom" />
 
     <item
