@@ -1,5 +1,7 @@
 package org.getcarebase.carebase.viewmodels;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -61,6 +63,8 @@ public class DeviceViewModel extends ViewModel {
 
     public void setupDeviceRepository() {
         User user = Objects.requireNonNull(userLiveData.getValue()).getData();
+        Log.d("DVM", user.getNetworkId());
+        Log.d("DVM", user.getHospitalId());
         deviceRepository = new DeviceRepository(user.getNetworkId(), user.getHospitalId());
         pendingDeviceRepository = new PendingDeviceRepository(user.getNetworkId(),user.getHospitalId());
     }
