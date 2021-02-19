@@ -8,7 +8,7 @@
     android:background="@color/colorPrimary">
 
     <TextView
-        android:id="@+id/used_device_udi"
+        android:id="@+id/used_device_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
@@ -31,7 +31,7 @@
         android:tint="@android:color/white"
         android:scaleType="fitXY"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/used_device_udi"
+        app:layout_constraintEnd_toStartOf="@id/used_device_name"
         app:layout_constraintBottom_toBottomOf="@id/used_device_quantity"
         app:layout_constraintStart_toStartOf="parent"
         android:contentDescription="@string/increment_button_description" />
@@ -46,7 +46,7 @@
         android:textColor="@android:color/white"
         android:textSize="13sp"
         app:layout_constraintStart_toEndOf="@id/remove_used_device_button"
-        app:layout_constraintTop_toBottomOf="@id/used_device_udi"/>
+        app:layout_constraintTop_toBottomOf="@id/used_device_name"/>
 
     <ImageView
         android:id="@+id/increment_used_device_quantity_button"
@@ -59,7 +59,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/used_device_udi"
+        app:layout_constraintStart_toEndOf="@id/used_device_name"
         android:contentDescription="@string/increment_button_description" />
 
 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LabeledTextView">
+        <attr name="label_text" format="string"/>
+        <attr name="value_text" format="string"/>
+        <attr name="show_label" format="boolean"/>
+    </declare-styleable>
+
+    <declare-styleable name="DetailLabeledTextView">
+        <attr name="label_text" />
+        <attr name="value_text" />
+    </declare-styleable>
+</resources>

@@ -2,22 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/manual_entry"
-        android:title="Add entry manually"
-        android:icon="@drawable/ic_add_white_24dp"
-        app:showAsAction="always"/>
-
-    <item
-        android:id="@+id/procedureInfo"
-        android:icon="@drawable/ic_note_add_white_24dp"
-        android:title="Add procedure information"
-        app:showAsAction="always"/>
-    <item
-        android:id="@+id/pendingUdiFragment"
-        android:title="Pending equipment"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_pending_actions_white_24dp"/>
+<!--    <item-->
+<!--        android:id="@+id/search_menu_item"-->
+<!--        android:title="Search"-->
+<!--        app:showAsAction="ifRoom"-->
+<!--        android:icon="@drawable/ic_search_24"/>-->
     <item
         android:id="@+id/logout"
         android:title="Log out"

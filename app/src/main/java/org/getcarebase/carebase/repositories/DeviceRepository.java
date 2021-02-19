@@ -191,11 +191,11 @@ public class DeviceRepository {
         DocumentReference deviceProductionReference = deviceModelReference.collection("udis").document(deviceProduction.getUniqueDeviceIdentifier());
         tasks.add(deviceProductionReference.set(deviceProduction.toMap(), SetOptions.merge()));
 
-        if (deviceProduction.getCosts().size() != 0) {
-            Cost cost = deviceProduction.getCosts().get(0);
-            cost.setUser(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
-            tasks.add(deviceProductionReference.collection("equipment_cost").add(cost));
-        }
+//        if (deviceProduction.getCosts().size() != 0) {
+//            Cost cost = deviceProduction.getCosts().get(0);
+//            cost.setUser(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
+//            tasks.add(deviceProductionReference.collection("equipment_cost").add(cost));
+//        }
 
         // update device_type collection count field
         tasks.add(hospitalReference.update("device_types", FieldValue.arrayUnion(deviceModel.getEquipmentType())));
@@ -307,16 +307,16 @@ public class DeviceRepository {
 
         Task<?> deviceModelTask = getDeviceModelFromFirestore(inventoryReference,di,deviceModelAtomicReference);
         Task<?> deviceProductionTask = getDeviceProductionFromFirestore(inventoryReference,di,udi,deviceProductionAtomicReference);
-        Task<?> costsTask = getDeviceCostsFromFirestore(di,udi,costsAtomicReference);
+//        Task<?> costsTask = getDeviceCostsFromFirestore(di,udi,costsAtomicReference);
         Task<?> proceduresTask = getDeviceProceduresFromFirestore(di,udi,proceduresAtomicReference);
 
-        Tasks.whenAllComplete(deviceModelTask,deviceProductionTask,costsTask,proceduresTask).addOnCompleteListener(tasks -> {
+        Tasks.whenAllComplete(deviceModelTask,deviceProductionTask,proceduresTask).addOnCompleteListener(tasks -> {
             if (tasks.isSuccessful()) {
                 try {
                     DeviceModel deviceModel = deviceModelAtomicReference.get().getData();
                     DeviceProduction deviceProduction = deviceProductionAtomicReference.get().getData();
-                    List<Cost> costs = costsAtomicReference.get().getData();
-                    deviceProduction.addCosts(costs);
+//                    List<Cost> costs = costsAtomicReference.get().getData();
+//                    deviceProduction.addCosts(costs);
                     List<Procedure> procedures = proceduresAtomicReference.get().getData();
                     deviceProduction.addProcedures(procedures);
                     deviceModel.addDeviceProduction(deviceProduction);
@@ -412,22 +412,22 @@ public class DeviceRepository {
         return deviceProductionTask;
     }
 
-    private Task<?> getDeviceCostsFromFirestore(final String di, final String udi, final AtomicReference<Resource<List<Cost>>> costsAtomicReference) {
-        Task<QuerySnapshot> costsTask = inventoryReference.document(di).collection("udis").document(udi).collection("equipment_cost").get();
-        costsTask.addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                QuerySnapshot costSnapshots = task.getResult();
-                List<Cost> costs = new ArrayList<>();
-                for (QueryDocumentSnapshot documentSnapshot : costSnapshots) {
-                    costs.add(documentSnapshot.toObject(Cost.class));
-                }
-                costsAtomicReference.set(new Resource<>(costs,new Request(null, Request.Status.SUCCESS)));
-            } else {
-                costsAtomicReference.set(new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
-            }
-        });
-        return costsTask;
-    }
+//    private Task<?> getDeviceCostsFromFirestore(final String di, final String udi, final AtomicReference<Resource<List<Cost>>> costsAtomicReference) {
+//        Task<QuerySnapshot> costsTask = inventoryReference.document(di).collection("udis").document(udi).collection("equipment_cost").get();
+//        costsTask.addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                QuerySnapshot costSnapshots = task.getResult();
+//                List<Cost> costs = new ArrayList<>();
+//                for (QueryDocumentSnapshot documentSnapshot : costSnapshots) {
+//                    costs.add(documentSnapshot.toObject(Cost.class));
+//                }
+//                costsAtomicReference.set(new Resource<>(costs,new Request(null, Request.Status.SUCCESS)));
+//            } else {
+//                costsAtomicReference.set(new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+//            }
+//        });
+//        return costsTask;
+//    }
 
     private Task<?> getDeviceProceduresFromFirestore(final String di, final String udi, final AtomicReference<Resource<List<Procedure>>> proceduresAtomicReference) {
         Task<QuerySnapshot> proceduresTask = proceduresReference.whereArrayContains("udis",udi).get();

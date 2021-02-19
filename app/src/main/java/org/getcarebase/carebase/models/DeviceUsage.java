@@ -87,5 +87,4 @@ public class DeviceUsage {
     public void setName(String name) {
         this.name = name;
     }
-
 }

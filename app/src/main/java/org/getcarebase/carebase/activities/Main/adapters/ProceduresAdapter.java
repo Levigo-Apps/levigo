@@ -4,58 +4,64 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.getcarebase.carebase.R;
-import org.getcarebase.carebase.models.DeviceUsage;
+import org.getcarebase.carebase.activities.Main.fragments.ProceduresFragment;
 import org.getcarebase.carebase.models.Procedure;
+import org.getcarebase.carebase.views.LabeledTextView;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
+import java.util.stream.Collectors;
 
 public class ProceduresAdapter extends RecyclerView.Adapter<ProceduresAdapter.ViewHolder> {
-
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public LinearLayout dropdown;
-        public ImageView toggleButton;
-        public LinearLayout procedureLayout;
-        public TextView procedureDateView;
-        public TextView accessionNumberView;
-        public TextView procedureNameView;
-        public TextView amountUsedView;
-        public TextView roomTimeInView;
-        public TextView roomTimeOutView;
-        public TextView roomTimeView;
-        public TextView fluoroTimeView;
+        public TextView nameView;
+        public LabeledTextView dateView;
+        public LabeledTextView timeView;
+        public LabeledTextView roomTimeView;
+        public LabeledTextView accessionNumberView;
+        public LabeledTextView deviceUsageCountView;
+        public ImageButton dropdownToggleButton;
+        public Button viewButton;
 
         public ViewHolder(View view) {
             super(view);
-            dropdown = view.findViewById(R.id.procedure_dropdown);
-            toggleButton = view.findViewById(R.id.procedure_toggle_button);
-            procedureLayout = view.findViewById(R.id.procedure_layout);
-            procedureDateView = view.findViewById(R.id.procedure_date_text_view);
-            accessionNumberView = view.findViewById(R.id.accession_number_text_view);
-            procedureNameView = view.findViewById(R.id.procedure_name_text_view);
-            amountUsedView = view.findViewById(R.id.amount_used_text_view);
-            roomTimeInView = view.findViewById(R.id.room_time_in_text_view);
-            roomTimeOutView = view.findViewById(R.id.room_time_out_text_view);
+            nameView = view.findViewById(R.id.name_text_view);
+            dateView = view.findViewById(R.id.date_text_view);
+            timeView = view.findViewById(R.id.time_text_view);
             roomTimeView = view.findViewById(R.id.room_time_text_view);
-            fluoroTimeView = view.findViewById(R.id.fluoro_time_text_view);
+            accessionNumberView = view.findViewById(R.id.accession_number_text_view);
+            deviceUsageCountView = view.findViewById(R.id.device_usage_count_text_view);
+            dropdownToggleButton = view.findViewById(R.id.dropdown);
+            viewButton = view.findViewById(R.id.view_button);
         }
     }
 
-    private final List<Procedure> procedures;
-    private final String uniqueDeviceIdentifier;
+    private final List<Procedure> procedures = new ArrayList<>();
+    private final List<Boolean> procedureVisibilities = new ArrayList<>();
+    private final ProceduresFragment.ProcedureClickCallback procedureClickCallback;
+    private ProceduresFragment.OnBottomReachedCallback onBottomReachedCallback;
 
-    public ProceduresAdapter(List<Procedure> procedures, final String uniqueDeviceIdentifier) {
-        this.procedures = procedures;
-        this.uniqueDeviceIdentifier = uniqueDeviceIdentifier;
+    public ProceduresAdapter(ProceduresFragment.ProcedureClickCallback procedureClickCallback) {
+        this.procedureClickCallback = procedureClickCallback;
+    }
+
+    public void setOnBottmReachedCallback(ProceduresFragment.OnBottomReachedCallback onBottomReachedCallback) {
+        this.onBottomReachedCallback = onBottomReachedCallback;
+    }
+
+    public void setProcedures(List<Procedure> procedures) {
+        this.procedures.clear();
+        this.procedures.addAll(procedures);
+        this.procedureVisibilities.clear();
+        this.procedureVisibilities.addAll(this.procedures.stream().map(i -> false).collect(Collectors.toList()));
     }
 
     @NonNull
@@ -63,35 +69,44 @@ public class ProceduresAdapter extends RecyclerView.Adapter<ProceduresAdapter.Vi
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View procedureView = inflater.inflate(R.layout.procedure_item, parent, false);
-        ViewHolder viewHolder = new ViewHolder(procedureView);
-        viewHolder.dropdown.setOnClickListener(view -> {
-            if (viewHolder.procedureLayout.getVisibility() == View.VISIBLE) {
-                viewHolder.procedureLayout.setVisibility(View.GONE);
-                viewHolder.toggleButton.setImageResource(R.drawable.ic_baseline_plus);
-            } else {
-                viewHolder.procedureLayout.setVisibility(View.VISIBLE);
-                viewHolder.toggleButton.setImageResource(R.drawable.icon_minimize);
-            }
-        });
-        return viewHolder;
+        View procedureView = inflater.inflate(R.layout.procedure_item,parent,false);
+        return new ViewHolder(procedureView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Procedure procedure = procedures.get(position);
-        holder.procedureDateView.setText(procedure.getDate());
-        holder.accessionNumberView.setText(procedure.getAccessionNumber());
-        holder.procedureNameView.setText(procedure.getName());
-        Optional<DeviceUsage> usage = procedure.getDeviceUsages().stream().filter(deviceUsage -> deviceUsage.getUniqueDeviceIdentifier().equals(uniqueDeviceIdentifier)).findFirst();
-        if (usage.isPresent()) {
-            int amountUsed = usage.get().getAmountUsed();
-            holder.amountUsedView.setText(holder.amountUsedView.getContext().getResources().getQuantityString(R.plurals.number_of_units,amountUsed,amountUsed));
+        holder.nameView.setText(procedure.getName());
+        holder.dateView.setValue(procedure.getDate());
+        holder.timeView.setValue(procedure.getTimeIn());
+        holder.roomTimeView.setValue(procedure.getRoomTime());
+        holder.accessionNumberView.setValue(procedure.getAccessionNumber());
+        holder.deviceUsageCountView.setValue(Integer.toString(procedure.getDeviceUsages().size()));
+        holder.viewButton.setOnClickListener(view -> procedureClickCallback.showProcedureDetail(procedure.getProcedureId()));
+
+        holder.dropdownToggleButton.setOnClickListener(view -> {
+            if (!procedureVisibilities.get(position)) {
+                holder.dateView.setShowLabel(true);
+                holder.timeView.setVisibility(View.VISIBLE);
+                holder.roomTimeView.setVisibility(View.VISIBLE);
+                holder.accessionNumberView.setVisibility(View.VISIBLE);
+                holder.deviceUsageCountView.setVisibility(View.VISIBLE);
+                holder.viewButton.setVisibility(View.VISIBLE);
+                procedureVisibilities.set(position,true);
+            } else {
+                holder.dateView.setShowLabel(false);
+                holder.timeView.setVisibility(View.GONE);
+                holder.roomTimeView.setVisibility(View.GONE);
+                holder.accessionNumberView.setVisibility(View.GONE);
+                holder.deviceUsageCountView.setVisibility(View.GONE);
+                holder.viewButton.setVisibility(View.GONE);
+                procedureVisibilities.set(position,false);
+            }
+        });
+        // check if position is last and override the on bottom reached callback function
+        if ((position >= getItemCount() - 1)){
+            onBottomReachedCallback.onBottomReached();
         }
-        holder.roomTimeInView.setText(procedure.getTimeIn());
-        holder.roomTimeOutView.setText(procedure.getTimeOut());
-        holder.roomTimeView.setText(procedure.getRoomTime());
-        holder.fluoroTimeView.setText(procedure.getFluoroTime());
     }
 
     @Override

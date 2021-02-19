@@ -54,16 +54,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.Login.SignUpActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.getcarebase.carebase.activities.Login.LoginActivity" />
-        </activity>
-        <activity android:name=".activities.Login.ResetActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.getcarebase.carebase.activities.Login.LoginActivity" />
-        </activity>
         <activity android:name=".activities.Main.FilterActivity" />
     </application>
 
