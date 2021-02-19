@@ -27,6 +27,8 @@ import org.getcarebase.carebase.models.DeviceProduction;
 import org.getcarebase.carebase.models.Hospital;
 import org.getcarebase.carebase.models.ParseUDIResponse;
 import org.getcarebase.carebase.models.Procedure;
+import org.getcarebase.carebase.models.Shipment;
+import org.getcarebase.carebase.utils.FirestoreReferences;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
@@ -50,27 +52,23 @@ public class DeviceRepository {
 
     private final String networkId;
     private final String hospitalId;
+    private final DocumentReference networkReference;
     private final DocumentReference hospitalReference;
     private final CollectionReference inventoryReference;
     private final CollectionReference proceduresReference;
+    private final CollectionReference shipmentReference;
     private final DocumentReference physicalLocationsReference;
+
 
     public DeviceRepository(String networkId, String hospitalId) {
         this.networkId = networkId;
         this.hospitalId = hospitalId;
-        hospitalReference = firestore.collection("networks").document(networkId)
-                .collection("hospitals").document(hospitalId);
-        inventoryReference = firestore.collection("networks").document(networkId)
-                .collection("hospitals").document(hospitalId)
-                .collection("departments").document("default_department")
-                .collection("dis");
-        proceduresReference = firestore.collection("networks").document(networkId)
-                .collection("hospitals").document(hospitalId)
-                .collection("departments").document("default_department")
-                .collection("procedures");
-        physicalLocationsReference = firestore.collection("networks").document(networkId)
-                .collection("hospitals").document(hospitalId)
-                .collection("physical_locations").document("locations");
+        networkReference = FirestoreReferences.getNetworkReference(networkId);
+        hospitalReference = FirestoreReferences.getHospitalReference(networkReference, hospitalId);
+        inventoryReference = FirestoreReferences.getInventoryReference(hospitalReference);
+        proceduresReference = FirestoreReferences.getProceduresReference(hospitalReference);
+        shipmentReference = FirestoreReferences.getShipmentReference(hospitalReference);
+        physicalLocationsReference = FirestoreReferences.getPhysicalLocations(hospitalReference);
     }
 
     /**
@@ -181,14 +179,23 @@ public class DeviceRepository {
             deviceProduction.setUniqueDeviceIdentifier(newUDI);
         }
 
+        // save shipment information if present
+        if (deviceModel.getShipment() != null) {
+            DocumentReference shipmentDocumentReference = shipmentReference.document(deviceModel.getShipment().getId());
+            tasks.add(shipmentDocumentReference.update("received_quantity", FieldValue.increment(deviceProduction.getQuantity())));
+            if (deviceModel.getShipment().getReceivedQuantity() + deviceProduction.getQuantity() >= deviceModel.getShipment().getShippedQuantity()) {
+                tasks.add(shipmentDocumentReference.update("received",true));
+            }
+        }
+
         DocumentReference deviceProductionReference = deviceModelReference.collection("udis").document(deviceProduction.getUniqueDeviceIdentifier());
         tasks.add(deviceProductionReference.set(deviceProduction.toMap(), SetOptions.merge()));
 
-        if (deviceProduction.getCosts().size() != 0) {
-            Cost cost = deviceProduction.getCosts().get(0);
-            cost.setUser(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
-            tasks.add(deviceProductionReference.collection("equipment_cost").add(cost));
-        }
+//        if (deviceProduction.getCosts().size() != 0) {
+//            Cost cost = deviceProduction.getCosts().get(0);
+//            cost.setUser(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
+//            tasks.add(deviceProductionReference.collection("equipment_cost").add(cost));
+//        }
 
         // update device_type collection count field
         tasks.add(hospitalReference.update("device_types", FieldValue.arrayUnion(deviceModel.getEquipmentType())));
@@ -211,19 +218,31 @@ public class DeviceRepository {
      * @return The DeviceModel information that is in the database, if the device production information
      * exists it will be stored in the list of production in the DeviceModel.
      */
-    public LiveData<Resource<DeviceModel>> autoPopulateFromDatabase(final String udi) {
+    public List<LiveData<Resource<DeviceModel>>> autoPopulateFromDatabaseAndShipment(final String udi) {
         MutableLiveData<Resource<DeviceModel>> deviceLiveData = new MutableLiveData<>();
+        MutableLiveData<Resource<DeviceModel>> shippedLiveData = new MutableLiveData<>();
+        List<LiveData<Resource<DeviceModel>>> liveData = new ArrayList<>();
+        liveData.add(deviceLiveData);
+        liveData.add(shippedLiveData);
         deviceLiveData.setValue(new Resource<>(null, new Request(null,Request.Status.LOADING)));
+        shippedLiveData.setValue(new Resource<>(null, new Request(null, Request.Status.LOADING)));
         String hibccDi = extractHibcc(udi);
         if (hibccDi == null) {
             accessGUDIDAPI.getParseUdiResponse(udi).enqueue(new Callback<ParseUDIResponse>() {
                 @Override
                 public void onResponse(Call<ParseUDIResponse> call, retrofit2.Response<ParseUDIResponse> response) {
+                    String deviceModelId;
+                    String deviceProductionId;
                     if (response.isSuccessful()) {
-                        getAutoPopulatedDeviceFromFirestore(Objects.requireNonNull(response.body()).getDi(), response.body().getUdi(), deviceLiveData);
+                        deviceModelId = Objects.requireNonNull(response.body()).getDi();
+                        deviceProductionId = response.body().getUdi();
+
                     } else {
-                        getAutoPopulatedDeviceFromFirestore(udi, udi, deviceLiveData);
+                        deviceModelId = udi;
+                        deviceProductionId = udi;
                     }
+                    getAutoPopulatedDeviceFromFirestore(inventoryReference,deviceModelId,deviceProductionId,deviceLiveData,null);
+                    getDeviceFromShipment(deviceModelId,deviceProductionId,shippedLiveData);
                 }
 
                 @Override
@@ -234,12 +253,46 @@ public class DeviceRepository {
             });
         } else {
             // if it is in hibcc format
-            getAutoPopulatedDeviceFromFirestore(udi,udi,deviceLiveData);
+            getAutoPopulatedDeviceFromFirestore(inventoryReference,udi,udi,deviceLiveData,null);
+            getDeviceFromShipment(udi,udi,shippedLiveData);
+        }
+
+        return liveData;
+    }
+
+    public LiveData<Resource<DeviceModel>> autoPopulateFromDatabase(final String udi) {
+        MutableLiveData<Resource<DeviceModel>> deviceLiveData = new MutableLiveData<>();
+        deviceLiveData.setValue(new Resource<>(null, new Request(null,Request.Status.LOADING)));
+        String hibccDi = extractHibcc(udi);
+        if (hibccDi == null) {
+            accessGUDIDAPI.getParseUdiResponse(udi).enqueue(new Callback<ParseUDIResponse>() {
+                @Override
+                public void onResponse(Call<ParseUDIResponse> call, retrofit2.Response<ParseUDIResponse> response) {
+                    String deviceModelId;
+                    String deviceProductionId;
+                    if (response.isSuccessful()) {
+                        deviceModelId = Objects.requireNonNull(response.body()).getDi();
+                        deviceProductionId = response.body().getUdi();
+                    } else {
+                        deviceModelId = udi;
+                        deviceProductionId = udi;
+                    }
+                    getAutoPopulatedDeviceFromFirestore(inventoryReference,deviceModelId,deviceProductionId,deviceLiveData,null);
+                }
+
+                @Override
+                public void onFailure(Call<ParseUDIResponse> call, Throwable t) {
+                    Log.e(TAG, "onFailure: ", t);
+                    deviceLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+                }
+            });
+        } else {
+            // if it is in hibcc format
+            getAutoPopulatedDeviceFromFirestore(inventoryReference,udi,udi,deviceLiveData,null);
         }
 
         return deviceLiveData;
     }
-
     /**
      * Gets full device information (device model, device production, costs, and procedures) from firebase.
      * The di and udi are expected to be valid and in firestore
@@ -252,18 +305,18 @@ public class DeviceRepository {
         AtomicReference<Resource<List<Cost>>> costsAtomicReference = new AtomicReference<>();
         AtomicReference<Resource<List<Procedure>>> proceduresAtomicReference = new AtomicReference<>();
 
-        Task<?> deviceModelTask = getDeviceModelFromFirestore(di,deviceModelAtomicReference);
-        Task<?> deviceProductionTask = getDeviceProductionFromFirestore(di,udi,deviceProductionAtomicReference);
-        Task<?> costsTask = getDeviceCostsFromFirestore(di,udi,costsAtomicReference);
+        Task<?> deviceModelTask = getDeviceModelFromFirestore(inventoryReference,di,deviceModelAtomicReference);
+        Task<?> deviceProductionTask = getDeviceProductionFromFirestore(inventoryReference,di,udi,deviceProductionAtomicReference);
+//        Task<?> costsTask = getDeviceCostsFromFirestore(di,udi,costsAtomicReference);
         Task<?> proceduresTask = getDeviceProceduresFromFirestore(di,udi,proceduresAtomicReference);
 
-        Tasks.whenAllComplete(deviceModelTask,deviceProductionTask,costsTask,proceduresTask).addOnCompleteListener(tasks -> {
+        Tasks.whenAllComplete(deviceModelTask,deviceProductionTask,proceduresTask).addOnCompleteListener(tasks -> {
             if (tasks.isSuccessful()) {
                 try {
                     DeviceModel deviceModel = deviceModelAtomicReference.get().getData();
                     DeviceProduction deviceProduction = deviceProductionAtomicReference.get().getData();
-                    List<Cost> costs = costsAtomicReference.get().getData();
-                    deviceProduction.addCosts(costs);
+//                    List<Cost> costs = costsAtomicReference.get().getData();
+//                    deviceProduction.addCosts(costs);
                     List<Procedure> procedures = proceduresAtomicReference.get().getData();
                     deviceProduction.addProcedures(procedures);
                     deviceModel.addDeviceProduction(deviceProduction);
@@ -285,18 +338,19 @@ public class DeviceRepository {
      * Retrieves DeviceModel from Firestore given a di and udi
      * Does not get procedures and costs associated with the device
      */
-    private void getAutoPopulatedDeviceFromFirestore(String di, String udi, MutableLiveData<Resource<DeviceModel>> deviceLiveData) {
+    private void getAutoPopulatedDeviceFromFirestore(CollectionReference inventoryReference, String di, String udi, MutableLiveData<Resource<DeviceModel>> deviceLiveData, Shipment shipment) {
         AtomicReference<Resource<DeviceModel>> deviceModelAtomicReference = new AtomicReference<>();
         AtomicReference<Resource<DeviceProduction>> deviceProductionAtomicReference = new AtomicReference<>();
 
-        Task<?> deviceModelTask = getDeviceModelFromFirestore(di,deviceModelAtomicReference);
-        Task<?> deviceProductionTask = getDeviceProductionFromFirestore(di,udi,deviceProductionAtomicReference);
+        Task<?> deviceModelTask = getDeviceModelFromFirestore(inventoryReference,di,deviceModelAtomicReference);
+        Task<?> deviceProductionTask = getDeviceProductionFromFirestore(inventoryReference,di,udi,deviceProductionAtomicReference);
 
         Tasks.whenAllComplete(deviceModelTask,deviceProductionTask).addOnCompleteListener(tasks -> {
             Resource<DeviceModel> deviceModelResource = deviceModelAtomicReference.get();
             Resource<DeviceProduction> deviceProductionResource = deviceProductionAtomicReference.get();
             if (deviceModelResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                 DeviceModel deviceModel = deviceModelResource.getData();
+                deviceModel.setShipment(shipment);
                 if (deviceProductionResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                     DeviceProduction deviceProduction = deviceProductionResource.getData();
                     deviceModel.addDeviceProduction(deviceProduction);
@@ -310,7 +364,21 @@ public class DeviceRepository {
         });
     }
 
-    private Task<?> getDeviceModelFromFirestore(final String di, final AtomicReference<Resource<DeviceModel>> deviceModelAtomicReference) {
+    private void getDeviceFromShipment(String di,String udi,MutableLiveData<Resource<DeviceModel>> shippedDeviceLiveData) {
+        Task<QuerySnapshot> shipmentTask = shipmentReference.whereEqualTo("udi",udi).whereEqualTo("di",di).whereEqualTo("received",false).get();
+        shipmentTask.addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
+                Shipment shipment = task.getResult().getDocuments().get(0).toObject(Shipment.class);
+                DocumentReference sourceHospitalReference = FirestoreReferences.getHospitalReference(networkReference,shipment.getSourceHospitalId());
+                CollectionReference sourceInventoryReference = FirestoreReferences.getInventoryReference(sourceHospitalReference);
+                getAutoPopulatedDeviceFromFirestore(sourceInventoryReference,shipment.getDi(),shipment.getUdi(),shippedDeviceLiveData,shipment);
+            } else {
+                shippedDeviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
+            }
+        });
+    }
+
+    private Task<?> getDeviceModelFromFirestore(CollectionReference inventoryReference, final String di, final AtomicReference<Resource<DeviceModel>> deviceModelAtomicReference) {
         Task<DocumentSnapshot> deviceModelTask = inventoryReference.document(di).get();
         deviceModelTask.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -327,7 +395,7 @@ public class DeviceRepository {
         return deviceModelTask;
     }
 
-    private Task<?> getDeviceProductionFromFirestore(final String di, final String udi, final AtomicReference<Resource<DeviceProduction>> deviceProductionAtomicReference) {
+    private Task<?> getDeviceProductionFromFirestore(CollectionReference inventoryReference, final String di, final String udi, final AtomicReference<Resource<DeviceProduction>> deviceProductionAtomicReference) {
         Task<DocumentSnapshot> deviceProductionTask = inventoryReference.document(di).collection("udis").document(udi).get();
         deviceProductionTask.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -344,22 +412,22 @@ public class DeviceRepository {
         return deviceProductionTask;
     }
 
-    private Task<?> getDeviceCostsFromFirestore(final String di, final String udi, final AtomicReference<Resource<List<Cost>>> costsAtomicReference) {
-        Task<QuerySnapshot> costsTask = inventoryReference.document(di).collection("udis").document(udi).collection("equipment_cost").get();
-        costsTask.addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                QuerySnapshot costSnapshots = task.getResult();
-                List<Cost> costs = new ArrayList<>();
-                for (QueryDocumentSnapshot documentSnapshot : costSnapshots) {
-                    costs.add(documentSnapshot.toObject(Cost.class));
-                }
-                costsAtomicReference.set(new Resource<>(costs,new Request(null, Request.Status.SUCCESS)));
-            } else {
-                costsAtomicReference.set(new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
-            }
-        });
-        return costsTask;
-    }
+//    private Task<?> getDeviceCostsFromFirestore(final String di, final String udi, final AtomicReference<Resource<List<Cost>>> costsAtomicReference) {
+//        Task<QuerySnapshot> costsTask = inventoryReference.document(di).collection("udis").document(udi).collection("equipment_cost").get();
+//        costsTask.addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                QuerySnapshot costSnapshots = task.getResult();
+//                List<Cost> costs = new ArrayList<>();
+//                for (QueryDocumentSnapshot documentSnapshot : costSnapshots) {
+//                    costs.add(documentSnapshot.toObject(Cost.class));
+//                }
+//                costsAtomicReference.set(new Resource<>(costs,new Request(null, Request.Status.SUCCESS)));
+//            } else {
+//                costsAtomicReference.set(new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+//            }
+//        });
+//        return costsTask;
+//    }
 
     private Task<?> getDeviceProceduresFromFirestore(final String di, final String udi, final AtomicReference<Resource<List<Procedure>>> proceduresAtomicReference) {
         Task<QuerySnapshot> proceduresTask = proceduresReference.whereArrayContains("udis",udi).get();
