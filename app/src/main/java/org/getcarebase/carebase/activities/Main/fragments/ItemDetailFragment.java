@@ -617,6 +617,7 @@ public class ItemDetailFragment extends Fragment {
             deviceModel.setUsage(usage);
             int currentQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
             int amount = Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
+            // TODO possible atomicity issue
             deviceModel.setQuantity(currentQuantity + amount);
 
             if (allSizeOptions.size() > 0) {

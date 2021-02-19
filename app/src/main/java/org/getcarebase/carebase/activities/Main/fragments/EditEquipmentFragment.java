@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -26,6 +27,7 @@ import android.widget.Toast;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.CollectionReference;
@@ -52,6 +54,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 public class EditEquipmentFragment extends Fragment {
@@ -67,7 +70,7 @@ public class EditEquipmentFragment extends Fragment {
     // USER INPUT VALUES
     private TextInputEditText udiEditText;
     private TextInputEditText nameEditText;
-    private TextInputEditText equipmentType;
+    private MaterialAutoCompleteTextView equipmentType;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText quantity;
     private TextInputEditText lotNumber;
@@ -91,23 +94,6 @@ public class EditEquipmentFragment extends Fragment {
     private int modelQuantityBeforeEdit;
     private int productionQuantityBeforeEdit;
 
-    private String itemQuantity = "0";
-    private String diQuantity = "0";
-    private int emptySizeFieldCounter = 0;
-    private int typeCounter;
-    private int siteCounter;
-    private int locCounter;
-    private boolean chosenType;
-    private boolean chosenLocation;
-    private boolean isAddSizeButtonClicked;
-    private boolean chosenSite;
-    private boolean checkEditTexts;
-    private boolean checkAutocompleteTexts;
-    private boolean isProcedureInfoReturned;
-    private boolean isUdisReturned;
-    private boolean editingExisting;
-    private boolean isDi;
-    private List<TextInputEditText> allSizeOptions;
     // TODO remove hardcoded fields
     private final List<String> DEVICE_TYPES = Arrays.asList(
             "Balloon",
@@ -154,6 +140,7 @@ public class EditEquipmentFragment extends Fragment {
             "Wire",
             "Ultrasound/Imaging related",
             "Venous Access (Catheters, Central Lines, Introducers, Tunnelers)");
+
     private final List<String> PHYSICAL_LOCATIONS = Arrays.asList(
             "Box - Central Lines",
             "Box - Picc Lines",
@@ -181,19 +168,12 @@ public class EditEquipmentFragment extends Fragment {
             "Shelf - Micropuncture sets/Wires",
             "Other");
 
-    private LinearLayout siteConstrainLayout;
-    private LinearLayout physicalLocationConstrainLayout;
-    private LinearLayout typeConstrainLayout;
-
-    private float dp;
 
     private DeviceViewModel deviceViewModel;
     private View rootView;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        dp = requireContext().getResources().getDisplayMetrics().density;
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_edit_equipment, container, false);
         myCalendar = Calendar.getInstance();
@@ -221,8 +201,6 @@ public class EditEquipmentFragment extends Fragment {
 
         MaterialToolbar toolBar = rootView.findViewById(R.id.toolbar);
 
-        allSizeOptions = new ArrayList<>();
-
         deviceViewModel = new ViewModelProvider(this).get(DeviceViewModel.class);
         // if it is viable, find a way to get the user from inventoryViewModel from main activity
         // instead of waiting again to get the user again
@@ -248,9 +226,8 @@ public class EditEquipmentFragment extends Fragment {
                     modelQuantityBeforeEdit = deviceModel.getQuantity();
 
                     DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
-                    itemQuantity = deviceProduction.getStringQuantity();
                     productionQuantityBeforeEdit = deviceProduction.getQuantity();
-                    quantity.setText(itemQuantity);
+                    quantity.setText(deviceProduction.getStringQuantity());
                     lotNumber.setText(deviceProduction.getLotNumber());
                     expiration.setText(deviceProduction.getExpirationDate());
                     physicalLocation.setText(deviceProduction.getPhysicalLocation());
@@ -269,6 +246,8 @@ public class EditEquipmentFragment extends Fragment {
                     medicalSpeciality.setEnabled(deviceModel.getMedicalSpecialty() == null);
                     updateDateEditText.setEnabled(false);
                     updateTimeEditText.setEnabled(false);
+
+                    setupEquipmentTypes();
                 }
 
                 else if (resourceData.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR){
@@ -279,15 +258,12 @@ public class EditEquipmentFragment extends Fragment {
 
 
         //going back to inventory view
-        toolBar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (requireActivity().getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                    requireActivity().getSupportFragmentManager().popBackStack();
-                } else {
-                    if (parent != null) {
-                        parent.onBackPressed();
-                    }
+        toolBar.setNavigationOnClickListener(view -> {
+            if (requireActivity().getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                requireActivity().getSupportFragmentManager().popBackStack();
+            } else {
+                if (parent != null) {
+                    parent.onBackPressed();
                 }
             }
         });
@@ -297,8 +273,25 @@ public class EditEquipmentFragment extends Fragment {
         return rootView;
     }
 
+    private void setupEquipmentTypes() {
+        final ArrayAdapter<String> deviceTypeAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
+        deviceViewModel.getDeviceTypesLiveData().observe(getViewLifecycleOwner(), deviceTypesResource -> {
+            if (deviceTypesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+                deviceTypeAdapter.clear();
+                List<String> types = new ArrayList<>(DEVICE_TYPES);
+                types.addAll(deviceTypesResource.getData());
+                types = types.stream().distinct().sorted().collect(Collectors.toList());
+                // display unique device types
+                deviceTypeAdapter.addAll(types);
+            } else {
+                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
+            }
+        });
+        equipmentType.setAdapter(deviceTypeAdapter);
+    }
+
     private void setupSaveDevice() {
-        deviceViewModel.getSaveDeviceRequestLiveData().observe(getViewLifecycleOwner(),request -> {
+        deviceViewModel.getEditDeviceRequestLiveData().observe(getViewLifecycleOwner(),request -> {
             if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                 View nextView = requireActivity().findViewById(R.id.activity_main);
@@ -315,23 +308,22 @@ public class EditEquipmentFragment extends Fragment {
     private void saveData() {
         DeviceModel deviceModel = isFieldsValid();
         if (deviceModel != null) {
-            deviceViewModel.saveDevice(deviceModel);
+            deviceViewModel.editDevice(deviceModel);
         }
     }
 
     // not in mvvm style - need to use data bindings
     // packages all the fields into a DeviceModel object
     private DeviceModel isFieldsValid() {
-        if ( !isPositiveInteger(quantity) ) {
+        if ( quantity.getText() != null && !isPositiveInteger(quantity) ) {
             Snackbar.make(rootView, "Invalid input in quantity field", Snackbar.LENGTH_LONG).show();
             return null;
         }
 
         boolean isValid = true;
 
-        List<EditText> requiredEditTexts = new ArrayList<>(allSizeOptions);
         // style, cost, size, length are not listed
-        requiredEditTexts.addAll(Arrays.asList(udiEditText, nameEditText, deviceIdentifier,
+        List<EditText> requiredEditTexts = new ArrayList<>(Arrays.asList(udiEditText, nameEditText, deviceIdentifier,
                 quantity, lotNumber, expiration, usageEditText, physicalLocation, company,
                 equipmentType, medicalSpeciality));
         for (EditText editText : requiredEditTexts) {
@@ -347,27 +339,18 @@ public class EditEquipmentFragment extends Fragment {
             deviceModel.setCompany(Objects.requireNonNull(company.getText()).toString().trim());
             deviceModel.setEquipmentType(equipmentType.getText().toString().trim());
             deviceModel.setMedicalSpecialty(Objects.requireNonNull(medicalSpeciality.getText()).toString().trim());
+            // TODO possible atomicity issue
             int currentProductionQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
             int quantityDifference = currentProductionQuantity - productionQuantityBeforeEdit;
             deviceModel.setQuantity(modelQuantityBeforeEdit+quantityDifference);
             deviceModel.setUsage(usageEditText.getText().toString().trim());
-
-            if (allSizeOptions.size() > 0) {
-                int i = 0;
-                while (i < allSizeOptions.size()) {
-                    String key = Objects.requireNonNull(allSizeOptions.get(i++).getText()).toString().trim();
-                    String value = Objects.requireNonNull(allSizeOptions.get(i++).getText()).toString().trim();
-                    deviceModel.addSpecification(key,value);
-                }
-            }
 
             DeviceProduction deviceProduction = new DeviceProduction();
             deviceProduction.setUniqueDeviceIdentifier(Objects.requireNonNull(udiEditText.getText()).toString().trim());
             deviceProduction.setExpirationDate(Objects.requireNonNull(expiration.getText()).toString().trim());
             deviceProduction.setLotNumber(Objects.requireNonNull(lotNumber.getText()).toString().trim());
             deviceProduction.setPhysicalLocation(physicalLocation.getText().toString().trim());
-            // set to number difference because FieldValue.increment() is used in DeviceProduction toMap()
-            deviceProduction.setQuantity(quantityDifference);
+            deviceProduction.setQuantity(currentProductionQuantity);
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
             deviceProduction.setDateAdded(dateFormat.format(myCalendar.getTime()));
             SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.US);
@@ -383,9 +366,8 @@ public class EditEquipmentFragment extends Fragment {
 
     private boolean isPositiveInteger(TextInputEditText input) {
         try {
-            return Integer.parseInt(input.getText().toString()) > 0;
+            return Integer.parseInt(Objects.requireNonNull(input.getText()).toString()) >= 0;
         } catch (Exception e) {
-            Snackbar.make(rootView, "Invalid input in field Quantity! Please enter positive integer.", Snackbar.LENGTH_LONG).show();
             return false;
         }
     }

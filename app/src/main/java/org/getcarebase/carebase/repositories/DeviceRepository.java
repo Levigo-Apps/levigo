@@ -160,13 +160,16 @@ public class DeviceRepository {
     /**
      * Saves a device and all its associated data (DeviceProcedures and Specifications) into the database.
      * @param deviceModel A device (only one production should be in the array)
+     * @param shouldReplace a boolean to signal whether or not the new device production quantity
+     *                      should replace or add to the existing value
      * @return a Request object detailing the status of the request.
      */
-    public LiveData<Request> saveDevice(DeviceModel deviceModel) {
+    public LiveData<Request> saveDevice(DeviceModel deviceModel, boolean shouldReplace) {
         MutableLiveData<Request> saveDeviceRequest = new MutableLiveData<>();
         List<Task<?>> tasks = new ArrayList<>();
         // save device model
         DocumentReference deviceModelReference = inventoryReference.document(deviceModel.getDeviceIdentifier());
+
         tasks.add(deviceModelReference.set(deviceModel.toMap()));
 
         // save device production
@@ -189,7 +192,12 @@ public class DeviceRepository {
         }
 
         DocumentReference deviceProductionReference = deviceModelReference.collection("udis").document(deviceProduction.getUniqueDeviceIdentifier());
-        tasks.add(deviceProductionReference.set(deviceProduction.toMap(), SetOptions.merge()));
+        if (shouldReplace) {
+            tasks.add(deviceProductionReference.set(deviceProduction.toMap()));
+        } else {
+            tasks.add(deviceProductionReference.set(deviceProduction.toMap(), SetOptions.merge()));
+        }
+
 
 //        if (deviceProduction.getCosts().size() != 0) {
 //            Cost cost = deviceProduction.getCosts().get(0);
