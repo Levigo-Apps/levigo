@@ -15,8 +15,7 @@
         app:navigationIcon="@drawable/icon_back"
         app:layout_constraintTop_toTopOf="parent"
         app:title="Type"
-        style="@style/Widget.Carebase.ToolBar.Gradient"
-        app:menu="@menu/toolbar_search" />
+        style="@style/Widget.Carebase.ToolBar.Gradient" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/types_dis"
