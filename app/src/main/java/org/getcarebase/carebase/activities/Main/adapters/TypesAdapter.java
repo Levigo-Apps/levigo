@@ -24,26 +24,11 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
     private Map<String, List<DeviceModel>> categoricalInventory;
 
     public static class TypesHolder extends RecyclerView.ViewHolder {
-        public RecyclerView itemDIs;
         public TextView itemType;
-        public ImageView itemIcon;
 
         public TypesHolder(View view){
             super(view);
-            itemDIs = view.findViewById(R.id.types_dis);
             itemType = view.findViewById(R.id.types_name);
-            itemIcon = view.findViewById(R.id.types_icon);
-
-            itemType.setOnClickListener(view1 -> {
-                if(itemDIs.getVisibility() == View.GONE){
-                    itemDIs.setVisibility(View.VISIBLE);
-                    itemIcon.setImageResource(R.drawable.icon_minimize);
-                }
-                else {
-                    itemDIs.setVisibility(View.GONE);
-                    itemIcon.setImageResource(R.drawable.ic_baseline_plus);
-                }
-            });
         }
     }
 
@@ -69,10 +54,7 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
 
         holder.itemType.setText(category.getKey());
 
-        DeviceModelsAdapter deviceModelsAdapter = new DeviceModelsAdapter(inventoryFragment, category.getValue());
-        LinearLayoutManager layoutManager = new LinearLayoutManager(inventoryFragment.getContext());
-        holder.itemDIs.setLayoutManager(layoutManager);
-        holder.itemDIs.setAdapter(deviceModelsAdapter);
+        holder.itemView.setOnClickListener(view -> inventoryFragment.showModelList(category.getKey(), category.getValue()));
     }
 
     @Override
