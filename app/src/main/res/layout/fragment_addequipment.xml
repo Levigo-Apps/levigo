@@ -20,10 +20,9 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
-            style="@style/Widget.MaterialComponents.Toolbar.Primary"
+            style="@style/Widget.Carebase.ToolBar.Gradient"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/colorPrimary"
             android:fitsSystemWindows="true"
             android:gravity="center"
             app:layout_scrollFlags="scroll|enterAlways|snap"

@@ -1,5 +1,6 @@
 package org.getcarebase.carebase.models;
 
+import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
@@ -21,6 +22,16 @@ public class Procedure {
 
     public Procedure() {}
 
+    @DocumentId
+    public String getProcedureId() {
+        return procedureId;
+    }
+
+    @DocumentId
+    public void setProcedureId(String procedureId) {
+        this.procedureId = procedureId;
+    }
+
     @PropertyName("accession_number")
     public String getAccessionNumber() {
         return accessionNumber;
@@ -37,9 +48,7 @@ public class Procedure {
     }
 
     @PropertyName("fluoro_time")
-    public void setFluoroTime(String fluoroTime) {
-        this.fluoroTime = fluoroTime;
-    }
+    public void setFluoroTime(String fluoroTime) { this.fluoroTime = fluoroTime; }
 
     @PropertyName("date")
     public String getDate() {
@@ -67,9 +76,7 @@ public class Procedure {
     }
 
     @PropertyName("room_time")
-    public void setRoomTime(String roomTime) {
-        this.roomTime = roomTime;
-    }
+    public void setRoomTime(String roomTime) { this.roomTime = roomTime; }
 
     @PropertyName("time_in")
     public String getTimeIn() {

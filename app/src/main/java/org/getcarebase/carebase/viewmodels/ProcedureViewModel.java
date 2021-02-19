@@ -51,6 +51,7 @@ public class ProcedureViewModel extends ViewModel {
             int currentProductionQuantity = resource.getData().getProductions().get(0).getQuantity();
             int currentModelQuantity = resource.getData().getQuantity();
             DeviceUsage deviceUsage = new DeviceUsage(di, udi, name, currentProductionQuantity, currentModelQuantity);
+
             devicesUsed.add(deviceUsage);
         }
         return resource.getRequest();

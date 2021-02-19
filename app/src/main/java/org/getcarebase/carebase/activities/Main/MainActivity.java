@@ -27,7 +27,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,25 +35,21 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Login.LoginActivity;
-import org.getcarebase.carebase.activities.Main.adapters.TypesAdapter;
+import org.getcarebase.carebase.activities.Main.adapters.HomePagerAdapter;
 import org.getcarebase.carebase.activities.Main.fragments.ItemDetailFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ItemDetailOfflineFragment;
-import org.getcarebase.carebase.activities.Main.fragments.ItemDetailViewFragment;
 import org.getcarebase.carebase.activities.Main.fragments.PendingUdiFragment;
-import org.getcarebase.carebase.activities.Main.fragments.ProcedureInfoFragment;
-import org.getcarebase.carebase.models.PendingDevice;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.InventoryViewModel;
@@ -64,44 +59,52 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_HANDLE_CAMERA_PERM = 1;
     private static final int RC_ADD_PROCEDURE = 2;
 
-    private RecyclerView inventoryScroll;
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private TypesAdapter typesAdapter;
-    private TextView hospitalNameTextView;
-    private TextView userEmailTextView;
+    private Toolbar toolbar;
 
     private InventoryViewModel inventoryViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        Toolbar toolbar = findViewById(R.id.main_toolbar);
-        setSupportActionBar(toolbar);
-        hospitalNameTextView = findViewById(R.id.main_hospital_textview);
-        userEmailTextView = findViewById(R.id.main_user_email_textview);
-        inventoryScroll = findViewById(R.id.main_categories);
-        swipeRefreshLayout = findViewById(R.id.main_swipe_refresh_container);
+        setContentView(R.layout.main_host_layout);
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.logout) {
+                signOut();
+                return true;
+            }
+            return false;
+        });
 
         // get user info
         inventoryViewModel = new ViewModelProvider(this).get(InventoryViewModel.class);
         inventoryViewModel.getUserLiveData().observe(this, userResource -> {
             if (userResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                 User currentUser = userResource.getData();
-                hospitalNameTextView.setText(currentUser.getHospitalName());
-                userEmailTextView.setText(currentUser.getEmail());
-                // update inventory once we get user
-                initInventory();
+                toolbar.setTitle(currentUser.getHospitalName());
+                toolbar.inflateMenu(R.menu.main_toolbar);
+                setUpViewPager();
             } else if (userResource.getRequest().getStatus() == Request.Status.ERROR) {
                 Snackbar.make(findViewById(R.id.activity_main), userResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
             }
         });
 
-        // on refresh update inventory
-        swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadInventory());
-
         getPermissions();
+    }
+
+    private void setUpViewPager() {
+        HomePagerAdapter adapter = new HomePagerAdapter(this);
+        ViewPager2 viewPager = findViewById(R.id.home_view_pager);
+        viewPager.setAdapter(adapter);
+        TabLayout tabLayout = findViewById(R.id.home_tab_layout);
+        new TabLayoutMediator(tabLayout,viewPager,(tab, position) -> {
+            switch (position) {
+                case 0: tab.setText("Inventory");
+                    break;
+                case 1: tab.setText("Procedures");
+                    break;
+            }
+        }).attach();
     }
 
     private boolean isNetworkAvailable() {
@@ -116,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         return isAvailable;
     }
 
-    private void startScanner() {
+    public void startScanner() {
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setCaptureActivity(CaptureActivity.class);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
@@ -131,40 +134,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void initInventory() {
-        RecyclerView.LayoutManager inventoryLayoutManager = new LinearLayoutManager(this);
-        inventoryScroll.setLayoutManager(inventoryLayoutManager);
-
-        typesAdapter = new TypesAdapter(MainActivity.this);
-        inventoryScroll.setAdapter(typesAdapter);
-
-        inventoryViewModel.getCategoricalInventoryLiveData().observe(this, mapResource -> {
-            if (mapResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-                typesAdapter.setCategoricalInventory(mapResource.getData());
-                typesAdapter.notifyDataSetChanged();
-                swipeRefreshLayout.setRefreshing(false);
-            } else if (mapResource.getRequest().getStatus() == Request.Status.ERROR) {
-                Snackbar.make(findViewById(R.id.activity_main), mapResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
-            }
-        });
-
-        inventoryViewModel.loadInventory();
-    }
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (result != null) {
-            String contents = result.getContents();
-            if (contents != null) {
-                if (isNetworkAvailable())
-                    startItemView(contents);
-                else
-                    startItemOffline(contents);
+        if (result != null && result.getContents() != null) {
+            String contents = result.getContents().trim();
+            if (!contents.equals("")) {
+                startItemForm(contents);
             }
+
             if (result.getBarcodeImagePath() != null) {
                 Log.d(TAG, "" + result.getBarcodeImagePath());
             }
@@ -177,7 +157,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void startItemView(String barcode) {
+    public void startItemForm(String barcode) {
+        if (isNetworkAvailable())
+            startItemFormOnline(barcode);
+        else
+            startItemFormOffline(barcode);
+    }
+
+    public void startItemFormOnline(String barcode) {
         ItemDetailFragment fragment = new ItemDetailFragment();
         if (!barcode.trim().isEmpty()) {
             Bundle bundle = new Bundle();
@@ -192,32 +179,13 @@ public class MainActivity extends AppCompatActivity {
 
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
         fragmentTransaction.add(R.id.activity_main, fragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
 
-    public void startItemViewOnly(String barcode, String di) {
-        ItemDetailViewFragment fragment = new ItemDetailViewFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString("barcode", barcode);
-        bundle.putString("di", di);
-        fragment.setArguments(bundle);
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        //clears other fragments
-        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
-
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
-        fragmentTransaction.add(R.id.activity_main, fragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
-    }
-
-    public void startItemOffline(String barcode) {
+    public void startItemFormOffline(String barcode) {
         ItemDetailOfflineFragment fragment = new ItemDetailOfflineFragment();
         Bundle bundle = new Bundle();
         bundle.putString("barcode", barcode);
@@ -229,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_in_left);
         fragmentTransaction.add(R.id.activity_main, fragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
@@ -247,11 +215,10 @@ public class MainActivity extends AppCompatActivity {
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
         fragmentTransaction.add(R.id.activity_main, fragment, PendingUdiFragment.TAG);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-
     }
 
     public void startProcedureInfo() {
@@ -272,44 +239,6 @@ public class MainActivity extends AppCompatActivity {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         } else if (!(grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             finish();
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_toolbar, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                startScanner();
-                return true;
-            case R.id.manual_entry:
-                // if device has an access to the network regular manual entry opens
-                if (isNetworkAvailable()) {
-                    startItemView("");
-                    // if device does not have an access to the network, offline manual entry opens
-                } else {
-                    startItemOffline("");
-                }
-                return true;
-            case R.id.logout:
-                signOut();
-                return true;
-            case R.id.pendingUdiFragment:
-                startPendingEquipment("");
-                return true;
-
-            case R.id.procedureInfo:
-                startProcedureInfo();
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
         }
     }
 }
