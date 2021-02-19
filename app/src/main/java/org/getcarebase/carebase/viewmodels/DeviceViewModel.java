@@ -16,7 +16,6 @@ import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
 import org.getcarebase.carebase.repositories.PendingDeviceRepository;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
-import org.getcarebase.carebase.utils.SingleEventMediatorLiveData;
 
 import java.util.List;
 import java.util.Objects;
@@ -46,11 +45,8 @@ public class DeviceViewModel extends ViewModel {
         if (pendingDeviceIdLiveData.getValue() != null) {
             pendingDeviceRepository.removePendingDevice(pendingDeviceIdLiveData.getValue());
         }
-        return deviceRepository.saveDevice(deviceModel,false);
+        return deviceRepository.saveDevice(deviceModel);
     });
-
-    private final MutableLiveData<DeviceModel> editDeviceLiveData = new MutableLiveData<>();
-    private final LiveData<Request> editDeviceRequestLiveData = Transformations.switchMap(editDeviceLiveData, deviceModel -> deviceRepository.saveDevice(deviceModel,true));
 
     public DeviceViewModel() {
         authRepository = new FirebaseAuthRepository();
@@ -93,16 +89,8 @@ public class DeviceViewModel extends ViewModel {
         return saveDeviceRequestLiveData;
     }
 
-    public LiveData<Request> getEditDeviceRequestLiveData() {
-        return editDeviceRequestLiveData;
-    }
-
     public void saveDevice(DeviceModel deviceModel) {
         saveDeviceLiveData.setValue(deviceModel);
-    }
-
-    public void editDevice(DeviceModel deviceModel) {
-        editDeviceLiveData.setValue(deviceModel);
     }
 
     public LiveData<Resource<DeviceModel>> getAutoPopulatedDeviceLiveData() {
