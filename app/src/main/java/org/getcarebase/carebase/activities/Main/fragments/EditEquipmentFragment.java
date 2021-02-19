@@ -291,7 +291,7 @@ public class EditEquipmentFragment extends Fragment {
     }
 
     private void setupSaveDevice() {
-        deviceViewModel.getEditDeviceRequestLiveData().observe(getViewLifecycleOwner(),request -> {
+        deviceViewModel.getSaveDeviceRequestLiveData().observe(getViewLifecycleOwner(),request -> {
             if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                 View nextView = requireActivity().findViewById(R.id.activity_main);
@@ -308,7 +308,7 @@ public class EditEquipmentFragment extends Fragment {
     private void saveData() {
         DeviceModel deviceModel = isFieldsValid();
         if (deviceModel != null) {
-            deviceViewModel.editDevice(deviceModel);
+            deviceViewModel.saveDevice(deviceModel);
         }
     }
 
@@ -350,7 +350,7 @@ public class EditEquipmentFragment extends Fragment {
             deviceProduction.setExpirationDate(Objects.requireNonNull(expiration.getText()).toString().trim());
             deviceProduction.setLotNumber(Objects.requireNonNull(lotNumber.getText()).toString().trim());
             deviceProduction.setPhysicalLocation(physicalLocation.getText().toString().trim());
-            deviceProduction.setQuantity(currentProductionQuantity);
+            deviceProduction.setQuantity(quantityDifference);
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
             deviceProduction.setDateAdded(dateFormat.format(myCalendar.getTime()));
             SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.US);
