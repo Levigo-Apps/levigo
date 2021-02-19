@@ -19,8 +19,12 @@ import com.google.android.material.snackbar.Snackbar;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.activities.Main.adapters.TypesAdapter;
+import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.InventoryViewModel;
+
+import java.io.Serializable;
+import java.util.List;
 
 public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
 
@@ -28,12 +32,6 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
     private RecyclerView inventoryRecyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private TypesAdapter typesAdapter;
-
-    public interface DeviceClickCallback {
-        void showDeviceDetail(final String di, final String udi);
-    }
-
-    private DeviceClickCallback deviceClickCallback = this::showDeviceDetail;
 
     private InventoryViewModel inventoryViewModel;
 
@@ -80,17 +78,18 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
         inventoryViewModel.loadInventory();
     }
 
-    public void showDeviceDetail(final String di, final String udi) {
-        Fragment fragment = new ItemDetailViewFragment();
+    public void showModelList(final String type, List<DeviceModel> deviceModels) {
+        Fragment fragment = new ModelListFragment();
         Bundle bundle = new Bundle();
-        // TODO rename parameters
-        bundle.putString("barcode", udi);
-        bundle.putString("di", di);
+        bundle.putString("type", type);
+        bundle.putSerializable("DeviceModels", (Serializable) deviceModels);
         fragment.setArguments(bundle);
+
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.activity_main,fragment,ItemDetailViewFragment.TAG)
+                .add(R.id.activity_main, fragment, ModelListFragment.TAG)
                 .addToBackStack(null)
                 .commit();
     }
+
 }
