@@ -29,12 +29,6 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private TypesAdapter typesAdapter;
 
-    public interface DeviceClickCallback {
-        void showDeviceDetail(final String di, final String udi);
-    }
-
-    private DeviceClickCallback deviceClickCallback = this::showDeviceDetail;
-
     private InventoryViewModel inventoryViewModel;
 
     @Override
@@ -45,9 +39,9 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
 
         inventoryViewModel = new ViewModelProvider(requireActivity()).get(InventoryViewModel.class);
         LinearLayout fabLayout = requireActivity().findViewById(R.id.fab_layout);
-        View scanDeviceFAB = (View) inflater.inflate(R.layout.mini_scan_device_fab,fabLayout, false);
+        View scanDeviceFAB = inflater.inflate(R.layout.mini_scan_device_fab,fabLayout, false);
         scanDeviceFAB.setOnClickListener(view -> ((MainActivity) requireActivity()).startScanner());
-        View manualAddDeviceFAB = (View) inflater.inflate(R.layout.mini_manual_add_device_fab,fabLayout,false);
+        View manualAddDeviceFAB = inflater.inflate(R.layout.mini_manual_add_device_fab,fabLayout,false);
         manualAddDeviceFAB.setOnClickListener(view -> ((MainActivity) requireActivity()).startItemForm(""));
         miniFABs = new View[] {scanDeviceFAB,manualAddDeviceFAB};
         super.onCreateView(inflater,fabLayout,savedInstanceState);
@@ -78,19 +72,5 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
         swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadInventory());
 
         inventoryViewModel.loadInventory();
-    }
-
-    public void showDeviceDetail(final String di, final String udi) {
-        Fragment fragment = new ItemDetailViewFragment();
-        Bundle bundle = new Bundle();
-        // TODO rename parameters
-        bundle.putString("barcode", udi);
-        bundle.putString("di", di);
-        fragment.setArguments(bundle);
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.activity_main,fragment,ItemDetailViewFragment.TAG)
-                .addToBackStack(null)
-                .commit();
     }
 }
