@@ -413,7 +413,11 @@ public class ItemDetailFragment extends Fragment {
     }
 
     private void setupSaveDevice() {
-        deviceViewModel.getSaveDeviceRequestLiveData().observe(getViewLifecycleOwner(),request -> {
+        deviceViewModel.getSaveDeviceRequestLiveData().observe(getViewLifecycleOwner(),event -> {
+            Request request = event.getContentIfNotHandled();
+            if (request == null) {
+                return;
+            }
             if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                 // if addEquipmentFragment is in the backstack tell the fragment to retry getting the

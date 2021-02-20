@@ -14,6 +14,7 @@ import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
 import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
 import org.getcarebase.carebase.repositories.PendingDeviceRepository;
+import org.getcarebase.carebase.utils.Event;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
@@ -41,7 +42,7 @@ public class DeviceViewModel extends ViewModel {
     // when a user tries to save a device this live data will be updated
     private final MutableLiveData<DeviceModel> saveDeviceLiveData = new MutableLiveData<>();
     // requests to save a device will be sent to this live data
-    private final LiveData<Request> saveDeviceRequestLiveData = Transformations.switchMap(saveDeviceLiveData, deviceModel -> {
+    private final LiveData<Event<Request>> saveDeviceRequestLiveData = Transformations.switchMap(saveDeviceLiveData, deviceModel -> {
         if (pendingDeviceIdLiveData.getValue() != null) {
             pendingDeviceRepository.removePendingDevice(pendingDeviceIdLiveData.getValue());
         }
@@ -85,7 +86,7 @@ public class DeviceViewModel extends ViewModel {
         return savePhysicalLocationRequestLiveData;
     }
 
-    public LiveData<Request> getSaveDeviceRequestLiveData() {
+    public LiveData<Event<Request>> getSaveDeviceRequestLiveData() {
         return saveDeviceRequestLiveData;
     }
 

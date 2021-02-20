@@ -258,13 +258,15 @@ public class EditEquipmentFragment extends Fragment {
     }
 
     private void setupSaveDevice() {
-        deviceViewModel.getSaveDeviceRequestLiveData().observe(getViewLifecycleOwner(),request -> {
+        deviceViewModel.getSaveDeviceRequestLiveData().observe(getViewLifecycleOwner(),event -> {
+            Request request = event.getContentIfNotHandled();
+            if (request == null) {
+                return;
+            }
             if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
-                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-                View nextView = requireActivity().findViewById(R.id.activity_main);
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.remove(this).commit();
-                Snackbar.make(nextView, "Edits saved to inventory", Snackbar.LENGTH_LONG).show();
+                Fragment fragment = Objects.requireNonNull(requireActivity().getSupportFragmentManager().findFragmentByTag(ItemDetailViewFragment.TAG));
+                requireActivity().getSupportFragmentManager().popBackStack();
+                Snackbar.make(fragment.requireView(), "Edits saved to inventory", Snackbar.LENGTH_LONG).show();
             } else {
                 Log.d(TAG,"error while saving changes");
                 Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();

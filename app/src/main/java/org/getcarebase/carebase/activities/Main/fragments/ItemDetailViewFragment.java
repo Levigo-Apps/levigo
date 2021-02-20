@@ -139,9 +139,8 @@ public class ItemDetailViewFragment extends Fragment {
             return false;
         });
 
-            topToolBar.setNavigationOnClickListener(view -> {
-            if (parent != null)
-                parent.onBackPressed();
+        topToolBar.setNavigationOnClickListener(view -> {
+            requireActivity().finish();
         });
 
         return rootView;
@@ -158,7 +157,7 @@ public class ItemDetailViewFragment extends Fragment {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
         fragmentTransaction.add(R.id.frame_layout, fragment);
-        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.addToBackStack(TAG);
         fragmentTransaction.commit();
     }
 
