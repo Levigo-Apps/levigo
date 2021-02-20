@@ -185,6 +185,13 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    public void startDeviceDetail(final String di, final String udi) {
+        Intent intent = new Intent(this,DeviceDetailActivity.class);
+        intent.putExtra("di",di);
+        intent.putExtra("udi",udi);
+        startActivity(intent);
+    }
+
     public void startItemFormOffline(String barcode) {
         ItemDetailOfflineFragment fragment = new ItemDetailOfflineFragment();
         Bundle bundle = new Bundle();
