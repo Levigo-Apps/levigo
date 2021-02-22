@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,8 +38,9 @@ public class ModelListFragment extends Fragment {
     private Activity parent;
 
     private String type;
+    private List<DeviceModel> deviceModels;
 
-    private InventoryViewModel inventoryViewModel;
+//    private InventoryViewModel inventoryViewModel;
 
     public interface DeviceClickCallback {
         void showDeviceDetail(final String di, final String udi);
@@ -59,11 +59,11 @@ public class ModelListFragment extends Fragment {
 
         if (bundle != null) {
             type = bundle.getString("type");
+            deviceModels = (List<DeviceModel>) bundle.getSerializable("DeviceModels");
         }
 
         topToolBar.setTitle(type);
 
-        inventoryViewModel = new ViewModelProvider(requireActivity()).get(InventoryViewModel.class);
         initModelList();
 
         topToolBar.setNavigationOnClickListener(view -> {
@@ -78,18 +78,8 @@ public class ModelListFragment extends Fragment {
         RecyclerView.LayoutManager modelListLayoutManager = new LinearLayoutManager(getContext());
         modelListRecyclerView.setLayoutManager(modelListLayoutManager);
 
-        deviceModelsAdapter = new DeviceModelsAdapter(this);
+        deviceModelsAdapter = new DeviceModelsAdapter(this, deviceModels);
         modelListRecyclerView.setAdapter(deviceModelsAdapter);
-
-        inventoryViewModel.getDeviceModelListWithTypeLiveData(type).observe(getViewLifecycleOwner(), mapResource -> {
-            if (mapResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-                deviceModelsAdapter.setDeviceModels(mapResource.getData());
-                deviceModelsAdapter.notifyDataSetChanged();
-//                swipeRefreshLayout.setRefreshing(false);
-            } else if (mapResource.getRequest().getStatus() == Request.Status.ERROR) {
-                Snackbar.make(rootView.findViewById(R.id.activity_main), mapResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
-            }
-        });
 
     }
 

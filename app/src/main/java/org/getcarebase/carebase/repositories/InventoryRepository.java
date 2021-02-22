@@ -1,14 +1,10 @@
 package org.getcarebase.carebase.repositories;
 
-import android.util.Log;
-
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -32,41 +28,21 @@ import java.util.Objects;
  */
 public class InventoryRepository {
     private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-
-    private List<String> deviceTypeList = new ArrayList<>();
     private final List<DeviceModel> deviceModelList = new ArrayList<>();
 
-    // a function that gets all of the types in the inventory
-    public LiveData<Resource<List<String>>> getAllTypes(User user) {
-        deviceTypeList.clear();
-        Resource<List<String>> deviceTypeListResource = new Resource<>(deviceTypeList, new Request(null, Request.Status.LOADING));
-        final MutableLiveData<Resource<List<String>>> deviceTypeListLiveData = new MutableLiveData<>(deviceTypeListResource);
-
-        String inventoryRefUrl = "networks/" + user.getNetworkId() + "/hospitals";
-        firestore.collection(inventoryRefUrl).document(user.getHospitalId()).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot documentSnapshot = task.getResult();
-                deviceTypeList = (List<String>) documentSnapshot.get("device_types");
-                deviceTypeListLiveData.setValue(new Resource<>(deviceTypeList, new Request(null, Request.Status.SUCCESS)));
-            } else {
-                // error if getting Hospital inventory failed
-                deviceTypeListLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
-            }
-        });
-
-        return deviceTypeListLiveData;
-    }
-
-    // a function that gets the devices with the given type
-    public LiveData<Resource<List<DeviceModel>>> getDevicesWithType(User user, String selectedType) {
+    /**
+     * Populates the deviceModelList with all the models with all of it productions
+     * @param user The currently signed in user
+     * @return LiveData : Holds the resource (status) of the reference to the list
+     */
+    public LiveData<Resource<List<DeviceModel>>> getDeviceModelListForHospital(User user) {
         deviceModelList.clear();
         Resource<List<DeviceModel>> deviceModelListResource = new Resource<>(deviceModelList, new Request(null, Request.Status.LOADING));
         final MutableLiveData<Resource<List<DeviceModel>>> deviceModelListLiveData = new MutableLiveData<>(deviceModelListResource);
-
         String inventoryRefUrl = "networks/" + user.getNetworkId() + "/hospitals/"
                 + user.getHospitalId() + "/departments/default_department/dis";
 
-        firestore.collection(inventoryRefUrl).whereEqualTo("equipment_type", selectedType).get().addOnCompleteListener(task -> {
+        firestore.collection(inventoryRefUrl).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<Task<QuerySnapshot>> tasks = new ArrayList<>();
                 for (QueryDocumentSnapshot modelSnapshot : Objects.requireNonNull(task.getResult())) {
@@ -87,15 +63,13 @@ public class InventoryRepository {
                     });
                     deviceModelList.add(deviceModel);
                 }
-                Tasks.whenAllSuccess(tasks).addOnCompleteListener(task1 -> deviceModelListLiveData.setValue(new Resource(deviceModelList, new Request(null, Request.Status.SUCCESS))));
+                Tasks.whenAllSuccess(tasks).addOnCompleteListener(task1 -> deviceModelListLiveData.setValue(new Resource<>(deviceModelList, new Request(null, Request.Status.SUCCESS))));
             } else {
                 // error if getting all models fails
-                deviceModelListLiveData.setValue(new Resource(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+                deviceModelListLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
             }
         });
-
         return deviceModelListLiveData;
     }
 
 }
-

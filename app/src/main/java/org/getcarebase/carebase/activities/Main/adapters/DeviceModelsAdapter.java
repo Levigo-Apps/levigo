@@ -1,7 +1,5 @@
 package org.getcarebase.carebase.activities.Main.adapters;
 
-import android.bluetooth.BluetoothClass;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +7,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,13 +15,12 @@ import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.activities.Main.fragments.InventoryFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ModelListFragment;
 import org.getcarebase.carebase.models.DeviceModel;
-import org.getcarebase.carebase.utils.Resource;
 
 import java.util.List;
 
 public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapter.DeviceModelHolder> {
     private final ModelListFragment modelListFragment;
-    private List<DeviceModel> deviceModels;
+    private final List<DeviceModel> deviceModels;
 
     public static class DeviceModelHolder extends RecyclerView.ViewHolder {
         public RecyclerView itemUDIs;
@@ -51,11 +47,9 @@ public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapte
         }
     }
 
-    public DeviceModelsAdapter(ModelListFragment modelListFragment) {
+    public DeviceModelsAdapter(ModelListFragment modelListFragment, List<DeviceModel> deviceModels) {
+//        this.inventoryFragment = inventoryFragment;
         this.modelListFragment = modelListFragment;
-    }
-
-    public void setDeviceModels(List<DeviceModel> deviceModels) {
         this.deviceModels = deviceModels;
     }
 
@@ -82,6 +76,6 @@ public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapte
 
     @Override
     public int getItemCount(){
-        return deviceModels == null ? 0 : deviceModels.size();
+        return deviceModels.size();
     }
 }
