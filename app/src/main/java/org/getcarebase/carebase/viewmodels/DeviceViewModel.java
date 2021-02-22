@@ -53,6 +53,12 @@ public class DeviceViewModel extends ViewModel {
         authRepository = new FirebaseAuthRepository();
     }
 
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        deviceRepository.destroy();
+    }
+
     public LiveData<Resource<User>> getUserLiveData() {
         if (userLiveData == null) {
             userLiveData = authRepository.getUser();
