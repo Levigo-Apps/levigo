@@ -16,12 +16,14 @@ import org.getcarebase.carebase.activities.Main.fragments.InventoryFragment;
 import org.getcarebase.carebase.models.DeviceModel;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder> {
     private final InventoryFragment inventoryFragment;
-    private Map<String, List<DeviceModel>> categoricalInventory;
+    private List<String> typeList;
 
     public static class TypesHolder extends RecyclerView.ViewHolder {
         public TextView itemType;
@@ -36,8 +38,9 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
         this.inventoryFragment = inventoryFragment;
     }
 
-    public void setCategoricalInventory(Map<String, List<DeviceModel>> categoricalInventory) {
-        this.categoricalInventory = categoricalInventory;
+    public void setTypeList(List<String> typeList) {
+        this.typeList = typeList;
+        Collections.sort(this.typeList);
     }
 
     @NonNull
@@ -49,16 +52,15 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
 
     @Override
     public void onBindViewHolder(TypesHolder holder, int position){
-        List<Map.Entry<String, List<DeviceModel>>> categories = new ArrayList<>(categoricalInventory.entrySet());
-        Map.Entry<String, List<DeviceModel>> category = categories.get(position);
+        String type = typeList.get(position);
 
-        holder.itemType.setText(category.getKey());
+        holder.itemType.setText(type);
 
-        holder.itemView.setOnClickListener(view -> inventoryFragment.showModelList(category.getKey(), category.getValue()));
+        holder.itemView.setOnClickListener(view -> inventoryFragment.showModelList(type));
     }
 
     @Override
     public int getItemCount(){
-        return categoricalInventory == null ? 0 : categoricalInventory.size();
+        return typeList == null ? 0 : typeList.size();
     }
 }
