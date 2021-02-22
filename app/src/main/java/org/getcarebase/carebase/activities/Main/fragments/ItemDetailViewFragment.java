@@ -1,4 +1,4 @@
-package org.getcarebase.carebase.activities.Main.fragments;
+ package org.getcarebase.carebase.activities.Main.fragments;
 
 import android.app.Activity;
 import android.content.res.ColorStateList;
