@@ -36,48 +36,6 @@ public class InventoryRepository {
     private List<String> deviceTypeList = new ArrayList<>();
     private final List<DeviceModel> deviceModelList = new ArrayList<>();
 
-//    /**
-//     * Populates the deviceModelList with all the models with all of it productions
-//     * @param user The currently signed in user
-//     * @return LiveData : Holds the resource (status) of the reference to the list
-//     */
-//    public LiveData<Resource<List<DeviceModel>>> getDeviceModelListForHospital(User user) {
-//        deviceModelList.clear();
-//        Resource<List<DeviceModel>> deviceModelListResource = new Resource<>(deviceModelList, new Request(null, Request.Status.LOADING));
-//        final MutableLiveData<Resource<List<DeviceModel>>> deviceModelListLiveData = new MutableLiveData<>(deviceModelListResource);
-//        String inventoryRefUrl = "networks/" + user.getNetworkId() + "/hospitals/"
-//                + user.getHospitalId() + "/departments/default_department/dis";
-//
-//        firestore.collection(inventoryRefUrl).get().addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                List<Task<QuerySnapshot>> tasks = new ArrayList<>();
-//                for (QueryDocumentSnapshot modelSnapshot : Objects.requireNonNull(task.getResult())) {
-//                    final DeviceModel deviceModel = new DeviceModel(modelSnapshot.getData());
-//
-//                    Task<QuerySnapshot> productionTask = modelSnapshot.getReference().collection("udis").get();
-//                    tasks.add(productionTask);
-//                    productionTask.addOnCompleteListener(completeProductionTask -> {
-//                        for (QueryDocumentSnapshot productionSnapshot : Objects.requireNonNull(completeProductionTask.getResult())) {
-//                            if (completeProductionTask.isSuccessful()) {
-//                                DeviceProduction deviceProduction = new DeviceProduction(productionSnapshot.getData());
-//                                deviceModel.addDeviceProduction(deviceProduction);
-//                            } else {
-//                                // error if getting all productions for a model fails
-//                                deviceModelListLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
-//                            }
-//                        }
-//                    });
-//                    deviceModelList.add(deviceModel);
-//                }
-//                Tasks.whenAllSuccess(tasks).addOnCompleteListener(task1 -> deviceModelListLiveData.setValue(new Resource<>(deviceModelList, new Request(null, Request.Status.SUCCESS))));
-//            } else {
-//                // error if getting all models fails
-//                deviceModelListLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
-//            }
-//        });
-//        return deviceModelListLiveData;
-//    }
-
     // a function that gets all of the types in the inventory
     public LiveData<Resource<List<String>>> getAllTypes(User user) {
         deviceTypeList.clear();
