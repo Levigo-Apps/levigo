@@ -13,6 +13,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -60,6 +61,9 @@ public class DeviceRepository {
     private final CollectionReference shipmentReference;
     private final DocumentReference physicalLocationsReference;
 
+    private ListenerRegistration deviceModelListenerRegistration;
+    private ListenerRegistration deviceProductionListenerRegistration;
+
 
     public DeviceRepository(String networkId, String hospitalId) {
         this.networkId = networkId;
@@ -70,6 +74,15 @@ public class DeviceRepository {
         proceduresReference = FirestoreReferences.getProceduresReference(hospitalReference);
         shipmentReference = FirestoreReferences.getShipmentReference(hospitalReference);
         physicalLocationsReference = FirestoreReferences.getPhysicalLocations(hospitalReference);
+    }
+
+    public void destroy() {
+        if (deviceModelListenerRegistration != null) {
+            deviceModelListenerRegistration.remove();
+        }
+        if (deviceProductionListenerRegistration != null){
+            deviceProductionListenerRegistration.remove();
+        }
     }
 
     /**
@@ -400,8 +413,12 @@ public class DeviceRepository {
     }
 
     private void listenToDeviceModelFromFirestore(CollectionReference inventoryReference, final String di, final MutableLiveData<Resource<DeviceModel>> deviceModelLiveData) {
+        if (deviceModelListenerRegistration != null ){
+            Log.d(TAG, "Device model already has listener");
+            return;
+        }
         final DocumentReference deviceModelReference = inventoryReference.document(di);
-        deviceModelReference.addSnapshotListener(((snapshot, e) -> {
+        deviceModelListenerRegistration = deviceModelReference.addSnapshotListener(((snapshot, e) -> {
             if (e != null || snapshot == null || !snapshot.exists() || snapshot.getData() == null) {
                 // set live data to error
                 Log.e(TAG,"Device Model listen failed", e);
@@ -435,8 +452,12 @@ public class DeviceRepository {
     }
 
     private void listenToDeviceProductionFromFirestore(CollectionReference inventoryReference, final String di, final String udi, final MutableLiveData<Resource<DeviceModel>> deviceModelLiveData) {
+        if (deviceProductionListenerRegistration != null ){
+            Log.d(TAG, "Device production already has listener");
+            return;
+        }
         final DocumentReference deviceProductionReference = inventoryReference.document(di).collection("udis").document(udi);
-        deviceProductionReference.addSnapshotListener(((snapshot, e) -> {
+        deviceProductionListenerRegistration = deviceProductionReference.addSnapshotListener(((snapshot, e) -> {
             if (e != null || snapshot == null || !snapshot.exists() || snapshot.getData() == null) {
                 // set live data to error
                 Log.e(TAG,"Device Model listen failed", e);
