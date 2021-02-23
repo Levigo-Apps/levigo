@@ -30,7 +30,7 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
 
     private View rootView;
     private RecyclerView inventoryRecyclerView;
-    private SwipeRefreshLayout swipeRefreshLayout;
+//    private SwipeRefreshLayout swipeRefreshLayout;
     private TypesAdapter typesAdapter;
 
     private InventoryViewModel inventoryViewModel;
@@ -39,13 +39,13 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.generic_swipe_refresh_list_layout, container, false);
         inventoryRecyclerView = rootView.findViewById(R.id.recycler_view);
-        swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
+//        swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
 
         inventoryViewModel = new ViewModelProvider(requireActivity()).get(InventoryViewModel.class);
         LinearLayout fabLayout = requireActivity().findViewById(R.id.fab_layout);
-        View scanDeviceFAB = (View) inflater.inflate(R.layout.mini_scan_device_fab,fabLayout, false);
+        View scanDeviceFAB = inflater.inflate(R.layout.mini_scan_device_fab,fabLayout, false);
         scanDeviceFAB.setOnClickListener(view -> ((MainActivity) requireActivity()).startScanner());
-        View manualAddDeviceFAB = (View) inflater.inflate(R.layout.mini_manual_add_device_fab,fabLayout,false);
+        View manualAddDeviceFAB = inflater.inflate(R.layout.mini_manual_add_device_fab,fabLayout,false);
         manualAddDeviceFAB.setOnClickListener(view -> ((MainActivity) requireActivity()).startItemForm(""));
         miniFABs = new View[] {scanDeviceFAB,manualAddDeviceFAB};
         super.onCreateView(inflater,fabLayout,savedInstanceState);
@@ -62,27 +62,27 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
         typesAdapter = new TypesAdapter(this);
         inventoryRecyclerView.setAdapter(typesAdapter);
 
-        inventoryViewModel.getCategoricalInventoryLiveData().observe(getViewLifecycleOwner(), mapResource -> {
+        inventoryViewModel.getTypeListLiveData().observe(getViewLifecycleOwner(), mapResource -> {
             if (mapResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-                typesAdapter.setCategoricalInventory(mapResource.getData());
+                typesAdapter.setTypeList(mapResource.getData());
                 typesAdapter.notifyDataSetChanged();
-                swipeRefreshLayout.setRefreshing(false);
+//                swipeRefreshLayout.setRefreshing(false);
             } else if (mapResource.getRequest().getStatus() == Request.Status.ERROR) {
                 Snackbar.make(rootView.findViewById(R.id.activity_main), mapResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
             }
         });
 
         // on refresh update inventory
-        swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadInventory());
-
-        inventoryViewModel.loadInventory();
+//        swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadInventory());
+//
+//        inventoryViewModel.loadInventory();
     }
 
-    public void showModelList(final String type, List<DeviceModel> deviceModels) {
+    public void showModelList(final String type) {
         Fragment fragment = new ModelListFragment();
         Bundle bundle = new Bundle();
         bundle.putString("type", type);
-        bundle.putSerializable("DeviceModels", (Serializable) deviceModels);
+//        bundle.putSerializable("DeviceModels", (Serializable) deviceModels);
         fragment.setArguments(bundle);
 
         requireActivity().getSupportFragmentManager()

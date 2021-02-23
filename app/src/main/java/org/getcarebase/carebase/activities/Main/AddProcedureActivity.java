@@ -21,7 +21,7 @@ public class AddProcedureActivity extends AppCompatActivity {
         ProcedureViewModel procedureViewModel = new ViewModelProvider(this).get(ProcedureViewModel.class);
         procedureViewModel.getCurrentStep().observe(this, this::setCurrentPage);
         procedureViewModel.getUserLiveData().observe(this,userResource -> procedureViewModel.setupRepositories());
-        setContentView(R.layout.activity_add_procedure);
+        setContentView(R.layout.activity_generic);
     }
 
     private void setCurrentPage(Integer step) {
@@ -30,14 +30,14 @@ public class AddProcedureActivity extends AppCompatActivity {
             Fragment currentFragment = new ProcedureInfoFragment();
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.id.add_procedure_frame_layout,currentFragment,ProcedureInfoFragment.TAG);
+            fragmentTransaction.add(R.id.frame_layout,currentFragment,ProcedureInfoFragment.TAG);
             fragmentTransaction.commit();
         } else if (step == 1) {
             // go to add equipment page
             Fragment currentFragment = new AddEquipmentFragment();
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.id.add_procedure_frame_layout,currentFragment,AddEquipmentFragment.TAG);
+            fragmentTransaction.add(R.id.frame_layout,currentFragment,AddEquipmentFragment.TAG);
             fragmentTransaction.commit();
         } else {
             // go back to main activity

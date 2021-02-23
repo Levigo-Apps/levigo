@@ -30,19 +30,7 @@ public class DeviceProduction {
 
     // TODO use firebase @PropertyName and @Exclude to construct object
     public DeviceProduction(Map<String,Object> data) {
-        this.uniqueDeviceIdentifier = (String) data.get("udi");
-        this.dateAdded = (String) data.get("current_date");
-        this.timeAdded = (String) data.get("current_time");
-        this.expirationDate = (String) data.get("expiration");
-        this.lotNumber = (String) data.get("lot_number");
-        this.notes = (String) data.get("notes");
-        this.physicalLocation = (String) data.get("physical_location");
-        try {
-            this.quantity = Integer.parseInt((String) data.get("quantity"));
-        } catch(ClassCastException e) {
-            this.quantity = ((Long) data.get("quantity")).intValue();
-        }
-        this.referenceNumber = (String) data.get("reference_number");
+        fromMap(data);
     }
 
     public void setUniqueDeviceIdentifier(String uniqueDeviceIdentifier) {
@@ -95,6 +83,22 @@ public class DeviceProduction {
 
     public void addProcedures(List<Procedure> procedures) {
         this.procedures.addAll(procedures);
+    }
+
+    public void fromMap(Map<String,Object> data) {
+        this.uniqueDeviceIdentifier = (String) data.get("udi");
+        this.dateAdded = (String) data.get("current_date");
+        this.timeAdded = (String) data.get("current_time");
+        this.expirationDate = (String) data.get("expiration");
+        this.lotNumber = (String) data.get("lot_number");
+        this.notes = (String) data.get("notes");
+        this.physicalLocation = (String) data.get("physical_location");
+        try {
+            this.quantity = Integer.parseInt((String) data.get("quantity"));
+        } catch(ClassCastException e) {
+            this.quantity = ((Long) data.get("quantity")).intValue();
+        }
+        this.referenceNumber = (String) data.get("reference_number");
     }
 
     public Map<String,Object> toMap() {
