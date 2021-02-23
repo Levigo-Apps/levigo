@@ -212,6 +212,28 @@ public class DeviceRepository {
         return saveDeviceRequest;
     }
 
+    public LiveData<Request> saveShipment(Shipment shipment) {
+        MutableLiveData<Request> saveShipmentRequest = new MutableLiveData<>();
+        List<Task<?>> tasks = new ArrayList<>();
+
+        DocumentReference shipmentDocumentReference = shipmentReference.document(shipment.getId());
+        tasks.add(shipmentDocumentReference.update("udi", shipment.getUdi()));
+        tasks.add(shipmentDocumentReference.update("di", shipment.getDi()));
+        tasks.add(shipmentDocumentReference.update("shipped_quantity", shipment.getShippedQuantity()));
+        tasks.add(shipmentDocumentReference.update("source_hospital_id", shipment.getSourceHospitalId()));
+
+        Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                saveShipmentRequest.setValue(new Request(null, Request.Status.SUCCESS));
+            }
+            else {
+                saveShipmentRequest.setValue(new Request(null, Request.Status.ERROR));
+            }
+        });
+
+        return saveShipmentRequest;
+    }
+
     /**
      * Gets the current device in firestore if it exists. The udi given will be parsed to get its di.
      * @param udi the udi that is scanned.
