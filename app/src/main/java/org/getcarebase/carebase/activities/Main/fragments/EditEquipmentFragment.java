@@ -279,6 +279,10 @@ public class EditEquipmentFragment extends Fragment {
         if (deviceModel != null) {
             deviceViewModel.saveDevice(deviceModel);
         }
+        ItemDetailViewFragment previousFrag = (ItemDetailViewFragment) getActivity().getSupportFragmentManager().findFragmentByTag(ItemDetailViewFragment.TAG);
+        if (previousFrag != null) {
+            previousFrag.setEdited();
+        }
     }
 
     // not in mvvm style - need to use data bindings
