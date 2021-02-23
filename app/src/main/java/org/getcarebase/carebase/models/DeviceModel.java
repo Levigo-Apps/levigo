@@ -27,30 +27,7 @@ public class DeviceModel implements Serializable {
     public DeviceModel() {}
 
     public DeviceModel(Map<String,Object> data) {
-        this.deviceIdentifier = (String) data.get("di");
-        data.remove("di");
-        this.name = (String) data.get("name");
-        data.remove("name");
-        this.company = (String) data.get("company");
-        data.remove("company");
-        this.description = (String) data.get("device_description");
-        data.remove("device_description");
-        this.equipmentType = (String) data.get("equipment_type");
-        data.remove("equipment_type");
-        this.medicalSpecialty = (String) data.get("medical_specialty");
-        data.remove("medical_specialty");
-        this.siteName = (String) data.get("site_name");
-        data.remove("site_name");
-        this.usage = (String) data.get("usage");
-        data.remove("usage");
-        try {
-            this.quantity = Integer.parseInt((String) data.get("quantity"));
-        } catch(ClassCastException e) {
-            this.quantity = ((Long) data.get("quantity")).intValue();
-        }
-        data.remove("quantity");
-        // put all remaining keys into the specification map
-        specifications.putAll(data);
+        fromMap(data);
     }
 
     public void setDeviceIdentifier(String deviceIdentifier) {
@@ -149,7 +126,33 @@ public class DeviceModel implements Serializable {
         return new ArrayList<>(specifications.entrySet());
     }
 
-    // TODO find a way to save to firebase without turning to map
+    public void fromMap(Map<String,Object> data) {
+        this.deviceIdentifier = (String) data.get("di");
+        data.remove("di");
+        this.name = (String) data.get("name");
+        data.remove("name");
+        this.company = (String) data.get("company");
+        data.remove("company");
+        this.description = (String) data.get("device_description");
+        data.remove("device_description");
+        this.equipmentType = (String) data.get("equipment_type");
+        data.remove("equipment_type");
+        this.medicalSpecialty = (String) data.get("medical_specialty");
+        data.remove("medical_specialty");
+        this.siteName = (String) data.get("site_name");
+        data.remove("site_name");
+        this.usage = (String) data.get("usage");
+        data.remove("usage");
+        try {
+            this.quantity = Integer.parseInt((String) data.get("quantity"));
+        } catch(ClassCastException e) {
+            this.quantity = ((Long) data.get("quantity")).intValue();
+        }
+        data.remove("quantity");
+        // put all remaining keys into the specification map
+        specifications.putAll(data);
+    }
+
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("company",company);
