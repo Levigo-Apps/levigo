@@ -216,11 +216,7 @@ public class DeviceRepository {
         MutableLiveData<Request> saveShipmentRequest = new MutableLiveData<>();
         List<Task<?>> tasks = new ArrayList<>();
 
-        DocumentReference shipmentDocumentReference = shipmentReference.document(shipment.getId());
-        tasks.add(shipmentDocumentReference.update("udi", shipment.getUdi()));
-        tasks.add(shipmentDocumentReference.update("di", shipment.getDi()));
-        tasks.add(shipmentDocumentReference.update("shipped_quantity", shipment.getShippedQuantity()));
-        tasks.add(shipmentDocumentReference.update("source_hospital_id", shipment.getSourceHospitalId()));
+        tasks.add(shipmentReference.add(shipment));
 
         Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {

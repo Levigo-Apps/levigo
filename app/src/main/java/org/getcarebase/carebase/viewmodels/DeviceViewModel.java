@@ -52,9 +52,8 @@ public class DeviceViewModel extends ViewModel {
     });
 
     private final MutableLiveData<Shipment> saveShipmentLiveData = new MutableLiveData<>();
-    private final LiveData<Request> saveShipmentRequestLiveData = Transformations.switchMap(saveShipmentLiveData, shipment -> {
-        return deviceRepository.saveShipment(shipment);
-    });
+    private final LiveData<Request> saveShipmentRequestLiveData =
+            Transformations.switchMap(saveShipmentLiveData, shipment -> deviceRepository.saveShipment(shipment));
 
     public DeviceViewModel() {
         authRepository = new FirebaseAuthRepository();
@@ -99,6 +98,10 @@ public class DeviceViewModel extends ViewModel {
 
     public void saveDevice(DeviceModel deviceModel) {
         saveDeviceLiveData.setValue(deviceModel);
+    }
+
+    public LiveData<Request> getSaveShipmentRequestLiveData() {
+        return saveShipmentRequestLiveData;
     }
 
     public void saveShipment(Shipment shipment) {
