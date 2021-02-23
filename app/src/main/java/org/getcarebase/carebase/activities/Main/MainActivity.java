@@ -45,6 +45,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.activities.Login.LoginActivity;
 import org.getcarebase.carebase.activities.Main.adapters.HomePagerAdapter;
 import org.getcarebase.carebase.activities.Main.fragments.ItemDetailFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ItemDetailOfflineFragment;
@@ -60,14 +61,23 @@ public class MainActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
 
+    private InventoryViewModel inventoryViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_host_layout);
         toolbar = findViewById(R.id.toolbar);
+        toolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.logout) {
+                signOut();
+                return true;
+            }
+            return false;
+        });
 
         // get user info
-        InventoryViewModel inventoryViewModel = new ViewModelProvider(this).get(InventoryViewModel.class);
+        inventoryViewModel = new ViewModelProvider(this).get(InventoryViewModel.class);
         inventoryViewModel.getUserLiveData().observe(this, userResource -> {
             if (userResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                 User currentUser = userResource.getData();
@@ -178,6 +188,13 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    public void startDeviceDetail(final String di, final String udi) {
+        Intent intent = new Intent(this,DeviceDetailActivity.class);
+        intent.putExtra("di",di);
+        intent.putExtra("udi",udi);
+        startActivity(intent);
+    }
+
     public void startItemFormOffline(String barcode) {
         ItemDetailOfflineFragment fragment = new ItemDetailOfflineFragment();
         Bundle bundle = new Bundle();
@@ -218,13 +235,13 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(new Intent(this, AddProcedureActivity.class),RC_ADD_PROCEDURE);
     }
     
-//    public void signOut() {
-//        inventoryViewModel.signOut();
-//        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        startActivity(intent);
-//        finish();
-//    }
+    public void signOut() {
+        inventoryViewModel.signOut();
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
+    }
     
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -232,44 +249,6 @@ public class MainActivity extends AppCompatActivity {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         } else if (!(grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             finish();
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_toolbar, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                startScanner();
-                return true;
-//            case R.id.manual_entry:
-//                // if device has an access to the network regular manual entry opens
-//                if (isNetworkAvailable()) {
-//                    startItemView("");
-//                    // if device does not have an access to the network, offline manual entry opens
-//                } else {
-//                    startItemOffline("");
-//                }
-//                return true;
-            case R.id.logout:
-                //signOut();
-                return true;
-//            case R.id.pendingUdiFragment:
-//                startPendingEquipment("");
-//                return true;
-//
-//            case R.id.procedureInfo:
-//                startProcedureInfo();
-//                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
         }
     }
 }
