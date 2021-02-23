@@ -54,7 +54,7 @@ public class DeviceProductionsAdapter extends RecyclerView.Adapter<DeviceProduct
         //TODO PLURAL
         holder.itemQuantity.setText(inventoryFragment.getString(R.string.unit_quantity_value,deviceProduction.getQuantity()));
 
-        holder.itemView.setOnClickListener(view -> inventoryFragment.showDeviceDetail(deviceIdentifier,deviceProduction.getUniqueDeviceIdentifier()));
+        holder.itemView.setOnClickListener(view -> ((MainActivity) inventoryFragment.requireActivity()).startDeviceDetail(deviceIdentifier,deviceProduction.getUniqueDeviceIdentifier()));
     }
 
     @Override
