@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.PendingDevice;
+import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
 import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
@@ -48,6 +49,11 @@ public class DeviceViewModel extends ViewModel {
             pendingDeviceRepository.removePendingDevice(pendingDeviceIdLiveData.getValue());
         }
         return deviceRepository.saveDevice(deviceModel);
+    });
+
+    private final MutableLiveData<Shipment> saveShipmentLiveData = new MutableLiveData<>();
+    private final LiveData<Request> saveShipmentRequestLiveData = Transformations.switchMap(saveShipmentLiveData, shipment -> {
+        return deviceRepository.saveShipment(shipment);
     });
 
     public DeviceViewModel() {
@@ -93,6 +99,10 @@ public class DeviceViewModel extends ViewModel {
 
     public void saveDevice(DeviceModel deviceModel) {
         saveDeviceLiveData.setValue(deviceModel);
+    }
+
+    public void saveShipment(Shipment shipment) {
+        saveShipmentLiveData.setValue(shipment);
     }
 
     public LiveData<Resource<DeviceModel>> getAutoPopulatedDeviceLiveData() {

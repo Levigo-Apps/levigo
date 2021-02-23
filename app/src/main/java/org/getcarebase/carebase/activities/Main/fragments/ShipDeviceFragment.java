@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.material.appbar.MaterialToolbar;
@@ -16,6 +17,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.utils.Resource;
 import org.getcarebase.carebase.viewmodels.DeviceViewModel;
 
@@ -36,6 +38,8 @@ public class ShipDeviceFragment extends Fragment {
     TextInputLayout deviceQty;
     TextInputLayout deviceDest;
 
+    Button saveButton;
+
     private View rootView;
     private DeviceViewModel deviceViewModel;
 
@@ -52,6 +56,8 @@ public class ShipDeviceFragment extends Fragment {
 
         deviceDest = rootView.findViewById(R.id.device_dest);
         AutoCompleteTextView destOptions = (AutoCompleteTextView) deviceDest.getEditText();
+
+        saveButton = rootView.findViewById(R.id.save_shipment);
 
         deviceViewModel = new ViewModelProvider(this).get(DeviceViewModel.class);
 
@@ -73,6 +79,8 @@ public class ShipDeviceFragment extends Fragment {
 
         // TODO: setup object to save destination input through device view model
         handleArguments();
+
+        saveButton.setOnClickListener(v -> saveData());
 
         topToolBar.setNavigationOnClickListener(view -> {
             if (requireActivity().getSupportFragmentManager().getBackStackEntryCount() > 0) {
@@ -99,5 +107,15 @@ public class ShipDeviceFragment extends Fragment {
                 deviceQty.getEditText().setText(qty);
             }
         }
+    }
+
+    private void saveData() {
+        // TODO: Check if inputs are complete and valid
+        Shipment shipment = new Shipment();
+        shipment.setUdi((String) deviceUdi.getText());
+        shipment.setShippedQuantity(Integer.parseInt(deviceQty.getEditText().getText().toString()));
+
+        // Shipment need ID and DI
+        deviceViewModel.saveShipment(shipment);
     }
 }
