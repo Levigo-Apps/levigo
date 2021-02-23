@@ -20,9 +20,11 @@ import com.google.mlkit.md.camera.CameraSource;
 import com.google.mlkit.md.camera.CameraSourcePreview;
 import com.google.mlkit.md.camera.GraphicOverlay;
 import com.google.mlkit.md.camera.WorkflowModel;
+import com.google.mlkit.vision.barcode.Barcode;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
+import org.getcarebase.carebase.models.DeviceProduction;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.ScanningViewModel;
 import org.getcarebase.carebase.views.CarebaseBarcodeResultFragment;
@@ -194,11 +196,22 @@ public class ScanningActivity extends AppCompatActivity {
 
         scanningViewModel.getAutoPopulatedLiveData().observe(this,deviceModelResource -> {
             if (deviceModelResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-                DeviceModel deviceModel = deviceModelResource.getData();
                 ArrayList<BarcodeField> barcodeFieldList = new ArrayList<>();
+
+                DeviceModel deviceModel = deviceModelResource.getData();
+                DeviceProduction deviceProduction = null;
+                if (deviceModel.getProductions().size() > 0) {
+                    deviceProduction = deviceModel.getProductions().get(0);
+                }
                 barcodeFieldList.add(new BarcodeField("Name", deviceModel.getName()));
+                if (deviceProduction != null) {
+                    barcodeFieldList.add(new BarcodeField("Unique Device Identifier",deviceProduction.getUniqueDeviceIdentifier()));
+                }
                 barcodeFieldList.add(new BarcodeField("Device Identifier", deviceModel.getDeviceIdentifier()));
-                barcodeFieldList.add(new BarcodeField("Description", deviceModel.getDescription()));
+                if (deviceModel.getDescription() != null) {
+                    barcodeFieldList.add(new BarcodeField("Description", deviceModel.getDescription()));
+                }
+
                 ContinueCallback callback = this::onContinueButtonClicked;
                 CarebaseBarcodeResultFragment.show(getSupportFragmentManager(),barcodeFieldList,callback);
             } else if (deviceModelResource.getRequest().getStatus() == Request.Status.ERROR) {

@@ -1,5 +1,7 @@
 package org.getcarebase.carebase.viewmodels;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -11,6 +13,7 @@ import com.google.mlkit.md.barcodedetection.BarcodeResultFragment;
 import com.google.mlkit.md.camera.WorkflowModel;
 
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.activities.Main.ScanningActivity;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
@@ -22,6 +25,7 @@ import org.getcarebase.carebase.utils.Resource;
 import java.util.List;
 
 public class ScanningViewModel extends ViewModel {
+    private final static String TAG = ScanningViewModel.class.getName();
     private final FirebaseAuthRepository authRepository = new FirebaseAuthRepository();
     private DeviceRepository deviceRepository;
 
