@@ -42,11 +42,6 @@ public class ModelListFragment extends Fragment {
 
     private InventoryViewModel inventoryViewModel;
 
-    public interface DeviceClickCallback {
-        void showDeviceDetail(final String di, final String udi);
-    }
-
-    private DeviceClickCallback deviceClickCallback = this::showDeviceDetail;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -93,17 +88,4 @@ public class ModelListFragment extends Fragment {
 
     }
 
-    public void showDeviceDetail(final String di, final String udi) {
-        Fragment fragment = new ItemDetailViewFragment();
-        Bundle bundle = new Bundle();
-        // TODO rename parameters
-        bundle.putString("barcode", udi);
-        bundle.putString("di", di);
-        fragment.setArguments(bundle);
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.activity_main,fragment,ItemDetailViewFragment.TAG)
-                .addToBackStack(null)
-                .commit();
-    }
 }
