@@ -126,8 +126,11 @@ public class ShipDeviceFragment extends Fragment {
 
     private void saveData() {
         // TODO: Check if inputs are complete and valid
+        // TODO: Add destination hospital id to shipment
         Shipment shipment = new Shipment();
         shipment.setUdi((String) deviceUdi.getText());
+        String di;
+        shipment.setDi((di = getArguments().getString("di")) != null ? di : "");
         shipment.setShippedQuantity(Integer.parseInt(deviceQty.getEditText().getText().toString()));
 
         deviceViewModel.saveShipment(shipment);
