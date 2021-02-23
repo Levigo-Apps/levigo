@@ -150,7 +150,7 @@ public class AddEquipmentFragment extends Fragment {
                     // fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
-                    fragmentTransaction.add(R.id.add_procedure_frame_layout, fragment);
+                    fragmentTransaction.add(R.id.frame_layout, fragment);
                     fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.commit();
                 })
