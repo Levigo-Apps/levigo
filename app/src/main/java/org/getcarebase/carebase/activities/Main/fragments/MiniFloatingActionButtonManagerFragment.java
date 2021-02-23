@@ -1,6 +1,7 @@
 package org.getcarebase.carebase.activities.Main.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,9 @@ import org.getcarebase.carebase.R;
  * Any fragment of the home must extend this fragment if fragment has floating action button actions
  */
 public class MiniFloatingActionButtonManagerFragment extends FloatingActionButtonManagerFragment {
+
+    private boolean resume = false;
+
     private ViewGroup container;
     protected View[] miniFABs;
     private Animation rotateOpenAnimation;
@@ -38,16 +42,25 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
         rotateCloseAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.rotate_close);
         fadeInUpAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.fade_in_up);
         fadeOutDownAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.fade_out_down);
+        addMiniFab();
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
     public void onResume() {
-        // add mini fab buttons
-        for (View fab : miniFABs) {
-            container.addView(fab,0);
+        if (resume) {
+            addMiniFab();
+        } else {
+            resume = true;
         }
         super.onResume();
+    }
+
+    public void addMiniFab() {
+        // add mini fab buttons
+        for (View fab : miniFABs) {
+            container.addView(fab, 0);
+        }
     }
 
     @Override
