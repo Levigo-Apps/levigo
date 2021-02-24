@@ -24,8 +24,6 @@ import org.getcarebase.carebase.R;
  */
 public class MiniFloatingActionButtonManagerFragment extends FloatingActionButtonManagerFragment {
 
-    private boolean resume = false;
-
     private ViewGroup container;
     protected View[] miniFABs;
     private Animation rotateOpenAnimation;
@@ -48,10 +46,9 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
 
     @Override
     public void onResume() {
-        if (resume) {
+        // if the layout does not contain 1 Floating Button and 2 Mini Floating buttons
+        if (container.getChildCount() != 3) {
             addMiniFab();
-        } else {
-            resume = true;
         }
         super.onResume();
     }
