@@ -62,6 +62,8 @@ public class EditEquipmentFragment extends Fragment {
     private Activity parent;
     private Calendar myCalendar;
 
+    public static final int RESULT_EDITED = Activity.RESULT_FIRST_USER + 1;
+
     // USER INPUT VALUES
     private TextInputEditText udiEditText;
     private TextInputEditText nameEditText;
@@ -268,8 +270,7 @@ public class EditEquipmentFragment extends Fragment {
                 Fragment fragment = Objects.requireNonNull(requireActivity().getSupportFragmentManager().findFragmentByTag(ItemDetailViewFragment.TAG));
                 requireActivity().getSupportFragmentManager().popBackStack();
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("edit", true);
-                requireActivity().setResult(Activity.RESULT_OK,returnIntent);
+                requireActivity().setResult(RESULT_EDITED,returnIntent);
                 Snackbar.make(fragment.requireView(), "Edits saved to inventory", Snackbar.LENGTH_LONG).show();
             } else {
                 Log.d(TAG,"error while saving changes");
