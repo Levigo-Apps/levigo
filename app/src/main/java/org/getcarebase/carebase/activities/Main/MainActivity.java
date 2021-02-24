@@ -17,6 +17,7 @@
 package org.getcarebase.carebase.activities.Main;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -64,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_HANDLE_CAMERA_PERM = 1;
     private static final int RC_ADD_PROCEDURE = 2;
     private static final int RC_EDIT_DEVICE_DETAILS = 3;
+
+    public static final int RESULT_EDITED = Activity.RESULT_FIRST_USER + 1;
 
     private Toolbar toolbar;
 
@@ -159,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(findViewById(R.id.activity_main),"Procedure Saved", Snackbar.LENGTH_LONG).show();
             }
         } else if (requestCode == RC_EDIT_DEVICE_DETAILS) {
-            if (resultCode == EditEquipmentFragment.RESULT_EDITED) {
+            if (resultCode == RESULT_EDITED) {
                 // reload model list fragment if edited
                 Fragment fragment = getSupportFragmentManager().findFragmentByTag(ModelListFragment.TAG);
                 final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();

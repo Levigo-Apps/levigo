@@ -35,6 +35,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.models.Cost;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceProduction;
@@ -61,8 +62,6 @@ public class EditEquipmentFragment extends Fragment {
     private static final String TAG = EditEquipmentFragment.class.getSimpleName();
     private Activity parent;
     private Calendar myCalendar;
-
-    public static final int RESULT_EDITED = Activity.RESULT_FIRST_USER + 1;
 
     // USER INPUT VALUES
     private TextInputEditText udiEditText;
@@ -270,7 +269,7 @@ public class EditEquipmentFragment extends Fragment {
                 Fragment fragment = Objects.requireNonNull(requireActivity().getSupportFragmentManager().findFragmentByTag(ItemDetailViewFragment.TAG));
                 requireActivity().getSupportFragmentManager().popBackStack();
                 Intent returnIntent = new Intent();
-                requireActivity().setResult(RESULT_EDITED,returnIntent);
+                requireActivity().setResult(MainActivity.RESULT_EDITED,returnIntent);
                 Snackbar.make(fragment.requireView(), "Edits saved to inventory", Snackbar.LENGTH_LONG).show();
             } else {
                 Log.d(TAG,"error while saving changes");
