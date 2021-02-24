@@ -46,8 +46,8 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
 
     @Override
     public void onResume() {
-        // if the layout does not contain 1 Floating Button and 2 Mini Floating buttons
-        if (container.getChildCount() != 3) {
+        // if the layout does not contain 1 Floating Button and count of Mini Floating buttons
+        if (container.getChildCount() != miniFABs.length+1) {
             addMiniFab();
         }
         super.onResume();
