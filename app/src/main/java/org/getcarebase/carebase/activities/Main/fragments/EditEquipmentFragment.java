@@ -74,7 +74,6 @@ public class EditEquipmentFragment extends Fragment {
     private TextInputEditText physicalLocation;
     private TextInputEditText company;
 //    private AutoCompleteTextView equipmentType;
-    private TextInputEditText medicalSpeciality;
     private TextInputEditText updateDateEditText;
     private TextInputEditText updateTimeEditText;
 
@@ -184,7 +183,6 @@ public class EditEquipmentFragment extends Fragment {
         usageEditText = rootView.findViewById(R.id.detail_usage);
         physicalLocation = rootView.findViewById(R.id.detail_physical_location);
         company = rootView.findViewById(R.id.detail_company);
-        medicalSpeciality = rootView.findViewById(R.id.detail_medical_speciality);
         updateDateEditText = rootView.findViewById(R.id.detail_update_date);
         updateTimeEditText = rootView.findViewById(R.id.detail_update_time);
         saveButton = rootView.findViewById(R.id.detail_save_button);
@@ -208,7 +206,6 @@ public class EditEquipmentFragment extends Fragment {
             String usageStr = deviceModel.getUsage();
             usageEditText.setText(usageStr);
             company.setText(deviceModel.getCompany());
-            medicalSpeciality.setText(deviceModel.getMedicalSpecialty());
             modelQuantityBeforeEdit = deviceModel.getQuantity();
 
             DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
@@ -230,7 +227,6 @@ public class EditEquipmentFragment extends Fragment {
             usageEditText.setEnabled(deviceModel.getUsage() == null);
             physicalLocation.setEnabled(deviceProduction.getPhysicalLocation() == null);
             company.setEnabled(deviceModel.getCompany() == null);
-            medicalSpeciality.setEnabled(deviceModel.getMedicalSpecialty() == null);
             updateDateEditText.setEnabled(false);
             updateTimeEditText.setEnabled(false);
         }
@@ -294,7 +290,7 @@ public class EditEquipmentFragment extends Fragment {
         // style, cost, size, length are not listed
         List<EditText> requiredEditTexts = new ArrayList<>(Arrays.asList(udiEditText, nameEditText, deviceIdentifier,
                 quantity, lotNumber, expiration, usageEditText, physicalLocation, company,
-                equipmentType, medicalSpeciality));
+                equipmentType));
         for (EditText editText : requiredEditTexts) {
             if (editText.getText().toString().trim().isEmpty()) {
                 isValid = false;
@@ -307,7 +303,6 @@ public class EditEquipmentFragment extends Fragment {
             deviceModel.setName(Objects.requireNonNull(nameEditText.getText()).toString().trim());
             deviceModel.setCompany(Objects.requireNonNull(company.getText()).toString().trim());
             deviceModel.setEquipmentType(equipmentType.getText().toString().trim());
-            deviceModel.setMedicalSpecialty(Objects.requireNonNull(medicalSpeciality.getText()).toString().trim());
             int currentProductionQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
             int quantityDifference = currentProductionQuantity - productionQuantityBeforeEdit;
             deviceModel.setQuantity(modelQuantityBeforeEdit+quantityDifference);

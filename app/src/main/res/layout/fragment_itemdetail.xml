@@ -134,28 +134,6 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <LinearLayout
-                    android:id="@+id/site_linearlayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/siteLocationLayout"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense.ExposedDropdownMenu"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/site_location_label"
-                        app:boxStrokeColor="@color/colorPrimary">
-
-                        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
-                            android:id="@+id/detail_site_location"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:completionThreshold="1" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                </LinearLayout>
-
-                <LinearLayout
                     android:id="@+id/physicalLocationLinearLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -216,19 +194,6 @@
                         android:text="@string/reusable_lbl"
                         android:textColor="@android:color/black" />
                 </RadioGroup>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/medical_speciality_lbl"
-                    app:boxStrokeColor="@color/colorPrimary">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/detail_medical_speciality"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-                </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"

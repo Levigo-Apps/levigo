@@ -65,7 +65,6 @@ public class DeviceSourceObserver implements Observer<Resource<DeviceModel>> {
                 if (inventoryResource.getRequest().getResourceString() != null && inventoryResource.getRequest().getResourceString() == R.string.error_device_lookup) {
                     shippedResource.getData().getProductions().get(0).setPhysicalLocation("");
                     shippedResource.getData().setEquipmentType("");
-                    shippedResource.getData().setSiteName("");
                     shippedResource.getData().setQuantity(0);
                     finalLiveData.setValue(shippedResource);
                 } else {
