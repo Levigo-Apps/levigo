@@ -48,6 +48,7 @@ import com.journeyapps.barcodescanner.CaptureActivity;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Login.LoginActivity;
 import org.getcarebase.carebase.activities.Main.adapters.HomePagerAdapter;
+import org.getcarebase.carebase.activities.Main.fragments.EditEquipmentFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ItemDetailFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ItemDetailOfflineFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ModelListFragment;
@@ -158,16 +159,13 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(findViewById(R.id.activity_main),"Procedure Saved", Snackbar.LENGTH_LONG).show();
             }
         } else if (requestCode == RC_EDIT_DEVICE_DETAILS) {
-            if (resultCode == RESULT_OK) {
-                boolean edited = Objects.requireNonNull(data).getBooleanExtra("edit", false);
-                if (edited) {
-                    // reload model list fragment if edited
-                    Fragment fragment = getSupportFragmentManager().findFragmentByTag(ModelListFragment.TAG);
-                    final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    ft.detach(fragment);
-                    ft.attach(fragment);
-                    ft.commit();
-                }
+            if (resultCode == EditEquipmentFragment.RESULT_EDITED) {
+                // reload model list fragment if edited
+                Fragment fragment = getSupportFragmentManager().findFragmentByTag(ModelListFragment.TAG);
+                final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.detach(fragment);
+                ft.attach(fragment);
+                ft.commit();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
