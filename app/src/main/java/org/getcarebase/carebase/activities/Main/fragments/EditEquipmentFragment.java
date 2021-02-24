@@ -2,6 +2,7 @@ package org.getcarebase.carebase.activities.Main.fragments;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -266,6 +267,9 @@ public class EditEquipmentFragment extends Fragment {
             if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 Fragment fragment = Objects.requireNonNull(requireActivity().getSupportFragmentManager().findFragmentByTag(ItemDetailViewFragment.TAG));
                 requireActivity().getSupportFragmentManager().popBackStack();
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("edit", true);
+                requireActivity().setResult(Activity.RESULT_OK,returnIntent);
                 Snackbar.make(fragment.requireView(), "Edits saved to inventory", Snackbar.LENGTH_LONG).show();
             } else {
                 Log.d(TAG,"error while saving changes");
@@ -278,10 +282,6 @@ public class EditEquipmentFragment extends Fragment {
         DeviceModel deviceModel = isFieldsValid();
         if (deviceModel != null) {
             deviceViewModel.saveDevice(deviceModel);
-        }
-        ItemDetailViewFragment previousFrag = (ItemDetailViewFragment) getActivity().getSupportFragmentManager().findFragmentByTag(ItemDetailViewFragment.TAG);
-        if (previousFrag != null) {
-            previousFrag.setEdited();
         }
     }
 

@@ -46,8 +46,6 @@ import java.util.Objects;
 public class ItemDetailViewFragment extends Fragment {
     public static final String TAG = ItemDetailViewFragment.class.getName();
 
-    private boolean edited = false;
-
     private Activity parent;
 
     private String itemQuantity;
@@ -143,10 +141,6 @@ public class ItemDetailViewFragment extends Fragment {
         });
 
         topToolBar.setNavigationOnClickListener(view -> {
-            Intent returnIntent = new Intent();
-            returnIntent.putExtra("edit", edited);
-            returnIntent.putExtra("type", type.getTextValue());
-            requireActivity().setResult(Activity.RESULT_OK,returnIntent);
             requireActivity().finish();
         });
 
@@ -182,10 +176,6 @@ public class ItemDetailViewFragment extends Fragment {
         fragmentTransaction.add(R.id.frame_layout, shipFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-    }
-
-    public void setEdited() {
-        edited = true;
     }
 
 }
