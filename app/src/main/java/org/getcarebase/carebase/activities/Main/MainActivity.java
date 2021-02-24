@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_ADD_PROCEDURE = 2;
     private static final int RC_EDIT_DEVICE_DETAILS = 3;
 
-    public static final int RESULT_EDITED = Activity.RESULT_FIRST_USER + 1;
+    public static final int RESULT_EDITED = Activity.RESULT_FIRST_USER + 0;
 
     private Toolbar toolbar;
 
