@@ -60,7 +60,6 @@ public class ItemDetailViewFragment extends Fragment {
     private DetailLabeledTextView physicalLocation;
     private DetailLabeledTextView type;
     private DetailLabeledTextView usage;
-    private DetailLabeledTextView medicalSpecialty;
     private DetailLabeledTextView referenceNumber;
     private DetailLabeledTextView lotNumber;
     private DetailLabeledTextView manufacturer;
@@ -84,7 +83,6 @@ public class ItemDetailViewFragment extends Fragment {
         physicalLocation = rootView.findViewById(R.id.physicallocation_edittext);
         type = rootView.findViewById(R.id.type_edittext);
         usage = rootView.findViewById(R.id.usage_edittext);
-        medicalSpecialty = rootView.findViewById(R.id.medicalspecialty_edittext);
         referenceNumber = rootView.findViewById(R.id.referencenumber_edittext);
         lotNumber = rootView.findViewById(R.id.lotnumber_edittext);
         manufacturer = rootView.findViewById(R.id.company_edittext);
@@ -107,7 +105,6 @@ public class ItemDetailViewFragment extends Fragment {
                 usage.setTextValue(usageStr);
                 deviceDescription.setTextValue(deviceModel.getDescription());
                 deviceIdentifier.setTextValue(deviceModel.getDeviceIdentifier());
-                medicalSpecialty.setTextValue(deviceModel.getMedicalSpecialty());
                 itemName.setText(deviceModel.getName());
                 manufacturer.setTextValue(deviceModel.getCompany());
 

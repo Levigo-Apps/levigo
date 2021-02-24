@@ -54,23 +54,6 @@ public class DeviceModelGUDIDDeserializer implements JsonDeserializer<DeviceMode
             deviceModel.setDescription(deviceObject.getAsJsonPrimitive("deviceDescription").getAsString());
         }
 
-
-        // get medical specialty
-        if (jsonObject.has("productCodes") && !jsonObject.get("productCodes").isJsonNull()) {
-            JsonArray productCodes = jsonObject.getAsJsonArray("productCodes");
-            StringBuilder medicalSpecialties = new StringBuilder();
-            for (int i = 0; i < productCodes.size(); i++) {
-                if (productCodes.get(i).getAsJsonObject().get("medicalSpecialty") != null && !productCodes.get(i).getAsJsonObject().get("medicalSpecialty").isJsonNull()) {
-                    medicalSpecialties.append(productCodes.get(i).getAsJsonObject().getAsJsonPrimitive("medicalSpecialty").getAsString());
-                    medicalSpecialties.append("; ");
-                }
-            }
-            if (medicalSpecialties.length() > 2) {
-                medicalSpecialties = new StringBuilder(medicalSpecialties.substring(0, medicalSpecialties.length() - 2));
-                deviceModel.setMedicalSpecialty(medicalSpecialties.toString());
-            }
-        }
-
         // add device sizes to specifications
         if (deviceObject.has("deviceSizes") && !deviceObject.get("deviceSizes").isJsonNull()) {
             JsonArray deviceSizeArray = deviceObject.getAsJsonObject("deviceSizes").getAsJsonArray("deviceSize");
