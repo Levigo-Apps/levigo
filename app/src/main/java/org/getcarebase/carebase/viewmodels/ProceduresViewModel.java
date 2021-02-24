@@ -35,8 +35,8 @@ public class ProceduresViewModel extends ViewModel {
         procedureRepository = new ProcedureRepository(user.getNetworkId(),user.getHospitalId());
     }
 
-    public void loadProcedures() {
-        proceduresLiveData.addSource(procedureRepository.getProcedures());
+    public void loadProcedures(boolean onRefresh) {
+        proceduresLiveData.addSource(procedureRepository.getProcedures(onRefresh));
     }
 
     public LiveData<Resource<List<Procedure>>> getProceduresLiveData() {
