@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:background="@color/colorBackground">
+    android:background="@android:color/white">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -28,7 +28,7 @@
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:liftOnScroll="true"
             app:navigationIcon="@drawable/icon_back"
-            app:title="Equipments used"
+            app:title="Equipments Used"
             app:titleTextColor="@android:color/white" />
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -51,21 +51,24 @@
             app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
             tools:layout_editor_absoluteX="12dp">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="5"
+                android:gravity="center_vertical"
+                android:paddingVertical="8dp"
+                android:text="Procedure Details"
+                android:textColor="@android:color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:background="#FAFAFA"
+                android:elevation="2dp"
                 android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="5"
-                    android:gravity="center_vertical"
-                    android:paddingVertical="8dp"
-                    android:text="Procedure Details"
-                    android:textColor="@android:color/black"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
 
                 <include
                     android:id="@+id/procedure_details"
@@ -85,7 +88,8 @@
                     android:layout_weight="5"
                     android:gravity="center_vertical"
                     android:paddingVertical="8dp"
-                    android:text="Equipments used"
+                    android:layout_marginTop="12dp"
+                    android:text="Equipments Used"
                     android:textColor="@android:color/black"
                     android:textSize="20sp"
                     android:textStyle="bold" />

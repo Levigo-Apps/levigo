@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     android:layout_marginHorizontal="12dp"
     android:layout_marginBottom="44dp"
-    android:paddingTop="20dp"
     android:orientation="vertical">
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,7 +23,7 @@
             android:text="@string/procedure_name_label"
             android:textStyle="bold"
             android:textSize="16sp"
-            android:textColor="@android:color/black"
+            android:textColor="@color/colorGrey"
             android:padding="8dp"
             android:gravity="center_vertical"/>
         <TextView
@@ -52,7 +51,7 @@
             android:text="@string/procedure_date_label"
             android:textStyle="bold"
             android:textSize="16sp"
-            android:textColor="@android:color/black"
+            android:textColor="@color/colorGrey"
             android:padding="8dp"
             android:gravity="center_vertical"/>
         <TextView
@@ -80,7 +79,7 @@
             android:text="@string/accession_number_label"
             android:textStyle="bold"
             android:textSize="16sp"
-            android:textColor="@android:color/black"
+            android:textColor="@color/colorGrey"
             android:padding="8dp"
             android:gravity="center_vertical"/>
         <TextView

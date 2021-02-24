@@ -68,13 +68,11 @@ public class ProcedureViewModel extends ViewModel {
         return currentStep;
     }
 
-    public void goToProcedureDetails() {
-        currentStep.setValue(0);
-    }
-
     public void goToDeviceUsed() {
         currentStep.setValue(1);
     }
+
+    public void BackToProcedureDetails() { currentStep.setValue(2); }
 
     public void goToInventory() {
         currentStep.setValue(-1);
