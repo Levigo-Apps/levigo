@@ -101,13 +101,11 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText quantity;
     private TextInputEditText lotNumber;
     private TextInputEditText referenceNumber;
-    private AutoCompleteTextView hospitalName;
     private AutoCompleteTextView physicalLocation;
     private TextInputEditText notes;
     private TextInputEditText dateIn;
     private TextInputEditText timeIn;
     private TextInputEditText numberAdded;
-    private TextInputEditText medicalSpeciality;
     private TextView specsTextView;
     private LinearLayout linearLayout;
     private TextInputEditText costEditText;
@@ -209,7 +207,6 @@ public class ItemDetailFragment extends Fragment {
             "Shelf - Micropuncture sets/Wires",
             "Other");
 
-    private LinearLayout siteConstrainLayout;
     private LinearLayout physicalLocationConstrainLayout;
     private LinearLayout typeConstrainLayout;
 
@@ -221,7 +218,7 @@ public class ItemDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        dp = Objects.requireNonNull(getContext()).getResources().getDisplayMetrics().density;
+        dp = requireActivity().getResources().getDisplayMetrics().density;
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
         myCalendar = Calendar.getInstance();
@@ -232,13 +229,11 @@ public class ItemDetailFragment extends Fragment {
         equipmentType = rootView.findViewById(R.id.detail_type);
         company = rootView.findViewById(R.id.detail_company);
         expiration = rootView.findViewById(R.id.detail_expiration_date);
-        hospitalName = rootView.findViewById(R.id.detail_site_location);
         physicalLocation = rootView.findViewById(R.id.detail_physical_location);
         notes = rootView.findViewById(R.id.detail_notes);
         lotNumber = rootView.findViewById(R.id.detail_lot_number);
         referenceNumber = rootView.findViewById(R.id.detail_reference_number);
         numberAdded = rootView.findViewById(R.id.detail_number_added);
-        medicalSpeciality = rootView.findViewById(R.id.detail_medical_speciality);
         deviceIdentifier = rootView.findViewById(R.id.detail_di);
         deviceDescription = rootView.findViewById(R.id.detail_description);
         quantity = rootView.findViewById(R.id.detail_quantity);
@@ -261,7 +256,6 @@ public class ItemDetailFragment extends Fragment {
         TextInputLayout numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
         costEditText = rootView.findViewById(R.id.detail_equipment_cost);
-        siteConstrainLayout = rootView.findViewById(R.id.site_linearlayout);
         physicalLocationConstrainLayout = rootView.findViewById(R.id.physicalLocationLinearLayout);
         typeConstrainLayout = rootView.findViewById(R.id.typeLinearLayout);
         chosenType = false;
@@ -405,7 +399,7 @@ public class ItemDetailFragment extends Fragment {
 
     private void hideKeyboard() {
         try {
-            InputMethodManager imm = (InputMethodManager) Objects.requireNonNull(getActivity()).getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
         } catch (Exception e) {
             Log.d(TAG,"Keyboard not open");
@@ -463,7 +457,6 @@ public class ItemDetailFragment extends Fragment {
                 nameEditText.setEnabled(deviceModel.getName() == null);
                 quantity.setText(Integer.toString(deviceModel.getQuantity()));
                 quantity.setEnabled(false);
-                hospitalName.setText(deviceModel.getSiteName());
                 equipmentType.setText(deviceModel.getEquipmentType());
                 if (deviceModel.getUsage() != null && deviceModel.getUsage().equals("Single Use")) {
                     singleUseButton.setChecked(true);
@@ -471,7 +464,6 @@ public class ItemDetailFragment extends Fragment {
                 else if (deviceModel.getUsage() != null && deviceModel.getUsage().equals("Reusable")){
                     multiUse.setChecked(true);
                 }
-                medicalSpeciality.setText(deviceModel.getMedicalSpecialty());
                 deviceDescription.setText(deviceModel.getDescription());
                 deviceDescription.setEnabled(deviceModel.getDescription() == null);
                 company.setText(deviceModel.getCompany());
@@ -507,19 +499,6 @@ public class ItemDetailFragment extends Fragment {
             }
         });
         equipmentType.setAdapter(deviceTypeAdapter);
-
-        // set up sites
-        final ArrayAdapter<String> sitesAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
-        deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
-            if(sitesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
-                sitesAdapter.clear();
-                sitesAdapter.addAll(Arrays.asList(sitesResource.getData()));
-            } else {
-                Log.d(TAG,"Unable to fetch sites");
-                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
-            }
-        });
-        hospitalName.setAdapter(sitesAdapter);
 
         // set up physical locations
         final ArrayAdapter<String> physicalLocationsAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
@@ -569,7 +548,6 @@ public class ItemDetailFragment extends Fragment {
     }
 
     private void setPendingDataFields(PendingDevice pendingDevice) {
-        hospitalName.setText(pendingDevice.getSiteName());
         dateIn.setText(pendingDevice.getDateAdded());
         notes.setText(pendingDevice.getNotes());
         timeIn.setText(pendingDevice.getTimeAdded());
@@ -599,8 +577,7 @@ public class ItemDetailFragment extends Fragment {
         boolean isValid = true;
 
         List<EditText> requiredEditTexts = new ArrayList<>(allSizeOptions);
-        requiredEditTexts.addAll(Arrays.asList(udiEditText, deviceIdentifier, nameEditText, expiration,
-                hospitalName, physicalLocation, equipmentType, lotNumber, company, numberAdded, dateIn, timeIn));
+        requiredEditTexts.addAll(Arrays.asList(udiEditText, deviceIdentifier, nameEditText, expiration, physicalLocation, equipmentType, lotNumber, company, numberAdded, dateIn, timeIn));
         for (EditText editText : requiredEditTexts) {
             if (editText.getText().toString().trim().isEmpty()) {
                 isValid = false;
@@ -613,8 +590,6 @@ public class ItemDetailFragment extends Fragment {
             deviceModel.setCompany(Objects.requireNonNull(company.getText()).toString().trim());
             deviceModel.setDescription(Objects.requireNonNull(deviceDescription.getText()).toString().trim());
             deviceModel.setEquipmentType(equipmentType.getText().toString().trim());
-            deviceModel.setMedicalSpecialty(Objects.requireNonNull(medicalSpeciality.getText()).toString().trim());
-            deviceModel.setSiteName(hospitalName.getText().toString().trim());
             int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
             final RadioButton radioButton = rootView.findViewById(radioButtonInt);
             final String usage = radioButton.getText().toString();
