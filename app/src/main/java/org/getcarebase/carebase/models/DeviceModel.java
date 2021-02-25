@@ -15,8 +15,6 @@ public class DeviceModel {
     private String company;
     private String description;
     private String equipmentType;
-    private String medicalSpecialty;
-    private String siteName;
     private String usage;
     private int quantity;
     private Shipment shipment;
@@ -47,14 +45,6 @@ public class DeviceModel {
 
     public void setEquipmentType(String equipmentType) {
         this.equipmentType = equipmentType;
-    }
-
-    public void setMedicalSpecialty(String medicalSpecialty) {
-        this.medicalSpecialty = medicalSpecialty;
-    }
-
-    public void setSiteName(String siteName) {
-        this.siteName = siteName;
     }
 
     public void setUsage(String usage) {
@@ -97,14 +87,6 @@ public class DeviceModel {
         return equipmentType;
     }
 
-    public String getMedicalSpecialty() {
-        return medicalSpecialty;
-    }
-
-    public String getSiteName() {
-        return siteName;
-    }
-
     public String getUsage() {
         return usage;
     }
@@ -136,9 +118,9 @@ public class DeviceModel {
         data.remove("device_description");
         this.equipmentType = (String) data.get("equipment_type");
         data.remove("equipment_type");
-        this.medicalSpecialty = (String) data.get("medical_specialty");
+        // DEPRECIATED
         data.remove("medical_specialty");
-        this.siteName = (String) data.get("site_name");
+        // DEPRECIATED
         data.remove("site_name");
         this.usage = (String) data.get("usage");
         data.remove("usage");
@@ -158,11 +140,9 @@ public class DeviceModel {
         map.put("device_description",description);
         map.put("di",deviceIdentifier);
         map.put("equipment_type",equipmentType);
-        map.put("medical_specialty",medicalSpecialty);
         map.put("name",name);
 //        map.put("quantity",Integer.toString(quantity));
         map.put("quantity",quantity);
-        map.put("site_name",siteName);
         map.put("usage",usage);
         map.putAll(specifications);
         return map;
