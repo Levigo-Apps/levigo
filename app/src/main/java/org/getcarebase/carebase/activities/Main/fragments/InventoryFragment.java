@@ -19,8 +19,12 @@ import com.google.android.material.snackbar.Snackbar;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.activities.Main.adapters.TypesAdapter;
+import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.InventoryViewModel;
+
+import java.io.Serializable;
+import java.util.List;
 
 public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
 
@@ -58,9 +62,9 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
         typesAdapter = new TypesAdapter(this);
         inventoryRecyclerView.setAdapter(typesAdapter);
 
-        inventoryViewModel.getCategoricalInventoryLiveData().observe(getViewLifecycleOwner(), mapResource -> {
+        inventoryViewModel.getTypeListLiveData().observe(getViewLifecycleOwner(), mapResource -> {
             if (mapResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-                typesAdapter.setCategoricalInventory(mapResource.getData());
+                typesAdapter.setTypeList(mapResource.getData());
                 typesAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
             } else if (mapResource.getRequest().getStatus() == Request.Status.ERROR) {
@@ -69,8 +73,22 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
         });
 
         // on refresh update inventory
-        swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadInventory());
+        swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadTypeList());
 
-        inventoryViewModel.loadInventory();
+        inventoryViewModel.loadTypeList();
     }
+
+    public void showModelList(final String type) {
+        Fragment fragment = new ModelListFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("type", type);
+        fragment.setArguments(bundle);
+
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.activity_main, fragment, ModelListFragment.TAG)
+                .addToBackStack(null)
+                .commit();
+    }
+
 }
