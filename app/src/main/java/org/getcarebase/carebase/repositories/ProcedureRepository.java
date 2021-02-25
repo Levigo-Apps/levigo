@@ -93,6 +93,10 @@ public class ProcedureRepository {
     public LiveData<Resource<List<Procedure>>> getProcedures(boolean onRefresh) {
         Query queryLiveData;
         MutableLiveData<Resource<List<Procedure>>> proceduresLiveData = new MutableLiveData<>();
+        // clear procedure list on refresh
+        if (onRefresh) {
+            procedures.clear();
+        }
         // Load from beginning of procedure list if on initialization or refresh
         if (lastResult == null || onRefresh) {
             queryLiveData = proceduresReference.orderBy("date", Direction.DESCENDING).orderBy("time_in", Direction.DESCENDING).limit(10);
