@@ -13,25 +13,20 @@ import android.widget.TextView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.utils.Request;
-import org.getcarebase.carebase.utils.Resource;
 import org.getcarebase.carebase.viewmodels.DeviceViewModel;
-import org.getcarebase.carebase.viewmodels.ProcedureViewModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.stream.Collectors;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 public class ShipDeviceFragment extends Fragment {
@@ -43,6 +38,9 @@ public class ShipDeviceFragment extends Fragment {
     TextInputLayout deviceDest;
 
     Button saveButton;
+
+    String currentHospitalId;
+    String currentHospitalName;
 
     private View rootView;
     private DeviceViewModel deviceViewModel;
@@ -68,11 +66,16 @@ public class ShipDeviceFragment extends Fragment {
         final ArrayAdapter<String> sitesAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
         deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
             deviceViewModel.setupDeviceRepository();
-            LiveData<Resource<String[]>> siteOptions = deviceViewModel.getSitesLiveData();
+            if (userResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+                currentHospitalName = userResource.getData().getHospitalName();
+                currentHospitalId = userResource.getData().getHospitalId();
+            }
             deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
                 if(sitesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                     sitesAdapter.clear();
-                    sitesAdapter.addAll(Arrays.asList(sitesResource.getData()));
+                    sitesAdapter.addAll(Arrays.stream(sitesResource.getData())
+                            .filter(site -> !site.equals(currentHospitalName))
+                            .collect(Collectors.toList()));
                 } else {
                     Log.d(TAG,"Unable to fetch sites");
                     Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
@@ -126,12 +129,13 @@ public class ShipDeviceFragment extends Fragment {
 
     private void saveData() {
         // TODO: Check if inputs are complete and valid
-        // TODO: Add destination hospital id to shipment
         Shipment shipment = new Shipment();
         shipment.setUdi((String) deviceUdi.getText());
         String di;
         shipment.setDi((di = getArguments().getString("di")) != null ? di : "");
         shipment.setShippedQuantity(Integer.parseInt(deviceQty.getEditText().getText().toString()));
+        shipment.setDestHospital(deviceDest.getEditText().getText().toString());
+        shipment.setSourceHospitalId(currentHospitalId);
 
         deviceViewModel.saveShipment(shipment);
     }
