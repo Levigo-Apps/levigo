@@ -80,7 +80,7 @@ public class AddEquipmentFragment extends Fragment {
             }
         });
 
-        topToolBar.setNavigationOnClickListener(view -> procedureViewModel.goToProcedureDetails());
+        topToolBar.setNavigationOnClickListener(view -> procedureViewModel.BackToProcedureDetails());
 
         addBarcode.setOnClickListener(view -> startScanner());
 
