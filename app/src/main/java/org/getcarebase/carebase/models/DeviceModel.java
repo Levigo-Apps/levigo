@@ -1,5 +1,6 @@
 package org.getcarebase.carebase.models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.Map;
  * class representing the di level information of a device and contains all of the different
  * productions of the device
  */
-public class DeviceModel {
+public class DeviceModel implements Serializable {
     private String deviceIdentifier;
     private String name;
     private String company;

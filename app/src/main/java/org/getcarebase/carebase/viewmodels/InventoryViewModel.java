@@ -5,6 +5,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import org.getcarebase.carebase.models.DeviceModel;
+import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
 import org.getcarebase.carebase.repositories.InventoryRepository;
@@ -22,9 +23,9 @@ public class InventoryViewModel extends ViewModel {
     private final InventoryRepository inventoryRepository;
     private final FirebaseAuthRepository authRepository;
 
-    private final SingleEventMediatorLiveData<List<DeviceModel>> inventoryLiveData = new SingleEventMediatorLiveData<>();
-    private final LiveData<Resource<Map<String,List<DeviceModel>>>> categoricalInventoryLiveData = Transformations.map(inventoryLiveData.getLiveData(), this::sortInventoryByCategories);
     private LiveData<Resource<User>> userLiveData;
+
+    private final SingleEventMediatorLiveData<List<String>> typeListLiveData = new SingleEventMediatorLiveData<>();
 
     public InventoryViewModel() {
         inventoryRepository = new InventoryRepository();
@@ -42,35 +43,16 @@ public class InventoryViewModel extends ViewModel {
         authRepository.signOut();
     }
 
-    /**
-     * Updates inventoryLiveData with the LiveData from the repository
-     */
-    public void loadInventory() {
-        inventoryLiveData.addSource(inventoryRepository.getDeviceModelListForHospital(Objects.requireNonNull(userLiveData.getValue()).getData()));
+    public void loadTypeList() {
+        typeListLiveData.addSource(inventoryRepository.getAllTypes(Objects.requireNonNull(userLiveData.getValue()).getData()));
     }
 
-    public LiveData<Resource<Map<String, List<DeviceModel>>>> getCategoricalInventoryLiveData() {
-        return categoricalInventoryLiveData;
+    public LiveData<Resource<List<String>>> getTypeListLiveData() {
+        return typeListLiveData.getLiveData();
     }
 
-    /**
-     * Sorts a list of devices from a repository call into a map of categories and devices
-     * @param listResource the result of the repository call
-     * @return the converted Resource
-     */
-    private Resource<Map<String,List<DeviceModel>>> sortInventoryByCategories(Resource<List<DeviceModel>> listResource) {
-        if (listResource.getRequest().getStatus() == Request.Status.ERROR
-                || listResource.getRequest().getStatus() == Request.Status.LOADING) {
-            return new Resource<>(null,listResource.getRequest());
-        }
-
-        Map<String,List<DeviceModel>> categoricalInventoryMap = new HashMap<>();
-        List<DeviceModel> deviceModelList = listResource.getData();
-        for (DeviceModel deviceModel : deviceModelList) {
-            List<DeviceModel> category = categoricalInventoryMap.getOrDefault(deviceModel.getEquipmentType(), new ArrayList<>());
-            category.add(deviceModel);
-            categoricalInventoryMap.putIfAbsent(deviceModel.getEquipmentType(), category);
-        }
-        return new Resource<>(categoricalInventoryMap,new Request(null, Request.Status.SUCCESS));
+    public LiveData<Resource<List<DeviceModel>>> getDeviceModelListWithTypeLiveData(String type) {
+        return inventoryRepository.getDevicesWithType(Objects.requireNonNull(userLiveData.getValue()).getData(), type);
     }
+    
 }
