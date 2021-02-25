@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-            tools:text="Angioplasty and Stint Insertion"
+            tools:text="Vascular Microcatheter"
             android:textSize="8pt"/>
 
         <TextView
@@ -160,31 +160,13 @@
             android:textStyle="bold"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"/>
 
-        <GridLayout
+        <org.getcarebase.carebase.views.DetailLabeledTextView
+            android:id="@+id/type_edittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginTop="8dp"
-            android:columnCount="2"
-            android:rowCount="2"
-            android:useDefaultMargins="true">
-
-            <org.getcarebase.carebase.views.DetailLabeledTextView
-                android:id="@+id/type_edittext"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                app:label_text="Type" />
-
-            <org.getcarebase.carebase.views.DetailLabeledTextView
-                android:id="@+id/medicalspecialty_edittext"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                app:label_text="Specialty" />
-
-        </GridLayout>
-
+            android:layout_columnWeight="1"
+            app:label_text="Type" />
 
         <org.getcarebase.carebase.views.DetailLabeledTextView
             android:id="@+id/devicedescription_edittext"
