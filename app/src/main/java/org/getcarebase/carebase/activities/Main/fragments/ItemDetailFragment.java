@@ -102,13 +102,10 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText lotNumber;
     private TextInputEditText referenceNumber;
     private AutoCompleteTextView physicalLocation;
-    private TextInputEditText notes;
-    private TextInputEditText dateIn;
-    private TextInputEditText timeIn;
     private TextInputEditText numberAdded;
     private TextView specsTextView;
     private LinearLayout linearLayout;
-    private TextInputEditText costEditText;
+//    private TextInputEditText costEditText;
 
     private Button saveButton;
     private MaterialButton removeSizeButton;
@@ -230,22 +227,13 @@ public class ItemDetailFragment extends Fragment {
         company = rootView.findViewById(R.id.detail_company);
         expiration = rootView.findViewById(R.id.detail_expiration_date);
         physicalLocation = rootView.findViewById(R.id.detail_physical_location);
-        notes = rootView.findViewById(R.id.detail_notes);
         lotNumber = rootView.findViewById(R.id.detail_lot_number);
         referenceNumber = rootView.findViewById(R.id.detail_reference_number);
         numberAdded = rootView.findViewById(R.id.detail_number_added);
         deviceIdentifier = rootView.findViewById(R.id.detail_di);
         deviceDescription = rootView.findViewById(R.id.detail_description);
         quantity = rootView.findViewById(R.id.detail_quantity);
-        dateIn = rootView.findViewById(R.id.detail_in_date);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-        dateIn.setText(dateFormat.format(new Date()));
-        timeIn = rootView.findViewById(R.id.detail_in_time);
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.US);
-        timeIn.setText(timeFormat.format(new Date()));
         TextInputLayout expirationTextLayout = rootView.findViewById(R.id.expiration_date_string);
-        TextInputLayout dateInLayout = rootView.findViewById(R.id.in_date_layout);
-        TextInputLayout timeInLayout = rootView.findViewById(R.id.in_time_layout);
         saveButton = rootView.findViewById(R.id.detail_save_button);
         Button rescanButton = rootView.findViewById(R.id.detail_rescan_button);
         final Button autoPopulateButton = rootView.findViewById(R.id.detail_autopop_button);
@@ -255,7 +243,7 @@ public class ItemDetailFragment extends Fragment {
         multiUse = rootView.findViewById(R.id.radio_multiuse);
         TextInputLayout numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
-        costEditText = rootView.findViewById(R.id.detail_equipment_cost);
+//        costEditText = rootView.findViewById(R.id.detail_equipment_cost);
         physicalLocationConstrainLayout = rootView.findViewById(R.id.physicalLocationLinearLayout);
         typeConstrainLayout = rootView.findViewById(R.id.typeLinearLayout);
         chosenType = false;
@@ -314,14 +302,6 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-        //TimePicker dialog pops up when clicked on the icon
-        timeInLayout.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                timeInLayoutPicker(view);
-            }
-        });
-
         // going back to the scanner view
         rescanButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -365,28 +345,6 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 new DatePickerDialog(view.getContext(), date_exp, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        });
-
-        // date picker for date in if entered manually
-        final DatePickerDialog.OnDateSetListener dateInListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-                myCalendar.set(Calendar.YEAR, i);
-                myCalendar.set(Calendar.MONTH, i1);
-                myCalendar.set(Calendar.DAY_OF_MONTH, i2);
-                String myFormat = "yyyy/MM/dd";
-                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                dateIn.setText(String.format("%s", sdf.format(myCalendar.getTime())));
-            }
-        };
-
-        dateInLayout.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new DatePickerDialog(view.getContext(), dateInListener, myCalendar
                         .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                         myCalendar.get(Calendar.DAY_OF_MONTH)).show();
             }
@@ -447,8 +405,6 @@ public class ItemDetailFragment extends Fragment {
                     lotNumber.setEnabled(deviceProduction.getLotNumber() == null);
                     referenceNumber.setText(deviceProduction.getReferenceNumber());
                     referenceNumber.setEnabled(deviceProduction.getReferenceNumber() == null);
-                    notes.setText(deviceProduction.getNotes());
-                    notes.setEnabled(deviceProduction.getNotes() == null);
                 }
 
                 deviceIdentifier.setText(deviceModel.getDeviceIdentifier());
@@ -548,27 +504,9 @@ public class ItemDetailFragment extends Fragment {
     }
 
     private void setPendingDataFields(PendingDevice pendingDevice) {
-        dateIn.setText(pendingDevice.getDateAdded());
-        notes.setText(pendingDevice.getNotes());
-        timeIn.setText(pendingDevice.getTimeAdded());
         udiEditText.setText(pendingDevice.getUniqueDeviceIdentifier());
         numberAdded.setText(pendingDevice.getQuantity());
         physicalLocation.setText(pendingDevice.getPhysicalLocation());
-    }
-
-    private void timeInLayoutPicker(View view) {
-        Calendar mcurrentTime = Calendar.getInstance();
-        int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-        int minute = mcurrentTime.get(Calendar.MINUTE);
-        TimePickerDialog mTimePicker;
-        mTimePicker = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                timeIn.setText(String.format(Locale.US, "%02d:%02d:00", selectedHour, selectedMinute));
-            }
-        }, hour, minute, true);
-        mTimePicker.setTitle("Select Time");
-        mTimePicker.show();
     }
 
     // not in mvvm style - need to use data bindings
@@ -577,7 +515,7 @@ public class ItemDetailFragment extends Fragment {
         boolean isValid = true;
 
         List<EditText> requiredEditTexts = new ArrayList<>(allSizeOptions);
-        requiredEditTexts.addAll(Arrays.asList(udiEditText, deviceIdentifier, nameEditText, expiration, physicalLocation, equipmentType, lotNumber, company, numberAdded, dateIn, timeIn));
+        requiredEditTexts.addAll(Arrays.asList(udiEditText, deviceIdentifier, nameEditText, expiration, physicalLocation, equipmentType, lotNumber, company, numberAdded));
         for (EditText editText : requiredEditTexts) {
             if (editText.getText().toString().trim().isEmpty()) {
                 isValid = false;
@@ -609,11 +547,12 @@ public class ItemDetailFragment extends Fragment {
 
             DeviceProduction deviceProduction = new DeviceProduction();
             deviceProduction.setUniqueDeviceIdentifier(Objects.requireNonNull(udiEditText.getText()).toString().trim());
-            deviceProduction.setDateAdded(Objects.requireNonNull(dateIn.getText()).toString().trim());
-            deviceProduction.setTimeAdded(Objects.requireNonNull(timeIn.getText()).toString().trim());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+            deviceProduction.setDateAdded(dateFormat.format(new Date()));
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.US);
+            deviceProduction.setTimeAdded(timeFormat.format((new Date())));
             deviceProduction.setExpirationDate(Objects.requireNonNull(expiration.getText()).toString().trim());
             deviceProduction.setLotNumber(Objects.requireNonNull(lotNumber.getText()).toString().trim());
-            deviceProduction.setNotes(Objects.requireNonNull(notes.getText()).toString().trim());
             deviceProduction.setPhysicalLocation(physicalLocation.getText().toString().trim());
             deviceProduction.setQuantity(amount);
             deviceModel.addDeviceProduction(deviceProduction);
@@ -624,12 +563,12 @@ public class ItemDetailFragment extends Fragment {
                 deviceModel.setShipment(deviceViewModel.getAutoPopulatedDeviceLiveData().getValue().getData().getShipment());
             }
 
-            if(!Objects.requireNonNull(costEditText.getText()).toString().trim().isEmpty()){
-                String cleanString = costEditText.getText().toString().replaceAll("[$,.]", "");
-                double packagePrice = Double.parseDouble(cleanString) / 100;
-                Cost cost = new Cost(Objects.requireNonNull(dateIn.getText()).toString(),amount,packagePrice);
-                deviceProduction.addCost(cost);
-            }
+//            if(!Objects.requireNonNull(costEditText.getText()).toString().trim().isEmpty()){
+//                String cleanString = costEditText.getText().toString().replaceAll("[$,.]", "");
+//                double packagePrice = Double.parseDouble(cleanString) / 100;
+//                Cost cost = new Cost(Objects.requireNonNull(dateIn.getText()).toString(),amount,packagePrice);
+//                deviceProduction.addCost(cost);
+//            }
 
             return deviceModel;
         }
