@@ -58,7 +58,8 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_udi"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                        android:layout_height="match_parent"
+                        android:background="@color/filledBoxBackground"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
@@ -78,7 +79,8 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_di"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                        android:layout_height="match_parent"
+                        android:background="@color/filledBoxBackground"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -91,7 +93,8 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_name"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                        android:layout_height="match_parent"
+                        android:background="@color/filledBoxBackground"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -104,7 +107,8 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_quantity"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                        android:layout_height="match_parent"
+                        android:background="@color/filledBoxBackground"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -121,7 +125,8 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_expiration_date"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                        android:layout_height="match_parent"
+                        android:background="@color/filledBoxBackground"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <LinearLayout
@@ -140,7 +145,8 @@
                             android:id="@+id/detail_physical_location"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:completionThreshold="1" />
+                            android:completionThreshold="1"
+                            android:background="@color/filledBoxBackground"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
@@ -160,7 +166,8 @@
                             android:id="@+id/detail_type"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:completionThreshold="1" />
+                            android:completionThreshold="1"
+                            android:background="@color/filledBoxBackground"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
@@ -196,7 +203,8 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_description"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:background="@color/filledBoxBackground" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -209,7 +217,8 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_lot_number"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:background="@color/filledBoxBackground"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -222,7 +231,8 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_reference_number"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:background="@color/filledBoxBackground"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -235,7 +245,8 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/detail_company"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:background="@color/filledBoxBackground"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -256,7 +267,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="true"
-                        android:cursorVisible="false" />
+                        android:cursorVisible="false"
+                        android:background="@color/filledBoxBackground"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
 <!--                <com.google.android.material.textfield.TextInputLayout-->
