@@ -30,7 +30,7 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
 
     private View rootView;
     private RecyclerView inventoryRecyclerView;
-//    private SwipeRefreshLayout swipeRefreshLayout;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private TypesAdapter typesAdapter;
 
     private InventoryViewModel inventoryViewModel;
@@ -39,7 +39,7 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.generic_swipe_refresh_list_layout, container, false);
         inventoryRecyclerView = rootView.findViewById(R.id.recycler_view);
-//        swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
 
         inventoryViewModel = new ViewModelProvider(requireActivity()).get(InventoryViewModel.class);
         LinearLayout fabLayout = requireActivity().findViewById(R.id.fab_layout);
@@ -66,23 +66,22 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
             if (mapResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                 typesAdapter.setTypeList(mapResource.getData());
                 typesAdapter.notifyDataSetChanged();
-//                swipeRefreshLayout.setRefreshing(false);
+                swipeRefreshLayout.setRefreshing(false);
             } else if (mapResource.getRequest().getStatus() == Request.Status.ERROR) {
                 Snackbar.make(rootView.findViewById(R.id.activity_main), mapResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
             }
         });
 
         // on refresh update inventory
-//        swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadInventory());
-//
-//        inventoryViewModel.loadInventory();
+        swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadTypeList());
+
+        inventoryViewModel.loadTypeList();
     }
 
     public void showModelList(final String type) {
         Fragment fragment = new ModelListFragment();
         Bundle bundle = new Bundle();
         bundle.putString("type", type);
-//        bundle.putSerializable("DeviceModels", (Serializable) deviceModels);
         fragment.setArguments(bundle);
 
         requireActivity().getSupportFragmentManager()
