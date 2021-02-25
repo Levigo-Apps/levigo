@@ -1,5 +1,6 @@
 package org.getcarebase.carebase.repositories;
 
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -89,11 +90,15 @@ public class ProcedureRepository {
         return saveProceduresRequest;
     }
 
-    public LiveData<Resource<List<Procedure>>> getProcedures() {
+    public LiveData<Resource<List<Procedure>>> getProcedures(boolean onRefresh) {
         Query queryLiveData;
         MutableLiveData<Resource<List<Procedure>>> proceduresLiveData = new MutableLiveData<>();
-        // Order procedures by date and time, limit the number of procedures to 10
-        if (lastResult == null) { //if there isn't procedures obtained
+        // clear procedure list on refresh
+        if (onRefresh) {
+            procedures.clear();
+        }
+        // Load from beginning of procedure list if on initialization or refresh
+        if (lastResult == null || onRefresh) {
             queryLiveData = proceduresReference.orderBy("date", Direction.DESCENDING).orderBy("time_in", Direction.DESCENDING).limit(10);
         } else {
             // Obtain the next 10 procedures
@@ -108,8 +113,9 @@ public class ProcedureRepository {
                // store the last procedure
                if (task.getResult().size() > 0) {
                    lastResult = task.getResult().getDocuments().get(task.getResult().size() -1);
+                   // set live data only if there was a new change
+                   proceduresLiveData.setValue(new Resource<>(procedures,new Request(null, Request.Status.SUCCESS)));
                }
-               proceduresLiveData.setValue(new Resource<>(procedures,new Request(null, Request.Status.SUCCESS)));
            } else {
                proceduresLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
            }
