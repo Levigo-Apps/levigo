@@ -8,6 +8,7 @@ public class Shipment {
     private String di;
     private String udi;
     private String sourceHospitalId;
+    private String destHospital;
     private int shippedQuantity;
     private int receivedQuantity;
     private boolean received;
@@ -50,6 +51,16 @@ public class Shipment {
     @PropertyName("source_hospital_id")
     public void setSourceHospitalId (String sourceHospitalId) {
         this.sourceHospitalId = sourceHospitalId;
+    }
+
+    @PropertyName("dest_hospital")
+    public String getDestHospital() {
+        return destHospital;
+    }
+
+    @PropertyName("dest_hospital")
+    public void setDestHospital(String destHospital) {
+        this.destHospital = destHospital;
     }
 
     @PropertyName("shipped_quantity")
