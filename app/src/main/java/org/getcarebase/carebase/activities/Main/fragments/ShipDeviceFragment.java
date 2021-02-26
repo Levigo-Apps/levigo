@@ -21,6 +21,7 @@ import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.DeviceViewModel;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
@@ -72,7 +73,9 @@ public class ShipDeviceFragment extends Fragment {
             deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
                 if(sitesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                     sitesAdapter.clear();
-                    sitesAdapter.addAll(sitesResource.getData().values());
+                    Collection<String> siteOptions = sitesResource.getData().values();
+                    siteOptions.remove(currentHospitalName);
+                    sitesAdapter.addAll(siteOptions);
                 } else {
                     Log.d(TAG,"Unable to fetch sites");
                     Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
@@ -86,7 +89,7 @@ public class ShipDeviceFragment extends Fragment {
         deviceViewModel.getSaveShipmentRequestLiveData().observe(getViewLifecycleOwner(), request -> {
             if (request.getStatus() == Request.Status.SUCCESS) {
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-                View nextView = requireActivity().findViewById(R.id.activity_main);
+                View nextView = requireActivity().findViewById(R.id.frame_layout);
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.remove(this).commit();
                 Snackbar.make(nextView, "Shipment saved to inventory", Snackbar.LENGTH_LONG).show();
@@ -125,20 +128,24 @@ public class ShipDeviceFragment extends Fragment {
     }
 
     private void saveData() {
-        // TODO: Check if inputs are complete and valid
         Shipment shipment = new Shipment();
         shipment.setUdi((String) deviceUdi.getText());
         String di;
         shipment.setDi((di = getArguments().getString("di")) != null ? di : "");
+        if (deviceQty.getEditText().getText().toString().isEmpty()) {
+            Snackbar.make(rootView, "Enter a quantity", Snackbar.LENGTH_LONG).show();
+            return;
+        }
+        if (deviceDest.getEditText().getText().toString().isEmpty()) {
+            Snackbar.make(rootView, "Select a destination", Snackbar.LENGTH_LONG).show();
+            return;
+        }
         Integer shippedQuantity = Integer.parseInt(deviceQty.getEditText().getText().toString());
+        if (shippedQuantity > Integer.parseInt(getArguments().getString("qty")) || shippedQuantity <= 0) {
+            Snackbar.make(rootView, "Invalid quantity", Snackbar.LENGTH_LONG).show();
+            return;
+        }
         shipment.setShippedQuantity(shippedQuantity);
-
-        // TODO: Reduce quantities of device model and device production
-//        deviceViewModel.getDeviceInFirebaseLiveData().observe(getViewLifecycleOwner(), deviceModelResource -> {
-//            DeviceModel deviceModel = deviceModelResource.getData();
-//            deviceModel.setQuantity(deviceModel.getQuantity() - shippedQuantity);
-//            deviceViewModel.saveDevice(deviceModel);
-//        });
         
         deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
             Map<String, String> sitesMap = sitesResource.getData();
