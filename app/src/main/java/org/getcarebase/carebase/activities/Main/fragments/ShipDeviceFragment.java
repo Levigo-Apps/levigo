@@ -16,13 +16,14 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.DeviceViewModel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.Objects;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -39,7 +40,6 @@ public class ShipDeviceFragment extends Fragment {
 
     Button saveButton;
 
-    String currentHospitalId;
     String currentHospitalName;
 
     private View rootView;
@@ -68,14 +68,12 @@ public class ShipDeviceFragment extends Fragment {
             deviceViewModel.setupDeviceRepository();
             if (userResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 currentHospitalName = userResource.getData().getHospitalName();
-                currentHospitalId = userResource.getData().getHospitalId();
+                deviceViewModel.setHospitalRepository(userResource.getData().getHospitalId());
             }
             deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
                 if(sitesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                     sitesAdapter.clear();
-                    sitesAdapter.addAll(Arrays.stream(sitesResource.getData())
-                            .filter(site -> !site.equals(currentHospitalName))
-                            .collect(Collectors.toList()));
+                    sitesAdapter.addAll(sitesResource.getData().values());
                 } else {
                     Log.d(TAG,"Unable to fetch sites");
                     Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
@@ -133,10 +131,33 @@ public class ShipDeviceFragment extends Fragment {
         shipment.setUdi((String) deviceUdi.getText());
         String di;
         shipment.setDi((di = getArguments().getString("di")) != null ? di : "");
-        shipment.setShippedQuantity(Integer.parseInt(deviceQty.getEditText().getText().toString()));
-        shipment.setDestHospital(deviceDest.getEditText().getText().toString());
-        shipment.setSourceHospitalId(currentHospitalId);
+        Integer shippedQuantity = Integer.parseInt(deviceQty.getEditText().getText().toString());
+        shipment.setShippedQuantity(shippedQuantity);
 
-        deviceViewModel.saveShipment(shipment);
+        // TODO: Reduce quantities of device model and device production
+//        deviceViewModel.getDeviceInFirebaseLiveData().observe(getViewLifecycleOwner(), deviceModelResource -> {
+//            DeviceModel deviceModel = deviceModelResource.getData();
+//            deviceModel.setQuantity(deviceModel.getQuantity() - shippedQuantity);
+//            deviceViewModel.saveDevice(deviceModel);
+//        });
+        
+        deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
+            Map<String, String> sitesMap = sitesResource.getData();
+            Boolean destSet = false, sourceSet = false;
+            for (String id : sitesMap.keySet()) {
+                if (Objects.requireNonNull(deviceDest.getEditText()).getText().toString().contentEquals(sitesMap.get(id))) {
+                    shipment.setDestHospital(id);
+                    deviceViewModel.setHospitalRepository(id);
+                    destSet = true;
+                }
+                if (currentHospitalName.contentEquals(sitesMap.get(id))) {
+                    shipment.setSourceHospitalId(id);
+                    sourceSet = true;
+                }
+                if (destSet && sourceSet) break;
+            }
+
+            deviceViewModel.saveShipment(shipment);
+        });
     }
 }

@@ -16,16 +16,19 @@ import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
 import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
+import org.getcarebase.carebase.repositories.HospitalRepository;
 import org.getcarebase.carebase.repositories.PendingDeviceRepository;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class DeviceViewModel extends ViewModel {
     private DeviceRepository deviceRepository;
     private PendingDeviceRepository pendingDeviceRepository;
+    private HospitalRepository hospitalRepository;
     private final FirebaseAuthRepository authRepository;
 
     private LiveData<Resource<User>> userLiveData;
@@ -53,7 +56,7 @@ public class DeviceViewModel extends ViewModel {
 
     private final MutableLiveData<Shipment> saveShipmentLiveData = new MutableLiveData<>();
     private final LiveData<Request> saveShipmentRequestLiveData =
-            Transformations.switchMap(saveShipmentLiveData, shipment -> deviceRepository.saveShipment(shipment));
+            Transformations.switchMap(saveShipmentLiveData, shipment -> hospitalRepository.saveShipment(shipment));
 
     public DeviceViewModel() {
         authRepository = new FirebaseAuthRepository();
@@ -72,12 +75,17 @@ public class DeviceViewModel extends ViewModel {
         pendingDeviceRepository = new PendingDeviceRepository(user.getNetworkId(),user.getHospitalId());
     }
 
+    public void setHospitalRepository(String hospitalId) {
+        User user = Objects.requireNonNull(userLiveData.getValue()).getData();
+        hospitalRepository = new HospitalRepository(user.getNetworkId(), hospitalId);
+    }
+
     public LiveData<Resource<List<String>>> getDeviceTypesLiveData() {
         return deviceRepository.getDeviceTypeOptions();
     }
 
-    public LiveData<Resource<String[]>> getSitesLiveData() {
-        return deviceRepository.getSiteOptions();
+    public LiveData<Resource<Map<String, String>>> getSitesLiveData() {
+        return hospitalRepository.getSiteOptions();
     }
 
     public LiveData<Resource<String[]>> getPhysicalLocationsLiveData() {
