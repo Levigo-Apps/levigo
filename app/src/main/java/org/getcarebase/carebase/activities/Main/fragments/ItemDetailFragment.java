@@ -221,7 +221,7 @@ public class ItemDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        dp = requireContext().getResources().getDisplayMetrics().density;
+        dp = Objects.requireNonNull(getContext()).getResources().getDisplayMetrics().density;
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
         myCalendar = Calendar.getInstance();
@@ -405,7 +405,7 @@ public class ItemDetailFragment extends Fragment {
 
     private void hideKeyboard() {
         try {
-            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) Objects.requireNonNull(getActivity()).getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
         } catch (Exception e) {
             Log.d(TAG,"Keyboard not open");
@@ -509,7 +509,7 @@ public class ItemDetailFragment extends Fragment {
         deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
             if(sitesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 sitesAdapter.clear();
-                sitesAdapter.addAll(sitesResource.getData().values());
+                sitesAdapter.addAll(Arrays.asList(sitesResource.getData()));
             } else {
                 Log.d(TAG,"Unable to fetch sites");
                 Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
