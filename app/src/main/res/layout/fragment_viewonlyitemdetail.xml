@@ -150,30 +150,37 @@
             android:layout_marginBottom="12dp"
             android:background="@color/colorLightGrey"/>
 
-        <TextView
-            android:paddingVertical="8dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Specifications"
-            android:textSize="5pt"
-            android:textColor="@color/colorPrimary"
-            android:textStyle="bold"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"/>
-
-        <org.getcarebase.carebase.views.DetailLabeledTextView
-            android:id="@+id/type_edittext"
+        <LinearLayout
+            android:id="@+id/specifications_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_columnWeight="1"
-            app:label_text="Type" />
+            android:orientation="vertical">
+            <TextView
+                android:paddingVertical="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Specifications"
+                android:textSize="5pt"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"/>
 
-        <org.getcarebase.carebase.views.DetailLabeledTextView
-            android:id="@+id/devicedescription_edittext"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            app:label_text="Description" />
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/type_edittext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_columnWeight="1"
+                app:label_text="Type" />
+
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/devicedescription_edittext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:label_text="Description" />
+
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
