@@ -22,11 +22,13 @@ public class DetailLabeledTextView extends LinearLayout {
         View rootView = inflate(context,R.layout.detail_text_view_layout,this);
         valueTextView = rootView.findViewById(R.id.value);
         labelTextView = rootView.findViewById(R.id.label);
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.DetailLabeledTextView,0,0);
-        CharSequence value = a.getText(R.styleable.DetailLabeledTextView_value_text);
-        valueTextView.setText(value);
-        CharSequence label = a.getText(R.styleable.DetailLabeledTextView_label_text);
-        labelTextView.setText(label);
+        if (attrs != null) {
+            TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.DetailLabeledTextView,0,0);
+            CharSequence value = a.getText(R.styleable.DetailLabeledTextView_value_text);
+            valueTextView.setText(value);
+            CharSequence label = a.getText(R.styleable.DetailLabeledTextView_label_text);
+            labelTextView.setText(label);
+        }
     }
 
     public CharSequence getTextValue() {
