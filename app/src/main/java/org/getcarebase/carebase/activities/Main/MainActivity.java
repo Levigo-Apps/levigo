@@ -17,6 +17,7 @@
 package org.getcarebase.carebase.activities.Main;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -32,6 +33,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -47,17 +49,24 @@ import com.journeyapps.barcodescanner.CaptureActivity;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Login.LoginActivity;
 import org.getcarebase.carebase.activities.Main.adapters.HomePagerAdapter;
+import org.getcarebase.carebase.activities.Main.fragments.EditEquipmentFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ItemDetailFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ItemDetailOfflineFragment;
+import org.getcarebase.carebase.activities.Main.fragments.ModelListFragment;
 import org.getcarebase.carebase.activities.Main.fragments.PendingUdiFragment;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.InventoryViewModel;
 
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int RC_HANDLE_CAMERA_PERM = 1;
     private static final int RC_ADD_PROCEDURE = 2;
+    private static final int RC_EDIT_DEVICE_DETAILS = 3;
+
+    public static final int RESULT_EDITED = Activity.RESULT_FIRST_USER + 0;
 
     private Toolbar toolbar;
 
@@ -152,6 +161,15 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Snackbar.make(findViewById(R.id.activity_main),"Procedure Saved", Snackbar.LENGTH_LONG).show();
             }
+        } else if (requestCode == RC_EDIT_DEVICE_DETAILS) {
+            if (resultCode == RESULT_EDITED) {
+                // reload model list fragment if edited
+                Fragment fragment = getSupportFragmentManager().findFragmentByTag(ModelListFragment.TAG);
+                final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.detach(fragment);
+                ft.attach(fragment);
+                ft.commit();
+            }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -183,6 +201,13 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.add(R.id.activity_main, fragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+    }
+
+    public void startDeviceDetail(final String di, final String udi) {
+        Intent intent = new Intent(this,DeviceDetailActivity.class);
+        intent.putExtra("di",di);
+        intent.putExtra("udi",udi);
+        startActivityForResult(intent, RC_EDIT_DEVICE_DETAILS);
     }
 
     public void startItemFormOffline(String barcode) {
