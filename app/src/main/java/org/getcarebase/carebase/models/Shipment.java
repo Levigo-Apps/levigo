@@ -53,13 +53,13 @@ public class Shipment {
         this.sourceHospitalId = sourceHospitalId;
     }
 
-    @PropertyName("dest_hospital")
-    public String getDestHospital() {
+    @PropertyName("destination_hospital_id")
+    public String getDestinationHospitalId() {
         return destHospital;
     }
 
-    @PropertyName("dest_hospital")
-    public void setDestHospital(String destHospital) {
+    @PropertyName("destination_hospital_id")
+    public void setDestinationHospitalId(String destHospital) {
         this.destHospital = destHospital;
     }
 
