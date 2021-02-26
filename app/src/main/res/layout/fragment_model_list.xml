@@ -20,11 +20,12 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/types_dis"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:nestedScrollingEnabled="true"
         android:orientation="vertical"
         android:scrollbars="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/type_title" />
+        app:layout_constraintTop_toBottomOf="@+id/type_title"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
