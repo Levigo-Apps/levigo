@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +22,7 @@ import org.getcarebase.carebase.models.DeviceProduction;
 import org.getcarebase.carebase.viewmodels.DeviceViewModel;
 import org.getcarebase.carebase.views.DetailLabeledTextView;
 
+import java.util.Map;
 import java.util.Objects;
 
 public class ItemDetailViewFragment extends Fragment {
@@ -69,6 +71,7 @@ public class ItemDetailViewFragment extends Fragment {
         manufacturer = rootView.findViewById(R.id.company_edittext);
         lastUpdate = rootView.findViewById(R.id.lasteupdate_edittext);
         deviceDescription = rootView.findViewById(R.id.devicedescription_edittext);
+        LinearLayout specificationsLayout = rootView.findViewById(R.id.specifications_layout);
 
         deviceViewModel = new ViewModelProvider(requireActivity()).get(DeviceViewModel.class);
 
@@ -99,6 +102,13 @@ public class ItemDetailViewFragment extends Fragment {
                 currentTime = deviceProduction.getTimeAdded();
                 lastUpdate.setTextValue(String.format("%s\n%s", currentDate, currentTime));
                 referenceNumber.setTextValue(deviceProduction.getReferenceNumber());
+
+                for (Map.Entry<String,Object> entry : deviceModel.getSpecificationList()) {
+                    DetailLabeledTextView textView = new DetailLabeledTextView(requireContext(),null);
+                    textView.setLabel(entry.getKey());
+                    textView.setTextValue(entry.getValue().toString());
+                    specificationsLayout.addView(textView,specificationsLayout.getChildCount() - 1);
+                }
             }
             else if (resourceData.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR){
                 Toast.makeText(parent.getApplicationContext(), resourceData.getRequest().getResourceString(), Toast.LENGTH_SHORT).show();
