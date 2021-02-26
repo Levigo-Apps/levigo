@@ -116,6 +116,7 @@ public class ItemDetailViewFragment extends Fragment {
                     ShipDeviceFragment shipFragment = new ShipDeviceFragment();
                     Bundle bundle = new Bundle();
                     bundle.putString("barcode", Objects.requireNonNull(udi.getText().toString()));
+                    bundle.putString("di", deviceIdentifier.getTextValue().toString());
                     bundle.putString("qty", quantity.getTextValue().toString());
                     bundle.putString("name", itemName.getText().toString());
                     shipFragment.setArguments(bundle);
