@@ -1,46 +1,26 @@
 package org.getcarebase.carebase.activities.Main.fragments;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.getcarebase.carebase.R;
-import org.getcarebase.carebase.activities.Main.adapters.DeviceProceduresAdapter;
-import org.getcarebase.carebase.models.Cost;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceProduction;
 import org.getcarebase.carebase.viewmodels.DeviceViewModel;
 import org.getcarebase.carebase.views.DetailLabeledTextView;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 public class ItemDetailViewFragment extends Fragment {
@@ -130,10 +110,10 @@ public class ItemDetailViewFragment extends Fragment {
                 showEditDeviceFragment();
                 return true;
             }
-//            if (item.getItemId() == R.id.item_ship) {
-//                showShipDeviceFragment();
-//                return true;
-//            }
+            if (item.getItemId() == R.id.item_ship) {
+                showShipDeviceFragment();
+                return true;
+            }
             return false;
         });
 
@@ -165,6 +145,7 @@ public class ItemDetailViewFragment extends Fragment {
         bundle.putString("barcode", Objects.requireNonNull(udi.getText().toString()));
         bundle.putString("qty", quantity.getTextValue().toString());
         bundle.putString("name", itemName.getText().toString());
+        bundle.putString("di", deviceIdentifier.getTextValue().toString());
         shipFragment.setArguments(bundle);
 
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
