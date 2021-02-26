@@ -103,29 +103,6 @@ public class DeviceRepository {
     }
 
     /**
-     * Gets the possible site options
-     * @return a LiveData containing a Resource with a String array
-     */
-    public LiveData<Resource<String[]>> getSiteOptions() {
-        MutableLiveData<Resource<String[]>> sitesLiveData = new MutableLiveData<>();
-        DocumentReference documentReference = firestore.collection("networks").document(networkId)
-                .collection("hospitals").document("site_options");
-        documentReference.get().addOnCompleteListener( task -> {
-            if (task.isSuccessful()) {
-                // convert to array of strings
-                Object[] objects = task.getResult().getData().values().toArray();
-                String[] sites = (String[]) Arrays.asList(objects).toArray(new String[objects.length]);
-                Arrays.sort(sites);
-                sitesLiveData.setValue(new Resource<>(sites,new Request(null, Request.Status.SUCCESS)));
-            } else {
-                // TODO make error message in strings
-                sitesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
-            }
-        });
-        return sitesLiveData;
-    }
-
-    /**
      * Gets the possible physical locations in the current hospital and updates the returned LiveData
      * when any changes are made
      * @return a LiveData containing a Resource with a String array
