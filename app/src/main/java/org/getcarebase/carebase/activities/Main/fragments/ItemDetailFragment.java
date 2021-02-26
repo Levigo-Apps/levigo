@@ -456,6 +456,19 @@ public class ItemDetailFragment extends Fragment {
         });
         equipmentType.setAdapter(deviceTypeAdapter);
 
+        // set up sites
+//        final ArrayAdapter<String> sitesAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
+//        deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
+//            if(sitesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+//                sitesAdapter.clear();
+//                sitesAdapter.addAll(sitesResource.getData().values());
+//            } else {
+//                Log.d(TAG,"Unable to fetch sites");
+//                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
+//            }
+//        });
+//        hospitalName.setAdapter(sitesAdapter);
+
         // set up physical locations
         final ArrayAdapter<String> physicalLocationsAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
         deviceViewModel.getPhysicalLocationsLiveData().observe(getViewLifecycleOwner(), physicalLocationsResource -> {
