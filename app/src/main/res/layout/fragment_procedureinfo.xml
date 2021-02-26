@@ -28,7 +28,7 @@
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:liftOnScroll="true"
             app:navigationIcon="@drawable/icon_back"
-            app:title="Procedure information"
+            app:title="Procedure Information"
             app:titleTextColor="@android:color/white" />
 
 
@@ -153,7 +153,7 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/fluoro_time_lbl"
+                    android:hint="@string/fluoro_time_label"
                     app:boxStrokeColor="@color/colorPrimary"
                     app:suffixText="minutes">
 

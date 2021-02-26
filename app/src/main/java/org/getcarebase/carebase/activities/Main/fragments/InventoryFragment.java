@@ -19,8 +19,12 @@ import com.google.android.material.snackbar.Snackbar;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.activities.Main.adapters.TypesAdapter;
+import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.InventoryViewModel;
+
+import java.io.Serializable;
+import java.util.List;
 
 public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
 
@@ -28,12 +32,6 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
     private RecyclerView inventoryRecyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private TypesAdapter typesAdapter;
-
-    public interface DeviceClickCallback {
-        void showDeviceDetail(final String di, final String udi);
-    }
-
-    private DeviceClickCallback deviceClickCallback = this::showDeviceDetail;
 
     private InventoryViewModel inventoryViewModel;
 
@@ -45,9 +43,9 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
 
         inventoryViewModel = new ViewModelProvider(requireActivity()).get(InventoryViewModel.class);
         LinearLayout fabLayout = requireActivity().findViewById(R.id.fab_layout);
-        View scanDeviceFAB = (View) inflater.inflate(R.layout.mini_scan_device_fab,fabLayout, false);
+        View scanDeviceFAB = inflater.inflate(R.layout.mini_scan_device_fab,fabLayout, false);
         scanDeviceFAB.setOnClickListener(view -> ((MainActivity) requireActivity()).startScanner());
-        View manualAddDeviceFAB = (View) inflater.inflate(R.layout.mini_manual_add_device_fab,fabLayout,false);
+        View manualAddDeviceFAB = inflater.inflate(R.layout.mini_manual_add_device_fab,fabLayout,false);
         manualAddDeviceFAB.setOnClickListener(view -> ((MainActivity) requireActivity()).startItemForm(""));
         miniFABs = new View[] {scanDeviceFAB,manualAddDeviceFAB};
         super.onCreateView(inflater,fabLayout,savedInstanceState);
@@ -64,9 +62,9 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
         typesAdapter = new TypesAdapter(this);
         inventoryRecyclerView.setAdapter(typesAdapter);
 
-        inventoryViewModel.getCategoricalInventoryLiveData().observe(getViewLifecycleOwner(), mapResource -> {
+        inventoryViewModel.getTypeListLiveData().observe(getViewLifecycleOwner(), mapResource -> {
             if (mapResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-                typesAdapter.setCategoricalInventory(mapResource.getData());
+                typesAdapter.setTypeList(mapResource.getData());
                 typesAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
             } else if (mapResource.getRequest().getStatus() == Request.Status.ERROR) {
@@ -75,22 +73,22 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
         });
 
         // on refresh update inventory
-        swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadInventory());
+        swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadTypeList());
 
-        inventoryViewModel.loadInventory();
+        inventoryViewModel.loadTypeList();
     }
 
-    public void showDeviceDetail(final String di, final String udi) {
-        Fragment fragment = new ItemDetailViewFragment();
+    public void showModelList(final String type) {
+        Fragment fragment = new ModelListFragment();
         Bundle bundle = new Bundle();
-        // TODO rename parameters
-        bundle.putString("barcode", udi);
-        bundle.putString("di", di);
+        bundle.putString("type", type);
         fragment.setArguments(bundle);
+
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.activity_main,fragment,ItemDetailViewFragment.TAG)
+                .add(R.id.activity_main, fragment, ModelListFragment.TAG)
                 .addToBackStack(null)
                 .commit();
     }
+
 }
