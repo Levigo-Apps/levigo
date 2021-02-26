@@ -13,6 +13,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -28,6 +29,7 @@ import org.getcarebase.carebase.models.Hospital;
 import org.getcarebase.carebase.models.ParseUDIResponse;
 import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.Shipment;
+import org.getcarebase.carebase.utils.Event;
 import org.getcarebase.carebase.utils.FirestoreReferences;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
@@ -59,6 +61,9 @@ public class DeviceRepository {
     private final CollectionReference shipmentReference;
     private final DocumentReference physicalLocationsReference;
 
+    private ListenerRegistration deviceModelListenerRegistration;
+    private ListenerRegistration deviceProductionListenerRegistration;
+
 
     public DeviceRepository(String networkId, String hospitalId) {
         this.networkId = networkId;
@@ -69,6 +74,15 @@ public class DeviceRepository {
         proceduresReference = FirestoreReferences.getProceduresReference(hospitalReference);
         shipmentReference = FirestoreReferences.getShipmentReference(hospitalReference);
         physicalLocationsReference = FirestoreReferences.getPhysicalLocations(hospitalReference);
+    }
+
+    public void destroy() {
+        if (deviceModelListenerRegistration != null) {
+            deviceModelListenerRegistration.remove();
+        }
+        if (deviceProductionListenerRegistration != null){
+            deviceProductionListenerRegistration.remove();
+        }
     }
 
     /**
@@ -86,6 +100,29 @@ public class DeviceRepository {
            }
         });
         return deviceTypesLiveData;
+    }
+
+    /**
+     * Gets the possible site options
+     * @return a LiveData containing a Resource with a String array
+     */
+    public LiveData<Resource<String[]>> getSiteOptions() {
+        MutableLiveData<Resource<String[]>> sitesLiveData = new MutableLiveData<>();
+        DocumentReference documentReference = firestore.collection("networks").document(networkId)
+                .collection("hospitals").document("site_options");
+        documentReference.get().addOnCompleteListener( task -> {
+            if (task.isSuccessful()) {
+                // convert to array of strings
+                Object[] objects = task.getResult().getData().values().toArray();
+                String[] sites = (String[]) Arrays.asList(objects).toArray(new String[objects.length]);
+                Arrays.sort(sites);
+                sitesLiveData.setValue(new Resource<>(sites,new Request(null, Request.Status.SUCCESS)));
+            } else {
+                // TODO make error message in strings
+                sitesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+            }
+        });
+        return sitesLiveData;
     }
 
     /**
@@ -139,8 +176,8 @@ public class DeviceRepository {
      * @param deviceModel A device (only one production should be in the array)
      * @return a Request object detailing the status of the request.
      */
-    public LiveData<Request> saveDevice(DeviceModel deviceModel) {
-        MutableLiveData<Request> saveDeviceRequest = new MutableLiveData<>();
+    public LiveData<Event<Request>> saveDevice(DeviceModel deviceModel) {
+        MutableLiveData<Event<Request>> saveDeviceRequest = new MutableLiveData<>();
         List<Task<?>> tasks = new ArrayList<>();
         // save device model
         DocumentReference deviceModelReference = inventoryReference.document(deviceModel.getDeviceIdentifier());
@@ -179,10 +216,10 @@ public class DeviceRepository {
 
         Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                saveDeviceRequest.setValue(new Request(null, Request.Status.SUCCESS));
+                saveDeviceRequest.setValue(new Event(new Request(null, Request.Status.SUCCESS)));
             } else {
                 // TODO make resource error string
-                saveDeviceRequest.setValue(new Request(null, Request.Status.ERROR));
+                saveDeviceRequest.setValue(new Event(new Request(null, Request.Status.ERROR)));
             }
         });
 
@@ -271,7 +308,8 @@ public class DeviceRepository {
         return deviceLiveData;
     }
     /**
-     * Gets full device information (device model, device production, costs, and procedures) from firebase.
+     * Gets the DeviceModel and DeviceProduction in firestore with given params and updates
+     * automatically to local changes to those documents
      * The di and udi are expected to be valid and in firestore
      */
     public LiveData<Resource<DeviceModel>> getDeviceFromFirebase(final String di, final String udi) {
@@ -298,6 +336,8 @@ public class DeviceRepository {
                     deviceProduction.addProcedures(procedures);
                     deviceModel.addDeviceProduction(deviceProduction);
                     deviceLiveData.setValue(new Resource<>(deviceModel, new Request(null, Request.Status.SUCCESS)));
+                    listenToDeviceModelFromFirestore(inventoryReference,di,deviceLiveData);
+                    listenToDeviceProductionFromFirestore(inventoryReference,di,udi,deviceLiveData);
                 } catch (NullPointerException e) {
                     Log.e(TAG,e.getMessage());
                     deviceLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
@@ -372,6 +412,28 @@ public class DeviceRepository {
         return deviceModelTask;
     }
 
+    private void listenToDeviceModelFromFirestore(CollectionReference inventoryReference, final String di, final MutableLiveData<Resource<DeviceModel>> deviceModelLiveData) {
+        if (deviceModelListenerRegistration != null ){
+            Log.d(TAG, "Device model already has listener");
+            return;
+        }
+        final DocumentReference deviceModelReference = inventoryReference.document(di);
+        deviceModelListenerRegistration = deviceModelReference.addSnapshotListener(((snapshot, e) -> {
+            if (e != null || snapshot == null || !snapshot.exists() || snapshot.getData() == null) {
+                // set live data to error
+                Log.e(TAG,"Device Model listen failed", e);
+                deviceModelLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+                return;
+            }
+            // listen to only local changes
+            if (snapshot.getMetadata().hasPendingWrites()) {
+                DeviceModel deviceModel = Objects.requireNonNull(deviceModelLiveData.getValue()).getData();
+                deviceModel.fromMap(snapshot.getData());
+                deviceModelLiveData.setValue(new Resource<>(deviceModel,new Request(null, Request.Status.SUCCESS)));
+            }
+        }));
+    }
+
     private Task<?> getDeviceProductionFromFirestore(CollectionReference inventoryReference, final String di, final String udi, final AtomicReference<Resource<DeviceProduction>> deviceProductionAtomicReference) {
         Task<DocumentSnapshot> deviceProductionTask = inventoryReference.document(di).collection("udis").document(udi).get();
         deviceProductionTask.addOnCompleteListener(task -> {
@@ -387,6 +449,29 @@ public class DeviceRepository {
             }
         });
         return deviceProductionTask;
+    }
+
+    private void listenToDeviceProductionFromFirestore(CollectionReference inventoryReference, final String di, final String udi, final MutableLiveData<Resource<DeviceModel>> deviceModelLiveData) {
+        if (deviceProductionListenerRegistration != null ){
+            Log.d(TAG, "Device production already has listener");
+            return;
+        }
+        final DocumentReference deviceProductionReference = inventoryReference.document(di).collection("udis").document(udi);
+        deviceProductionListenerRegistration = deviceProductionReference.addSnapshotListener(((snapshot, e) -> {
+            if (e != null || snapshot == null || !snapshot.exists() || snapshot.getData() == null) {
+                // set live data to error
+                Log.e(TAG,"Device Model listen failed", e);
+                deviceModelLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+                return;
+            }
+            // listen to only local changes
+            if (snapshot.getMetadata().hasPendingWrites()) {
+                DeviceModel deviceModel = Objects.requireNonNull(deviceModelLiveData.getValue()).getData();
+                DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
+                deviceProduction.fromMap(snapshot.getData());
+                deviceModelLiveData.setValue(new Resource<>(deviceModel,new Request(null, Request.Status.SUCCESS)));
+            }
+        }));
     }
 
 //    private Task<?> getDeviceCostsFromFirestore(final String di, final String udi, final AtomicReference<Resource<List<Cost>>> costsAtomicReference) {

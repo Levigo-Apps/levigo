@@ -12,23 +12,20 @@ import androidx.lifecycle.ViewModel;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.PendingDevice;
-import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
 import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
-import org.getcarebase.carebase.repositories.HospitalRepository;
 import org.getcarebase.carebase.repositories.PendingDeviceRepository;
+import org.getcarebase.carebase.utils.Event;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 public class DeviceViewModel extends ViewModel {
     private DeviceRepository deviceRepository;
     private PendingDeviceRepository pendingDeviceRepository;
-    private HospitalRepository hospitalRepository;
     private final FirebaseAuthRepository authRepository;
 
     private LiveData<Resource<User>> userLiveData;
@@ -47,19 +44,21 @@ public class DeviceViewModel extends ViewModel {
     // when a user tries to save a device this live data will be updated
     private final MutableLiveData<DeviceModel> saveDeviceLiveData = new MutableLiveData<>();
     // requests to save a device will be sent to this live data
-    private final LiveData<Request> saveDeviceRequestLiveData = Transformations.switchMap(saveDeviceLiveData, deviceModel -> {
+    private final LiveData<Event<Request>> saveDeviceRequestLiveData = Transformations.switchMap(saveDeviceLiveData, deviceModel -> {
         if (pendingDeviceIdLiveData.getValue() != null) {
             pendingDeviceRepository.removePendingDevice(pendingDeviceIdLiveData.getValue());
         }
         return deviceRepository.saveDevice(deviceModel);
     });
 
-    private final MutableLiveData<Shipment> saveShipmentLiveData = new MutableLiveData<>();
-    private final LiveData<Request> saveShipmentRequestLiveData =
-            Transformations.switchMap(saveShipmentLiveData, shipment -> hospitalRepository.saveShipment(shipment));
-
     public DeviceViewModel() {
         authRepository = new FirebaseAuthRepository();
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        deviceRepository.destroy();
     }
 
     public LiveData<Resource<User>> getUserLiveData() {
@@ -75,17 +74,12 @@ public class DeviceViewModel extends ViewModel {
         pendingDeviceRepository = new PendingDeviceRepository(user.getNetworkId(),user.getHospitalId());
     }
 
-    public void setHospitalRepository(String hospitalId) {
-        User user = Objects.requireNonNull(userLiveData.getValue()).getData();
-        hospitalRepository = new HospitalRepository(user.getNetworkId(), hospitalId);
-    }
-
     public LiveData<Resource<List<String>>> getDeviceTypesLiveData() {
         return deviceRepository.getDeviceTypeOptions();
     }
 
-    public LiveData<Resource<Map<String, String>>> getSitesLiveData() {
-        return hospitalRepository.getSiteOptions();
+    public LiveData<Resource<String[]>> getSitesLiveData() {
+        return deviceRepository.getSiteOptions();
     }
 
     public LiveData<Resource<String[]>> getPhysicalLocationsLiveData() {
@@ -100,20 +94,12 @@ public class DeviceViewModel extends ViewModel {
         return savePhysicalLocationRequestLiveData;
     }
 
-    public LiveData<Request> getSaveDeviceRequestLiveData() {
+    public LiveData<Event<Request>> getSaveDeviceRequestLiveData() {
         return saveDeviceRequestLiveData;
     }
 
     public void saveDevice(DeviceModel deviceModel) {
         saveDeviceLiveData.setValue(deviceModel);
-    }
-
-    public LiveData<Request> getSaveShipmentRequestLiveData() {
-        return saveShipmentRequestLiveData;
-    }
-
-    public void saveShipment(Shipment shipment) {
-        saveShipmentLiveData.setValue(shipment);
     }
 
     public LiveData<Resource<DeviceModel>> getAutoPopulatedDeviceLiveData() {
@@ -203,7 +189,6 @@ public class DeviceViewModel extends ViewModel {
                 if (inventoryResource.getRequest().getResourceString() != null && inventoryResource.getRequest().getResourceString() == R.string.error_device_lookup) {
                     shippedResource.getData().getProductions().get(0).setPhysicalLocation("");
                     shippedResource.getData().setEquipmentType("");
-                    shippedResource.getData().setSiteName("");
                     shippedResource.getData().setQuantity(0);
                     autoPopulatedDeviceLiveData.setValue(shippedResource);
                 } else {

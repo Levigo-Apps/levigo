@@ -41,7 +41,7 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
 
     private final ProceduresFragment.ProcedureClickCallback procedureClickCallback = this::showProcedureDetail;
     // method will call load procedures
-    private final OnBottomReachedCallback onBottomReachedCallback = () -> proceduresViewModel.loadProcedures();
+    private final OnBottomReachedCallback onBottomReachedCallback = () -> proceduresViewModel.loadProcedures(false);
 
     @Nullable
     @Override
@@ -61,7 +61,7 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
         proceduresViewModel.getUserLiveData().observe(getViewLifecycleOwner(),userResource -> {
             if (userResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                 proceduresViewModel.setupRepository();
-                proceduresViewModel.loadProcedures();
+                proceduresViewModel.loadProcedures(false);
             } else {
                 Snackbar.make(rootView.findViewById(R.id.activity_main), userResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
             }
@@ -84,7 +84,7 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
                 Snackbar.make(rootView,proceduresResource.getRequest().getResourceString(),Snackbar.LENGTH_LONG).show();
             }
         });
-        swipeRefreshLayout.setOnRefreshListener(() -> proceduresViewModel.loadProcedures());
+        swipeRefreshLayout.setOnRefreshListener(() -> proceduresViewModel.loadProcedures(true));
         return rootView;
     }
 

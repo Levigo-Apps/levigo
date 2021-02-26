@@ -16,34 +16,21 @@ import org.getcarebase.carebase.activities.Main.fragments.InventoryFragment;
 import org.getcarebase.carebase.models.DeviceModel;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder> {
     private final InventoryFragment inventoryFragment;
-    private Map<String, List<DeviceModel>> categoricalInventory;
+    private List<String> typeList;
 
     public static class TypesHolder extends RecyclerView.ViewHolder {
-        public RecyclerView itemDIs;
         public TextView itemType;
-        public ImageView itemIcon;
 
         public TypesHolder(View view){
             super(view);
-            itemDIs = view.findViewById(R.id.types_dis);
             itemType = view.findViewById(R.id.types_name);
-            itemIcon = view.findViewById(R.id.types_icon);
-
-            itemType.setOnClickListener(view1 -> {
-                if(itemDIs.getVisibility() == View.GONE){
-                    itemDIs.setVisibility(View.VISIBLE);
-                    itemIcon.setImageResource(R.drawable.icon_minimize);
-                }
-                else {
-                    itemDIs.setVisibility(View.GONE);
-                    itemIcon.setImageResource(R.drawable.ic_baseline_plus);
-                }
-            });
         }
     }
 
@@ -51,8 +38,9 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
         this.inventoryFragment = inventoryFragment;
     }
 
-    public void setCategoricalInventory(Map<String, List<DeviceModel>> categoricalInventory) {
-        this.categoricalInventory = categoricalInventory;
+    public void setTypeList(List<String> typeList) {
+        this.typeList = typeList;
+        Collections.sort(this.typeList);
     }
 
     @NonNull
@@ -64,19 +52,15 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
 
     @Override
     public void onBindViewHolder(TypesHolder holder, int position){
-        List<Map.Entry<String, List<DeviceModel>>> categories = new ArrayList<>(categoricalInventory.entrySet());
-        Map.Entry<String, List<DeviceModel>> category = categories.get(position);
+        String type = typeList.get(position);
 
-        holder.itemType.setText(category.getKey());
+        holder.itemType.setText(type);
 
-        DeviceModelsAdapter deviceModelsAdapter = new DeviceModelsAdapter(inventoryFragment, category.getValue());
-        LinearLayoutManager layoutManager = new LinearLayoutManager(inventoryFragment.getContext());
-        holder.itemDIs.setLayoutManager(layoutManager);
-        holder.itemDIs.setAdapter(deviceModelsAdapter);
+        holder.itemView.setOnClickListener(view -> inventoryFragment.showModelList(type));
     }
 
     @Override
     public int getItemCount(){
-        return categoricalInventory == null ? 0 : categoricalInventory.size();
+        return typeList == null ? 0 : typeList.size();
     }
 }
