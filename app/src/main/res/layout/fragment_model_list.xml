@@ -17,6 +17,27 @@
         app:title="Type"
         style="@style/Widget.Carebase.ToolBar.Gradient" />
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/filter_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="16dp"
+        android:paddingHorizontal="24dp"
+        android:hint="Subcategory"
+        app:layout_constraintBottom_toTopOf="@+id/types_dis"
+        app:layout_constraintTop_toBottomOf="@+id/type_title">
+
+        <AutoCompleteTextView
+            android:id="@+id/type_subcategories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/types_dis"
+            app:layout_constraintTop_toBottomOf="@+id/type_title"
+            android:completionThreshold="1" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/types_dis"
         android:layout_width="match_parent"
@@ -24,8 +45,9 @@
         android:nestedScrollingEnabled="true"
         android:orientation="vertical"
         android:scrollbars="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/type_title"
+        app:layout_constraintTop_toBottomOf="@+id/filter_layout"
         app:layout_constraintBottom_toBottomOf="parent" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
