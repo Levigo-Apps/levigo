@@ -94,8 +94,9 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText udiEditText;
     private TextInputEditText nameEditText;
     private AutoCompleteTextView equipmentType;
+    private AutoCompleteTextView subTypeTextView;
+    private TextInputLayout subTypeLayout;
     private TextInputEditText company;
-    private TextInputEditText otherType_text;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText deviceDescription;
     private TextInputEditText expiration;
@@ -179,6 +180,8 @@ public class ItemDetailFragment extends Fragment {
         udiEditText = rootView.findViewById(R.id.detail_udi);
         nameEditText = rootView.findViewById(R.id.detail_name);
         equipmentType = rootView.findViewById(R.id.detail_type);
+        subTypeTextView = rootView.findViewById(R.id.detail_subtype);
+        subTypeLayout = rootView.findViewById(R.id.detail_subtype_layout);
         company = rootView.findViewById(R.id.detail_company);
         expiration = rootView.findViewById(R.id.detail_expiration_date);
         physicalLocation = rootView.findViewById(R.id.detail_physical_location);
@@ -397,22 +400,25 @@ public class ItemDetailFragment extends Fragment {
     private void setupOptionFields() {
         // set up device types
         final ArrayAdapter<String> deviceTypeAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
+        final ArrayAdapter<String> subTypeAdapter = new ArrayAdapter<>(rootView.getContext(),R.layout.dropdown_menu_popup_item,new ArrayList<>());
+        subTypeTextView.setAdapter(subTypeAdapter);
         Map<String,List<String>> deviceTypes = deviceViewModel.getDeviceTypes();
         deviceTypeAdapter.addAll(deviceTypes.keySet());
         equipmentType.setAdapter(deviceTypeAdapter);
 
-        // set up sites
-//        final ArrayAdapter<String> sitesAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
-//        deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
-//            if(sitesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
-//                sitesAdapter.clear();
-//                sitesAdapter.addAll(sitesResource.getData().values());
-//            } else {
-//                Log.d(TAG,"Unable to fetch sites");
-//                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
-//            }
-//        });
-//        hospitalName.setAdapter(sitesAdapter);
+        equipmentType.setOnItemClickListener((parent, view, position, id) -> {
+            String type = parent.getItemAtPosition(position).toString();
+            subTypeAdapter.clear();
+            if (deviceTypes.get(type) != null) {
+                // make subtype text field appear
+                subTypeAdapter.addAll(deviceTypes.get(type));
+                subTypeLayout.setVisibility(View.VISIBLE);
+            } else {
+                // make subtype text field disappear
+                subTypeLayout.setVisibility(View.GONE);
+            }
+            subTypeAdapter.notifyDataSetChanged();
+        });
 
         // set up physical locations
         final ArrayAdapter<String> physicalLocationsAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
@@ -473,12 +479,27 @@ public class ItemDetailFragment extends Fragment {
         boolean isValid = true;
 
         List<EditText> requiredEditTexts = new ArrayList<>(allSizeOptions);
-        requiredEditTexts.addAll(Arrays.asList(udiEditText, deviceIdentifier, nameEditText, expiration, physicalLocation, equipmentType, lotNumber, company, numberAdded));
+        requiredEditTexts.addAll(Arrays.asList(udiEditText, deviceIdentifier, nameEditText, expiration, physicalLocation, equipmentType, company, numberAdded));
+        if (subTypeTextView.getVisibility() == View.VISIBLE) {
+            requiredEditTexts.add(subTypeTextView);
+        }
         for (EditText editText : requiredEditTexts) {
             if (editText.getText().toString().trim().isEmpty()) {
                 isValid = false;
             }
         }
+
+        // check that equipment types and sub types are valid
+        Map<String, List<String>> deviceTypes = deviceViewModel.getDeviceTypes();
+        if (deviceTypes.containsKey(equipmentType.getText().toString())) {
+            List<String> subTypes = deviceTypes.get(equipmentType.getText().toString());
+            if (subTypes != null && !subTypes.contains(subTypeTextView.getText().toString())) {
+                isValid = false;
+            }
+        } else {
+            isValid = false;
+        }
+
         if (isValid) {
             DeviceModel deviceModel = new DeviceModel();
             deviceModel.setDeviceIdentifier(Objects.requireNonNull(deviceIdentifier.getText()).toString().trim());
@@ -486,6 +507,9 @@ public class ItemDetailFragment extends Fragment {
             deviceModel.setCompany(Objects.requireNonNull(company.getText()).toString().trim());
             deviceModel.setDescription(Objects.requireNonNull(deviceDescription.getText()).toString().trim());
             deviceModel.setEquipmentType(equipmentType.getText().toString().trim());
+            if (subTypeTextView.getVisibility() == View.VISIBLE) {
+                deviceModel.setSubType(subTypeTextView.getText().toString().trim());
+            }
             int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
             final RadioButton radioButton = rootView.findViewById(radioButtonInt);
             final String usage = radioButton.getText().toString();
