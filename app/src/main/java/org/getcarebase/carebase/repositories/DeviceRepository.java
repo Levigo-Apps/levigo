@@ -93,7 +93,6 @@ public class DeviceRepository {
         Map<String,List<String>> deviceTypes = new LinkedHashMap<>();
         deviceTypes.put("Ballons", null);
         deviceTypes.put("Catheters",Arrays.asList("Microcatheter","Diagnostic Catheter","Flush","Directional"));
-        deviceTypes.put("Catheter",Arrays.asList("Microcatheter","Diagnostic Catheter","Flush","Directional"));
         deviceTypes.put("Dilators",null);
         deviceTypes.put("Drainage",Arrays.asList("Biliary","Nephrostomy","Multipurpose"));
         deviceTypes.put("Embolic Agents",Arrays.asList("Coils","Gelfoam","PVA"));
