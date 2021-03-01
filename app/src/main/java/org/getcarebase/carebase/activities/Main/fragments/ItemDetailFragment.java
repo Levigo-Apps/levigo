@@ -69,6 +69,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -131,52 +132,6 @@ public class ItemDetailFragment extends Fragment {
     private boolean editingExisting;
     private boolean isDi;
     private List<TextInputEditText> allSizeOptions;
-    // TODO remove hardcoded fields
-    private final List<String> DEVICE_TYPES = Arrays.asList(
-            "Balloon",
-            "Biliary Stent",
-            "Brush",
-            "Catheter",
-            "Catheter Extraction Tool",
-            "Catheter Securement Device",
-            "Compression Device",
-            "Central Venous Access",
-            "Chest (Bag, Catheter, Pneumo Kit, Thoracentesis Kit)",
-            "Coaxial Needle",
-            "Core Biopsy Gun",
-            "CT Biopsy Grid",
-            "Dilator",
-            "Drainage Bags, Kits, Tubes",
-            "Embolization (coils, microcoils, gel foam, particles)",
-            "Equipment",
-            "Flow Switch",
-            "Footballs",
-            "Gastro Equipment (feeding tube)",
-            "Gloves",
-            "Gown",
-            "Guide Sheath",
-            "Inflation Device",
-            "Introducer Sheath",
-            "Lidocaine",
-            "Micropuncture Kit",
-            "Needle",
-            "Nephro Tubes/Stents",
-            "Non-vascular Access Kit",
-            "Patient Cover",
-            "Picc line",
-            "Pneumothorax Kit/Flesh Kit",
-            "Povidone",
-            "Scalpel",
-            "Sheath",
-            "Sleeve",
-            "Snare",
-            "Stents and Embolization Coils",
-            "Sterile Tray",
-            "Stopcock",
-            "Tube",
-            "Wire",
-            "Ultrasound/Imaging related",
-            "Venous Access (Catheters, Central Lines, Introducers, Tunnelers)");
     private final List<String> PHYSICAL_LOCATIONS = Arrays.asList(
             "Box - Central Lines",
             "Box - Picc Lines",
@@ -442,18 +397,8 @@ public class ItemDetailFragment extends Fragment {
     private void setupOptionFields() {
         // set up device types
         final ArrayAdapter<String> deviceTypeAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
-        deviceViewModel.getDeviceTypesLiveData().observe(getViewLifecycleOwner(), deviceTypesResource -> {
-            if (deviceTypesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
-                deviceTypeAdapter.clear();
-                List<String> types = new ArrayList<>(DEVICE_TYPES);
-                types.addAll(deviceTypesResource.getData());
-                types = types.stream().distinct().sorted().collect(Collectors.toList());
-                // display unique device types
-                deviceTypeAdapter.addAll(types);
-            } else {
-                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
-            }
-        });
+        Map<String,List<String>> deviceTypes = deviceViewModel.getDeviceTypes();
+        deviceTypeAdapter.addAll(deviceTypes.keySet());
         equipmentType.setAdapter(deviceTypeAdapter);
 
         // set up sites
