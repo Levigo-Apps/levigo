@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -66,7 +67,9 @@ public class EditEquipmentFragment extends Fragment {
     // USER INPUT VALUES
     private TextInputEditText udiEditText;
     private TextInputEditText nameEditText;
-    private TextInputEditText equipmentType;
+    private AutoCompleteTextView equipmentType;
+    private AutoCompleteTextView subTypeTextView;
+    private TextInputLayout subTypeLayout;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText quantity;
     private TextInputEditText lotNumber;
@@ -87,52 +90,6 @@ public class EditEquipmentFragment extends Fragment {
     private int modelQuantityBeforeEdit;
     private int productionQuantityBeforeEdit;
 
-    // TODO remove hardcoded fields
-    private final List<String> DEVICE_TYPES = Arrays.asList(
-            "Balloon",
-            "Biliary Stent",
-            "Brush",
-            "Catheter",
-            "Catheter Extraction Tool",
-            "Catheter Securement Device",
-            "Compression Device",
-            "Central Venous Access",
-            "Chest (Bag, Catheter, Pneumo Kit, Thoracentesis Kit)",
-            "Coaxial Needle",
-            "Core Biopsy Gun",
-            "CT Biopsy Grid",
-            "Dilator",
-            "Drainage Bags, Kits, Tubes",
-            "Embolization (coils, microcoils, gel foam, particles)",
-            "Equipment",
-            "Flow Switch",
-            "Footballs",
-            "Gastro Equipment (feeding tube)",
-            "Gloves",
-            "Gown",
-            "Guide Sheath",
-            "Inflation Device",
-            "Introducer Sheath",
-            "Lidocaine",
-            "Micropuncture Kit",
-            "Needle",
-            "Nephro Tubes/Stents",
-            "Non-vascular Access Kit",
-            "Patient Cover",
-            "Picc line",
-            "Pneumothorax Kit/Flesh Kit",
-            "Povidone",
-            "Scalpel",
-            "Sheath",
-            "Sleeve",
-            "Snare",
-            "Stents and Embolization Coils",
-            "Sterile Tray",
-            "Stopcock",
-            "Tube",
-            "Wire",
-            "Ultrasound/Imaging related",
-            "Venous Access (Catheters, Central Lines, Introducers, Tunnelers)");
     private final List<String> PHYSICAL_LOCATIONS = Arrays.asList(
             "Box - Central Lines",
             "Box - Picc Lines",
@@ -160,10 +117,6 @@ public class EditEquipmentFragment extends Fragment {
             "Shelf - Micropuncture sets/Wires",
             "Other");
 
-    private LinearLayout siteConstrainLayout;
-    private LinearLayout physicalLocationConstrainLayout;
-    private LinearLayout typeConstrainLayout;
-
     private DeviceViewModel deviceViewModel;
     private View rootView;
 
@@ -178,6 +131,8 @@ public class EditEquipmentFragment extends Fragment {
         udiEditText = rootView.findViewById(R.id.detail_udi);
         nameEditText = rootView.findViewById(R.id.detail_name);
         equipmentType = rootView.findViewById(R.id.detail_type);
+        subTypeTextView = rootView.findViewById(R.id.detail_subtype);
+        subTypeLayout = rootView.findViewById(R.id.detail_subtype_layout);
         deviceIdentifier = rootView.findViewById(R.id.detail_di);
         quantity = rootView.findViewById(R.id.detail_quantity);
         lotNumber = rootView.findViewById(R.id.detail_lot_number);
@@ -204,6 +159,10 @@ public class EditEquipmentFragment extends Fragment {
 
             nameEditText.setText(deviceModel.getName());
             equipmentType.setText(deviceModel.getEquipmentType());
+            if (deviceModel.getSubType() != null) {
+                subTypeTextView.setText(deviceModel.getSubType());
+                subTypeLayout.setVisibility(View.VISIBLE);
+            }
             deviceIdentifier.setText(deviceModel.getDeviceIdentifier());
             String usageStr = deviceModel.getUsage();
             usageEditText.setText(usageStr);
@@ -235,6 +194,29 @@ public class EditEquipmentFragment extends Fragment {
         else if (deviceModelResource.getRequest().getStatus() == Request.Status.ERROR) {
             Snackbar.make(rootView, deviceModelResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
         }
+
+        // set up device types
+        final ArrayAdapter<String> deviceTypeAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
+        final ArrayAdapter<String> subTypeAdapter = new ArrayAdapter<>(rootView.getContext(),R.layout.dropdown_menu_popup_item,new ArrayList<>());
+        subTypeTextView.setAdapter(subTypeAdapter);
+        Map<String,List<String>> deviceTypes = deviceViewModel.getDeviceTypes();
+        deviceTypeAdapter.addAll(deviceTypes.keySet());
+        equipmentType.setAdapter(deviceTypeAdapter);
+
+        equipmentType.setOnItemClickListener((parent, view, position, id) -> {
+            String type = parent.getItemAtPosition(position).toString();
+            subTypeAdapter.clear();
+            if (deviceTypes.get(type) != null) {
+                // make subtype text field appear
+                subTypeAdapter.addAll(deviceTypes.get(type));
+                subTypeLayout.setVisibility(View.VISIBLE);
+            } else {
+                // make subtype text field disappear
+                subTypeLayout.setVisibility(View.GONE);
+            }
+            subTypeAdapter.notifyDataSetChanged();
+            subTypeTextView.setText("",false);
+        });
 
         //going back to inventory view
         toolBar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -291,7 +273,6 @@ public class EditEquipmentFragment extends Fragment {
 
         boolean isValid = true;
 
-        // style, cost, size, length are not listed
         List<EditText> requiredEditTexts = new ArrayList<>(Arrays.asList(udiEditText, nameEditText, deviceIdentifier,
                 quantity, lotNumber, expiration, usageEditText, physicalLocation, company,
                 equipmentType));
@@ -299,6 +280,17 @@ public class EditEquipmentFragment extends Fragment {
             if (editText.getText().toString().trim().isEmpty()) {
                 isValid = false;
             }
+        }
+
+        // check that equipment types and sub types are valid
+        Map<String, List<String>> deviceTypes = deviceViewModel.getDeviceTypes();
+        if (deviceTypes.containsKey(equipmentType.getText().toString())) {
+            List<String> subTypes = deviceTypes.get(equipmentType.getText().toString());
+            if (subTypes != null && !subTypes.contains(subTypeTextView.getText().toString())) {
+                isValid = false;
+            }
+        } else {
+            isValid = false;
         }
 
         if (isValid) {
