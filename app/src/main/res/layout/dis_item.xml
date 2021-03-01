@@ -42,11 +42,25 @@
             android:layout_height="wrap_content"
             android:paddingStart="4dp"
             android:layout_marginStart="12dp"
+            android:layout_marginVertical="8dp"
             android:text="DI: 0123456789"
-            android:textColor="@android:color/black"
+            android:textColor="@color/colorGrey"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/dis_name"/>
+
+        <TextView
+            android:id="@+id/dis_subcategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="4dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginVertical="8dp"
+            android:text="Subcategory"
+            android:textColor="@color/colorGrey"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dis_di"/>
 
         <TextView
             android:id="@+id/dis_quantity"
@@ -64,7 +78,7 @@
             android:layout_width="match_parent"
             android:layout_height="0.8dp"
             android:background="@color/colorLightGrey"
-            app:layout_constraintTop_toBottomOf="@id/dis_di"
+            app:layout_constraintTop_toBottomOf="@id/dis_subcategory"
             android:layout_marginVertical="16dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
