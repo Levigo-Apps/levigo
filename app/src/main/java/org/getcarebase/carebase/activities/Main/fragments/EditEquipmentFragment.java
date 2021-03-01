@@ -67,6 +67,7 @@ public class EditEquipmentFragment extends Fragment {
     private TextInputEditText udiEditText;
     private TextInputEditText nameEditText;
     private TextInputEditText equipmentType;
+    private TextInputEditText equipmentSubtype;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText quantity;
     private TextInputEditText lotNumber;
@@ -178,6 +179,7 @@ public class EditEquipmentFragment extends Fragment {
         udiEditText = rootView.findViewById(R.id.detail_udi);
         nameEditText = rootView.findViewById(R.id.detail_name);
         equipmentType = rootView.findViewById(R.id.detail_type);
+        equipmentSubtype = rootView.findViewById(R.id.detail_subtype);
         deviceIdentifier = rootView.findViewById(R.id.detail_di);
         quantity = rootView.findViewById(R.id.detail_quantity);
         lotNumber = rootView.findViewById(R.id.detail_lot_number);
@@ -204,6 +206,7 @@ public class EditEquipmentFragment extends Fragment {
 
             nameEditText.setText(deviceModel.getName());
             equipmentType.setText(deviceModel.getEquipmentType());
+            equipmentSubtype.setText(deviceModel.getSubType() == null ? "" : deviceModel.getSubType());
             deviceIdentifier.setText(deviceModel.getDeviceIdentifier());
             String usageStr = deviceModel.getUsage();
             usageEditText.setText(usageStr);
@@ -307,6 +310,7 @@ public class EditEquipmentFragment extends Fragment {
             deviceModel.setName(Objects.requireNonNull(nameEditText.getText()).toString().trim());
             deviceModel.setCompany(Objects.requireNonNull(company.getText()).toString().trim());
             deviceModel.setEquipmentType(equipmentType.getText().toString().trim());
+            deviceModel.setSubType(Objects.requireNonNull(equipmentSubtype.getText()).toString().trim());
             int currentProductionQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
             int quantityDifference = currentProductionQuantity - productionQuantityBeforeEdit;
             deviceModel.setQuantity(modelQuantityBeforeEdit+quantityDifference);
