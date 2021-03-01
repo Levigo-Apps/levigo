@@ -372,6 +372,10 @@ public class ItemDetailFragment extends Fragment {
                 quantity.setText(Integer.toString(deviceModel.getQuantity()));
                 quantity.setEnabled(false);
                 equipmentType.setText(deviceModel.getEquipmentType());
+                if (deviceModel.getSubType() != null) {
+                    subTypeLayout.setVisibility(View.VISIBLE);
+                    subTypeTextView.setText(deviceModel.getSubType());
+                }
                 if (deviceModel.getUsage() != null && deviceModel.getUsage().equals("Single Use")) {
                     singleUseButton.setChecked(true);
                 }
@@ -482,7 +486,7 @@ public class ItemDetailFragment extends Fragment {
 
         List<EditText> requiredEditTexts = new ArrayList<>(allSizeOptions);
         requiredEditTexts.addAll(Arrays.asList(udiEditText, deviceIdentifier, nameEditText, expiration, physicalLocation, equipmentType, company, numberAdded));
-        if (subTypeTextView.getVisibility() == View.VISIBLE) {
+        if (subTypeLayout.getVisibility() == View.VISIBLE) {
             requiredEditTexts.add(subTypeTextView);
         }
         for (EditText editText : requiredEditTexts) {
