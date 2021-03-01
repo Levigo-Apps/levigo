@@ -49,6 +49,7 @@ public class ItemDetailViewFragment extends Fragment {
     private DetailLabeledTextView lastUpdate;
     private DetailLabeledTextView notes;
     private DetailLabeledTextView deviceDescription;;
+    private DetailLabeledTextView subcategory;
 
 
     @Override
@@ -71,6 +72,7 @@ public class ItemDetailViewFragment extends Fragment {
         manufacturer = rootView.findViewById(R.id.company_edittext);
         lastUpdate = rootView.findViewById(R.id.lasteupdate_edittext);
         deviceDescription = rootView.findViewById(R.id.devicedescription_edittext);
+        subcategory = rootView.findViewById(R.id.subcategory_edittext);
         LinearLayout specificationsLayout = rootView.findViewById(R.id.specifications_layout);
 
         deviceViewModel = new ViewModelProvider(requireActivity()).get(DeviceViewModel.class);
