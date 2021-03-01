@@ -407,6 +407,7 @@ public class ItemDetailFragment extends Fragment {
         equipmentType.setAdapter(deviceTypeAdapter);
 
         equipmentType.setOnItemClickListener((parent, view, position, id) -> {
+            subTypeTextView.clearListSelection();
             String type = parent.getItemAtPosition(position).toString();
             subTypeAdapter.clear();
             if (deviceTypes.get(type) != null) {
@@ -418,6 +419,7 @@ public class ItemDetailFragment extends Fragment {
                 subTypeLayout.setVisibility(View.GONE);
             }
             subTypeAdapter.notifyDataSetChanged();
+            subTypeTextView.setText("",false);
         });
 
         // set up physical locations
