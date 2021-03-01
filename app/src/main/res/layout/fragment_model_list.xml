@@ -32,6 +32,8 @@
             android:id="@+id/type_subcategories"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:enabled="false"
+            android:textColor="@color/colorGrey"
             app:layout_constraintBottom_toTopOf="@+id/types_dis"
             app:layout_constraintTop_toBottomOf="@+id/type_title"
             android:completionThreshold="1" />
