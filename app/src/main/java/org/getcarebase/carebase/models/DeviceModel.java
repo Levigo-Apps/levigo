@@ -49,6 +49,10 @@ public class DeviceModel implements Serializable {
         this.equipmentType = equipmentType;
     }
 
+    public void setSubType(String subType) {
+        this.subType = subType;
+    }
+
     public void setUsage(String usage) {
         this.usage = usage;
     }
