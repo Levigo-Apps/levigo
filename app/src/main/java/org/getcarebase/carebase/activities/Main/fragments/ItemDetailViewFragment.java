@@ -93,7 +93,10 @@ public class ItemDetailViewFragment extends Fragment {
                 deviceIdentifier.setTextValue(deviceModel.getDeviceIdentifier());
                 itemName.setText(deviceModel.getName());
                 manufacturer.setTextValue(deviceModel.getCompany());
-                subtype.setTextValue(deviceModel.getSubType().isEmpty() ? "" : deviceModel.getSubType());
+                subtype.setTextValue(deviceModel.getSubType() == null ? "" : deviceModel.getSubType());
+                if (deviceModel.getSubType() == null) {
+                    subtype.setVisibility(View.GONE);
+                }
 
                 DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
                 expiration.setTextValue(deviceProduction.getExpirationDate());

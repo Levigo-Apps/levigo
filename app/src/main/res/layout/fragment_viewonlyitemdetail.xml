@@ -143,13 +143,6 @@
                 android:layout_columnWeight="1"
                 app:label_text="Reference Number" />
 
-            <org.getcarebase.carebase.views.DetailLabeledTextView
-                android:id="@+id/subtype_edittext"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                app:label_text="Subtype" />
-
         </GridLayout>
 
         <View
@@ -180,6 +173,14 @@
                 android:layout_marginTop="8dp"
                 android:layout_columnWeight="1"
                 app:label_text="Type" />
+
+            <org.getcarebase.carebase.views.DetailLabeledTextView
+                android:id="@+id/subtype_edittext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_columnWeight="1"
+                app:label_text="Subtype" />
 
             <org.getcarebase.carebase.views.DetailLabeledTextView
                 android:id="@+id/devicedescription_edittext"
