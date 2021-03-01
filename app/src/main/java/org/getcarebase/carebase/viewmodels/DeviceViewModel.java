@@ -25,6 +25,7 @@ import org.getcarebase.carebase.utils.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 public class DeviceViewModel extends ViewModel {
     private DeviceRepository deviceRepository;
@@ -87,7 +88,7 @@ public class DeviceViewModel extends ViewModel {
         hospitalRepository = new HospitalRepository(user.getNetworkId(), hospitalId);
     }
 
-    public LiveData<Resource<List<String>>> getDeviceTypesLiveData() {
+    public Map<String, List<String>> getDeviceTypes() {
         return deviceRepository.getDeviceTypeOptions();
     }
 
