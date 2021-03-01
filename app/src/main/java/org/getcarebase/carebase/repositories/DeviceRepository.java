@@ -91,7 +91,7 @@ public class DeviceRepository {
      */
     public Map<String,List<String>> getDeviceTypeOptions() {
         Map<String,List<String>> deviceTypes = new LinkedHashMap<>();
-        deviceTypes.put("Ballons", null);
+        deviceTypes.put("Balloons", null);
         deviceTypes.put("Catheters",Arrays.asList("Microcatheter","Diagnostic Catheter","Flush","Directional"));
         deviceTypes.put("Dilators",null);
         deviceTypes.put("Drainage",Arrays.asList("Biliary","Nephrostomy","Multipurpose"));
