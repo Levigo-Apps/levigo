@@ -16,6 +16,7 @@ public class DeviceModel implements Serializable {
     private String company;
     private String description;
     private String equipmentType;
+    private String subType;
     private String usage;
     private int quantity;
     private Shipment shipment;
@@ -88,6 +89,8 @@ public class DeviceModel implements Serializable {
         return equipmentType;
     }
 
+    public String getSubType() { return subType; }
+
     public String getUsage() {
         return usage;
     }
@@ -123,6 +126,8 @@ public class DeviceModel implements Serializable {
         data.remove("medical_specialty");
         // DEPRECIATED
         data.remove("site_name");
+        this.subType = (String) data.get("sub_type");
+        data.remove("sub_type");
         this.usage = (String) data.get("usage");
         data.remove("usage");
         try {
@@ -141,6 +146,7 @@ public class DeviceModel implements Serializable {
         map.put("device_description",description);
         map.put("di",deviceIdentifier);
         map.put("equipment_type",equipmentType);
+        map.put("sub_type",subType);
         map.put("name",name);
 //        map.put("quantity",Integer.toString(quantity));
         map.put("quantity",quantity);
