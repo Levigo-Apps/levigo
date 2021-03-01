@@ -89,7 +89,7 @@ public class DeviceRepository {
      * Gets the possible device types
      * @return a map of device types
      */
-    public Map<String,List<String>> getDeviceTypeOptions() {
+    public static Map<String,List<String>> getDeviceTypeOptions() {
         Map<String,List<String>> deviceTypes = new LinkedHashMap<>();
         deviceTypes.put("Balloons", null);
         deviceTypes.put("Catheters",Arrays.asList("Microcatheter","Diagnostic Catheter","Flush","Directional"));
