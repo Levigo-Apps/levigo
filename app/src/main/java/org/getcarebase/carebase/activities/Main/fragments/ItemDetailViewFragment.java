@@ -49,6 +49,7 @@ public class ItemDetailViewFragment extends Fragment {
     private DetailLabeledTextView lastUpdate;
     private DetailLabeledTextView notes;
     private DetailLabeledTextView deviceDescription;;
+    private DetailLabeledTextView subtype;
 
 
     @Override
@@ -71,6 +72,7 @@ public class ItemDetailViewFragment extends Fragment {
         manufacturer = rootView.findViewById(R.id.company_edittext);
         lastUpdate = rootView.findViewById(R.id.lasteupdate_edittext);
         deviceDescription = rootView.findViewById(R.id.devicedescription_edittext);
+        subtype = rootView.findViewById(R.id.subtype_edittext);
         LinearLayout specificationsLayout = rootView.findViewById(R.id.specifications_layout);
 
         deviceViewModel = new ViewModelProvider(requireActivity()).get(DeviceViewModel.class);
@@ -91,6 +93,10 @@ public class ItemDetailViewFragment extends Fragment {
                 deviceIdentifier.setTextValue(deviceModel.getDeviceIdentifier());
                 itemName.setText(deviceModel.getName());
                 manufacturer.setTextValue(deviceModel.getCompany());
+                subtype.setTextValue(deviceModel.getSubType() == null ? "" : deviceModel.getSubType());
+                if (deviceModel.getSubType() == null) {
+                    subtype.setVisibility(View.GONE);
+                }
 
                 DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
                 expiration.setTextValue(deviceProduction.getExpirationDate());

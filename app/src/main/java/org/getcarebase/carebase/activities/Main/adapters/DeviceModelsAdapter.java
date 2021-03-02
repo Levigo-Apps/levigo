@@ -20,15 +20,18 @@ import org.getcarebase.carebase.activities.Main.fragments.ModelListFragment;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.utils.Resource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapter.DeviceModelHolder> {
     private final ModelListFragment modelListFragment;
     private List<DeviceModel> deviceModels;
+    private List<DeviceModel> deviceModelsCopy = new ArrayList<>();
+    private List<DeviceModel> filtered;
 
     public static class DeviceModelHolder extends RecyclerView.ViewHolder {
         public RecyclerView itemUDIs;
-        public TextView itemName, itemQuantity, itemDI;
+        public TextView itemName, itemQuantity, itemDI, itemSubcategory;
         public ConstraintLayout itemType;
 
 
@@ -38,6 +41,7 @@ public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapte
             itemDI = view.findViewById(R.id.dis_di);
             itemName = view.findViewById(R.id.dis_name);
             itemQuantity = view.findViewById(R.id.dis_quantity);
+            itemSubcategory = view.findViewById(R.id.dis_subcategory);
 
             itemType = view.findViewById(R.id.dis_type);
             itemType.setOnClickListener(view1 -> {
@@ -57,6 +61,7 @@ public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapte
 
     public void setDeviceModels(List<DeviceModel> deviceModels) {
         this.deviceModels = deviceModels;
+        deviceModelsCopy.addAll(this.deviceModels);
     }
 
     @NonNull
@@ -72,6 +77,14 @@ public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapte
         holder.itemName.setText(deviceModel.getName());
         holder.itemQuantity.setText(modelListFragment.getString(R.string.unit_quantity_value,deviceModel.getQuantity()));
         holder.itemDI.setText(deviceModel.getDeviceIdentifier());
+        // Display subcategory only if nonnull
+        if (deviceModel.getSubType() != null) {
+            holder.itemSubcategory.setVisibility(View.VISIBLE);
+            holder.itemSubcategory.setText(deviceModel.getSubType());
+        } else {
+            holder.itemSubcategory.setVisibility(View.GONE);
+        }
+
 
         DeviceProductionsAdapter deviceProductionsAdapter = new DeviceProductionsAdapter(modelListFragment, deviceModel.getDeviceIdentifier(), deviceModel.getProductions());
 
@@ -83,5 +96,19 @@ public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapte
     @Override
     public int getItemCount(){
         return deviceModels == null ? 0 : deviceModels.size();
+    }
+
+    public void filterSubtype(String subtype) {
+        deviceModels.clear();
+        if (subtype.equals("All")) {
+            deviceModels.addAll(deviceModelsCopy);
+        } else {
+            for (DeviceModel model: deviceModelsCopy) {
+                if (model.getSubType() != null && model.getSubType().equals(subtype)) {
+                    deviceModels.add(model);
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 }

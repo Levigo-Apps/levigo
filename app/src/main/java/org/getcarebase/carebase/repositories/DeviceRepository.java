@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -25,7 +24,6 @@ import org.getcarebase.carebase.models.Cost;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceModelGUDIDDeserializer;
 import org.getcarebase.carebase.models.DeviceProduction;
-import org.getcarebase.carebase.models.Hospital;
 import org.getcarebase.carebase.models.ParseUDIResponse;
 import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.Shipment;
@@ -36,7 +34,9 @@ import org.getcarebase.carebase.utils.Resource;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -86,20 +86,24 @@ public class DeviceRepository {
     }
 
     /**
-     * Gets the possible device types and updates the returned LiveData when changes are made
-     * @return a LiveData containing a Resource with a String array
+     * Gets the possible device types
+     * @return a map of device types
      */
-    public LiveData<Resource<List<String>>> getDeviceTypeOptions() {
-        MutableLiveData<Resource<List<String>>> deviceTypesLiveData = new MutableLiveData<>();
-        hospitalReference.get().addOnCompleteListener(task -> {
-           if (task.isSuccessful() && task.getResult().exists()) {
-               Hospital hospital = task.getResult().toObject(Hospital.class);
-               deviceTypesLiveData.setValue(new Resource<>(hospital.getTypes(),new Request(null, Request.Status.SUCCESS)));
-           } else {
-               deviceTypesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
-           }
-        });
-        return deviceTypesLiveData;
+    public static Map<String,List<String>> getDeviceTypeOptions() {
+        Map<String,List<String>> deviceTypes = new LinkedHashMap<>();
+        deviceTypes.put("Balloons", null);
+        deviceTypes.put("Catheters",Arrays.asList("Microcatheter","Diagnostic Catheter","Flush","Directional"));
+        deviceTypes.put("Dilators",null);
+        deviceTypes.put("Drainage",Arrays.asList("Biliary","Nephrostomy","Multipurpose"));
+        deviceTypes.put("Embolic Agents",Arrays.asList("Coils","Gelfoam","PVA"));
+        deviceTypes.put("Inflation Devices",null);
+        deviceTypes.put("Needles",Arrays.asList("Micropuncture","Non-vascular access","Biopsy","Other"));
+        deviceTypes.put("Sheath",null);
+        deviceTypes.put("Stents",null);
+        deviceTypes.put("Vascular Access",Arrays.asList("Picc","Dialysis","Port","Hickman","Other"));
+        deviceTypes.put("Wire",Arrays.asList("Microwire","Glidewire","Regular Wire", "Stiff Wire"));
+        deviceTypes.put("Other",Arrays.asList("U/S Equipment","Syringe","Drainage Bags/Kits","Securement/Sutures"));
+        return deviceTypes;
     }
 
     /**
