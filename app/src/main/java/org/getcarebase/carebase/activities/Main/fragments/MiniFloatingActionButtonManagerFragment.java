@@ -36,12 +36,17 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, @Nullable Bundle savedInstanceState) {
         this.container = container;
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         rotateOpenAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.rotate_open);
         rotateCloseAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.rotate_close);
         fadeInUpAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.fade_in_up);
         fadeOutDownAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.fade_out_down);
         addMiniFab();
-        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
@@ -57,6 +62,8 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
         // add mini fab buttons
         for (View fab : miniFABs) {
             container.addView(fab, 0);
+            // TRYING TO DEBUG
+            fab.setVisibility(View.VISIBLE);
         }
     }
 
@@ -80,7 +87,6 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
         } else {
             tmp.setBackgroundTintList(ContextCompat.getColorStateList(getActivity(),R.color.colorPrimary));
         }
-
     }
 
     public void setFABVisibilities(final boolean isOptionsShown) {
@@ -103,7 +109,9 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
             }
         } else {
             mainFAB.startAnimation(rotateOpenAnimation);
-            for (View fab : miniFABs) {
+            for (View fab: miniFABs) {
+                // TRYING TO DEBUG
+                fab.bringToFront();
                 fab.startAnimation(fadeInUpAnimation);
             }
         }

@@ -26,17 +26,22 @@ public abstract class FloatingActionButtonManagerFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         fadeInAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.fade_in);
         fadeOutAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.fade_out);
+//        setChild();
         super.onCreate(savedInstanceState);
     }
 
     @Override
     public void onResume() {
+        setChild();
+        super.onResume();
+    }
+
+    private void setChild() {
         mainFAB = requireActivity().findViewById(R.id.toggle_options_fab);
         // set on click back to this fragment's on click
         mainFAB.setOnClickListener(this::onMainFloatingActionButtonClicked);
         // start fade in animation
         mainFAB.startAnimation(fadeInAnimation);
-        super.onResume();
     }
 
     @Override
