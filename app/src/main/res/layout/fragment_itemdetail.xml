@@ -153,7 +153,8 @@
                 <LinearLayout
                     android:id="@+id/typeLinearLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense.ExposedDropdownMenu"
@@ -168,6 +169,23 @@
                             android:layout_height="wrap_content"
                             android:completionThreshold="1"
                             android:background="@color/filledBoxBackground"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense.ExposedDropdownMenu"
+                        android:id="@+id/detail_subtype_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Sub Type"
+                        android:visibility="gone"
+                        app:boxStrokeColor="@color/colorPrimary">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/detail_subtype"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:completionThreshold="1"
+                            android:background="@color/filledBoxBackground" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
