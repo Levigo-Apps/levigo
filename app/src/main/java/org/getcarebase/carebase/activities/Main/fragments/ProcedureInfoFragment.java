@@ -184,6 +184,11 @@ public class ProcedureInfoFragment extends Fragment {
                 hours = hours + 24;
             }
             String totalTime = (hours * 60 + mins) + "";
+
+//            Different method for calculating room time:
+//            int mins = (int) millsDif / (1000 * 60);
+//            String totalTime = (mins < 0 ? mins + 24*60 : mins) + "";
+
             roomTime.setText(totalTime);
         }catch(ParseException e){
             e.printStackTrace();
