@@ -45,9 +45,13 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
 
         inventoryViewModel = new ViewModelProvider(requireActivity()).get(InventoryViewModel.class);
         LinearLayout fabLayout = requireActivity().findViewById(R.id.fab_layout);
-        View scanDeviceFAB = inflater.inflate(R.layout.mini_scan_device_fab,fabLayout, false);
+//        View scanDeviceFAB = inflater.inflate(R.layout.mini_scan_device_fab,fabLayout, false);
+        LinearLayout scanDeviceFAB = requireActivity().findViewById(R.id.mini_add);
+        ((LinearLayout) scanDeviceFAB.getParent()).removeView(scanDeviceFAB);
         scanDeviceFAB.setOnClickListener(view -> ((MainActivity) requireActivity()).startScanner());
-        View manualAddDeviceFAB = inflater.inflate(R.layout.mini_manual_add_device_fab,fabLayout,false);
+//        View manualAddDeviceFAB = inflater.inflate(R.layout.mini_manual_add_device_fab,fabLayout,false);
+        LinearLayout manualAddDeviceFAB = requireActivity().findViewById(R.id.mini_scan);
+        ((LinearLayout) manualAddDeviceFAB.getParent()).removeView(manualAddDeviceFAB);
         manualAddDeviceFAB.setOnClickListener(view -> ((MainActivity) requireActivity()).startItemForm(""));
         miniFABs = new View[] {scanDeviceFAB,manualAddDeviceFAB};
         super.onCreateView(inflater,fabLayout,savedInstanceState);

@@ -40,6 +40,7 @@
         android:layout_height="match_parent"
         android:layout_marginTop="8dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
     </androidx.viewpager2.widget.ViewPager2>
 
     <LinearLayout
@@ -50,14 +51,75 @@
         android:gravity="center_horizontal"
         android:layout_gravity="bottom|end">
 
+        <LinearLayout
+            android:id="@+id/mini_scan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
+            android:visibility="invisible">
+
+            <TextView
+                android:id="@+id/manual_add_device_fab_label"
+                android:layout_width="108dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@drawable/rounded_corners_background_borderless"
+                android:elevation="6dp"
+                android:paddingVertical="4dp"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:text="Add Device" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/manual_add_device_fab"
+                style="@style/Widget.Carebase.MiniFloatingActionButton"
+                android:clickable="false"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_insert_drive_file_24"
+                app:fabSize="mini" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/mini_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
+            android:visibility="invisible">
+
+            <TextView
+                android:id="@+id/scan_device_fab_label"
+                android:layout_width="108dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@drawable/rounded_corners_background_borderless"
+                android:elevation="6dp"
+                android:paddingVertical="4dp"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:text="Scan Device" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/scan_device_fab"
+                style="@style/Widget.Carebase.MiniFloatingActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:src="@drawable/icon_camera"
+                app:fabSize="mini" />
+        </LinearLayout>
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/toggle_options_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
+            android:layout_gravity="end|bottom"
             android:src="@drawable/ic_baseline_plus"
             app:fabSize="normal"
             style="@style/Widget.Carebase.FloatingActionButton.Primary" />
     </LinearLayout>
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

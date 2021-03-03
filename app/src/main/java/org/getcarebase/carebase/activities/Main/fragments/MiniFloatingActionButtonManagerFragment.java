@@ -62,8 +62,6 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
         // add mini fab buttons
         for (View fab : miniFABs) {
             container.addView(fab, 0);
-            // TRYING TO DEBUG
-            fab.setVisibility(View.VISIBLE);
         }
     }
 
@@ -110,8 +108,6 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
         } else {
             mainFAB.startAnimation(rotateOpenAnimation);
             for (View fab: miniFABs) {
-                // TRYING TO DEBUG
-                fab.bringToFront();
                 fab.startAnimation(fadeInUpAnimation);
             }
         }
