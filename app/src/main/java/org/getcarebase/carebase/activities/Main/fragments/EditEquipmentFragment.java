@@ -299,6 +299,7 @@ public class EditEquipmentFragment extends Fragment {
             deviceModel.setName(Objects.requireNonNull(nameEditText.getText()).toString().trim());
             deviceModel.setCompany(Objects.requireNonNull(company.getText()).toString().trim());
             deviceModel.setEquipmentType(equipmentType.getText().toString().trim());
+            deviceModel.setSubType(subTypeTextView.getText().toString().trim());
             int currentProductionQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
             int quantityDifference = currentProductionQuantity - productionQuantityBeforeEdit;
             deviceModel.setQuantity(modelQuantityBeforeEdit+quantityDifference);
