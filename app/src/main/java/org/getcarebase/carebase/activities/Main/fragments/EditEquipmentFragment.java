@@ -151,6 +151,8 @@ public class EditEquipmentFragment extends Fragment {
 
         MaterialToolbar toolBar = rootView.findViewById(R.id.toolbar);
 
+        subTypeLayout.setVisibility(View.GONE);
+
         deviceViewModel = new ViewModelProvider(requireActivity()).get(DeviceViewModel.class);
         setupSaveDevice();
         Resource<DeviceModel> deviceModelResource = deviceViewModel.getDeviceInFirebaseLiveData().getValue();
@@ -159,7 +161,7 @@ public class EditEquipmentFragment extends Fragment {
 
             nameEditText.setText(deviceModel.getName());
             equipmentType.setText(deviceModel.getEquipmentType());
-            if (deviceModel.getSubType() != null) {
+            if (deviceModel.getSubType() != null && deviceModel.getSubType() != "") {
                 subTypeTextView.setText(deviceModel.getSubType());
                 subTypeLayout.setVisibility(View.VISIBLE);
             }
