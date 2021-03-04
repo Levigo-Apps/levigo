@@ -23,6 +23,8 @@ public class SingleEventMediatorLiveData<T> {
                if (tResource.getRequest().getStatus() == Request.Status.SUCCESS || tResource.getRequest().getStatus() == Request.Status.ERROR) {
                    mediatorLiveData.setValue(tResource);
                    mediatorLiveData.removeSource(source);
+               } else if (tResource.getRequest().getStatus() == Request.Status.LOADING) {
+                   mediatorLiveData.setValue(tResource);
                }
            }
        });
