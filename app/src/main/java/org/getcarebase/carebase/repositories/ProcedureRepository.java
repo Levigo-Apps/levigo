@@ -93,6 +93,7 @@ public class ProcedureRepository {
     public LiveData<Resource<List<Procedure>>> getProcedures(boolean onRefresh) {
         Query queryLiveData;
         MutableLiveData<Resource<List<Procedure>>> proceduresLiveData = new MutableLiveData<>();
+        proceduresLiveData.setValue(new Resource<>(procedures,new Request(null, Request.Status.LOADING)));
         // clear procedure list on refresh
         if (onRefresh) {
             procedures.clear();

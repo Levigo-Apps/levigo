@@ -44,7 +44,7 @@ public class ModelListFragment extends Fragment {
     private RecyclerView modelListRecyclerView;
     private AutoCompleteTextView subcategories;
     private TextInputLayout filterLayout;
-//    private SwipeRefreshLayout swipeRefreshLayout;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private DeviceModelsAdapter deviceModelsAdapter;
 
     private Activity parent;
@@ -61,6 +61,7 @@ public class ModelListFragment extends Fragment {
         subcategories = rootView.findViewById(R.id.type_subcategories);
         filterLayout = rootView.findViewById(R.id.filter_layout);
         modelListRecyclerView = rootView.findViewById(R.id.types_dis);
+        swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_model_list);
         parent = getActivity();
         MaterialToolbar topToolBar = rootView.findViewById(R.id.type_title);
 
@@ -72,15 +73,25 @@ public class ModelListFragment extends Fragment {
 
         topToolBar.setTitle(type);
 
+        topToolBar.setNavigationOnClickListener(view -> {
+            if (requireActivity().getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                requireActivity().getSupportFragmentManager().popBackStack();
+            } else {
+                if (parent != null) {
+                    parent.onBackPressed();
+                }
+            }
+        });
+
         inventoryViewModel = new ViewModelProvider(requireActivity()).get(InventoryViewModel.class);
         initModelList();
 
         setupFilter();
 
-        topToolBar.setNavigationOnClickListener(view -> {
-            if (parent != null)
-                parent.onBackPressed();
-        });
+        // on refresh update inventory
+        swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadDeviceModel(type));
+
+        inventoryViewModel.loadDeviceModel(type);
 
         return rootView;
     }
@@ -123,15 +134,20 @@ public class ModelListFragment extends Fragment {
         modelListRecyclerView.setAdapter(deviceModelsAdapter);
 
         inventoryViewModel.getDeviceModelListWithTypeLiveData(type).observe(getViewLifecycleOwner(), mapResource -> {
-            if (mapResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-                deviceModelsAdapter.setDeviceModels(mapResource.getData());
-                deviceModelsAdapter.notifyDataSetChanged();
-//                swipeRefreshLayout.setRefreshing(false);
-            } else if (mapResource.getRequest().getStatus() == Request.Status.ERROR) {
-                Snackbar.make(rootView.findViewById(R.id.activity_main), mapResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
+            if (mapResource.getRequest().getStatus() == Request.Status.LOADING) {
+                ((MainActivity) getActivity()).showLoadingScreen();
+            } else {
+                ((MainActivity) getActivity()).removeLoadingScreen();
+                if (mapResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                    deviceModelsAdapter.setDeviceModels(mapResource.getData());
+                    deviceModelsAdapter.notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
+                } else if (mapResource.getRequest().getStatus() == Request.Status.ERROR) {
+                    ((MainActivity) getActivity()).showErrorScreen();
+                    Snackbar.make(rootView.findViewById(R.id.activity_main), mapResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
+                }
             }
         });
-
     }
 
 }

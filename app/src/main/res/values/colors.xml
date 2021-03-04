@@ -9,4 +9,5 @@
     <color name="textInputOutlineColor">#053D76</color>
     <color name="white">#FFFFFF</color>
     <color name="filledBoxBackground">#EDEEEF</color>
+    <color name="messageColor">#7C7C7C</color>
 </resources>
