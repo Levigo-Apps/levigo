@@ -73,10 +73,10 @@ public class ProcedureRepository {
             // update devices quantities (udi)
             DocumentReference deviceProductionReference = inventoryReference.document(deviceUsage.getDeviceIdentifier())
                     .collection("udis").document(deviceUsage.getUniqueDeviceIdentifier());
-            tasks.add(deviceProductionReference.update("quantity",Integer.toString(deviceUsage.getNewProductionQuantity())));
+            tasks.add(deviceProductionReference.update("quantity",deviceUsage.getNewProductionQuantity()));
             // update devices quantities (di)
             DocumentReference deviceProductionReferenceDI = inventoryReference.document(deviceUsage.getDeviceIdentifier());
-            tasks.add(deviceProductionReferenceDI.update("quantity", Integer.toString(deviceUsage.getNewModelQuantity())));
+            tasks.add(deviceProductionReferenceDI.update("quantity", deviceUsage.getNewModelQuantity()));
         }
 
         Tasks.whenAll(tasks).addOnCompleteListener(task -> {
