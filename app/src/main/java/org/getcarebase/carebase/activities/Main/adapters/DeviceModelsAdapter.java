@@ -78,7 +78,7 @@ public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapte
         holder.itemQuantity.setText(modelListFragment.getString(R.string.unit_quantity_value,deviceModel.getQuantity()));
         holder.itemDI.setText(deviceModel.getDeviceIdentifier());
         // Display subcategory only if nonnull
-        if (deviceModel.getSubType() != null) {
+        if (deviceModel.getSubType() != null && !deviceModel.getSubType().isEmpty()) {
             holder.itemSubcategory.setVisibility(View.VISIBLE);
             holder.itemSubcategory.setText(deviceModel.getSubType());
         } else {
