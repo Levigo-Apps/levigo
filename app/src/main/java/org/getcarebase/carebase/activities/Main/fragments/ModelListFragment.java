@@ -89,11 +89,16 @@ public class ModelListFragment extends Fragment {
         setupFilter();
 
         // on refresh update inventory
-        swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadDeviceModel(type));
+        swipeRefreshLayout.setOnRefreshListener(() -> swipeRefresh());
 
         inventoryViewModel.loadDeviceModel(type);
 
         return rootView;
+    }
+
+    private void swipeRefresh() {
+        inventoryViewModel.loadDeviceModel(type);
+        subcategories.setText("All", false);
     }
 
     /**
