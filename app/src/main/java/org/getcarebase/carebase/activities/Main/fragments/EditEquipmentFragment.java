@@ -151,8 +151,6 @@ public class EditEquipmentFragment extends Fragment {
 
         MaterialToolbar toolBar = rootView.findViewById(R.id.toolbar);
 
-        subTypeLayout.setVisibility(View.GONE);
-
         deviceViewModel = new ViewModelProvider(requireActivity()).get(DeviceViewModel.class);
         setupSaveDevice();
         Resource<DeviceModel> deviceModelResource = deviceViewModel.getDeviceInFirebaseLiveData().getValue();
@@ -161,7 +159,7 @@ public class EditEquipmentFragment extends Fragment {
 
             nameEditText.setText(deviceModel.getName());
             equipmentType.setText(deviceModel.getEquipmentType());
-            if (deviceModel.getSubType() != null && deviceModel.getSubType() != "") {
+            if (deviceModel.getSubType() != null) {
                 subTypeTextView.setText(deviceModel.getSubType());
                 subTypeLayout.setVisibility(View.VISIBLE);
             }
@@ -286,8 +284,9 @@ public class EditEquipmentFragment extends Fragment {
 
         // check that equipment types and sub types are valid
         Map<String, List<String>> deviceTypes = deviceViewModel.getDeviceTypes();
+        List<String> subTypes = null;
         if (deviceTypes.containsKey(equipmentType.getText().toString())) {
-            List<String> subTypes = deviceTypes.get(equipmentType.getText().toString());
+            subTypes = deviceTypes.get(equipmentType.getText().toString());
             if (subTypes != null && !subTypes.contains(subTypeTextView.getText().toString())) {
                 isValid = false;
             }
@@ -301,7 +300,7 @@ public class EditEquipmentFragment extends Fragment {
             deviceModel.setName(Objects.requireNonNull(nameEditText.getText()).toString().trim());
             deviceModel.setCompany(Objects.requireNonNull(company.getText()).toString().trim());
             deviceModel.setEquipmentType(equipmentType.getText().toString().trim());
-            deviceModel.setSubType(subTypeTextView.getText().toString().trim());
+            if (subTypes != null) deviceModel.setSubType(subTypeTextView.getText().toString().trim());
             int currentProductionQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
             int quantityDifference = currentProductionQuantity - productionQuantityBeforeEdit;
             deviceModel.setQuantity(modelQuantityBeforeEdit+quantityDifference);
