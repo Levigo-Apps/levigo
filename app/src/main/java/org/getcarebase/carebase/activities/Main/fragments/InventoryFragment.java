@@ -68,7 +68,7 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
                 typesAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
             } else if (mapResource.getRequest().getStatus() == Request.Status.ERROR) {
-                Snackbar.make(rootView.findViewById(R.id.activity_main), mapResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
+                Snackbar.make(requireActivity().findViewById(R.id.activity_main), mapResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
             }
         });
 
