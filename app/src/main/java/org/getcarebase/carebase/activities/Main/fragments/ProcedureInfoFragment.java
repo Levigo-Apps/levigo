@@ -178,12 +178,9 @@ public class ProcedureInfoFragment extends Fragment {
             long millsOut = Objects.requireNonNull(timeOutFormat).getTime();
 
             long millsDif = millsOut - millsIn;
-            int hours = (int) millsDif / (1000 * 60 * 60);
-            if (hours < 0) {
-                hours = hours + 24;
-            }
-            int mins = (int) (millsDif / (1000 * 60)) % 60;
-            String totalTime = (hours * 60 + mins) + "";
+            int mins = (int) millsDif / (1000 * 60);
+            String totalTime = (mins < 0 ? mins + 24*60 : mins) + "";
+
             roomTime.setText(totalTime);
         }catch(ParseException e){
             e.printStackTrace();
