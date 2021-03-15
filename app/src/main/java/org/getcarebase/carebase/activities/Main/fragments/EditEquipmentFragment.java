@@ -274,7 +274,7 @@ public class EditEquipmentFragment extends Fragment {
         boolean isValid = true;
 
         List<EditText> requiredEditTexts = new ArrayList<>(Arrays.asList(udiEditText, nameEditText, deviceIdentifier,
-                quantity, lotNumber, expiration, usageEditText, physicalLocation, company,
+                quantity, expiration, usageEditText, physicalLocation, company,
                 equipmentType));
         for (EditText editText : requiredEditTexts) {
             if (editText.getText().toString().trim().isEmpty()) {
