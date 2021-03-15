@@ -149,19 +149,20 @@
                         />
                 </com.google.android.material.textfield.TextInputLayout>
 
+
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/fluoro_time_label"
                     app:boxStrokeColor="@color/colorPrimary"
-                    app:suffixText="minutes">
+                    app:suffixText="mm:ss">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/procedure_fluoroTime"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:inputType="numberSigned" />
+                        android:inputType="time" />
                 </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -177,9 +178,8 @@
                         android:id="@+id/procedure_accessionNumber"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:focusable="false"
                         android:clickable="true"
-                        />
+                        android:focusable="false" />
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
