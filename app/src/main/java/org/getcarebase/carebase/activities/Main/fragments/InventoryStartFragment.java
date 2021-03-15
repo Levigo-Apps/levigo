@@ -7,6 +7,8 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import org.getcarebase.carebase.R;
 
@@ -16,7 +18,19 @@ public class InventoryStartFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_inventory_start, container, false);
+        final View rootView = inflater.inflate(R.layout.generic_message_screen, container, false);
+
+        ImageView image = rootView.findViewById(R.id.imageView);
+        image.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_inventory_24, getContext().getTheme()));
+        image.setColorFilter(getResources().getColor(R.color.colorPrimary, getContext().getTheme()));
+
+        TextView text = rootView.findViewById(R.id.messageText);
+        text.setText("Start building your inventory!");
+
+        TextView text2 = rootView.findViewById(R.id.messageText2);
+        text2.setText("Click on the add button to get started");
+
+        return rootView;
     }
 
 }
