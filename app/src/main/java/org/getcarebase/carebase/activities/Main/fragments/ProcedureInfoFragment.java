@@ -44,6 +44,8 @@ import java.util.Random;
 
 public class ProcedureInfoFragment extends Fragment {
 
+    private View rootView;
+
     public static final String TAG = ProcedureInfoFragment.class.getSimpleName();
 
     private AutoCompleteTextView procedureNameEditText;
@@ -61,6 +63,7 @@ public class ProcedureInfoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_procedureinfo, container, false);
+        this.rootView = rootView;
         myCalendar = Calendar.getInstance();
         TextInputLayout dateLayout = rootView.findViewById(R.id.procedureinfo_date_layout);
         TextInputLayout timeInLayout = rootView.findViewById(R.id.procedureinfo_timeIn_layout);
@@ -84,8 +87,6 @@ public class ProcedureInfoFragment extends Fragment {
             if (validateFields()) {
                 // Go to add devices used screen
                 procedureViewModel.goToDeviceUsed();
-            } else {
-                Snackbar.make(rootView, R.string.error_missing_required_fields, Snackbar.LENGTH_LONG).show();
             }
         });
 
@@ -191,6 +192,10 @@ public class ProcedureInfoFragment extends Fragment {
         for (EditText currentField : new EditText[]{procedureNameEditText,procedureDateEditText,timeInEditText,timeOutEditText,
                 roomTimeEditText,fluoroTimeEditText,accessionNumberEditText}) {
             if (Objects.requireNonNull(currentField.getText()).toString().trim().length() <= 0) {
+                Snackbar.make(rootView, R.string.error_missing_required_fields, Snackbar.LENGTH_LONG).show();
+                return false;
+            } else if (!checkFluoroTimeFormat()) {
+                Snackbar.make(rootView, "Please enter valid fluoro time with format shown", Snackbar.LENGTH_LONG).show();
                 return false;
             }
         }
@@ -201,11 +206,48 @@ public class ProcedureInfoFragment extends Fragment {
         procedure.setTimeIn(timeInEditText.getText().toString().trim());
         procedure.setTimeOut(timeOutEditText.getText().toString().trim());
         procedure.setRoomTime(roomTimeEditText.getText().toString().trim() + " minutes");
-        procedure.setFluoroTime(fluoroTimeEditText.getText().toString().trim() + " minutes");
+        procedure.setFluoroTime(fluoroToString());
         procedure.setAccessionNumber(accessionNumberEditText.getText().toString().trim());
 
         procedureViewModel.setProcedureDetails(procedure);
         return true;
+    }
+
+    private boolean checkFluoroTimeFormat() {
+        String fluoro = fluoroTimeEditText.getText().toString().trim();
+        int colonCount = 0;
+        // if contain more than 1 ":"
+        for (int i = 0; i < fluoro.length(); i++) {
+            if (fluoro.charAt(i) == ':') {
+                if (colonCount != 0) {
+                    return false;
+                }
+                colonCount += 1;
+            }
+        }
+        // if doesn't contain ":"
+        if (colonCount != 1) {
+            return false;
+        }
+        return true;
+    }
+
+    private String fluoroToString() {
+        String fluoro = fluoroTimeEditText.getText().toString().trim();
+        String[] time = fluoro.split(":", -2); // do not discard empty strings
+        String min = time[0];
+        String sec = time[1];
+        if (min.equals("") || Integer.valueOf(min) == 0) {
+            min = "0 min";
+        } else {
+            min += " min";
+        }
+        if (sec.equals("") || Integer.valueOf(sec) == 0) {
+            sec = "0 sec";
+        } else {
+            sec += " sec";
+        }
+        return min+" "+sec;
     }
 
     private void timeLayoutPicker(View view, final TextInputEditText editText) {
