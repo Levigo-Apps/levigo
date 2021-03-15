@@ -194,10 +194,12 @@ public class ProcedureInfoFragment extends Fragment {
             if (Objects.requireNonNull(currentField.getText()).toString().trim().length() <= 0) {
                 Snackbar.make(rootView, R.string.error_missing_required_fields, Snackbar.LENGTH_LONG).show();
                 return false;
-            } else if (!checkFluoroTimeFormat()) {
-                Snackbar.make(rootView, "Please enter valid fluoro time with format shown", Snackbar.LENGTH_LONG).show();
-                return false;
             }
+        }
+        String fluoro = checkFluoroTimeFormat();
+        if (fluoro == null) {
+            Snackbar.make(rootView, "Please enter valid fluoro time with format shown", Snackbar.LENGTH_LONG).show();
+            return false;
         }
 
         Procedure procedure = new Procedure();
@@ -206,48 +208,35 @@ public class ProcedureInfoFragment extends Fragment {
         procedure.setTimeIn(timeInEditText.getText().toString().trim());
         procedure.setTimeOut(timeOutEditText.getText().toString().trim());
         procedure.setRoomTime(roomTimeEditText.getText().toString().trim() + " minutes");
-        procedure.setFluoroTime(fluoroToString());
+        procedure.setFluoroTime(fluoro);
         procedure.setAccessionNumber(accessionNumberEditText.getText().toString().trim());
 
         procedureViewModel.setProcedureDetails(procedure);
         return true;
     }
 
-    private boolean checkFluoroTimeFormat() {
+    private String checkFluoroTimeFormat() {
+        // must in format m:ss or mm:ss
         String fluoro = fluoroTimeEditText.getText().toString().trim();
-        int colonCount = 0;
-        // if contain more than 1 ":"
-        for (int i = 0; i < fluoro.length(); i++) {
-            if (fluoro.charAt(i) == ':') {
-                if (colonCount != 0) {
-                    return false;
-                }
-                colonCount += 1;
-            }
+        if (fluoro.length() < 4 || fluoro.length() > 5) {
+            return null;
         }
-        // if doesn't contain ":"
-        if (colonCount != 1) {
-            return false;
-        }
-        return true;
-    }
-
-    private String fluoroToString() {
-        String fluoro = fluoroTimeEditText.getText().toString().trim();
         String[] time = fluoro.split(":", -2); // do not discard empty strings
+        // contain wrong number of ":"
+        if (time.length != 2) {
+            return null;
+        }
         String min = time[0];
         String sec = time[1];
-        if (min.equals("") || Integer.valueOf(min) == 0) {
-            min = "0 min";
-        } else {
-            min += " min";
+        // only allow 1 or 2 digits mm and 2 digits ss
+        if (min.length() == 0 || min.length() > 2 ||
+                sec.length() != 2 || Integer.valueOf(sec) >= 60) {
+            return null;
         }
-        if (sec.equals("") || Integer.valueOf(sec) == 0) {
-            sec = "0 sec";
-        } else {
-            sec += " sec";
+        if (Integer.valueOf(min) == 0) {
+            min = "0";
         }
-        return min+" "+sec;
+        return min+" min "+sec+" sec";
     }
 
     private void timeLayoutPicker(View view, final TextInputEditText editText) {
