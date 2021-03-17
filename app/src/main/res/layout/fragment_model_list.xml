@@ -25,7 +25,7 @@
         android:paddingVertical="16dp"
         android:paddingHorizontal="24dp"
         android:hint="Subcategory"
-        app:layout_constraintBottom_toTopOf="@+id/types_dis"
+        app:layout_constraintBottom_toTopOf="@+id/swipe_refresh_model_list"
         app:layout_constraintTop_toBottomOf="@+id/type_title">
 
         <AutoCompleteTextView
@@ -39,17 +39,23 @@
             android:completionThreshold="1" />
     </com.google.android.material.textfield.TextInputLayout>
 
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/types_dis"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_model_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:nestedScrollingEnabled="true"
-        android:orientation="vertical"
-        android:scrollbars="vertical"
         app:layout_constraintTop_toBottomOf="@+id/filter_layout"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent">
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/types_dis"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:nestedScrollingEnabled="true"
+            android:orientation="vertical"
+            android:scrollbars="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/filter_layout" />
 
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -50,10 +50,15 @@ import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Login.LoginActivity;
 import org.getcarebase.carebase.activities.Main.adapters.HomePagerAdapter;
 import org.getcarebase.carebase.activities.Main.fragments.EditEquipmentFragment;
+import org.getcarebase.carebase.activities.Main.fragments.ErrorFragment;
+import org.getcarebase.carebase.activities.Main.fragments.InventoryStartFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ItemDetailFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ItemDetailOfflineFragment;
+import org.getcarebase.carebase.activities.Main.fragments.LoadingFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ModelListFragment;
 import org.getcarebase.carebase.activities.Main.fragments.PendingUdiFragment;
+import org.getcarebase.carebase.activities.Main.fragments.ProcedureStartFragment;
+import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.InventoryViewModel;
@@ -193,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
 
         //clears other fragments
-        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+//        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -219,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         // clears other fragments
-        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+//        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_in_left);
@@ -264,6 +269,70 @@ public class MainActivity extends AppCompatActivity {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         } else if (!(grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             finish();
+        }
+    }
+
+    public void showInventoryEmptyScreen() {
+        Fragment fragment = new InventoryStartFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.activity_main, fragment, InventoryStartFragment.TAG)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    public void removeInventoryEmptyScreen() {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(InventoryStartFragment.TAG);
+        if (fragment != null) {
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+    }
+
+    public void showProcedureEmptyScreen() {
+        Fragment fragment = new ProcedureStartFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.activity_main, fragment, ProcedureStartFragment.TAG)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    public void removeProcedureEmptyScreen() {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(ProcedureStartFragment.TAG);
+        if (fragment != null) {
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+    }
+
+    public void showLoadingScreen() {
+        Fragment fragment = new LoadingFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.activity_main, fragment, LoadingFragment.TAG)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    public void removeLoadingScreen() {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(LoadingFragment.TAG);
+        if (fragment != null) {
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+    }
+
+    public void showErrorScreen() {
+        Fragment fragment = new ErrorFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.activity_main, fragment, ErrorFragment.TAG)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    public void removeErrorScreen() {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(ErrorFragment.TAG);
+        if (fragment != null) {
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
         }
     }
 }
