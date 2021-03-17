@@ -44,6 +44,8 @@ import java.util.Random;
 
 public class ProcedureInfoFragment extends Fragment {
 
+    private View rootView;
+
     public static final String TAG = ProcedureInfoFragment.class.getSimpleName();
 
     private AutoCompleteTextView procedureNameEditText;
@@ -61,6 +63,7 @@ public class ProcedureInfoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_procedureinfo, container, false);
+        this.rootView = rootView;
         myCalendar = Calendar.getInstance();
         TextInputLayout dateLayout = rootView.findViewById(R.id.procedureinfo_date_layout);
         TextInputLayout timeInLayout = rootView.findViewById(R.id.procedureinfo_timeIn_layout);
@@ -84,8 +87,6 @@ public class ProcedureInfoFragment extends Fragment {
             if (validateFields()) {
                 // Go to add devices used screen
                 procedureViewModel.goToDeviceUsed();
-            } else {
-                Snackbar.make(rootView, R.string.error_missing_required_fields, Snackbar.LENGTH_LONG).show();
             }
         });
 
@@ -178,12 +179,9 @@ public class ProcedureInfoFragment extends Fragment {
             long millsOut = Objects.requireNonNull(timeOutFormat).getTime();
 
             long millsDif = millsOut - millsIn;
-            int hours = (int) millsDif / (1000 * 60 * 60);
-            if (hours < 0) {
-                hours = hours + 24;
-            }
-            int mins = (int) (millsDif / (1000 * 60)) % 60;
-            String totalTime = (hours * 60 + mins) + "";
+            int mins = (int) millsDif / (1000 * 60);
+            String totalTime = (mins < 0 ? mins + 24*60 : mins) + "";
+
             roomTime.setText(totalTime);
         }catch(ParseException e){
             e.printStackTrace();
@@ -194,8 +192,14 @@ public class ProcedureInfoFragment extends Fragment {
         for (EditText currentField : new EditText[]{procedureNameEditText,procedureDateEditText,timeInEditText,timeOutEditText,
                 roomTimeEditText,fluoroTimeEditText,accessionNumberEditText}) {
             if (Objects.requireNonNull(currentField.getText()).toString().trim().length() <= 0) {
+                Snackbar.make(rootView, R.string.error_missing_required_fields, Snackbar.LENGTH_LONG).show();
                 return false;
             }
+        }
+        String fluoro = checkFluoroTimeFormat();
+        if (fluoro == null) {
+            Snackbar.make(rootView, "Please enter valid fluoro time with format shown", Snackbar.LENGTH_LONG).show();
+            return false;
         }
 
         Procedure procedure = new Procedure();
@@ -204,11 +208,35 @@ public class ProcedureInfoFragment extends Fragment {
         procedure.setTimeIn(timeInEditText.getText().toString().trim());
         procedure.setTimeOut(timeOutEditText.getText().toString().trim());
         procedure.setRoomTime(roomTimeEditText.getText().toString().trim() + " minutes");
-        procedure.setFluoroTime(fluoroTimeEditText.getText().toString().trim() + " minutes");
+        procedure.setFluoroTime(fluoro);
         procedure.setAccessionNumber(accessionNumberEditText.getText().toString().trim());
 
         procedureViewModel.setProcedureDetails(procedure);
         return true;
+    }
+
+    private String checkFluoroTimeFormat() {
+        // must in format m:ss or mm:ss
+        String fluoro = fluoroTimeEditText.getText().toString().trim();
+        if (fluoro.length() < 4 || fluoro.length() > 5) {
+            return null;
+        }
+        String[] time = fluoro.split(":", -2); // do not discard empty strings
+        // contain wrong number of ":"
+        if (time.length != 2) {
+            return null;
+        }
+        String min = time[0];
+        String sec = time[1];
+        // only allow 1 or 2 digits mm and 2 digits ss
+        if (min.length() == 0 || min.length() > 2 ||
+                sec.length() != 2 || Integer.valueOf(sec) >= 60) {
+            return null;
+        }
+        if (Integer.valueOf(min) == 0) {
+            min = "0";
+        }
+        return min+" min "+sec+" sec";
     }
 
     private void timeLayoutPicker(View view, final TextInputEditText editText) {
