@@ -2,6 +2,7 @@ package org.getcarebase.carebase.activities.Main.fragments;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,8 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private ProceduresViewModel proceduresViewModel;
 
+    private boolean resume = false;
+
     public interface ProcedureClickCallback {
         void showProcedureDetail(final String procedureId);
     }
@@ -47,15 +50,10 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.generic_swipe_refresh_list_layout, container, false);
-        RecyclerView proceduresRecyclerView = rootView.findViewById(R.id.recycler_view);
-
-        // set up list divider
-        Drawable divider = getContext().getDrawable(R.drawable.divider);
-        DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL);
-        itemDecoration.setDrawable(divider);
-        proceduresRecyclerView.addItemDecoration(itemDecoration);
-
+        proceduresRecyclerView = rootView.findViewById(R.id.recycler_view);
         swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
+
+        setUpListDivider();
 
         proceduresViewModel = new ViewModelProvider(requireActivity()).get(ProceduresViewModel.class);
         proceduresViewModel.getUserLiveData().observe(getViewLifecycleOwner(),userResource -> {
@@ -67,6 +65,19 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
             }
         });
 
+        initProcedures();
+
+        return rootView;
+    }
+
+    private void setUpListDivider() {
+        Drawable divider = getContext().getDrawable(R.drawable.divider);
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL);
+        itemDecoration.setDrawable(divider);
+        proceduresRecyclerView.addItemDecoration(itemDecoration);
+    }
+
+    private void initProcedures() {
         // setup procedures recycler view
         RecyclerView.LayoutManager inventoryLayoutManager = new LinearLayoutManager(getContext());
         proceduresRecyclerView.setLayoutManager(inventoryLayoutManager);
@@ -76,17 +87,46 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
         proceduresAdapter.setOnBottmReachedCallback(onBottomReachedCallback);
 
         proceduresViewModel.getProceduresLiveData().observe(getViewLifecycleOwner(), proceduresResource -> {
-            if (proceduresResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-                proceduresAdapter.setProcedures(proceduresResource.getData());
-                proceduresAdapter.notifyDataSetChanged();
-                swipeRefreshLayout.setRefreshing(false);
-            } else if (proceduresResource.getRequest().getStatus() == Request.Status.ERROR) {
-                Snackbar.make(rootView,proceduresResource.getRequest().getResourceString(),Snackbar.LENGTH_LONG).show();
+            if (proceduresResource.getRequest().getStatus() == Request.Status.LOADING) {
+                ((MainActivity) getActivity()).showLoadingScreen();
+            } else {
+                ((MainActivity) getActivity()).removeLoadingScreen();
+                if (proceduresResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                    if (proceduresResource.getData().size() == 0) {
+                        ((MainActivity) getActivity()).showProcedureEmptyScreen();
+                    } else {
+                        ((MainActivity) getActivity()).removeProcedureEmptyScreen();
+                        proceduresAdapter.setProcedures(proceduresResource.getData());
+                        proceduresAdapter.notifyDataSetChanged();
+                    }
+                    swipeRefreshLayout.setRefreshing(false);
+                } else if (proceduresResource.getRequest().getStatus() == Request.Status.ERROR) {
+                    ((MainActivity) getActivity()).showErrorScreen();
+                    Snackbar.make(rootView,proceduresResource.getRequest().getResourceString(),Snackbar.LENGTH_LONG).show();
+                }
             }
         });
         swipeRefreshLayout.setOnRefreshListener(() -> proceduresViewModel.loadProcedures(true));
-        return rootView;
     }
+
+    @Override
+    public void onResume() {
+        if (resume) {
+            proceduresViewModel.loadProcedures(true);
+        } else {
+            resume = true;
+        }
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        ((MainActivity) getActivity()).removeErrorScreen();
+        ((MainActivity) getActivity()).removeProcedureEmptyScreen();
+        ((MainActivity) getActivity()).removeLoadingScreen();
+        super.onPause();
+    }
+
 
     @Override
     public void onMainFloatingActionButtonClicked(View view) {
