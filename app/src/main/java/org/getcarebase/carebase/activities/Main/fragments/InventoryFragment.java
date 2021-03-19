@@ -3,11 +3,15 @@ package org.getcarebase.carebase.activities.Main.fragments;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager2.widget.ViewPager2;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +39,8 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
 
     private InventoryViewModel inventoryViewModel;
 
+    private boolean resume = false;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.generic_swipe_refresh_list_layout, container, false);
@@ -52,6 +58,11 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
 
         initInventory();
 
+        // on refresh update inventory
+        swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadTypeList());
+
+        inventoryViewModel.loadTypeList();
+
         return rootView;
     }
 
@@ -63,19 +74,43 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
         inventoryRecyclerView.setAdapter(typesAdapter);
 
         inventoryViewModel.getTypeListLiveData().observe(getViewLifecycleOwner(), mapResource -> {
-            if (mapResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-                typesAdapter.setTypeList(mapResource.getData());
-                typesAdapter.notifyDataSetChanged();
-                swipeRefreshLayout.setRefreshing(false);
-            } else if (mapResource.getRequest().getStatus() == Request.Status.ERROR) {
-                Snackbar.make(rootView.findViewById(R.id.activity_main), mapResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
+            if (mapResource.getRequest().getStatus() == Request.Status.LOADING) {
+                ((MainActivity) getActivity()).showLoadingScreen();
+            } else {
+                ((MainActivity) getActivity()).removeLoadingScreen();
+                if (mapResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                    if (mapResource.getData().size() == 0) {
+                        ((MainActivity) getActivity()).showInventoryEmptyScreen();
+                    } else {
+                        ((MainActivity) getActivity()).removeInventoryEmptyScreen();
+                        typesAdapter.setTypeList(mapResource.getData());
+                        typesAdapter.notifyDataSetChanged();
+                    }
+                    swipeRefreshLayout.setRefreshing(false);
+                } else if (mapResource.getRequest().getStatus() == Request.Status.ERROR) {
+                    ((MainActivity) getActivity()).showErrorScreen();
+                    Snackbar.make(rootView, mapResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
+                }
             }
         });
+    }
 
-        // on refresh update inventory
-        swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadTypeList());
+    @Override
+    public void onResume() {
+        if (resume) {
+            inventoryViewModel.loadTypeList();
+        } else {
+            resume = true;
+        }
+        super.onResume();
+    }
 
-        inventoryViewModel.loadTypeList();
+    @Override
+    public void onPause() {
+        ((MainActivity) getActivity()).removeErrorScreen();
+        ((MainActivity) getActivity()).removeInventoryEmptyScreen();
+        ((MainActivity) getActivity()).removeLoadingScreen();
+        super.onPause();
     }
 
     public void showModelList(final String type) {
@@ -86,6 +121,7 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
 
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
+                .setCustomAnimations(R.anim.fragment_fade_enter, R.anim.fragment_fade_exit)
                 .add(R.id.activity_main, fragment, ModelListFragment.TAG)
                 .addToBackStack(null)
                 .commit();
