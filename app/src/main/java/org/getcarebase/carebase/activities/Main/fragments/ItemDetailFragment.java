@@ -522,7 +522,7 @@ public class ItemDetailFragment extends Fragment {
             deviceModel.setUsage(usage);
             int currentQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
             int amount = Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
-            deviceModel.setQuantity(currentQuantity * amount);
+            deviceModel.setQuantity(currentQuantity + amount);
 
             if (allSizeOptions.size() > 0) {
                 int i = 0;
