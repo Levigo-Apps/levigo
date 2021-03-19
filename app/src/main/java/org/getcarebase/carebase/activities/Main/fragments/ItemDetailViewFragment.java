@@ -94,7 +94,7 @@ public class ItemDetailViewFragment extends Fragment {
                 itemName.setText(deviceModel.getName());
                 manufacturer.setTextValue(deviceModel.getCompany());
 
-                if (deviceModel.getSubType() == null || subtype.getTextValue().toString().isEmpty())
+                if (deviceModel.getSubType() == null)
                     subtype.setVisibility(View.GONE);
                 else
                     subtype.setVisibility(View.VISIBLE);
@@ -151,7 +151,7 @@ public class ItemDetailViewFragment extends Fragment {
 
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
         fragmentTransaction.add(R.id.frame_layout, fragment);
         fragmentTransaction.addToBackStack(TAG);
         fragmentTransaction.commit();
@@ -168,7 +168,7 @@ public class ItemDetailViewFragment extends Fragment {
 
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
         fragmentTransaction.add(R.id.frame_layout, shipFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
