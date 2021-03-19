@@ -73,10 +73,10 @@ public class ProcedureRepository {
             // update devices quantities (udi)
             DocumentReference deviceProductionReference = inventoryReference.document(deviceUsage.getDeviceIdentifier())
                     .collection("udis").document(deviceUsage.getUniqueDeviceIdentifier());
-            tasks.add(deviceProductionReference.update("quantity",Integer.toString(deviceUsage.getNewProductionQuantity())));
+            tasks.add(deviceProductionReference.update("quantity",deviceUsage.getNewProductionQuantity()));
             // update devices quantities (di)
             DocumentReference deviceProductionReferenceDI = inventoryReference.document(deviceUsage.getDeviceIdentifier());
-            tasks.add(deviceProductionReferenceDI.update("quantity", Integer.toString(deviceUsage.getNewModelQuantity())));
+            tasks.add(deviceProductionReferenceDI.update("quantity", deviceUsage.getNewModelQuantity()));
         }
 
         Tasks.whenAll(tasks).addOnCompleteListener(task -> {
@@ -93,6 +93,7 @@ public class ProcedureRepository {
     public LiveData<Resource<List<Procedure>>> getProcedures(boolean onRefresh) {
         Query queryLiveData;
         MutableLiveData<Resource<List<Procedure>>> proceduresLiveData = new MutableLiveData<>();
+        proceduresLiveData.setValue(new Resource<>(procedures,new Request(null, Request.Status.LOADING)));
         // clear procedure list on refresh
         if (onRefresh) {
             procedures.clear();
