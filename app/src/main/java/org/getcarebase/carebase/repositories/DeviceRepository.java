@@ -166,6 +166,7 @@ public class DeviceRepository {
 
         // save device production
         DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
+        deviceProduction.setUniqueDeviceIdentifier(cleanBarcode(deviceProduction.getUniqueDeviceIdentifier()));
         // if udi and di are same we make udi unique so other scans do not overwrite (hibcc)
         if (deviceProduction.getUniqueDeviceIdentifier().equals(deviceModel.getDeviceIdentifier())) {
             String expirationDate = deviceProduction.getExpirationDate();
@@ -209,11 +210,12 @@ public class DeviceRepository {
 
     /**
      * Gets the current device in firestore if it exists. The udi given will be parsed to get its di.
-     * @param udi the udi that is scanned.
+     * @param temp_udi the udi that is scanned (cleaned before usage inside function).
      * @return The DeviceModel information that is in the database, if the device production information
      * exists it will be stored in the list of production in the DeviceModel.
      */
-    public List<LiveData<Resource<DeviceModel>>> autoPopulateFromDatabaseAndShipment(final String udi) {
+    public List<LiveData<Resource<DeviceModel>>> autoPopulateFromDatabaseAndShipment(final String temp_udi) {
+        String udi = cleanBarcode(temp_udi);
         MutableLiveData<Resource<DeviceModel>> deviceLiveData = new MutableLiveData<>();
         MutableLiveData<Resource<DeviceModel>> shippedLiveData = new MutableLiveData<>();
         List<LiveData<Resource<DeviceModel>>> liveData = new ArrayList<>();
@@ -255,7 +257,8 @@ public class DeviceRepository {
         return liveData;
     }
 
-    public LiveData<Resource<DeviceModel>> autoPopulateFromDatabase(final String udi) {
+    public LiveData<Resource<DeviceModel>> autoPopulateFromDatabase(final String temp_udi) {
+        String udi = cleanBarcode(temp_udi);
         MutableLiveData<Resource<DeviceModel>> deviceLiveData = new MutableLiveData<>();
         deviceLiveData.setValue(new Resource<>(null, new Request(null,Request.Status.LOADING)));
         String hibccDi = extractHibcc(udi);
@@ -329,6 +332,17 @@ public class DeviceRepository {
         });
 
         return deviceLiveData;
+    }
+
+    // Removes parentheses from barcode (udi) for uniform structure
+    private String cleanBarcode(final String barcode) {
+        StringBuilder ans = new StringBuilder();
+        for (int i = 0; i < barcode.length(); i++) {
+            char c = barcode.charAt(i);
+            if (c != '(' && c != ')') ans.append(c);
+        }
+        Log.d(TAG, ans.toString());
+        return ans.toString();
     }
 
     /**
@@ -491,11 +505,12 @@ public class DeviceRepository {
 
     /**
      * Gets the DeviceModel information stored in the GUDID database.
-     * @param udi the udi that is scanned.
+     * @param temp_udi the udi that is scanned (cleaned before usage inside function).
      * @return The DeviceModel information that is in the database, the device production information
      * will be stored in the list of production in the DeviceModel
      */
-    public LiveData<Resource<DeviceModel>> autoPopulateFromGUDID(final String udi) {
+    public LiveData<Resource<DeviceModel>> autoPopulateFromGUDID(final String temp_udi) {
+        String udi = cleanBarcode(temp_udi);
         MutableLiveData<Resource<DeviceModel>> deviceLiveData = new MutableLiveData<>();
         deviceLiveData.setValue(new Resource<>(null, new Request(null,Request.Status.LOADING)));
 
