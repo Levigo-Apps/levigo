@@ -26,6 +26,7 @@ public class InventoryViewModel extends ViewModel {
     private LiveData<Resource<User>> userLiveData;
 
     private final SingleEventMediatorLiveData<List<String>> typeListLiveData = new SingleEventMediatorLiveData<>();
+    private final SingleEventMediatorLiveData<List<DeviceModel>> deviceModelLiveData = new SingleEventMediatorLiveData<>();
 
     public InventoryViewModel() {
         inventoryRepository = new InventoryRepository();
@@ -47,12 +48,16 @@ public class InventoryViewModel extends ViewModel {
         typeListLiveData.addSource(inventoryRepository.getAllTypes(Objects.requireNonNull(userLiveData.getValue()).getData()));
     }
 
+    public void loadDeviceModel(String type) {
+        deviceModelLiveData.addSource(inventoryRepository.getDevicesWithType(Objects.requireNonNull(userLiveData.getValue()).getData(), type));
+    }
+
     public LiveData<Resource<List<String>>> getTypeListLiveData() {
         return typeListLiveData.getLiveData();
     }
 
     public LiveData<Resource<List<DeviceModel>>> getDeviceModelListWithTypeLiveData(String type) {
-        return inventoryRepository.getDevicesWithType(Objects.requireNonNull(userLiveData.getValue()).getData(), type);
+        return deviceModelLiveData.getLiveData();
     }
     
 }
