@@ -162,7 +162,7 @@ public class DeviceRepository {
         List<Task<?>> tasks = new ArrayList<>();
         // save device model
         DocumentReference deviceModelReference = inventoryReference.document(deviceModel.getDeviceIdentifier());
-        tasks.add(deviceModelReference.set(deviceModel.toMap()));
+        tasks.add(deviceModelReference.set(deviceModel.toMap()));   //deviceModelReference.update, or change set options
 
         // save device production
         DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
