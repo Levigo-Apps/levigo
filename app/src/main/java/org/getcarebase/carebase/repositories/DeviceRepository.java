@@ -341,7 +341,6 @@ public class DeviceRepository {
             char c = barcode.charAt(i);
             if (c != '(' && c != ')') ans.append(c);
         }
-        Log.d(TAG, ans.toString());
         return ans.toString();
     }
 
