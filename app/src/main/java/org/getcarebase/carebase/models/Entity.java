@@ -4,9 +4,10 @@ import com.google.firebase.firestore.PropertyName;
 
 import java.util.List;
 
-public class Hospital {
+public class Entity {
     private String name;
     private List<String> types;
+    private List<TabType> tabs;
 
     @PropertyName("name")
     public String getName() {
@@ -26,5 +27,15 @@ public class Hospital {
     @PropertyName("device_types")
     public void setTypes(List<String> types) {
         this.types = types;
+    }
+
+    @PropertyName("tabs")
+    public List<TabType> getTabs() {
+        return tabs;
+    }
+
+    @PropertyName("tabs")
+    public void setTabs(List<TabType> tabs) {
+        this.tabs = tabs;
     }
 }

@@ -87,8 +87,8 @@ public class ProcedureViewModel extends ViewModel {
 
     public void setupRepositories() {
         User user = Objects.requireNonNull(userLiveData.getValue()).getData();
-        deviceRepository = new DeviceRepository(user.getNetworkId(), user.getHospitalId());
-        procedureRepository = new ProcedureRepository(user.getNetworkId(), user.getHospitalId());
+        deviceRepository = new DeviceRepository(user.getNetworkId(), user.getEntityId());
+        procedureRepository = new ProcedureRepository(user.getNetworkId(), user.getEntityId());
     }
 
     public Procedure getProcedureDetails() {

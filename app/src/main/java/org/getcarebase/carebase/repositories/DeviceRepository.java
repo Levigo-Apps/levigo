@@ -52,8 +52,6 @@ public class DeviceRepository {
     private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     private final AccessGUDIDAPI accessGUDIDAPI = AccessGUDIDAPIInstanceFactory.getRetrofitInstance(DeviceModel.class, new DeviceModelGUDIDDeserializer()).create(AccessGUDIDAPI.class);
 
-    private final String networkId;
-    private final String hospitalId;
     private final DocumentReference networkReference;
     private final DocumentReference hospitalReference;
     private final CollectionReference inventoryReference;
@@ -65,11 +63,9 @@ public class DeviceRepository {
     private ListenerRegistration deviceProductionListenerRegistration;
 
 
-    public DeviceRepository(String networkId, String hospitalId) {
-        this.networkId = networkId;
-        this.hospitalId = hospitalId;
+    public DeviceRepository(String networkId, String entityId) {
         networkReference = FirestoreReferences.getNetworkReference(networkId);
-        hospitalReference = FirestoreReferences.getHospitalReference(networkReference, hospitalId);
+        hospitalReference = FirestoreReferences.getEntityReference(networkReference, entityId);
         inventoryReference = FirestoreReferences.getInventoryReference(hospitalReference);
         proceduresReference = FirestoreReferences.getProceduresReference(hospitalReference);
         shipmentReference = FirestoreReferences.getShipmentReference(hospitalReference);
@@ -367,7 +363,7 @@ public class DeviceRepository {
         shipmentTask.addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
                 Shipment shipment = task.getResult().getDocuments().get(0).toObject(Shipment.class);
-                DocumentReference sourceHospitalReference = FirestoreReferences.getHospitalReference(networkReference,shipment.getSourceHospitalId());
+                DocumentReference sourceHospitalReference = FirestoreReferences.getEntityReference(networkReference,shipment.getSourceHospitalId());
                 CollectionReference sourceInventoryReference = FirestoreReferences.getInventoryReference(sourceHospitalReference);
                 getAutoPopulatedDeviceFromFirestore(sourceInventoryReference,shipment.getDi(),shipment.getUdi(),shippedDeviceLiveData,shipment);
             } else {

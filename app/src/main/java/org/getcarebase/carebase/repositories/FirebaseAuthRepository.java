@@ -125,18 +125,11 @@ public class FirebaseAuthRepository {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
-                        assert document != null;
                         if (document.exists()) {
                             Boolean isValid = document.getBoolean("valid");
                             if (isValid != null && isValid ) {
                                 try {
-                                    // invitation code found and information about the code will be sent back
-                                    String networkId = Objects.requireNonNull(document.get("network_id")).toString();
-                                    String networkName = Objects.requireNonNull(document.get("network_name")).toString();
-                                    String hospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
-                                    String hospitalName = Objects.requireNonNull(document.get("hospital_name")).toString();
-
-                                    InvitationCode invitationCode = new InvitationCode(invitationCodeString,networkId,networkName,hospitalId,hospitalName,true);
+                                    InvitationCode invitationCode = document.toObject(InvitationCode.class);
                                     Resource<InvitationCode> request = new Resource<>(invitationCode, new Request(null, Request.Status.SUCCESS));
                                     result.setValue(request);
                                 } catch (NullPointerException e) {

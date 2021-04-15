@@ -7,25 +7,32 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import org.getcarebase.carebase.activities.Main.fragments.InventoryFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ProceduresFragment;
+import org.getcarebase.carebase.models.TabType;
+
+import java.util.List;
 
 public class HomePagerAdapter extends FragmentStateAdapter {
 
-    public HomePagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+    private final List<TabType> tabTypeList;
+
+    public HomePagerAdapter(@NonNull FragmentActivity fragmentActivity, List<TabType> tabTypeList) {
         super(fragmentActivity);
+        this.tabTypeList = tabTypeList;
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        switch (position) {
-            case 0: return new InventoryFragment();
-            case 1: return new ProceduresFragment();
+        TabType type = tabTypeList.get(position);
+        switch (type) {
+            case INVENTORY: return new InventoryFragment();
+            case PROCEDURES: return new ProceduresFragment();
             default: return new Fragment();
         }
     }
 
     @Override
     public int getItemCount() {
-        return 2;
+        return tabTypeList.size();
     }
 }

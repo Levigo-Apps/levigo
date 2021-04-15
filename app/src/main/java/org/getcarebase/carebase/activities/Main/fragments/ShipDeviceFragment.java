@@ -67,8 +67,8 @@ public class ShipDeviceFragment extends Fragment {
         deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
             deviceViewModel.setupDeviceRepository();
             if (userResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
-                currentHospitalName = userResource.getData().getHospitalName();
-                deviceViewModel.setHospitalRepository(userResource.getData().getHospitalId());
+                currentHospitalName = userResource.getData().getEntityName();
+                deviceViewModel.setHospitalRepository(userResource.getData().getEntityId());
             }
             deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
                 if(sitesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {

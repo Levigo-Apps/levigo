@@ -1,7 +1,5 @@
 package org.getcarebase.carebase.models;
 
-import com.google.firebase.firestore.Exclude;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,16 +7,16 @@ import java.util.Map;
 public class User implements Serializable {
     private final String userId;
     private final String email;
-    private final String hospitalId;
-    private final String hospitalName;
+    private final String entityId;
+    private final String entityName;
     private final String networkId;
     private final String networkName;
 
-    public User(String userId, String email, String hospitalId, String hospitalName, String networkId, String networkName) {
+    public User(String userId, String email, String entityId, String entityName, String networkId, String networkName) {
         this.userId = userId;
         this.email = email;
-        this.hospitalId = hospitalId;
-        this.hospitalName = hospitalName;
+        this.entityId = entityId;
+        this.entityName = entityName;
         this.networkId = networkId;
         this.networkName = networkName;
     }
@@ -26,8 +24,8 @@ public class User implements Serializable {
     public User(String userId, String email, InvitationCode invitationCode) {
         this.userId = userId;
         this.email = email;
-        this.hospitalId = invitationCode.getHospitalId();
-        this.hospitalName = invitationCode.getHospitalName();
+        this.entityId = invitationCode.getEntityId();
+        this.entityName = invitationCode.getEntityName();
         this.networkId = invitationCode.getNetworkId();
         this.networkName = invitationCode.getNetworkName();
     }
@@ -40,12 +38,12 @@ public class User implements Serializable {
         return email;
     }
 
-    public String getHospitalId() {
-        return hospitalId;
+    public String getEntityId() {
+        return entityId;
     }
 
-    public String getHospitalName() {
-        return hospitalName;
+    public String getEntityName() {
+        return entityName;
     }
 
     public String getNetworkId() {
@@ -60,8 +58,8 @@ public class User implements Serializable {
         Map<String,String> userMap = new HashMap<>();
         userMap.put("network_id", networkId);
         userMap.put("network_name", networkName);
-        userMap.put("hospital_id", hospitalId);
-        userMap.put("hospital_name", hospitalName);
+        userMap.put("entity_id", entityId);
+        userMap.put("entity_name", entityName);
         userMap.put("email", email);
         return userMap;
     }

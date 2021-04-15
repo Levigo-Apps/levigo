@@ -58,11 +58,14 @@ import org.getcarebase.carebase.activities.Main.fragments.LoadingFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ModelListFragment;
 import org.getcarebase.carebase.activities.Main.fragments.PendingUdiFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ProcedureStartFragment;
+import org.getcarebase.carebase.models.Entity;
 import org.getcarebase.carebase.models.Procedure;
+import org.getcarebase.carebase.models.TabType;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.InventoryViewModel;
 
+import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
@@ -95,9 +98,9 @@ public class MainActivity extends AppCompatActivity {
         inventoryViewModel.getUserLiveData().observe(this, userResource -> {
             if (userResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                 User currentUser = userResource.getData();
-                toolbar.setTitle(currentUser.getHospitalName());
+                toolbar.setTitle(currentUser.getEntityName());
                 toolbar.inflateMenu(R.menu.main_toolbar);
-                setUpViewPager();
+                inventoryViewModel.getEntityLiveData().observe(this,entityResource -> setUpViewPager(entityResource.getData()));
             } else if (userResource.getRequest().getStatus() == Request.Status.ERROR) {
                 Snackbar.make(findViewById(R.id.activity_main), userResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
             }
@@ -106,16 +109,18 @@ public class MainActivity extends AppCompatActivity {
         getPermissions();
     }
 
-    private void setUpViewPager() {
-        HomePagerAdapter adapter = new HomePagerAdapter(this);
+    private void setUpViewPager(Entity entity) {
+        List<TabType> tabs = entity.getTabs();
+        HomePagerAdapter adapter = new HomePagerAdapter(this,tabs);
         ViewPager2 viewPager = findViewById(R.id.home_view_pager);
         viewPager.setAdapter(adapter);
         TabLayout tabLayout = findViewById(R.id.home_tab_layout);
         new TabLayoutMediator(tabLayout,viewPager,(tab, position) -> {
-            switch (position) {
-                case 0: tab.setText("Inventory");
+            TabType type = tabs.get(position);
+            switch (type) {
+                case INVENTORY: tab.setText("Inventory");
                     break;
-                case 1: tab.setText("Procedures");
+                case PROCEDURES: tab.setText("Procedures");
                     break;
             }
         }).attach();

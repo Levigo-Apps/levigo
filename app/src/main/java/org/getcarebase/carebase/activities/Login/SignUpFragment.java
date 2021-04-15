@@ -68,7 +68,7 @@ public class SignUpFragment extends Fragment {
     private TextInputEditText confirmPasswordField;
     private Button signUpButton;
     private TextView networkNameTextView;
-    private TextView hospitalNameTextView;
+    private TextView entityNameTextView;
 
     private AuthViewModel authViewModel;
 
@@ -86,7 +86,7 @@ public class SignUpFragment extends Fragment {
         });
 
         networkNameTextView = rootView.findViewById(R.id.signup_network_name);
-        hospitalNameTextView = rootView.findViewById(R.id.signup_site_name);
+        entityNameTextView = rootView.findViewById(R.id.signup_site_name);
 
         emailPasswordLayout = rootView.findViewById(R.id.signup_email_password_layout);
         emailField = rootView.findViewById(R.id.signup_email);
@@ -170,7 +170,7 @@ public class SignUpFragment extends Fragment {
                 InvitationCode code = invitationCodeResource.getData();
                 // Display authorized network and hospital
                 networkNameTextView.setText(code.getNetworkName());
-                hospitalNameTextView.setText(code.getHospitalName());
+                entityNameTextView.setText(code.getEntityName());
                 emailPasswordLayout.setVisibility(View.VISIBLE);
                 invitationCodeLayout.setEnabled(false);
             }

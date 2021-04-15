@@ -33,7 +33,7 @@ public class PendingDeviceViewModel extends ViewModel {
 
     public void setupPendingDeviceRepository() {
         User user = Objects.requireNonNull(userLiveData.getValue()).getData();
-        pendingDeviceRepository = new PendingDeviceRepository(user.getNetworkId(), user.getHospitalId());
+        pendingDeviceRepository = new PendingDeviceRepository(user.getNetworkId(), user.getEntityId());
     }
 
     public LiveData<Resource<List<PendingDevice>>> getPendingDevicesLiveData() {

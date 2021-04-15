@@ -10,29 +10,29 @@ public class FirestoreReferences {
         return FirebaseFirestore.getInstance().collection("networks").document(networkId);
     }
 
-    public static DocumentReference getHospitalReference(DocumentReference networkReference, String hospitalId) {
-        return networkReference.collection("hospitals").document(hospitalId);
+    public static DocumentReference getEntityReference(DocumentReference networkReference, String entityId) {
+        return networkReference.collection("entities").document(entityId);
     }
 
-    public static CollectionReference getInventoryReference(DocumentReference hospitalReference) {
-        return hospitalReference.collection("departments").document("default_department")
+    public static CollectionReference getInventoryReference(DocumentReference entityReference) {
+        return entityReference.collection("departments").document("default_department")
                 .collection("dis");
     }
 
-    public static CollectionReference getProceduresReference(DocumentReference hospitalReference) {
-        return hospitalReference.collection("departments").document("default_department")
+    public static CollectionReference getProceduresReference(DocumentReference entityReference) {
+        return entityReference.collection("departments").document("default_department")
                 .collection("procedures");
     }
 
-    public static DocumentReference getDeviceTypesReference(DocumentReference hospitalReference) {
-        return hospitalReference.collection("types").document("type_options");
+    public static DocumentReference getDeviceTypesReference(DocumentReference entityReference) {
+        return entityReference.collection("types").document("type_options");
     }
 
-    public static DocumentReference getPhysicalLocations(DocumentReference hospitalReference) {
-        return hospitalReference.collection("physical_locations").document("locations");
+    public static DocumentReference getPhysicalLocations(DocumentReference entityReference) {
+        return entityReference.collection("physical_locations").document("locations");
     }
 
-    public static CollectionReference getShipmentReference(DocumentReference hospitalRefence) {
-        return hospitalRefence.collection("shipments");
+    public static CollectionReference getShipmentReference(DocumentReference entityReference) {
+        return entityReference.collection("shipments");
     }
 }
