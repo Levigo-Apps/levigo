@@ -44,26 +44,32 @@ public class InvitationCode {
         this.valid = valid;
     }
 
+    @DocumentId
     public String getInvitationCode() {
         return invitationCode;
     }
 
+    @PropertyName("network_id")
     public String getNetworkId() {
         return networkId;
     }
 
+    @PropertyName("network_name")
     public String getNetworkName() {
         return networkName;
     }
 
+    @PropertyName("entity_id")
     public String getEntityId() {
         return entityId;
     }
 
+    @PropertyName("entity_name")
     public String getEntityName() {
         return entityName;
     }
 
+    @PropertyName("valid")
     public boolean isValid() {
         return valid;
     }

@@ -175,6 +175,7 @@ public class SignUpFragment extends Fragment {
                 invitationCodeLayout.setEnabled(false);
             }
             else if (invitationCodeResource.getRequest().getStatus() == Request.Status.ERROR) {
+                invitationCodeLayout.setError("Invalid invitation code");
                 Snackbar.make(rootView,invitationCodeResource.getRequest().getResourceString(),Snackbar.LENGTH_LONG);
             }
         });
