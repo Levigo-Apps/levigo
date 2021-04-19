@@ -76,32 +76,4 @@ public class EntityRepository {
         sitesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
         return sitesLiveData;
     }
-
-    // TODO new schema refactor
-    public LiveData<Request> saveShipment(Shipment shipment) {
-        MutableLiveData<Request> saveShipmentRequest = new MutableLiveData<>();
-//        List<Task<?>> tasks = new ArrayList<>();
-//
-//        tasks.add(shipmentReference.add(shipment));
-//
-//        // update device model and production quantities
-//        DocumentReference currentHospitalReference = FirestoreReferences.getHospitalReference(
-//                networkReference, shipment.getSourceHospitalId());
-//        CollectionReference inventoryReference = FirestoreReferences.getInventoryReference(currentHospitalReference);
-//        DocumentReference deviceModelReference = inventoryReference.document(shipment.getDi());
-//        DocumentReference deviceProductionReference = deviceModelReference.collection("udis").document(shipment.getUdi());
-//        tasks.add(deviceModelReference.update("quantity", FieldValue.increment(-1*shipment.getShippedQuantity())));
-//        tasks.add(deviceProductionReference.update("quantity",FieldValue.increment(-1*shipment.getShippedQuantity())));
-//
-//        Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                saveShipmentRequest.setValue(new Request(null, Request.Status.SUCCESS));
-//            }
-//            else {
-//                saveShipmentRequest.setValue(new Request(null, Request.Status.ERROR));
-//            }
-//        });
-        saveShipmentRequest.setValue(new Request(null, Request.Status.ERROR));
-        return saveShipmentRequest;
-    }
 }

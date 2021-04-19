@@ -16,6 +16,7 @@ import org.getcarebase.carebase.repositories.DeviceRepository;
 import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
 import org.getcarebase.carebase.repositories.EntityRepository;
 import org.getcarebase.carebase.repositories.PendingDeviceRepository;
+import org.getcarebase.carebase.repositories.ShipmentRepository;
 import org.getcarebase.carebase.utils.Event;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
@@ -28,6 +29,7 @@ public class DeviceViewModel extends ViewModel {
     private DeviceRepository deviceRepository;
     private PendingDeviceRepository pendingDeviceRepository;
     private EntityRepository entityRepository;
+    private ShipmentRepository shipmentRepository;
     private final FirebaseAuthRepository authRepository;
 
     private LiveData<Resource<User>> userLiveData;
@@ -56,8 +58,8 @@ public class DeviceViewModel extends ViewModel {
     private final MutableLiveData<Shipment> saveShipmentLiveData = new MutableLiveData<>();
     private final LiveData<Request> saveShipmentRequestLiveData =
             Transformations.switchMap(saveShipmentLiveData, shipment -> {
-                return null;
-//                return hospitalRepository.saveShipment(shipment);
+                // Update this for issue #155
+                return shipmentRepository.saveShipment(shipment);
             });
 
     public DeviceViewModel() {
@@ -87,6 +89,7 @@ public class DeviceViewModel extends ViewModel {
     public void setHospitalRepository(String entityId) {
         User user = Objects.requireNonNull(userLiveData.getValue()).getData();
         entityRepository = new EntityRepository();
+        shipmentRepository = new ShipmentRepository(user.getNetworkId());
     }
 
     public Map<String, List<String>> getDeviceTypes() {
