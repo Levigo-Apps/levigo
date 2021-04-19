@@ -71,8 +71,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_HANDLE_CAMERA_PERM = 1;
     private static final int RC_ADD_PROCEDURE = 2;
     private static final int RC_EDIT_DEVICE_DETAILS = 3;
+    private static final int RC_SCAN = 4;
 
     public static final int RESULT_EDITED = Activity.RESULT_FIRST_USER + 0;
+    public static final int RESULT_SCANNED = Activity.RESULT_FIRST_USER + 1;
 
     private Toolbar toolbar;
 
@@ -135,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startScanner() {
-        startActivity(new Intent(this, CarebaseScanningActivity.class));
+        startActivityForResult(new Intent(this, CarebaseScanningActivity.class),RC_SCAN);
     }
 
     private void getPermissions() {
@@ -149,15 +151,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (result != null && result.getContents() != null) {
-            String contents = result.getContents().trim();
-            if (!contents.equals("")) {
-                startItemForm(contents);
-            }
-
-            if (result.getBarcodeImagePath() != null) {
-                Log.d(TAG, "" + result.getBarcodeImagePath());
+        if (requestCode == RC_SCAN) {
+            if (resultCode == RESULT_SCANNED) {
+               String udi = Objects.requireNonNull(data).getStringExtra(CarebaseScanningActivity.ARG_UDI_RESULT);
+               startItemForm(udi);
             }
         } else if (requestCode == RC_ADD_PROCEDURE) {
             if (resultCode == RESULT_OK) {
