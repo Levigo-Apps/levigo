@@ -39,6 +39,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.carebase.carebasescanner.ScanningActivity;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -134,11 +135,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startScanner() {
-        IntentIntegrator integrator = new IntentIntegrator(this);
-        integrator.setCaptureActivity(CaptureActivity.class);
-        integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-        integrator.setBarcodeImageEnabled(true);
-        integrator.initiateScan();
+        startActivity(new Intent(this, CarebaseScanningActivity.class));
     }
 
     private void getPermissions() {
