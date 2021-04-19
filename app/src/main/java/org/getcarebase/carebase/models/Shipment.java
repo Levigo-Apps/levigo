@@ -13,6 +13,16 @@ public class Shipment {
     private int receivedQuantity;
     private boolean received;
 
+    // new schema:
+//    private int trackingNumber;
+//    private String sourceEntityId;
+//    private String destEntityId;
+//    private String shippedTime;
+//    private String receivedTime;
+//    private String udi;
+//    private String di;
+//    private int quantity;
+
     @DocumentId
     public String getId() {
         return id;
