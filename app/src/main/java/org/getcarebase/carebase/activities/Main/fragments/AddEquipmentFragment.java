@@ -29,6 +29,7 @@ import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.activities.Main.CarebaseScanningActivity;
 import org.getcarebase.carebase.activities.Main.adapters.NewUsedDevicesAdapter;
 import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.utils.Request;
@@ -37,6 +38,8 @@ import java.util.Objects;
 
 public class AddEquipmentFragment extends Fragment {
     public static final String TAG = AddEquipmentFragment.class.getSimpleName();
+    private static final int RC_SCAN = 1;
+    private static final int RESULT_SCANNED = Activity.RESULT_FIRST_USER;
     private LinearLayout procedureDetailsView;
     private ProcedureViewModel procedureViewModel;
 
@@ -106,33 +109,20 @@ public class AddEquipmentFragment extends Fragment {
     }
 
     private void startScanner() {
-        IntentIntegrator.forSupportFragment(AddEquipmentFragment.this)
-                .setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES)
-                .setBarcodeImageEnabled(true)
-                .setCaptureActivity(CaptureActivity.class)
-                .initiateScan();
+        Intent intent = new Intent(requireActivity(), CarebaseScanningActivity.class);
+        intent.putExtra("result_code",RESULT_SCANNED);
+        startActivityForResult(intent,RC_SCAN);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (result != null) {
-            String contents = result.getContents();
-            if (contents != null) {
-                checkUdi(contents);
+        if (requestCode == RC_SCAN) {
+            if (resultCode == RESULT_SCANNED) {
+                String udi = Objects.requireNonNull(data).getStringExtra(CarebaseScanningActivity.ARG_UDI_RESULT);
+                procedureViewModel.addDeviceUsed(udi);
             }
-            if (result.getBarcodeImagePath() != null) {
-                Log.d(TAG, "" + result.getBarcodeImagePath());
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
         }
-    }
-
-    private void checkUdi(final String contents){
-        if (contents.equals("")) return;
-        procedureViewModel.addDeviceUsed(contents.trim());
     }
 
     public void offerEquipmentScan(View view, final String udi){
