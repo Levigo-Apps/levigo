@@ -37,6 +37,10 @@
             android:name=".activities.Main.MainActivity"
             android:windowSoftInputMode="adjustPan" />
 
+        <activity android:name=".activities.Main.CarebaseScanningActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
+
         <activity
             android:name=".activities.Main.AddProcedureActivity"
             android:parentActivityName=".activities.Main.MainActivity"
