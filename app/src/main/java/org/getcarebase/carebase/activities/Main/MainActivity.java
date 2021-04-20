@@ -137,7 +137,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startScanner() {
-        startActivityForResult(new Intent(this, CarebaseScanningActivity.class),RC_SCAN);
+        Intent intent = new Intent(this, CarebaseScanningActivity.class);
+        intent.putExtra("result_code",RESULT_SCANNED);
+        startActivityForResult(intent,RC_SCAN);
     }
 
     private void getPermissions() {
@@ -169,8 +171,6 @@ public class MainActivity extends AppCompatActivity {
                 ft.attach(fragment);
                 ft.commit();
             }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
