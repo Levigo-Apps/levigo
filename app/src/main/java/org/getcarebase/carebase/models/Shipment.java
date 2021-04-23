@@ -4,33 +4,23 @@ import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.PropertyName;
 
 public class Shipment {
-    private String id;
-    private String di;
+    private String trackingNumber;
+    private String sourceEntityId;
+    private String destEntityId;
+    private String shippedTime;
+    private String receivedTime;
     private String udi;
-    private String sourceHospitalId;
-    private String destHospital;
-    private int shippedQuantity;
-    private int receivedQuantity;
-    private boolean received;
-
-    // new schema:
-//    private int trackingNumber;
-//    private String sourceEntityId;
-//    private String destEntityId;
-//    private String shippedTime;
-//    private String receivedTime;
-//    private String udi;
-//    private String di;
-//    private int quantity;
+    private String di;
+    private int quantity;
 
     @DocumentId
     public String getId() {
-        return id;
+        return trackingNumber;
     }
 
     @DocumentId
     public void setId(String id) {
-        this.id = id;
+        this.trackingNumber = id;
     }
 
     @PropertyName("di")
@@ -53,53 +43,53 @@ public class Shipment {
         this.udi = udi;
     }
 
-    @PropertyName("source_hospital_id")
-    public String getSourceHospitalId() {
-        return sourceHospitalId;
+    @PropertyName("source_entity_id")
+    public String getSourceEntityId() {
+        return sourceEntityId;
     }
 
-    @PropertyName("source_hospital_id")
-    public void setSourceHospitalId (String sourceHospitalId) {
-        this.sourceHospitalId = sourceHospitalId;
+    @PropertyName("source_entity_id")
+    public void setSourceEntityId (String sourceEntityId) {
+        this.sourceEntityId = sourceEntityId;
     }
 
-    @PropertyName("destination_hospital_id")
-    public String getDestinationHospitalId() {
-        return destHospital;
+    @PropertyName("destination_entity_id")
+    public String getDestinationEntityId() {
+        return destEntityId;
     }
 
-    @PropertyName("destination_hospital_id")
-    public void setDestinationHospitalId(String destHospital) {
-        this.destHospital = destHospital;
+    @PropertyName("destination_entity_id")
+    public void setDestinationEntityId(String destEntityId) {
+        this.destEntityId = destEntityId;
     }
 
-    @PropertyName("shipped_quantity")
-    public int getShippedQuantity() {
-        return shippedQuantity;
+    @PropertyName("quantity")
+    public int getQuantity() {
+        return quantity;
     }
 
-    @PropertyName("shipped_quantity")
-    public void setShippedQuantity(int shippedQuantity) {
-        this.shippedQuantity = shippedQuantity;
+    @PropertyName("quantity")
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
-    @PropertyName("received_quantity")
-    public int getReceivedQuantity() {
-        return receivedQuantity;
+    @PropertyName("date_time_shipped")
+    public String getShippedTime() {
+        return shippedTime;
     }
 
-    @PropertyName("received_quantity")
-    public void setReceivedQuantity(int receivedQuantity) {
-        this.receivedQuantity = receivedQuantity;
+    @PropertyName("date_time_shipped")
+    public void setShippedTime(String shippedTime) {
+        this.shippedTime = shippedTime;
     }
 
-    @PropertyName("received")
-    public boolean isReceived() {
-        return received;
+    @PropertyName("date_time_received")
+    public String getReceivedTime() {
+        return receivedTime;
     }
 
-    @PropertyName("received")
-    public void setReceived(boolean received) {
-        this.received = received;
+    @PropertyName("date_time_received")
+    public void setReceivedTime(String receivedTime) {
+        this.receivedTime = receivedTime;
     }
 }

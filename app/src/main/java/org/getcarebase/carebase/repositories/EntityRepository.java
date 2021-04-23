@@ -15,24 +15,28 @@ import org.getcarebase.carebase.utils.FirestoreReferences;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class EntityRepository {
     private static final String TAG = EntityRepository.class.getName();
 
-//    private final String networkId;
+    private final String networkId;
 //    private final String entityId;
-//    private final DocumentReference networkReference;
+    private final DocumentReference networkReference;
 //    private final DocumentReference entityReference;
 //    private final CollectionReference shipmentReference;
 
-//    public EntityRepository(String networkId, String entityId) {
-//        this.networkId = networkId;
-//        this.entityId = entityId;
-//        networkReference = FirestoreReferences.getNetworkReference(networkId);
-//        entityReference = FirestoreReferences.getEntityReference(networkReference, entityId);
-//        shipmentReference = FirestoreReferences.getShipmentReference(entityReference);
-//    }
+    public EntityRepository() {
+        this.networkId = null;
+        networkReference = null;
+    }
+
+    public EntityRepository(String networkId) {
+        this.networkId = networkId;
+        this.networkReference = FirestoreReferences.getNetworkReference(networkId);
+    }
 
     public LiveData<Resource<Entity>> getEntity(User user) {
         DocumentReference networkReference = FirestoreReferences.getNetworkReference(user.getNetworkId());
@@ -60,20 +64,20 @@ public class EntityRepository {
      */
     public LiveData<Resource<Map<String, String>>> getSiteOptions() {
         MutableLiveData<Resource<Map<String, String>>> sitesLiveData = new MutableLiveData<>();
-//        CollectionReference collectionReference = networkReference.collection("hospitals");
-//        collectionReference.get().addOnCompleteListener( task -> {
-//            if (task.isSuccessful()) {
-//                Map<String, String> sites = new HashMap<>();
-//                for (DocumentSnapshot d : task.getResult().getDocuments())
-//                    if (!Objects.equals(d.getId(), "site_options"))
-//                        sites.put(d.getId(), (String) d.get("name"));
-//
-//                sitesLiveData.setValue(new Resource<>(sites,new Request(null, Request.Status.SUCCESS)));
-//            } else {
-//                sitesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
-//            }
-//        });
-        sitesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+        CollectionReference collectionReference = networkReference.collection("entities");
+        collectionReference.get().addOnCompleteListener( task -> {
+            if (task.isSuccessful()) {
+                Map<String, String> sites = new HashMap<>();
+                for (DocumentSnapshot d : task.getResult().getDocuments())
+                    //if (!Objects.equals(d.getId(), "site_options"))
+                        sites.put(d.getId(), (String) d.get("name"));
+
+                sitesLiveData.setValue(new Resource<>(sites,new Request(null, Request.Status.SUCCESS)));
+            } else {
+                sitesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+            }
+        });
+        // sitesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
         return sitesLiveData;
     }
 }
