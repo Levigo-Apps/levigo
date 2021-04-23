@@ -37,10 +37,11 @@ public class ShipDeviceFragment extends Fragment {
     TextView deviceUdi;
     TextInputLayout deviceQty;
     TextInputLayout deviceDest;
+    TextInputLayout deviceTracker;
 
     Button saveButton;
 
-    String currentHospitalName;
+    String currentEntityName;
 
     private View rootView;
     private DeviceViewModel deviceViewModel;
@@ -59,30 +60,45 @@ public class ShipDeviceFragment extends Fragment {
         deviceDest = rootView.findViewById(R.id.device_dest);
         AutoCompleteTextView destOptions = (AutoCompleteTextView) deviceDest.getEditText();
 
+        deviceTracker = rootView.findViewById(R.id.device_tracker);
+        AutoCompleteTextView trackOptions = (AutoCompleteTextView) deviceTracker.getEditText();
+
         saveButton = rootView.findViewById(R.id.save_shipment);
 
         deviceViewModel = new ViewModelProvider(this).get(DeviceViewModel.class);
 
         final ArrayAdapter<String> sitesAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
+        final ArrayAdapter<String> trackingAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
         deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
             deviceViewModel.setupDeviceRepository();
             if (userResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
-                currentHospitalName = userResource.getData().getEntityName();
+                currentEntityName = userResource.getData().getEntityName();
                 deviceViewModel.setHospitalRepository(userResource.getData().getEntityId());
             }
             deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
                 if(sitesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                     sitesAdapter.clear();
                     Collection<String> siteOptions = sitesResource.getData().values();
-                    siteOptions.remove(currentHospitalName);
+                    siteOptions.remove(currentEntityName);
                     sitesAdapter.addAll(siteOptions);
                 } else {
                     Log.d(TAG,"Unable to fetch sites");
                     Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
                 }
             });
+            // Add tracking number options to tracking adapter, requires repository function to get tracking numbers
+            deviceViewModel.getShipmentTrackingLiveData().observe(getViewLifecycleOwner(), trackingResource -> {
+                if (trackingResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                    trackingAdapter.clear();
+                    trackingAdapter.addAll(trackingResource.getData());
+                } else {
+                    Log.d(TAG,"Unable to fetch shipment tracking numbers");
+                    Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
+                }
+            });
         });
         destOptions.setAdapter(sitesAdapter);
+        trackOptions.setAdapter(trackingAdapter);
 
         handleArguments();
 
@@ -140,24 +156,31 @@ public class ShipDeviceFragment extends Fragment {
             Snackbar.make(rootView, "Select a destination", Snackbar.LENGTH_LONG).show();
             return;
         }
+        if (deviceTracker.getEditText().getText().toString().isEmpty()) {
+            Snackbar.make(rootView, "Select a tracking number", Snackbar.LENGTH_LONG).show();
+            return;
+        }
         Integer shippedQuantity = Integer.parseInt(deviceQty.getEditText().getText().toString());
         if (shippedQuantity > Integer.parseInt(getArguments().getString("qty")) || shippedQuantity <= 0) {
             Snackbar.make(rootView, "Invalid quantity", Snackbar.LENGTH_LONG).show();
             return;
         }
-        shipment.setShippedQuantity(shippedQuantity);
+        shipment.setQuantity(shippedQuantity);
+
+        String tracker = Objects.requireNonNull(deviceTracker.getEditText()).getText().toString();
+        shipment.setId(tracker.contentEquals("Get New Tracking Number") ? "temptrackingnumber" : tracker);
         
         deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
             Map<String, String> sitesMap = sitesResource.getData();
             Boolean destSet = false, sourceSet = false;
             for (String id : sitesMap.keySet()) {
                 if (Objects.requireNonNull(deviceDest.getEditText()).getText().toString().contentEquals(sitesMap.get(id))) {
-                    shipment.setDestinationHospitalId(id);
+                    shipment.setDestinationEntityId(id);
                     deviceViewModel.setHospitalRepository(id);
                     destSet = true;
                 }
-                if (currentHospitalName.contentEquals(sitesMap.get(id))) {
-                    shipment.setSourceHospitalId(id);
+                if (currentEntityName.contentEquals(sitesMap.get(id))) {
+                    shipment.setSourceEntityId(id);
                     sourceSet = true;
                 }
                 if (destSet && sourceSet) break;

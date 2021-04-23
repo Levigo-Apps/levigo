@@ -175,9 +175,9 @@ public class DeviceRepository {
         if (deviceModel.getShipment() != null) {
             DocumentReference shipmentDocumentReference = shipmentReference.document(deviceModel.getShipment().getId());
             tasks.add(shipmentDocumentReference.update("received_quantity", FieldValue.increment(deviceProduction.getQuantity())));
-            if (deviceModel.getShipment().getReceivedQuantity() + deviceProduction.getQuantity() >= deviceModel.getShipment().getShippedQuantity()) {
-                tasks.add(shipmentDocumentReference.update("received",true));
-            }
+//            if (deviceModel.getShipment().getShippedQuantity() + deviceProduction.getQuantity() >= deviceModel.getShipment().getShippedQuantity()) {
+//                tasks.add(shipmentDocumentReference.update("received",true));
+//            }
         }
 
         DocumentReference deviceProductionReference = deviceModelReference.collection("udis").document(deviceProduction.getUniqueDeviceIdentifier());
@@ -376,7 +376,7 @@ public class DeviceRepository {
         shipmentTask.addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
                 Shipment shipment = task.getResult().getDocuments().get(0).toObject(Shipment.class);
-                DocumentReference sourceHospitalReference = FirestoreReferences.getEntityReference(networkReference,shipment.getSourceHospitalId());
+                DocumentReference sourceHospitalReference = FirestoreReferences.getEntityReference(networkReference,shipment.getSourceEntityId());
                 CollectionReference sourceInventoryReference = FirestoreReferences.getInventoryReference(sourceHospitalReference);
                 getAutoPopulatedDeviceFromFirestore(sourceInventoryReference,shipment.getDi(),shipment.getUdi(),shippedDeviceLiveData,shipment);
             } else {

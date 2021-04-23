@@ -88,7 +88,7 @@ public class DeviceViewModel extends ViewModel {
     // TODO new schema refactor
     public void setHospitalRepository(String entityId) {
         User user = Objects.requireNonNull(userLiveData.getValue()).getData();
-        entityRepository = new EntityRepository();
+        entityRepository = new EntityRepository(user.getNetworkId());
         shipmentRepository = new ShipmentRepository(user.getNetworkId());
     }
 
@@ -98,6 +98,10 @@ public class DeviceViewModel extends ViewModel {
 
     public LiveData<Resource<Map<String, String>>> getSitesLiveData() {
         return entityRepository.getSiteOptions();
+    }
+
+    public LiveData<Resource<String[]>> getShipmentTrackingLiveData() {
+        return shipmentRepository.getShipmentTrackingNumbers();
     }
 
     public LiveData<Resource<String[]>> getPhysicalLocationsLiveData() {
