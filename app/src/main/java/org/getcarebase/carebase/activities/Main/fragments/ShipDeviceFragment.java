@@ -21,6 +21,7 @@ import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.DeviceViewModel;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -167,8 +168,10 @@ public class ShipDeviceFragment extends Fragment {
         }
         shipment.setQuantity(shippedQuantity);
 
+        shipment.setShippedTime(Calendar.getInstance().getTime().toString());
+
         String tracker = Objects.requireNonNull(deviceTracker.getEditText()).getText().toString();
-        shipment.setId(tracker.contentEquals("Get New Tracking Number") ? "temptrackingnumber" : tracker);
+        shipment.setTrackingNumber(tracker.contentEquals("Get New Tracking Number") ? "temptrackingnumber" : tracker);
         
         deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
             Map<String, String> sitesMap = sitesResource.getData();
