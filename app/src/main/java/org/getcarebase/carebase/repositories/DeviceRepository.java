@@ -173,7 +173,7 @@ public class DeviceRepository {
 
         // save shipment information if present
         if (deviceModel.getShipment() != null) {
-            DocumentReference shipmentDocumentReference = shipmentReference.document(deviceModel.getShipment().getId());
+            DocumentReference shipmentDocumentReference = shipmentReference.document(deviceModel.getShipment().getTrackingNumber());
             tasks.add(shipmentDocumentReference.update("received_quantity", FieldValue.increment(deviceProduction.getQuantity())));
 //            if (deviceModel.getShipment().getShippedQuantity() + deviceProduction.getQuantity() >= deviceModel.getShipment().getShippedQuantity()) {
 //                tasks.add(shipmentDocumentReference.update("received",true));
