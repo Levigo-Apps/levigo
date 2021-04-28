@@ -277,7 +277,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.activity_main, fragment, InventoryStartFragment.TAG)
-                .addToBackStack(null)
                 .commit();
     }
 
@@ -293,7 +292,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.activity_main, fragment, ProcedureStartFragment.TAG)
-                .addToBackStack(null)
                 .commit();
     }
 
@@ -309,7 +307,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.activity_main, fragment, LoadingFragment.TAG)
-                .addToBackStack(null)
                 .commit();
     }
 
@@ -325,7 +322,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.activity_main, fragment, ErrorFragment.TAG)
-                .addToBackStack(null)
                 .commit();
     }
 
