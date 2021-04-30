@@ -39,6 +39,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.carebase.carebasescanner.ScanningActivity;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -74,8 +75,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_HANDLE_CAMERA_PERM = 1;
     private static final int RC_ADD_PROCEDURE = 2;
     private static final int RC_EDIT_DEVICE_DETAILS = 3;
+    private static final int RC_SCAN = 4;
 
     public static final int RESULT_EDITED = Activity.RESULT_FIRST_USER + 0;
+    public static final int RESULT_SCANNED = Activity.RESULT_FIRST_USER + 1;
 
     private Toolbar toolbar;
 
@@ -142,11 +145,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startScanner() {
-        IntentIntegrator integrator = new IntentIntegrator(this);
-        integrator.setCaptureActivity(CaptureActivity.class);
-        integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-        integrator.setBarcodeImageEnabled(true);
-        integrator.initiateScan();
+        Intent intent = new Intent(this, CarebaseScanningActivity.class);
+        intent.putExtra("result_code",RESULT_SCANNED);
+        startActivityForResult(intent,RC_SCAN);
     }
 
     private void getPermissions() {
@@ -160,15 +161,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (result != null && result.getContents() != null) {
-            String contents = result.getContents().trim();
-            if (!contents.equals("")) {
-                startItemForm(contents);
-            }
-
-            if (result.getBarcodeImagePath() != null) {
-                Log.d(TAG, "" + result.getBarcodeImagePath());
+        if (requestCode == RC_SCAN) {
+            if (resultCode == RESULT_SCANNED) {
+               String udi = Objects.requireNonNull(data).getStringExtra(CarebaseScanningActivity.ARG_UDI_RESULT);
+               startItemForm(udi);
             }
         } else if (requestCode == RC_ADD_PROCEDURE) {
             if (resultCode == RESULT_OK) {
@@ -183,8 +179,6 @@ public class MainActivity extends AppCompatActivity {
                 ft.attach(fragment);
                 ft.commit();
             }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
