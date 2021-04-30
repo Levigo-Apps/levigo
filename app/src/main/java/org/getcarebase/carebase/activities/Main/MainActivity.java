@@ -58,6 +58,7 @@ import org.getcarebase.carebase.activities.Main.fragments.LoadingFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ModelListFragment;
 import org.getcarebase.carebase.activities.Main.fragments.PendingUdiFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ProcedureStartFragment;
+import org.getcarebase.carebase.activities.Main.fragments.ShipmentStartFragment;
 import org.getcarebase.carebase.models.Entity;
 import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.TabType;
@@ -121,6 +122,8 @@ public class MainActivity extends AppCompatActivity {
                 case INVENTORY: tab.setText("Inventory");
                     break;
                 case PROCEDURES: tab.setText("Procedures");
+                    break;
+                case SHIPMENTS: tab.setText("Shipments");
                     break;
             }
         }).attach();
@@ -304,6 +307,22 @@ public class MainActivity extends AppCompatActivity {
 
     public void removeProcedureEmptyScreen() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(ProcedureStartFragment.TAG);
+        if (fragment != null) {
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+    }
+
+    public void showShipmentEmptyScreen() {
+        Fragment fragment = new ShipmentStartFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.activity_main, fragment, ShipmentStartFragment.TAG)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    public void removeShipmentEmptyScreen() {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(ShipmentStartFragment.TAG);
         if (fragment != null) {
             getSupportFragmentManager().beginTransaction().remove(fragment).commit();
         }

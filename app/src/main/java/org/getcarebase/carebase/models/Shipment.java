@@ -15,6 +15,7 @@ public class Shipment {
     private String receivedTime;
     private String udi;
     private String di;
+    private String deviceName;
     private int quantity;
     private List<Map<String, String>> items;
 
@@ -96,6 +97,16 @@ public class Shipment {
     }
 
     @Exclude
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    @Exclude
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+    }
+
+    @Exclude
     public int getQuantity() {
         return quantity;
     }
@@ -105,12 +116,12 @@ public class Shipment {
         this.quantity = quantity;
     }
 
-    @Exclude
+    @PropertyName("items")
     public List<Map<String, String>> getItems() {
         return items;
     }
 
-    @Exclude
+    @PropertyName("items")
     public void setItems(List<Map<String, String>> items) {
         this.items = items;
     }

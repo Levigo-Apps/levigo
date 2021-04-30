@@ -72,9 +72,9 @@ public class ShipDeviceFragment extends Fragment {
         final ArrayAdapter<String> trackingAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
         deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
             deviceViewModel.setupDeviceRepository();
+            deviceViewModel.setupEntityRepository();
             if (userResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 currentEntityName = userResource.getData().getEntityName();
-                deviceViewModel.setHospitalRepository(userResource.getData().getEntityId());
             }
             deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
                 if(sitesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
@@ -147,6 +147,7 @@ public class ShipDeviceFragment extends Fragment {
     private void saveData() {
         Shipment shipment = new Shipment();
         shipment.setUdi((String) deviceUdi.getText());
+        shipment.setDeviceName((String) deviceName.getText());
         String di;
         shipment.setDi((di = getArguments().getString("di")) != null ? di : "");
         if (deviceQty.getEditText().getText().toString().isEmpty()) {
@@ -179,7 +180,6 @@ public class ShipDeviceFragment extends Fragment {
             for (String id : sitesMap.keySet()) {
                 if (Objects.requireNonNull(deviceDest.getEditText()).getText().toString().contentEquals(sitesMap.get(id))) {
                     shipment.setDestinationEntityId(id);
-                    deviceViewModel.setHospitalRepository(id);
                     destSet = true;
                 }
                 if (currentEntityName.contentEquals(sitesMap.get(id))) {

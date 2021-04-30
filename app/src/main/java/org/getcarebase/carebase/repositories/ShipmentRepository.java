@@ -39,11 +39,9 @@ public class ShipmentRepository {
         this.shipmentReference = FirestoreReferences.getShipmentReference(this.networkReference);
     }
 
-    public LiveData<Resource<List<Shipment>>> getShipments(User user) {
-        DocumentReference tempNetworkReference = FirestoreReferences.getNetworkReference(user.getNetworkId());
-        CollectionReference tempShipmentReference = FirestoreReferences.getShipmentReference(tempNetworkReference);
+    public LiveData<Resource<List<Shipment>>> getShipments() {
         MutableLiveData<Resource<List<Shipment>>> shipmentLiveData = new MutableLiveData<>();
-        tempShipmentReference.get().addOnCompleteListener( task -> {
+        shipmentReference.get().addOnCompleteListener( task -> {
             if (task.isSuccessful()) {
                 QuerySnapshot snapshot = task.getResult();
                 if (snapshot != null && !snapshot.isEmpty()) {
@@ -52,35 +50,12 @@ public class ShipmentRepository {
                         Shipment tempShipment = new Shipment();
                         DocumentSnapshot d = snapshot.getDocuments().get(i);
 
-                        // Set values individually of shipment object
+                        // Set values of shipment object
                         tempShipment.setTrackingNumber(d.getId());
                         tempShipment.setSourceEntityId(String.valueOf(d.get("source_entity_id")));
                         tempShipment.setDestinationEntityId(String.valueOf(d.get("destination_entity_id")));
                         tempShipment.setShippedTime(String.valueOf(d.get("date_time_shipped")));
-
-                        // Set the items list of shipment object using second query on items collection
-                        DocumentReference tempDocument = tempShipmentReference.document(d.getId());
-                        tempDocument.collection("items").get().addOnCompleteListener(task1 -> {
-                            if (task1.isSuccessful()) {
-                                QuerySnapshot snapshot1 = task1.getResult();
-                                if (snapshot1 != null && !snapshot1.isEmpty()) {
-                                    List<Map<String, String>> ship_items = new ArrayList<>(snapshot1.size());
-                                    for (int i1 = 0; i1 < snapshot1.size(); i1++) {
-                                        Map<String, String> ship_item = new HashMap<>();
-                                        DocumentSnapshot d1 = snapshot1.getDocuments().get(i1);
-                                        ship_item.put("di", String.valueOf(d1.get("di")));
-                                        ship_item.put("udi", String.valueOf(d1.get("udi")));
-                                        ship_item.put("quantity", String.valueOf(d1.get("quantity")));
-                                        ship_items.add(i1, ship_item);
-                                    }
-                                    tempShipment.setItems(ship_items);
-                                } else {
-                                    shipmentLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
-                                }
-                            } else {
-                                shipmentLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
-                            }
-                        });
+                        tempShipment.setItems((List<Map<String, String>>) d.get("items"));
 
                         // Add shipment to shipment array
                         shipments.add(i, tempShipment);
@@ -96,6 +71,30 @@ public class ShipmentRepository {
 
         return shipmentLiveData;
     }
+
+//    CollectionReference itemsReference = shipmentReference.document(d.getId()).collection("items");
+//                        itemsReference.get().addOnCompleteListener(task1 -> {
+//        if (task1.isSuccessful()) {
+//            QuerySnapshot snapshot1 = task1.getResult();
+//            if (snapshot1 != null && !snapshot1.isEmpty()) {
+//                List<Map<String, String>> ship_items = new ArrayList<>(snapshot1.size());
+//                for (int i1 = 0; i1 < snapshot1.size(); i1++) {
+//                    Map<String, String> ship_item = new HashMap<>();
+//                    DocumentSnapshot d1 = snapshot1.getDocuments().get(i1);
+//                    ship_item.put("di", String.valueOf(d1.get("di")));
+//                    ship_item.put("udi", String.valueOf(d1.get("udi")));
+//                    ship_item.put("quantity", String.valueOf(d1.get("quantity")));
+//                    ship_items.add(i1, ship_item);
+//                }
+//                tempShipment.setItems(ship_items);
+//            } else {
+//                shipmentLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
+//            }
+//        } else {
+//            Log.d(TAG, "didn't work");
+//            shipmentLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
+//        }
+//    });
 
     public LiveData<Resource<String[]>> getShipmentTrackingNumbers() {
         MutableLiveData<Resource<String[]>> trackingLiveData = new MutableLiveData<>();
@@ -130,27 +129,36 @@ public class ShipmentRepository {
         MutableLiveData<Request> saveShipmentRequest = new MutableLiveData<>();
         List<Task<?>> tasks = new ArrayList<>();
 
-        DocumentReference shipmentDocument = shipmentReference.document(shipment.getTrackingNumber());
-        shipmentDocument.addSnapshotListener((documentSnapshot, e) -> {
-            Map<String, Object> ship_item = new HashMap<>();
-            ship_item.put("di", shipment.getDi());
-            ship_item.put("udi", shipment.getUdi());
-            ship_item.put("quantity", String.valueOf(shipment.getQuantity()));
-            if (documentSnapshot != null && documentSnapshot.exists()) {
-                // Add device in shipment object to existing document
-                CollectionReference itemReference = shipmentDocument.collection("items");
-                tasks.add(itemReference.add(ship_item));
-            } else {
-                Log.d(TAG, "adding new shipment...");
-                // Add new shipment to database
-                DocumentReference newShipmentDocument = shipmentReference.document();
-                Log.d(TAG, newShipmentDocument.getId());
-                tasks.add(newShipmentDocument.set(shipment));
-                Log.d(TAG, String.valueOf(ship_item.get("di")));
-                tasks.add(newShipmentDocument.collection("items").add(ship_item));
-            }
-        });
-//
+        List<Map<String, String>> ship_items = new ArrayList<>();
+        Map<String, String> ship_item = new HashMap<>();
+        ship_item.put("di", shipment.getDi());
+        ship_item.put("udi", shipment.getUdi());
+        ship_item.put("name", shipment.getDeviceName());
+        ship_item.put("quantity", String.valueOf(shipment.getQuantity()));
+
+        if (shipment.getTrackingNumber().contentEquals("temptrackingnumber")) {
+            ship_items.add(ship_item);
+            shipment.setItems(ship_items);
+
+            DocumentReference newShipmentDocument = shipmentReference.document();
+            tasks.add(newShipmentDocument.set(shipment));
+        } else {
+            DocumentReference oldShipmentDocument = shipmentReference.document(shipment.getTrackingNumber());
+            oldShipmentDocument.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot != null && documentSnapshot.exists()) {
+                        // Add device in shipment object to existing document
+                        ship_items.clear();
+                        ship_items.addAll((List<Map<String, String>>) documentSnapshot.get("items"));
+                        ship_items.add(ship_item);
+                        shipment.setItems(ship_items);
+                        tasks.add(oldShipmentDocument.set(shipment));
+                    }
+                }
+            });
+        }
+
 //        // update device model and production quantities
 //        DocumentReference currentHospitalReference = FirestoreReferences.getHospitalReference(
 //                networkReference, shipment.getSourceHospitalId());

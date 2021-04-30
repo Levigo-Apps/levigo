@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_weight="1">
+
+    <org.getcarebase.carebase.views.LabeledTextView
+        android:id="@+id/tracker_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        app:label_text="Tracking Number"
+        app:show_label="true"
+        tools:text="Temp tracking number"/>
+
+    <org.getcarebase.carebase.views.LabeledTextView
+        android:id="@+id/date_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textColor="@color/colorGrey"
+        app:label_text="Date"
+        app:show_label="false"
+        tools:text="1/23/2021"
+        />
+
+    <org.getcarebase.carebase.views.LabeledTextView
+        android:id="@+id/source_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textColor="@color/colorGrey"
+        app:label_text="Source"
+        app:show_label="true"
+        tools:text="Example Source" />
+
+    <org.getcarebase.carebase.views.LabeledTextView
+        android:id="@+id/destination_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textColor="@color/colorGrey"
+        app:label_text="Destination"
+        app:show_label="true"
+        tools:text="Example Destination" />
+
+    <org.getcarebase.carebase.views.LabeledTextView
+        android:id="@+id/di_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textColor="@color/colorGrey"
+        app:label_text="di"
+        app:show_label="true"
+        tools:text="none" />
+
+    <org.getcarebase.carebase.views.LabeledTextView
+        android:id="@+id/udi_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textColor="@color/colorGrey"
+        app:label_text="udi"
+        app:show_label="true"
+        tools:text="none" />
+
+    <org.getcarebase.carebase.views.LabeledTextView
+        android:id="@+id/quantity_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textColor="@color/colorGrey"
+        app:label_text="Quantity"
+        app:show_label="true"
+        tools:text="0" />
+
+</LinearLayout>
