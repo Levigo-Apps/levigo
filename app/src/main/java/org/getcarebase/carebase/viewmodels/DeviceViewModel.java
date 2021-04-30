@@ -57,10 +57,7 @@ public class DeviceViewModel extends ViewModel {
 
     private final MutableLiveData<Shipment> saveShipmentLiveData = new MutableLiveData<>();
     private final LiveData<Request> saveShipmentRequestLiveData =
-            Transformations.switchMap(saveShipmentLiveData, shipment -> {
-                // Update this for issue #155
-                return shipmentRepository.saveShipment(shipment);
-            });
+            Transformations.switchMap(saveShipmentLiveData, shipment -> shipmentRepository.saveShipment(shipment));
 
     public DeviceViewModel() {
         authRepository = new FirebaseAuthRepository();
@@ -86,7 +83,7 @@ public class DeviceViewModel extends ViewModel {
     }
 
     // TODO new schema refactor
-    public void setHospitalRepository(String entityId) {
+    public void setupEntityRepository() {
         User user = Objects.requireNonNull(userLiveData.getValue()).getData();
         entityRepository = new EntityRepository(user.getNetworkId());
         shipmentRepository = new ShipmentRepository(user.getNetworkId());
@@ -106,6 +103,10 @@ public class DeviceViewModel extends ViewModel {
 
     public LiveData<Resource<String[]>> getPhysicalLocationsLiveData() {
         return deviceRepository.getPhysicalLocationOptions();
+    }
+
+    public LiveData<Resource<List<Shipment>>> getShipmentsLiveData() {
+        return shipmentRepository.getShipments();
     }
 
     public void savePhysicalLocation(String physicalLocation) {
