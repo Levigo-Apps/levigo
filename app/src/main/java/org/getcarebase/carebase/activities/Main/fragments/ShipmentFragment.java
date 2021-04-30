@@ -17,12 +17,13 @@ import org.getcarebase.carebase.viewmodels.DeviceViewModel;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-public class ShipmentFragment extends MiniFloatingActionButtonManagerFragment {
+public class ShipmentFragment extends Fragment {
     public static final String TAG = ShipmentFragment.class.getName();
 
     private View rootView;
@@ -40,13 +41,6 @@ public class ShipmentFragment extends MiniFloatingActionButtonManagerFragment {
         swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
 
         deviceViewModel = new ViewModelProvider(requireActivity()).get(DeviceViewModel.class);
-        LinearLayout fabLayout = requireActivity().findViewById(R.id.fab_layout);
-        View scanDeviceFAB = inflater.inflate(R.layout.mini_scan_device_fab,fabLayout, false);
-        scanDeviceFAB.setOnClickListener(view -> ((MainActivity) requireActivity()).startScanner());
-        View manualAddDeviceFAB = inflater.inflate(R.layout.mini_manual_add_device_fab,fabLayout,false);
-        manualAddDeviceFAB.setOnClickListener(view -> ((MainActivity) requireActivity()).startItemForm(""));
-        miniFABs = new View[] {scanDeviceFAB,manualAddDeviceFAB};
-        super.onCreateView(inflater,fabLayout,savedInstanceState);
 
         //init shipments
         initShipments();
