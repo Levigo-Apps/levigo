@@ -124,6 +124,30 @@ public class ShipmentRepository {
         return trackingLiveData;
     }
 
+    public LiveData<Resource<Map<String, String>>> getShipmentDestinationSites() {
+        MutableLiveData<Resource<Map<String, String>>> destLiveData = new MutableLiveData<>();
+        shipmentReference.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot snapshot = task.getResult();
+                if (snapshot != null) {
+                    Map<String, String> destSites = new HashMap<>();
+                    for (DocumentSnapshot d: snapshot.getDocuments())
+                        destSites.put(d.getId(), (String) d.get("destination_entity_id"));
+                    destLiveData.setValue(new Resource<>(destSites,new Request(null, Request.Status.SUCCESS)));
+                }
+                else {
+                    Log.d(TAG, "No destination ids were found");
+                    destLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+                }
+            }
+            else {
+                destLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+            }
+        });
+
+        return destLiveData;
+    }
+
     // Assumes shipment already has id/tracking number
     public LiveData<Request> saveShipment(Shipment shipment) {
         MutableLiveData<Request> saveShipmentRequest = new MutableLiveData<>();

@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.PendingDevice;
+import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
@@ -20,6 +21,7 @@ import org.getcarebase.carebase.repositories.ShipmentRepository;
 import org.getcarebase.carebase.utils.Event;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
+import org.getcarebase.carebase.utils.SingleEventMediatorLiveData;
 
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,8 @@ public class DeviceViewModel extends ViewModel {
         }
         return deviceRepository.saveDevice(deviceModel);
     });
+
+    private final SingleEventMediatorLiveData<List<Shipment>> shipmentsLiveData = new SingleEventMediatorLiveData<>();
 
     private final MutableLiveData<Shipment> saveShipmentLiveData = new MutableLiveData<>();
     private final LiveData<Request> saveShipmentRequestLiveData =
@@ -101,12 +105,24 @@ public class DeviceViewModel extends ViewModel {
         return shipmentRepository.getShipmentTrackingNumbers();
     }
 
+    public LiveData<Resource<Map<String, String>>> getShipmentDestinationsLiveData() {
+        return shipmentRepository.getShipmentDestinationSites();
+    }
+
     public LiveData<Resource<String[]>> getPhysicalLocationsLiveData() {
         return deviceRepository.getPhysicalLocationOptions();
     }
 
+//    public LiveData<Resource<List<Shipment>>> getShipmentsLiveData() {
+//        return shipmentRepository.getShipments();
+//    }
+
+    public void loadShipments() {
+        shipmentsLiveData.addSource(shipmentRepository.getShipments());
+    }
+
     public LiveData<Resource<List<Shipment>>> getShipmentsLiveData() {
-        return shipmentRepository.getShipments();
+        return shipmentsLiveData.getLiveData();
     }
 
     public void savePhysicalLocation(String physicalLocation) {

@@ -33,6 +33,14 @@ public class ShipmentFragment extends Fragment {
 
     private DeviceViewModel deviceViewModel;
 
+    // interface for reaching the bottom of a shipments list
+    public interface OnBottomReachedCallback {
+        void onBottomReached();
+    }
+
+    // method will call load procedures
+    private final ShipmentFragment.OnBottomReachedCallback onBottomReachedCallback = () -> deviceViewModel.loadShipments();
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -58,11 +66,13 @@ public class ShipmentFragment extends Fragment {
         RecyclerView.LayoutManager inventoryLayoutManager = new LinearLayoutManager(getContext());
         shipmentRecyclerView.setLayoutManager(inventoryLayoutManager);
 
-        shipmentsAdapter = new ShipmentsAdapter();
+        shipmentsAdapter = new ShipmentsAdapter(this);
         shipmentRecyclerView.setAdapter(shipmentsAdapter);
+        shipmentsAdapter.setOnBottomReachedCallback(onBottomReachedCallback);
 
         deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
             deviceViewModel.setupEntityRepository();
+            deviceViewModel.loadShipments();
             deviceViewModel.getShipmentsLiveData().observe(getViewLifecycleOwner(), mapResource -> {
                 if (mapResource.getRequest().getStatus() == Request.Status.LOADING) {
                     ((MainActivity) getActivity()).showLoadingScreen();
@@ -84,6 +94,7 @@ public class ShipmentFragment extends Fragment {
                 }
             });
         });
+        swipeRefreshLayout.setOnRefreshListener(() -> deviceViewModel.loadShipments());
     }
 
     @Override
