@@ -5,46 +5,68 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 
 import org.getcarebase.carebase.R;
-import org.getcarebase.carebase.activities.Main.fragments.ShipDeviceFragment;
+import org.getcarebase.carebase.activities.Main.fragments.ShipmentFragment;
+import org.getcarebase.carebase.models.DeviceUsage;
 import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.views.LabeledTextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class ShipmentsAdapter extends RecyclerView.Adapter<ShipmentsAdapter.ViewHolder> {
     public static final String TAG = ShipmentsAdapter.class.getName();
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        public RecyclerView deviceView;
         public LabeledTextView trackerView;
         public LabeledTextView dateView;
         public LabeledTextView destinationView;
         public LabeledTextView sourceView;
-        public LabeledTextView diView;
-        public LabeledTextView udiView;
-        public LabeledTextView quantityView;
+        public ConstraintLayout shipmentLayout;
 
         public ViewHolder(View view) {
             super(view);
-            // Replace ids with correct shipment ids once shipment item layout is created: done
+
             trackerView = view.findViewById(R.id.tracker_text_view);
             dateView = view.findViewById(R.id.date_text_view);
             destinationView = view.findViewById(R.id.destination_text_view);
             sourceView = view.findViewById(R.id.source_text_view);
+            deviceView = view.findViewById(R.id.devices_view);
 
-            // Device values, eventually should go into separate fragment
-            diView = view.findViewById(R.id.di_text_view);
-            udiView = view.findViewById(R.id.udi_text_view);
-            quantityView = view.findViewById(R.id.quantity_text_view);
+            shipmentLayout = view.findViewById(R.id.buttons_layout);
+            shipmentLayout.setOnClickListener(view1 -> {
+                shipmentLayout.setVisibility(View.VISIBLE);
+                if(deviceView.getVisibility() == View.GONE){
+                    deviceView.setVisibility(View.VISIBLE);
+                }
+                else {
+                    deviceView.setVisibility(View.GONE);
+                }
+            });
         }
     }
 
+    private final ShipmentFragment shipmentFragment;
     private final List<Shipment> shipmentList = new ArrayList<>();
+    private ShipmentFragment.OnBottomReachedCallback onBottomReachedCallback;
+
+    public ShipmentsAdapter(ShipmentFragment shipmentFragment) {
+        this.shipmentFragment = shipmentFragment;
+    }
+
+    public void setOnBottomReachedCallback(ShipmentFragment.OnBottomReachedCallback onBottomReachedCallback) {
+        this.onBottomReachedCallback = onBottomReachedCallback;
+    }
 
     public void setShipments(List<Shipment> shipmentList) {
         this.shipmentList.clear();
@@ -56,9 +78,8 @@ public class ShipmentsAdapter extends RecyclerView.Adapter<ShipmentsAdapter.View
     public ShipmentsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        // Replace with shipment item (create in layout): done
-        View procedureView = inflater.inflate(R.layout.shipment_item,parent,false);
-        return new ShipmentsAdapter.ViewHolder(procedureView);
+        View shipmentsView = inflater.inflate(R.layout.shipment_item,parent,false);
+        return new ShipmentsAdapter.ViewHolder(shipmentsView);
     }
 
     @Override
@@ -70,9 +91,22 @@ public class ShipmentsAdapter extends RecyclerView.Adapter<ShipmentsAdapter.View
         holder.destinationView.setValue(shipment.getDestinationEntityId());
         holder.sourceView.setValue(shipment.getSourceEntityId());
 
-        holder.diView.setValue(shipment.getItems().get(0).get("di"));
-        holder.udiView.setValue(shipment.getItems().get(0).get("udi"));
-        holder.quantityView.setValue(shipment.getItems().get(0).get("quantity"));
+        DevicesUsedAdapter devicesUsedAdapter = new DevicesUsedAdapter();
+        LinearLayoutManager layoutManager = new LinearLayoutManager(shipmentFragment.getContext());
+        holder.deviceView.setLayoutManager(layoutManager);
+        holder.deviceView.setAdapter(devicesUsedAdapter);
+        devicesUsedAdapter.setDeviceUsages(shipment.getItems().stream().map(item -> {
+            DeviceUsage deviceUsage = new DeviceUsage();
+            deviceUsage.setUniqueDeviceIdentifier(item.get("udi"));
+            deviceUsage.setDeviceIdentifier(item.get("di"));
+            deviceUsage.setName(item.get("name"));
+            deviceUsage.setAmountUsed(Integer.parseInt(item.get("quantity")));
+            return deviceUsage;
+        }).collect(Collectors.toList()));
+
+        if ((position >= getItemCount() - 1)){
+            onBottomReachedCallback.onBottomReached();
+        }
     }
 
     @Override
