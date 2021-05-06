@@ -39,7 +39,7 @@ public class ShipmentFragment extends Fragment {
     }
 
     // method will call load procedures
-    private final ShipmentFragment.OnBottomReachedCallback onBottomReachedCallback = () -> deviceViewModel.loadShipments();
+    private final ShipmentFragment.OnBottomReachedCallback onBottomReachedCallback = () -> deviceViewModel.loadShipments(false);
 
     @Nullable
     @Override
@@ -50,14 +50,7 @@ public class ShipmentFragment extends Fragment {
 
         deviceViewModel = new ViewModelProvider(requireActivity()).get(DeviceViewModel.class);
 
-        //init shipments
         initShipments();
-
-        // on refresh update shipments
-//        swipeRefreshLayout.setOnRefreshListener(() -> inventoryViewModel.loadTypeList());
-//
-//        inventoryViewModel.loadTypeList();
-
 
         return rootView;
     }
@@ -72,21 +65,23 @@ public class ShipmentFragment extends Fragment {
 
         deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
             deviceViewModel.setupEntityRepository();
-            deviceViewModel.loadShipments();
+            deviceViewModel.loadShipments(false);
             deviceViewModel.getShipmentsLiveData().observe(getViewLifecycleOwner(), mapResource -> {
                 if (mapResource.getRequest().getStatus() == Request.Status.LOADING) {
                     ((MainActivity) getActivity()).showLoadingScreen();
                 } else {
                     ((MainActivity) getActivity()).removeLoadingScreen();
                     if (mapResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-                        if (mapResource.getData().size() == 0) {
-                            ((MainActivity) getActivity()).showShipmentEmptyScreen();
-                        } else {
-                            ((MainActivity) getActivity()).removeInventoryEmptyScreen();
-                            shipmentsAdapter.setShipments(mapResource.getData());
-                            shipmentsAdapter.notifyDataSetChanged();
+                        if (mapResource.getData() != null) {
+                            if (mapResource.getData().size() == 0) {
+                                ((MainActivity) getActivity()).showShipmentEmptyScreen();
+                            } else {
+                                ((MainActivity) getActivity()).removeInventoryEmptyScreen();
+                                shipmentsAdapter.setShipments(mapResource.getData());
+                                shipmentsAdapter.notifyDataSetChanged();
+                            }
+                            swipeRefreshLayout.setRefreshing(false);
                         }
-                        swipeRefreshLayout.setRefreshing(false);
                     } else if (mapResource.getRequest().getStatus() == Request.Status.ERROR) {
                         ((MainActivity) getActivity()).showErrorScreen();
                         Snackbar.make(rootView, mapResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
@@ -94,7 +89,7 @@ public class ShipmentFragment extends Fragment {
                 }
             });
         });
-        swipeRefreshLayout.setOnRefreshListener(() -> deviceViewModel.loadShipments());
+        swipeRefreshLayout.setOnRefreshListener(() -> deviceViewModel.loadShipments(true));
     }
 
     @Override

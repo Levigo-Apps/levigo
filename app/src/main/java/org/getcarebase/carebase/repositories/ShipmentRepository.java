@@ -7,9 +7,11 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.utils.FirestoreReferences;
@@ -33,36 +35,46 @@ public class ShipmentRepository {
     private final DocumentReference networkReference;
     private final CollectionReference shipmentReference;
 
+    private final List<Shipment> shipments = new ArrayList<>();
+    private DocumentSnapshot lastResult;
+    private boolean reachedEnd = false;
     public ShipmentRepository(String networkId) {
         this.networkId = networkId;
         this.networkReference = FirestoreReferences.getNetworkReference(this.networkId);
         this.shipmentReference = FirestoreReferences.getShipmentReference(this.networkReference);
     }
 
-    public LiveData<Resource<List<Shipment>>> getShipments() {
-        MutableLiveData<Resource<List<Shipment>>> shipmentLiveData = new MutableLiveData<>();
-        shipmentReference.get().addOnCompleteListener( task -> {
+    public LiveData<Resource<List<Shipment>>> getShipments(boolean onRefresh) {
+        if (reachedEnd && !onRefresh) {
+            Log.d(TAG,"Reached end");
+            return new MutableLiveData<>(new Resource<>(null,new Request(null, Request.Status.SUCCESS)));
+        }
+        MutableLiveData<Resource<List<Shipment>>> shipmentLiveData = new MutableLiveData<>(new Resource<>(null,new Request(null, Request.Status.LOADING)));
+        Query query;
+
+        // clear shipment list on refresh
+        if (onRefresh) {
+            shipments.clear();
+            lastResult = null;
+            reachedEnd = false;
+        }
+        // load from beginning of shipment list if on initialization or on refresh
+        if (lastResult == null) {
+            query = shipmentReference.orderBy("date_time_shipped", Query.Direction.DESCENDING).limit(10);
+        } else {
+            query = shipmentReference.orderBy("date_time_shipped", Query.Direction.DESCENDING).limit(10).startAfter(lastResult);
+        }
+        // after getting results, add results to shipment list
+        query.get().addOnCompleteListener( task -> {
             if (task.isSuccessful()) {
                 QuerySnapshot snapshot = task.getResult();
                 if (snapshot != null && !snapshot.isEmpty()) {
-                    List<Shipment> shipments = new ArrayList<>(snapshot.size());
-                    for (int i = 0; i < snapshot.size(); i++) {
-                        Shipment tempShipment = new Shipment();
-                        DocumentSnapshot d = snapshot.getDocuments().get(i);
-
-                        // Set values of shipment object
-                        tempShipment.setTrackingNumber(d.getId());
-                        tempShipment.setSourceEntityId(String.valueOf(d.get("source_entity_id")));
-                        tempShipment.setDestinationEntityId(String.valueOf(d.get("destination_entity_id")));
-                        tempShipment.setShippedTime(String.valueOf(d.get("date_time_shipped")));
-                        tempShipment.setItems((List<Map<String, String>>) d.get("items"));
-
-                        // Add shipment to shipment array
-                        shipments.add(i, tempShipment);
-                    }
-                    shipmentLiveData.setValue(new Resource<>(shipments,new Request(null,Request.Status.SUCCESS)));
+                    shipments.addAll(snapshot.toObjects(Shipment.class));
+                    lastResult = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                    shipmentLiveData.setValue(new Resource<>(shipments, new Request(null, Request.Status.SUCCESS)));
                 } else {
-                    shipmentLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
+                    shipmentLiveData.setValue(new Resource<>(null, new Request(null, Request.Status.SUCCESS)));
+                    reachedEnd = true;
                 }
             } else {
                 shipmentLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
@@ -124,7 +136,6 @@ public class ShipmentRepository {
         return destLiveData;
     }
 
-    // Assumes shipment already has id/tracking number
     public LiveData<Request> saveShipment(Shipment shipment) {
         MutableLiveData<Request> saveShipmentRequest = new MutableLiveData<>();
         List<Task<?>> tasks = new ArrayList<>();
@@ -143,6 +154,7 @@ public class ShipmentRepository {
             DocumentReference newShipmentDocument = shipmentReference.document();
             tasks.add(newShipmentDocument.set(shipment));
         } else {
+            // TODO make this atomic
             DocumentReference oldShipmentDocument = shipmentReference.document(shipment.getTrackingNumber());
             oldShipmentDocument.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {

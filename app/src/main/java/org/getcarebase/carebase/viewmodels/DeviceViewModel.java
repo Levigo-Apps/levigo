@@ -117,8 +117,8 @@ public class DeviceViewModel extends ViewModel {
 //        return shipmentRepository.getShipments();
 //    }
 
-    public void loadShipments() {
-        shipmentsLiveData.addSource(shipmentRepository.getShipments());
+    public void loadShipments(boolean onRefresh) {
+        shipmentsLiveData.addSource(shipmentRepository.getShipments(onRefresh));
     }
 
     public LiveData<Resource<List<Shipment>>> getShipmentsLiveData() {
