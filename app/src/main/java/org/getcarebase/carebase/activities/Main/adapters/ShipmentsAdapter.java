@@ -32,7 +32,7 @@ public class ShipmentsAdapter extends RecyclerView.Adapter<ShipmentsAdapter.View
         public LabeledTextView dateView;
         public LabeledTextView destinationView;
         public LabeledTextView sourceView;
-        public ConstraintLayout shipmentLayout;
+        public ImageButton dropdownButton;
 
         public ViewHolder(View view) {
             super(view);
@@ -42,22 +42,13 @@ public class ShipmentsAdapter extends RecyclerView.Adapter<ShipmentsAdapter.View
             destinationView = view.findViewById(R.id.destination_text_view);
             sourceView = view.findViewById(R.id.source_text_view);
             deviceView = view.findViewById(R.id.devices_view);
-
-            shipmentLayout = view.findViewById(R.id.buttons_layout);
-            shipmentLayout.setOnClickListener(view1 -> {
-                shipmentLayout.setVisibility(View.VISIBLE);
-                if(deviceView.getVisibility() == View.GONE){
-                    deviceView.setVisibility(View.VISIBLE);
-                }
-                else {
-                    deviceView.setVisibility(View.GONE);
-                }
-            });
+            dropdownButton = view.findViewById(R.id.dropdown);
         }
     }
 
     private final ShipmentFragment shipmentFragment;
     private final List<Shipment> shipmentList = new ArrayList<>();
+    private final List<Boolean> shipmentVisibilities = new ArrayList<>();
     private ShipmentFragment.OnBottomReachedCallback onBottomReachedCallback;
 
     public ShipmentsAdapter(ShipmentFragment shipmentFragment) {
@@ -71,6 +62,8 @@ public class ShipmentsAdapter extends RecyclerView.Adapter<ShipmentsAdapter.View
     public void setShipments(List<Shipment> shipmentList) {
         this.shipmentList.clear();
         this.shipmentList.addAll(shipmentList);
+        this.shipmentVisibilities.clear();
+        this.shipmentVisibilities.addAll(this.shipmentList.stream().map(i -> false).collect(Collectors.toList()));
     }
 
     @NonNull
@@ -104,9 +97,15 @@ public class ShipmentsAdapter extends RecyclerView.Adapter<ShipmentsAdapter.View
             return deviceUsage;
         }).collect(Collectors.toList()));
 
-        if ((position >= getItemCount() - 1)){
-            onBottomReachedCallback.onBottomReached();
-        }
+        holder.dropdownButton.setOnClickListener(view -> {
+            if (!shipmentVisibilities.get(position)) {
+                holder.deviceView.setVisibility(View.VISIBLE);
+                shipmentVisibilities.set(position,true);
+            } else {
+                holder.deviceView.setVisibility(View.GONE);
+                shipmentVisibilities.set(position,false);
+            }
+        });
     }
 
     @Override
