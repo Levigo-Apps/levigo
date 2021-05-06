@@ -69,10 +69,15 @@ public class Shipment {
         this.receivedTime = receivedTime;
     }
 
-//    @PropertyName("items")
-//    public void setItems(List<Map<String, String>> items) {
-//        this.items = items;
-//    }
+    @PropertyName("items")
+    public List<Map<String, String>> getItems() {
+        return items;
+    }
+
+    @PropertyName("items")
+    public void setItems(List<Map<String, String>> items) {
+        this.items = items;
+    }
 
     // Individual Device properties ------------------------------
 
@@ -116,17 +121,4 @@ public class Shipment {
         this.quantity = quantity;
     }
 
-    @PropertyName("items")
-    public List<Map<String, String>> getItems() {
-        return items;
-    }
-
-    @PropertyName("items")
-    public void setItems(List<Map<String, String>> items) {
-        this.items = items;
-    }
-
-    public void removeItems() {
-        this.items = null;
-    }
 }

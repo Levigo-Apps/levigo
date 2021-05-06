@@ -106,6 +106,10 @@ public class ShipmentsAdapter extends RecyclerView.Adapter<ShipmentsAdapter.View
                 shipmentVisibilities.set(position,false);
             }
         });
+        // check if position is last and override the on bottom reached callback function
+        if ((position >= getItemCount() - 1)){
+            onBottomReachedCallback.onBottomReached();
+        }
     }
 
     @Override
