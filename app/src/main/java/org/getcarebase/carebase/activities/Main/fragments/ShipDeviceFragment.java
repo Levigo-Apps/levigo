@@ -1,7 +1,5 @@
 package org.getcarebase.carebase.activities.Main.fragments;
 
-import android.app.Activity;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -13,6 +11,11 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.snackbar.Snackbar;
@@ -29,15 +32,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
-import androidx.annotation.RequiresApi;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProvider;
-
 public class ShipDeviceFragment extends Fragment {
     public static final String TAG = ShipDeviceFragment.class.getName();
-    private Activity parent;
     TextView deviceName;
     TextView deviceUdi;
     TextInputLayout deviceQty;
@@ -46,8 +42,11 @@ public class ShipDeviceFragment extends Fragment {
 
     Button saveButton;
 
-    String currentEntityName;
-    Map<String, String> shipmentDestinations = null;
+    String sourceEntityName;
+    String sourceEntityId;
+
+    Map<String,String> trackingNumbersToEntityIdMap;
+    Map<String, String> entityIdToEntityNameMap;
 
     private View rootView;
     private DeviceViewModel deviceViewModel;
@@ -57,7 +56,6 @@ public class ShipDeviceFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         rootView = inflater.inflate(R.layout.ship_device, container, false);
-        parent = getActivity();
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
         deviceName = rootView.findViewById(R.id.device_name);
         deviceUdi = rootView.findViewById(R.id.device_udi);
@@ -79,54 +77,69 @@ public class ShipDeviceFragment extends Fragment {
             deviceViewModel.setupDeviceRepository();
             deviceViewModel.setupEntityRepository();
             if (userResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
-                currentEntityName = userResource.getData().getEntityName();
+                sourceEntityName = userResource.getData().getEntityName();
+                sourceEntityId = userResource.getData().getEntityId();
             }
             deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
                 if(sitesResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+                    entityIdToEntityNameMap = sitesResource.getData();
+
                     sitesAdapter.clear();
-                    Collection<String> siteOptions = sitesResource.getData().values();
-                    siteOptions.remove(currentEntityName);
+                    Collection<String> siteOptions = entityIdToEntityNameMap.values();
+                    siteOptions.remove(sourceEntityName);
                     sitesAdapter.addAll(siteOptions);
+
+                    deviceDest.setEnabled(true);
+
+                    if (entityIdToEntityNameMap != null && trackingNumbersToEntityIdMap != null) {
+                        saveButton.setEnabled(true);
+                    }
                 } else {
                     Log.d(TAG,"Unable to fetch sites");
                     Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
                 }
             });
-            deviceViewModel.getShipmentDestinationsLiveData().observe(getViewLifecycleOwner(), destResource -> {
-                if (destResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-                    // Set shipment destination entity id map
-                    shipmentDestinations = destResource.getData();
+
+            deviceViewModel.getShipmentTrackingNumbersLiveData().observe(getViewLifecycleOwner(), trackingNumberResource -> {
+                if (trackingNumberResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                    trackingNumbersToEntityIdMap = trackingNumberResource.getData();
 
                     // Set tracking number options
                     trackingAdapter.clear();
-                    trackingAdapter.addAll(destResource.getData().keySet());
                     trackingAdapter.add("Get New Tracking Number");
+                    trackingAdapter.addAll(trackingNumbersToEntityIdMap.keySet());
+
+                    deviceTracker.setEnabled(true);
+
+                    if (entityIdToEntityNameMap != null && trackingNumbersToEntityIdMap != null) {
+                        saveButton.setEnabled(true);
+                    }
 
                     // Set tracking number input change listener
                     deviceTracker.getEditText().addTextChangedListener(new TextWatcher() {
                         @Override
-                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                        }
+                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
-                        @RequiresApi(api = Build.VERSION_CODES.O)
                         @Override
                         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                             if (charSequence.toString().contentEquals("Get New Tracking Number")) {
                                 deviceDest.setVisibility(View.VISIBLE);
-                            }
-                            else {
-                                Objects.requireNonNull(deviceDest.getEditText()).setText(destResource.getData().get(charSequence));
+                                deviceDest.setEnabled(true);
+                            } else {
+                                String entityId = trackingNumbersToEntityIdMap.get(charSequence.toString());
+                                Log.d(TAG,"Matching Entity Id: " + entityId);
+                                String entityName = entityIdToEntityNameMap.get(entityId);
+                                Log.d(TAG, "Matching Entity Name: " + entityName);
+                                deviceDest.getEditText().setText(entityName);
                                 deviceDest.setVisibility(View.VISIBLE);
-                                deviceDest.setFocusable(View.NOT_FOCUSABLE);
                             }
                         }
 
                         @Override
-                        public void afterTextChanged(Editable editable) {
-                        }
+                        public void afterTextChanged(Editable editable) {}
                     });
                 } else {
-                    Log.d(TAG,"Unable to fetch shipment destination ids");
+                    Log.d(TAG,"Unable to fetch shipment tracking numbers");
                     Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
                 }
             });
@@ -150,14 +163,7 @@ public class ShipDeviceFragment extends Fragment {
         });
         saveButton.setOnClickListener(v -> saveData());
 
-        topToolBar.setNavigationOnClickListener(view -> {
-            if (requireActivity().getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                requireActivity().getSupportFragmentManager().popBackStack();
-            } else {
-                if (parent != null)
-                    parent.onBackPressed();
-            }
-        });
+        topToolBar.setNavigationOnClickListener(view -> requireActivity().getSupportFragmentManager().popBackStack());
 
         return rootView;
     }
@@ -195,7 +201,7 @@ public class ShipDeviceFragment extends Fragment {
             Snackbar.make(rootView, "Select a tracking number", Snackbar.LENGTH_LONG).show();
             return;
         }
-        Integer shippedQuantity = Integer.parseInt(deviceQty.getEditText().getText().toString());
+        int shippedQuantity = Integer.parseInt(deviceQty.getEditText().getText().toString());
         if (shippedQuantity > Integer.parseInt(getArguments().getString("qty")) || shippedQuantity <= 0) {
             Snackbar.make(rootView, "Invalid quantity", Snackbar.LENGTH_LONG).show();
             return;
@@ -206,23 +212,15 @@ public class ShipDeviceFragment extends Fragment {
 
         String tracker = Objects.requireNonNull(deviceTracker.getEditText()).getText().toString();
         shipment.setTrackingNumber(tracker.contentEquals("Get New Tracking Number") ? "temptrackingnumber" : tracker);
-        
-        deviceViewModel.getSitesLiveData().observe(getViewLifecycleOwner(), sitesResource -> {
-            Map<String, String> sitesMap = sitesResource.getData();
-            Boolean destSet = false, sourceSet = false;
-            for (String id : sitesMap.keySet()) {
-                if (Objects.requireNonNull(deviceDest.getEditText()).getText().toString().contentEquals(sitesMap.get(id))) {
-                    shipment.setDestinationEntityId(id);
-                    destSet = true;
-                }
-                if (currentEntityName.contentEquals(sitesMap.get(id))) {
-                    shipment.setSourceEntityId(id);
-                    sourceSet = true;
-                }
-                if (destSet && sourceSet) break;
-            }
 
-            deviceViewModel.saveShipment(shipment);
-        });
+        shipment.setSourceEntityId(sourceEntityId);
+
+        for (Map.Entry<String,String> entry : entityIdToEntityNameMap.entrySet()) {
+            if (entry.getValue().equals(deviceDest.getEditText().getText().toString().trim())) {
+                shipment.setDestinationEntityId(entry.getKey());
+            }
+        }
+
+        deviceViewModel.saveShipment(shipment);
     }
 }
