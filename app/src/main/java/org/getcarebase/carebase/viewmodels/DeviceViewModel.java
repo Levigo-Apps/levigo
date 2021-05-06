@@ -101,12 +101,8 @@ public class DeviceViewModel extends ViewModel {
         return entityRepository.getSiteOptions();
     }
 
-    public LiveData<Resource<String[]>> getShipmentTrackingLiveData() {
+    public LiveData<Resource<Map<String,String>>> getShipmentTrackingNumbersLiveData() {
         return shipmentRepository.getShipmentTrackingNumbers();
-    }
-
-    public LiveData<Resource<Map<String, String>>> getShipmentDestinationsLiveData() {
-        return shipmentRepository.getShipmentDestinationSites();
     }
 
     public LiveData<Resource<String[]>> getPhysicalLocationsLiveData() {

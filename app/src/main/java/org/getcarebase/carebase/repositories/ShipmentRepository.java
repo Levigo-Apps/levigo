@@ -2,18 +2,20 @@ package org.getcarebase.carebase.repositories;
 
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import org.getcarebase.carebase.R;
-import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.Shipment;
-import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.utils.FirestoreReferences;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
@@ -22,10 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
+import java.util.TreeMap;
 
 public class ShipmentRepository {
     private static final String TAG = ShipmentRepository.class.getName();
@@ -84,25 +83,18 @@ public class ShipmentRepository {
         return shipmentLiveData;
     }
 
-    public LiveData<Resource<String[]>> getShipmentTrackingNumbers() {
-        MutableLiveData<Resource<String[]>> trackingLiveData = new MutableLiveData<>();
-        shipmentReference.get().addOnCompleteListener(task -> {
+    public LiveData<Resource<Map<String,String>>> getShipmentTrackingNumbers() {
+        MutableLiveData<Resource<Map<String,String>>> trackingLiveData = new MutableLiveData<>();
+        shipmentReference.orderBy("date_time_shipped", Query.Direction.DESCENDING).limit(5).get().addOnCompleteListener(task -> {
            if (task.isSuccessful()) {
                QuerySnapshot snapshot = task.getResult();
-               if (snapshot != null) {
-                   String[] trackingNumbers = new String[snapshot.size()+1];
-                   int tracking_index = 0;
-                   for (DocumentSnapshot d: snapshot.getDocuments()) {
-                       trackingNumbers[tracking_index] = d.getId();
-                       tracking_index++;
+               Map<String,String> trackingNumbers = new TreeMap<>();
+               if (snapshot != null && !snapshot.isEmpty()) {
+                   for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                       trackingNumbers.put(documentSnapshot.getId(),documentSnapshot.getString("destination_entity_id"));
                    }
-                   trackingNumbers[tracking_index] = "Get New Tracking Number";
-                   trackingLiveData.setValue(new Resource<>(trackingNumbers,new Request(null, Request.Status.SUCCESS)));
                }
-               else {
-                   Log.d(TAG, "No tracking numbers were found");
-                   trackingLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
-               }
+               trackingLiveData.setValue(new Resource<>(trackingNumbers,new Request(null, Request.Status.SUCCESS)));
            }
            else {
                trackingLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
@@ -110,30 +102,6 @@ public class ShipmentRepository {
         });
 
         return trackingLiveData;
-    }
-
-    public LiveData<Resource<Map<String, String>>> getShipmentDestinationSites() {
-        MutableLiveData<Resource<Map<String, String>>> destLiveData = new MutableLiveData<>();
-        shipmentReference.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                QuerySnapshot snapshot = task.getResult();
-                if (snapshot != null) {
-                    Map<String, String> destSites = new HashMap<>();
-                    for (DocumentSnapshot d: snapshot.getDocuments())
-                        destSites.put(d.getId(), (String) d.get("destination_entity_id"));
-                    destLiveData.setValue(new Resource<>(destSites,new Request(null, Request.Status.SUCCESS)));
-                }
-                else {
-                    Log.d(TAG, "No destination ids were found");
-                    destLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
-                }
-            }
-            else {
-                destLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
-            }
-        });
-
-        return destLiveData;
     }
 
     public LiveData<Request> saveShipment(Shipment shipment) {
