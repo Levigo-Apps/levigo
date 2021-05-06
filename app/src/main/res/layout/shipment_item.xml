@@ -6,62 +6,60 @@
     android:layout_height="wrap_content"
     android:minHeight="72dp"
     android:padding="16dp"
-    android:orientation="horizontal">
+    android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/shipment_info_layout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <org.getcarebase.carebase.views.LabeledTextView
-            android:id="@+id/tracker_text_view"
+        <LinearLayout
+            android:id="@+id/shipment_info_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-            app:label_text="Tracking Number"
-            app:show_label="true"
-            tools:text="Temp tracking number" />
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <org.getcarebase.carebase.views.LabeledTextView
-            android:id="@+id/date_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:textColor="@color/colorGrey"
-            app:label_text="Date"
-            app:show_label="false"
-            tools:text="1/23/2021" />
+            <org.getcarebase.carebase.views.LabeledTextView
+                android:id="@+id/tracker_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                app:label_text="Tracking Number"
+                app:show_label="true"
+                tools:text="Temp tracking number" />
 
-        <org.getcarebase.carebase.views.LabeledTextView
-            android:id="@+id/source_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:textColor="@color/colorGrey"
-            app:label_text="Source"
-            app:show_label="true"
-            tools:text="Example Source" />
+            <org.getcarebase.carebase.views.LabeledTextView
+                android:id="@+id/date_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:textColor="@color/colorGrey"
+                app:label_text="Date"
+                app:show_label="false"
+                tools:text="1/23/2021" />
 
-        <org.getcarebase.carebase.views.LabeledTextView
-            android:id="@+id/destination_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:textColor="@color/colorGrey"
-            app:label_text="Destination"
-            app:show_label="true"
-            tools:text="Example Destination" />
+            <org.getcarebase.carebase.views.LabeledTextView
+                android:id="@+id/source_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:textColor="@color/colorGrey"
+                app:label_text="Source"
+                app:show_label="true"
+                tools:text="Example Source" />
 
-    </LinearLayout>
+            <org.getcarebase.carebase.views.LabeledTextView
+                android:id="@+id/destination_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:textColor="@color/colorGrey"
+                app:label_text="Destination"
+                app:show_label="true"
+                tools:text="Example Destination" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/buttons_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_weight="0">
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/dropdown"
@@ -69,11 +67,8 @@
             android:layout_height="24dp"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_baseline_arrow_drop_down_24"
-            android:tint="@color/colorGrey"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:tint="@color/colorGrey" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"

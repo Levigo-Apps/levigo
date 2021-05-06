@@ -72,30 +72,6 @@ public class ShipmentRepository {
         return shipmentLiveData;
     }
 
-//    CollectionReference itemsReference = shipmentReference.document(d.getId()).collection("items");
-//                        itemsReference.get().addOnCompleteListener(task1 -> {
-//        if (task1.isSuccessful()) {
-//            QuerySnapshot snapshot1 = task1.getResult();
-//            if (snapshot1 != null && !snapshot1.isEmpty()) {
-//                List<Map<String, String>> ship_items = new ArrayList<>(snapshot1.size());
-//                for (int i1 = 0; i1 < snapshot1.size(); i1++) {
-//                    Map<String, String> ship_item = new HashMap<>();
-//                    DocumentSnapshot d1 = snapshot1.getDocuments().get(i1);
-//                    ship_item.put("di", String.valueOf(d1.get("di")));
-//                    ship_item.put("udi", String.valueOf(d1.get("udi")));
-//                    ship_item.put("quantity", String.valueOf(d1.get("quantity")));
-//                    ship_items.add(i1, ship_item);
-//                }
-//                tempShipment.setItems(ship_items);
-//            } else {
-//                shipmentLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
-//            }
-//        } else {
-//            Log.d(TAG, "didn't work");
-//            shipmentLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
-//        }
-//    });
-
     public LiveData<Resource<String[]>> getShipmentTrackingNumbers() {
         MutableLiveData<Resource<String[]>> trackingLiveData = new MutableLiveData<>();
         shipmentReference.get().addOnCompleteListener(task -> {
