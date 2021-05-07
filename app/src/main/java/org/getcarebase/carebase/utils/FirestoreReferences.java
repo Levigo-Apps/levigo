@@ -14,6 +14,10 @@ public class FirestoreReferences {
         return networkReference.collection("entities").document(entityId);
     }
 
+    public static CollectionReference getShipmentReference(DocumentReference networkReference) {
+        return networkReference.collection("shipments");
+    }
+
     public static CollectionReference getInventoryReference(DocumentReference entityReference) {
         return entityReference.collection("departments").document("default_department")
                 .collection("dis");
@@ -30,9 +34,5 @@ public class FirestoreReferences {
 
     public static DocumentReference getPhysicalLocations(DocumentReference entityReference) {
         return entityReference.collection("physical_locations").document("locations");
-    }
-
-    public static CollectionReference getShipmentReference(DocumentReference entityReference) {
-        return entityReference.collection("shipments");
     }
 }

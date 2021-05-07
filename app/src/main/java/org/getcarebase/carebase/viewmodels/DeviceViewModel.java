@@ -10,15 +10,18 @@ import androidx.lifecycle.ViewModel;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.PendingDevice;
+import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
 import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
 import org.getcarebase.carebase.repositories.EntityRepository;
 import org.getcarebase.carebase.repositories.PendingDeviceRepository;
+import org.getcarebase.carebase.repositories.ShipmentRepository;
 import org.getcarebase.carebase.utils.Event;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
+import org.getcarebase.carebase.utils.SingleEventMediatorLiveData;
 
 import java.util.List;
 import java.util.Map;
@@ -28,6 +31,7 @@ public class DeviceViewModel extends ViewModel {
     private DeviceRepository deviceRepository;
     private PendingDeviceRepository pendingDeviceRepository;
     private EntityRepository entityRepository;
+    private ShipmentRepository shipmentRepository;
     private final FirebaseAuthRepository authRepository;
 
     private LiveData<Resource<User>> userLiveData;
@@ -53,12 +57,11 @@ public class DeviceViewModel extends ViewModel {
         return deviceRepository.saveDevice(deviceModel);
     });
 
+    private final SingleEventMediatorLiveData<List<Shipment>> shipmentsLiveData = new SingleEventMediatorLiveData<>();
+
     private final MutableLiveData<Shipment> saveShipmentLiveData = new MutableLiveData<>();
     private final LiveData<Request> saveShipmentRequestLiveData =
-            Transformations.switchMap(saveShipmentLiveData, shipment -> {
-                return null;
-//                return hospitalRepository.saveShipment(shipment);
-            });
+            Transformations.switchMap(saveShipmentLiveData, shipment -> shipmentRepository.saveShipment(shipment));
 
     public DeviceViewModel() {
         authRepository = new FirebaseAuthRepository();
@@ -84,9 +87,10 @@ public class DeviceViewModel extends ViewModel {
     }
 
     // TODO new schema refactor
-    public void setHospitalRepository(String entityId) {
+    public void setupEntityRepository() {
         User user = Objects.requireNonNull(userLiveData.getValue()).getData();
-        entityRepository = new EntityRepository();
+        entityRepository = new EntityRepository(user.getNetworkId());
+        shipmentRepository = new ShipmentRepository(user.getNetworkId());
     }
 
     public Map<String, List<String>> getDeviceTypes() {
@@ -97,8 +101,24 @@ public class DeviceViewModel extends ViewModel {
         return entityRepository.getSiteOptions();
     }
 
+    public LiveData<Resource<Map<String,String>>> getShipmentTrackingNumbersLiveData() {
+        return shipmentRepository.getShipmentTrackingNumbers();
+    }
+
     public LiveData<Resource<String[]>> getPhysicalLocationsLiveData() {
         return deviceRepository.getPhysicalLocationOptions();
+    }
+
+//    public LiveData<Resource<List<Shipment>>> getShipmentsLiveData() {
+//        return shipmentRepository.getShipments();
+//    }
+
+    public void loadShipments(boolean onRefresh) {
+        shipmentsLiveData.addSource(shipmentRepository.getShipments(onRefresh));
+    }
+
+    public LiveData<Resource<List<Shipment>>> getShipmentsLiveData() {
+        return shipmentsLiveData.getLiveData();
     }
 
     public void savePhysicalLocation(String physicalLocation) {
