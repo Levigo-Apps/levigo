@@ -15,24 +15,28 @@ import org.getcarebase.carebase.utils.FirestoreReferences;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class EntityRepository {
     private static final String TAG = EntityRepository.class.getName();
 
-//    private final String networkId;
+    private final String networkId;
 //    private final String entityId;
-//    private final DocumentReference networkReference;
+    private final DocumentReference networkReference;
 //    private final DocumentReference entityReference;
 //    private final CollectionReference shipmentReference;
 
-//    public EntityRepository(String networkId, String entityId) {
-//        this.networkId = networkId;
-//        this.entityId = entityId;
-//        networkReference = FirestoreReferences.getNetworkReference(networkId);
-//        entityReference = FirestoreReferences.getEntityReference(networkReference, entityId);
-//        shipmentReference = FirestoreReferences.getShipmentReference(entityReference);
-//    }
+    public EntityRepository() {
+        this.networkId = null;
+        networkReference = null;
+    }
+
+    public EntityRepository(String networkId) {
+        this.networkId = networkId;
+        this.networkReference = FirestoreReferences.getNetworkReference(networkId);
+    }
 
     public LiveData<Resource<Entity>> getEntity(User user) {
         DocumentReference networkReference = FirestoreReferences.getNetworkReference(user.getNetworkId());
@@ -60,48 +64,20 @@ public class EntityRepository {
      */
     public LiveData<Resource<Map<String, String>>> getSiteOptions() {
         MutableLiveData<Resource<Map<String, String>>> sitesLiveData = new MutableLiveData<>();
-//        CollectionReference collectionReference = networkReference.collection("hospitals");
-//        collectionReference.get().addOnCompleteListener( task -> {
-//            if (task.isSuccessful()) {
-//                Map<String, String> sites = new HashMap<>();
-//                for (DocumentSnapshot d : task.getResult().getDocuments())
-//                    if (!Objects.equals(d.getId(), "site_options"))
-//                        sites.put(d.getId(), (String) d.get("name"));
-//
-//                sitesLiveData.setValue(new Resource<>(sites,new Request(null, Request.Status.SUCCESS)));
-//            } else {
-//                sitesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
-//            }
-//        });
-        sitesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
-        return sitesLiveData;
-    }
+        CollectionReference collectionReference = networkReference.collection("entities");
+        collectionReference.get().addOnCompleteListener( task -> {
+            if (task.isSuccessful()) {
+                Map<String, String> sites = new HashMap<>();
+                for (DocumentSnapshot d : task.getResult().getDocuments())
+                    //if (!Objects.equals(d.getId(), "site_options"))
+                        sites.put(d.getId(), (String) d.get("name"));
 
-    // TODO new schema refactor
-    public LiveData<Request> saveShipment(Shipment shipment) {
-        MutableLiveData<Request> saveShipmentRequest = new MutableLiveData<>();
-//        List<Task<?>> tasks = new ArrayList<>();
-//
-//        tasks.add(shipmentReference.add(shipment));
-//
-//        // update device model and production quantities
-//        DocumentReference currentHospitalReference = FirestoreReferences.getHospitalReference(
-//                networkReference, shipment.getSourceHospitalId());
-//        CollectionReference inventoryReference = FirestoreReferences.getInventoryReference(currentHospitalReference);
-//        DocumentReference deviceModelReference = inventoryReference.document(shipment.getDi());
-//        DocumentReference deviceProductionReference = deviceModelReference.collection("udis").document(shipment.getUdi());
-//        tasks.add(deviceModelReference.update("quantity", FieldValue.increment(-1*shipment.getShippedQuantity())));
-//        tasks.add(deviceProductionReference.update("quantity",FieldValue.increment(-1*shipment.getShippedQuantity())));
-//
-//        Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                saveShipmentRequest.setValue(new Request(null, Request.Status.SUCCESS));
-//            }
-//            else {
-//                saveShipmentRequest.setValue(new Request(null, Request.Status.ERROR));
-//            }
-//        });
-        saveShipmentRequest.setValue(new Request(null, Request.Status.ERROR));
-        return saveShipmentRequest;
+                sitesLiveData.setValue(new Resource<>(sites,new Request(null, Request.Status.SUCCESS)));
+            } else {
+                sitesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+            }
+        });
+        // sitesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
+        return sitesLiveData;
     }
 }

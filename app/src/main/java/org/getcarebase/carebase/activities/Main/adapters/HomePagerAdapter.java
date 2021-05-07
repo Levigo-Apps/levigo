@@ -7,6 +7,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import org.getcarebase.carebase.activities.Main.fragments.InventoryFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ProceduresFragment;
+import org.getcarebase.carebase.activities.Main.fragments.ShipmentFragment;
 import org.getcarebase.carebase.models.TabType;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class HomePagerAdapter extends FragmentStateAdapter {
         switch (type) {
             case INVENTORY: return new InventoryFragment();
             case PROCEDURES: return new ProceduresFragment();
+            case SHIPMENTS: return new ShipmentFragment();
             default: return new Fragment();
         }
     }
