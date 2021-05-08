@@ -51,6 +51,37 @@
                 android:text="UDI"/>
         </FrameLayout>
 
+        <FrameLayout
+            android:id="@+id/type_field_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="12dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:background="@color/white">
+
+            <TextView
+                android:id="@+id/type_field_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:padding="16dp"
+                android:background="@drawable/field_box"
+                android:textColor="@color/field_value"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/type_field_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:padding="4dp"
+                android:background="@color/white"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:text="UDI"/>
+        </FrameLayout>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_continue"
             android:layout_width="wrap_content"
