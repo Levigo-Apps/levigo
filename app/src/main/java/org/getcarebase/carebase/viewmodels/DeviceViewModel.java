@@ -59,6 +59,8 @@ public class DeviceViewModel extends ViewModel {
 
     private final SingleEventMediatorLiveData<List<Shipment>> shipmentsLiveData = new SingleEventMediatorLiveData<>();
 
+    private final SingleEventMediatorLiveData<Shipment> shipmentLiveData = new SingleEventMediatorLiveData<>();
+
     private final MutableLiveData<Shipment> saveShipmentLiveData = new MutableLiveData<>();
     private final LiveData<Request> saveShipmentRequestLiveData =
             Transformations.switchMap(saveShipmentLiveData, shipment -> shipmentRepository.saveShipment(shipment));
@@ -119,6 +121,11 @@ public class DeviceViewModel extends ViewModel {
 
     public LiveData<Resource<List<Shipment>>> getShipmentsLiveData() {
         return shipmentsLiveData.getLiveData();
+    }
+
+    public LiveData<Resource<Shipment>> getShipment(String shipmentId) {
+        shipmentLiveData.addSource(shipmentRepository.getShipment(shipmentId));
+        return shipmentLiveData.getLiveData();
     }
 
     public void savePhysicalLocation(String physicalLocation) {
