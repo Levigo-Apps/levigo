@@ -109,22 +109,33 @@ public class DeviceRepository {
      */
     public LiveData<Resource<String[]>> getPhysicalLocationOptions(){
         MutableLiveData<Resource<String[]>> physicalLocationsLiveData = new MutableLiveData<>();
-        physicalLocationsReference.addSnapshotListener((documentSnapshot, e) -> {
-            if (documentSnapshot != null && documentSnapshot.exists()) {
-                // convert to array of strings
-                Object[] objects = documentSnapshot.getData().values().toArray();
-                String[] physicalLocations = (String[]) Arrays.asList(objects).toArray(new String[objects.length]);
-                Arrays.sort(physicalLocations);
-                physicalLocationsLiveData.setValue(new Resource<>(physicalLocations,new Request(null, Request.Status.SUCCESS)));
-            }
-            else {
-                if (e != null) {
-                    Log.e(TAG, "Listen failed.", e);
-                }
-                // TODO make error message in strings
-                physicalLocationsLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
-            }
-        });
+        String[] physicalLocations = new String[]{
+                "Box - Central Lines",
+                "Box - Picc Lines",
+                "Box - Tunnels/ports",
+                "Box - Short Wires",
+                "Box - Perma dialysis",
+                "Box - Triple lumen dialysis",
+                "Box - Other permacath",
+                "Box - Microcath",
+                "Box - Biopsy",
+                "Cabinet 1",
+                "Cabinet 2",
+                "Cabinet 3",
+                "Hanger - drainage cath",
+                "Hanger - Nephrostemy",
+                "Hanger - Misc catheters",
+                "Hanger - 4 french catheters",
+                "Hanger - 5 french catheters",
+                "Hanger - Kumpe - 5 french",
+                "Hanger - Drainage tube",
+                "Hanger - Biliary catheters",
+                "Hanger - Specialized sheaths/introducers",
+                "Shelf - G J Tube",
+                "Shelf - Lung Biopsy, Flesh Kit",
+                "Shelf - Micropuncture sets/Wires"
+        };
+        physicalLocationsLiveData.setValue(new Resource<>(physicalLocations,new Request(null, Request.Status.SUCCESS)));
         return physicalLocationsLiveData;
     }
 
