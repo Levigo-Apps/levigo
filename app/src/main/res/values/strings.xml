@@ -28,6 +28,7 @@
     <!--adding a device start-->
     <string name="new_device_type_saved">New device type successfully saved</string>
     <string name="new_physical_location_saved">New physical location successfully saved</string>
+    <string name="new_shipment_devices_saved">Devices added to inventory</string>
     <!--adding a device end-->
 
     <!--procedures start-->

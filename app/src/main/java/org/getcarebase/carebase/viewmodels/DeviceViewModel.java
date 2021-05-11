@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModel;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.PendingDevice;
-import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
@@ -65,6 +64,10 @@ public class DeviceViewModel extends ViewModel {
     private final LiveData<Request> saveShipmentRequestLiveData =
             Transformations.switchMap(saveShipmentLiveData, shipment -> shipmentRepository.saveShipment(shipment));
 
+    private final MutableLiveData<Shipment> receiveShipmentLiveData = new MutableLiveData<>();
+    private final LiveData<Request> receiveShipmentRequestLiveData =
+            Transformations.switchMap(receiveShipmentLiveData,shipment -> shipmentRepository.receiveShipment(shipment));
+
     public DeviceViewModel() {
         authRepository = new FirebaseAuthRepository();
     }
@@ -72,7 +75,9 @@ public class DeviceViewModel extends ViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        deviceRepository.destroy();
+        if (deviceRepository != null) {
+            deviceRepository.destroy();
+        }
     }
 
     public LiveData<Resource<User>> getUserLiveData() {
@@ -150,6 +155,16 @@ public class DeviceViewModel extends ViewModel {
 
     public void saveShipment(Shipment shipment) {
         saveShipmentLiveData.setValue(shipment);
+    }
+
+    public void receiveShipment(List<Map<String,String>> items) {
+        Shipment shipment = Objects.requireNonNull(shipmentLiveData.getLiveData().getValue()).getData();
+        shipment.setItems(items);
+        receiveShipmentLiveData.setValue(shipment);
+    }
+
+    public LiveData<Request> getReceiveShipmentRequestLiveData() {
+        return receiveShipmentRequestLiveData;
     }
 
     public LiveData<Resource<DeviceModel>> getAutoPopulatedDeviceLiveData() {

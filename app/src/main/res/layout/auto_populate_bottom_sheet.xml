@@ -79,7 +79,7 @@
                 android:background="@color/white"
                 android:textColor="@color/black"
                 android:textSize="12sp"
-                android:text="UDI"/>
+                android:text="Type"/>
         </FrameLayout>
 
         <com.google.android.material.button.MaterialButton
