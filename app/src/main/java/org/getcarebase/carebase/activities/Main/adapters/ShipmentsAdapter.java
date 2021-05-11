@@ -14,6 +14,8 @@ import org.getcarebase.carebase.models.DeviceUsage;
 import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.views.LabeledTextView;
 
+import java.text.DateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +31,8 @@ public class ShipmentsAdapter extends RecyclerView.Adapter<ShipmentsAdapter.View
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public RecyclerView deviceView;
         public LabeledTextView trackerView;
-        public LabeledTextView dateView;
+        public LabeledTextView shippedDateView;
+        public LabeledTextView receivedDateView;
         public LabeledTextView destinationView;
         public LabeledTextView sourceView;
         public ImageButton dropdownButton;
@@ -38,7 +41,8 @@ public class ShipmentsAdapter extends RecyclerView.Adapter<ShipmentsAdapter.View
             super(view);
 
             trackerView = view.findViewById(R.id.tracker_text_view);
-            dateView = view.findViewById(R.id.date_text_view);
+            shippedDateView = view.findViewById(R.id.shipped_date_text_view);
+            receivedDateView = view.findViewById(R.id.recieved_date_text_view);
             destinationView = view.findViewById(R.id.destination_text_view);
             sourceView = view.findViewById(R.id.source_text_view);
             deviceView = view.findViewById(R.id.devices_view);
@@ -80,9 +84,17 @@ public class ShipmentsAdapter extends RecyclerView.Adapter<ShipmentsAdapter.View
         Shipment shipment = shipmentList.get(position);
 
         holder.trackerView.setValue(shipment.getTrackingNumber());
-        holder.dateView.setValue(shipment.getShippedTime().toString());
-        holder.destinationView.setValue(shipment.getDestinationEntityId());
-        holder.sourceView.setValue(shipment.getSourceEntityId());
+        String formattedShippingTime = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(shipment.getShippedTime());
+        holder.shippedDateView.setValue(formattedShippingTime);
+        if (shipment.getReceivedTime() != null) {
+            String formattedReceivedTime = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(shipment.getReceivedTime());
+            holder.receivedDateView.setValue(formattedReceivedTime);
+        } else {
+            holder.receivedDateView.setValue("PENDING");
+        }
+
+        holder.destinationView.setValue(shipment.getDestinationEntityName());
+        holder.sourceView.setValue(shipment.getSourceEntityName());
 
         DevicesUsedAdapter devicesUsedAdapter = new DevicesUsedAdapter();
         LinearLayoutManager layoutManager = new LinearLayoutManager(shipmentFragment.getContext());
