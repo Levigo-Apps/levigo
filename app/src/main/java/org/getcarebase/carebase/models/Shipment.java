@@ -1,9 +1,12 @@
 package org.getcarebase.carebase.models;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
+import java.sql.Time;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -11,8 +14,8 @@ public class Shipment {
     private String trackingNumber;
     private String sourceEntityId;
     private String destEntityId;
-    private String shippedTime;
-    private String receivedTime;
+    private Date shippedTime;
+    private Date receivedTime;
     private String udi;
     private String di;
     private String deviceName;
@@ -50,22 +53,22 @@ public class Shipment {
     }
 
     @PropertyName("date_time_shipped")
-    public String getShippedTime() {
+    public Date getShippedTime() {
         return shippedTime;
     }
 
     @PropertyName("date_time_shipped")
-    public void setShippedTime(String shippedTime) {
+    public void setShippedTime(Date shippedTime) {
         this.shippedTime = shippedTime;
     }
 
     @PropertyName("date_time_received")
-    public String getReceivedTime() {
+    public Date getReceivedTime() {
         return receivedTime;
     }
 
     @PropertyName("date_time_received")
-    public void setReceivedTime(String receivedTime) {
+    public void setReceivedTime(Date receivedTime) {
         this.receivedTime = receivedTime;
     }
 

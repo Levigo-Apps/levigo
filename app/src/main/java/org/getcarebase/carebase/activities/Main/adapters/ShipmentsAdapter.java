@@ -80,7 +80,7 @@ public class ShipmentsAdapter extends RecyclerView.Adapter<ShipmentsAdapter.View
         Shipment shipment = shipmentList.get(position);
 
         holder.trackerView.setValue(shipment.getTrackingNumber());
-        holder.dateView.setValue(shipment.getShippedTime());
+        holder.dateView.setValue(shipment.getShippedTime().toString());
         holder.destinationView.setValue(shipment.getDestinationEntityId());
         holder.sourceView.setValue(shipment.getSourceEntityId());
 

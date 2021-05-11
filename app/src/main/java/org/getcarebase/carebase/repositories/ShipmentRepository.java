@@ -29,6 +29,7 @@ import org.getcarebase.carebase.utils.Resource;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -231,7 +232,7 @@ public class ShipmentRepository {
                 }
 
                 DocumentReference documentReference = shipmentReference.document(shipment.getTrackingNumber());
-                documentReference.update("date_time_received", Calendar.getInstance().getTime().toString());
+                documentReference.update("date_time_received", new Date());
                 return null;
             }
         });
@@ -257,6 +258,8 @@ public class ShipmentRepository {
         ship_item.put("udi", shipment.getUdi());
         ship_item.put("name", shipment.getDeviceName());
         ship_item.put("quantity", String.valueOf(shipment.getQuantity()));
+
+        shipment.setShippedTime(new Date());
 
         if (shipment.getTrackingNumber().contentEquals("temptrackingnumber")) {
             ship_items.add(ship_item);
