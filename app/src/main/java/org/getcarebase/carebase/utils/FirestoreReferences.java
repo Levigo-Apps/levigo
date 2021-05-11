@@ -6,6 +6,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class FirestoreReferences {
 
+    public static FirebaseFirestore getFirestoreReference() {
+        return FirebaseFirestore.getInstance();
+    }
+
     public static DocumentReference getNetworkReference(String networkId) {
         return FirebaseFirestore.getInstance().collection("networks").document(networkId);
     }

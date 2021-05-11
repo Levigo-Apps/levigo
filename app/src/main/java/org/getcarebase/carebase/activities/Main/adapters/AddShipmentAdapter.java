@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.fragments.AddShipmentFragment;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,10 +36,15 @@ public class AddShipmentAdapter extends RecyclerView.Adapter<AddShipmentAdapter.
     }
 
     private List<Map<String,String>> items;
+
     ArrayAdapter<String> physicalLocationAdapter;
 
     public void setItems(List<Map<String,String>> items) {
         this.items = items;
+    }
+
+    public List<Map<String, String>> getItems() {
+        return items;
     }
 
     public void setPhysicalLocationAdapter(ArrayAdapter<String> physicalLocationAdapter) {
@@ -62,7 +66,13 @@ public class AddShipmentAdapter extends RecyclerView.Adapter<AddShipmentAdapter.
         holder.nameView.setText(item.get("name"));
         holder.udiView.setText(item.get("udi"));
         holder.countView.setText(item.get("quantity"));
+        String physicalLocation = items.get(position).getOrDefault("physical_location","");
+        holder.physicalLocationTextView.setText(physicalLocation);
         holder.physicalLocationTextView.setAdapter(physicalLocationAdapter);
+        holder.physicalLocationTextView.setOnItemClickListener((adapterView, view, i, l) -> {
+            String selected = (String) adapterView.getItemAtPosition(i);
+            items.get(position).put("physical_location",selected);
+        });
     }
 
     @Override
