@@ -212,10 +212,12 @@ public class ShipDeviceFragment extends Fragment {
         shipment.setTrackingNumber(tracker.contentEquals("Get New Tracking Number") ? "temptrackingnumber" : tracker);
 
         shipment.setSourceEntityId(sourceEntityId);
+        shipment.setSourceEntityName(sourceEntityName);
 
         for (Map.Entry<String,String> entry : entityIdToEntityNameMap.entrySet()) {
             if (entry.getValue().equals(deviceDest.getEditText().getText().toString().trim())) {
                 shipment.setDestinationEntityId(entry.getKey());
+                shipment.setDestinationEntityName(entry.getValue());
             }
         }
 

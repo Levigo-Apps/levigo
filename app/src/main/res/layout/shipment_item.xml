@@ -15,7 +15,7 @@
 
         <LinearLayout
             android:id="@+id/shipment_info_layout"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
@@ -30,13 +30,23 @@
                 tools:text="Temp tracking number" />
 
             <org.getcarebase.carebase.views.LabeledTextView
-                android:id="@+id/date_text_view"
+                android:id="@+id/shipped_date_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:textColor="@color/colorGrey"
-                app:label_text="Date"
-                app:show_label="false"
+                app:label_text="Shipped Date"
+                app:show_label="true"
+                tools:text="1/23/2021" />
+
+            <org.getcarebase.carebase.views.LabeledTextView
+                android:id="@+id/recieved_date_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:textColor="@color/colorGrey"
+                app:label_text="Received Date"
+                app:show_label="true"
                 tools:text="1/23/2021" />
 
             <org.getcarebase.carebase.views.LabeledTextView

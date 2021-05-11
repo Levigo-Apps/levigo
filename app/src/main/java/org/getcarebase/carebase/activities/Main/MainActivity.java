@@ -328,7 +328,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.activity_main, fragment, ShipmentStartFragment.TAG)
-                .addToBackStack(null)
                 .commit();
     }
 
