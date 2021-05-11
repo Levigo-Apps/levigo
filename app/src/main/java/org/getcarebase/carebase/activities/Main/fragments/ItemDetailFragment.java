@@ -247,18 +247,7 @@ public class ItemDetailFragment extends Fragment {
         });
 
         //going back to inventory view
-        topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (requireActivity().getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                    requireActivity().getSupportFragmentManager().popBackStack();
-                } else {
-                    if (parent != null) {
-                        parent.onBackPressed();
-                    }
-                }
-            }
-        });
+        topToolBar.setNavigationOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
 
         // date picker for expiration date if entered manually
         final DatePickerDialog.OnDateSetListener date_exp = new DatePickerDialog.OnDateSetListener() {
@@ -517,12 +506,6 @@ public class ItemDetailFragment extends Fragment {
             deviceProduction.setPhysicalLocation(physicalLocation.getText().toString().trim());
             deviceProduction.setQuantity(amount);
             deviceModel.addDeviceProduction(deviceProduction);
-
-            if (deviceViewModel.getAutoPopulatedDeviceLiveData().getValue() != null
-                    && deviceViewModel.getAutoPopulatedDeviceLiveData().getValue().getData() != null
-                    && deviceViewModel.getAutoPopulatedDeviceLiveData().getValue().getData().getShipment() != null) {
-                deviceModel.setShipment(deviceViewModel.getAutoPopulatedDeviceLiveData().getValue().getData().getShipment());
-            }
 
 //            if(!Objects.requireNonNull(costEditText.getText()).toString().trim().isEmpty()){
 //                String cleanString = costEditText.getText().toString().replaceAll("[$,.]", "");
