@@ -208,8 +208,6 @@ public class ShipDeviceFragment extends Fragment {
         }
         shipment.setQuantity(shippedQuantity);
 
-        shipment.setShippedTime(Calendar.getInstance().getTime().toString());
-
         String tracker = Objects.requireNonNull(deviceTracker.getEditText()).getText().toString();
         shipment.setTrackingNumber(tracker.contentEquals("Get New Tracking Number") ? "temptrackingnumber" : tracker);
 
