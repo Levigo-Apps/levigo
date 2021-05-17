@@ -32,7 +32,7 @@ public class ProceduresViewModel extends ViewModel {
 
     public void setupRepository() {
         User user = Objects.requireNonNull(userLiveData.getLiveData().getValue().getData());
-        procedureRepository = new ProcedureRepository(user.getNetworkId(),user.getHospitalId());
+        procedureRepository = new ProcedureRepository(user.getNetworkId(),user.getEntityId());
     }
 
     public void loadProcedures(boolean onRefresh) {

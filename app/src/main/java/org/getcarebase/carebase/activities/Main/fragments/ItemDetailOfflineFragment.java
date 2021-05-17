@@ -100,7 +100,7 @@ public class ItemDetailOfflineFragment extends Fragment {
         PendingDeviceViewModel pendingDeviceViewModel = new ViewModelProvider(this).get(PendingDeviceViewModel.class);
 
         pendingDeviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(),userResource -> {
-            siteLocation.setText(userResource.getData().getHospitalName());
+            siteLocation.setText(userResource.getData().getEntityName());
             pendingDeviceViewModel.setupPendingDeviceRepository();
         });
 

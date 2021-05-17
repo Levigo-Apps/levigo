@@ -52,8 +52,6 @@ public class DeviceRepository {
     private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     private final AccessGUDIDAPI accessGUDIDAPI = AccessGUDIDAPIInstanceFactory.getRetrofitInstance(DeviceModel.class, new DeviceModelGUDIDDeserializer()).create(AccessGUDIDAPI.class);
 
-    private final String networkId;
-    private final String hospitalId;
     private final DocumentReference networkReference;
     private final DocumentReference hospitalReference;
     private final CollectionReference inventoryReference;
@@ -65,11 +63,9 @@ public class DeviceRepository {
     private ListenerRegistration deviceProductionListenerRegistration;
 
 
-    public DeviceRepository(String networkId, String hospitalId) {
-        this.networkId = networkId;
-        this.hospitalId = hospitalId;
+    public DeviceRepository(String networkId, String entityId) {
         networkReference = FirestoreReferences.getNetworkReference(networkId);
-        hospitalReference = FirestoreReferences.getHospitalReference(networkReference, hospitalId);
+        hospitalReference = FirestoreReferences.getEntityReference(networkReference, entityId);
         inventoryReference = FirestoreReferences.getInventoryReference(hospitalReference);
         proceduresReference = FirestoreReferences.getProceduresReference(hospitalReference);
         shipmentReference = FirestoreReferences.getShipmentReference(hospitalReference);
@@ -113,22 +109,33 @@ public class DeviceRepository {
      */
     public LiveData<Resource<String[]>> getPhysicalLocationOptions(){
         MutableLiveData<Resource<String[]>> physicalLocationsLiveData = new MutableLiveData<>();
-        physicalLocationsReference.addSnapshotListener((documentSnapshot, e) -> {
-            if (documentSnapshot != null && documentSnapshot.exists()) {
-                // convert to array of strings
-                Object[] objects = documentSnapshot.getData().values().toArray();
-                String[] physicalLocations = (String[]) Arrays.asList(objects).toArray(new String[objects.length]);
-                Arrays.sort(physicalLocations);
-                physicalLocationsLiveData.setValue(new Resource<>(physicalLocations,new Request(null, Request.Status.SUCCESS)));
-            }
-            else {
-                if (e != null) {
-                    Log.e(TAG, "Listen failed.", e);
-                }
-                // TODO make error message in strings
-                physicalLocationsLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
-            }
-        });
+        String[] physicalLocations = new String[]{
+                "Box - Central Lines",
+                "Box - Picc Lines",
+                "Box - Tunnels/ports",
+                "Box - Short Wires",
+                "Box - Perma dialysis",
+                "Box - Triple lumen dialysis",
+                "Box - Other permacath",
+                "Box - Microcath",
+                "Box - Biopsy",
+                "Cabinet 1",
+                "Cabinet 2",
+                "Cabinet 3",
+                "Hanger - drainage cath",
+                "Hanger - Nephrostemy",
+                "Hanger - Misc catheters",
+                "Hanger - 4 french catheters",
+                "Hanger - 5 french catheters",
+                "Hanger - Kumpe - 5 french",
+                "Hanger - Drainage tube",
+                "Hanger - Biliary catheters",
+                "Hanger - Specialized sheaths/introducers",
+                "Shelf - G J Tube",
+                "Shelf - Lung Biopsy, Flesh Kit",
+                "Shelf - Micropuncture sets/Wires"
+        };
+        physicalLocationsLiveData.setValue(new Resource<>(physicalLocations,new Request(null, Request.Status.SUCCESS)));
         return physicalLocationsLiveData;
     }
 
@@ -175,15 +182,6 @@ public class DeviceRepository {
             deviceProduction.setUniqueDeviceIdentifier(newUDI);
         }
 
-        // save shipment information if present
-        if (deviceModel.getShipment() != null) {
-            DocumentReference shipmentDocumentReference = shipmentReference.document(deviceModel.getShipment().getId());
-            tasks.add(shipmentDocumentReference.update("received_quantity", FieldValue.increment(deviceProduction.getQuantity())));
-            if (deviceModel.getShipment().getReceivedQuantity() + deviceProduction.getQuantity() >= deviceModel.getShipment().getShippedQuantity()) {
-                tasks.add(shipmentDocumentReference.update("received",true));
-            }
-        }
-
         DocumentReference deviceProductionReference = deviceModelReference.collection("udis").document(deviceProduction.getUniqueDeviceIdentifier());
         tasks.add(deviceProductionReference.set(deviceProduction.toMap(), SetOptions.merge()));
 
@@ -214,49 +212,6 @@ public class DeviceRepository {
      * @return The DeviceModel information that is in the database, if the device production information
      * exists it will be stored in the list of production in the DeviceModel.
      */
-    public List<LiveData<Resource<DeviceModel>>> autoPopulateFromDatabaseAndShipment(final String temp_udi) {
-        String udi = cleanBarcode(temp_udi);
-        MutableLiveData<Resource<DeviceModel>> deviceLiveData = new MutableLiveData<>();
-        MutableLiveData<Resource<DeviceModel>> shippedLiveData = new MutableLiveData<>();
-        List<LiveData<Resource<DeviceModel>>> liveData = new ArrayList<>();
-        liveData.add(deviceLiveData);
-        liveData.add(shippedLiveData);
-        deviceLiveData.setValue(new Resource<>(null, new Request(null,Request.Status.LOADING)));
-        shippedLiveData.setValue(new Resource<>(null, new Request(null, Request.Status.LOADING)));
-        String hibccDi = extractHibcc(udi);
-        if (hibccDi == null) {
-            accessGUDIDAPI.getParseUdiResponse(udi).enqueue(new Callback<ParseUDIResponse>() {
-                @Override
-                public void onResponse(Call<ParseUDIResponse> call, retrofit2.Response<ParseUDIResponse> response) {
-                    String deviceModelId;
-                    String deviceProductionId;
-                    if (response.isSuccessful()) {
-                        deviceModelId = Objects.requireNonNull(response.body()).getDi();
-                        deviceProductionId = response.body().getUdi();
-
-                    } else {
-                        deviceModelId = udi;
-                        deviceProductionId = udi;
-                    }
-                    getAutoPopulatedDeviceFromFirestore(inventoryReference,deviceModelId,deviceProductionId,deviceLiveData,null);
-                    getDeviceFromShipment(deviceModelId,deviceProductionId,shippedLiveData);
-                }
-
-                @Override
-                public void onFailure(Call<ParseUDIResponse> call, Throwable t) {
-                    Log.e(TAG, "onFailure: ", t);
-                    deviceLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
-                }
-            });
-        } else {
-            // if it is in hibcc format
-            getAutoPopulatedDeviceFromFirestore(inventoryReference,udi,udi,deviceLiveData,null);
-            getDeviceFromShipment(udi,udi,shippedLiveData);
-        }
-
-        return liveData;
-    }
-
     public LiveData<Resource<DeviceModel>> autoPopulateFromDatabase(final String temp_udi) {
         String udi = cleanBarcode(temp_udi);
         MutableLiveData<Resource<DeviceModel>> deviceLiveData = new MutableLiveData<>();
@@ -275,7 +230,7 @@ public class DeviceRepository {
                         deviceModelId = udi;
                         deviceProductionId = udi;
                     }
-                    getAutoPopulatedDeviceFromFirestore(inventoryReference,deviceModelId,deviceProductionId,deviceLiveData,null);
+                    getAutoPopulatedDeviceFromFirestore(inventoryReference,deviceModelId,deviceProductionId,deviceLiveData);
                 }
 
                 @Override
@@ -286,7 +241,7 @@ public class DeviceRepository {
             });
         } else {
             // if it is in hibcc format
-            getAutoPopulatedDeviceFromFirestore(inventoryReference,udi,udi,deviceLiveData,null);
+            getAutoPopulatedDeviceFromFirestore(inventoryReference,udi,udi,deviceLiveData);
         }
 
         return deviceLiveData;
@@ -349,7 +304,7 @@ public class DeviceRepository {
      * Retrieves DeviceModel from Firestore given a di and udi
      * Does not get procedures and costs associated with the device
      */
-    private void getAutoPopulatedDeviceFromFirestore(CollectionReference inventoryReference, String di, String udi, MutableLiveData<Resource<DeviceModel>> deviceLiveData, Shipment shipment) {
+    private void getAutoPopulatedDeviceFromFirestore(CollectionReference inventoryReference, String di, String udi, MutableLiveData<Resource<DeviceModel>> deviceLiveData) {
         AtomicReference<Resource<DeviceModel>> deviceModelAtomicReference = new AtomicReference<>();
         AtomicReference<Resource<DeviceProduction>> deviceProductionAtomicReference = new AtomicReference<>();
 
@@ -361,7 +316,6 @@ public class DeviceRepository {
             Resource<DeviceProduction> deviceProductionResource = deviceProductionAtomicReference.get();
             if (deviceModelResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                 DeviceModel deviceModel = deviceModelResource.getData();
-                deviceModel.setShipment(shipment);
                 if (deviceProductionResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                     DeviceProduction deviceProduction = deviceProductionResource.getData();
                     deviceModel.addDeviceProduction(deviceProduction);
@@ -371,20 +325,6 @@ public class DeviceRepository {
                 }
             } else if (deviceModelResource.getRequest().getStatus() == Request.Status.ERROR) {
                 deviceLiveData.setValue(deviceModelResource);
-            }
-        });
-    }
-
-    private void getDeviceFromShipment(String di,String udi,MutableLiveData<Resource<DeviceModel>> shippedDeviceLiveData) {
-        Task<QuerySnapshot> shipmentTask = shipmentReference.whereEqualTo("udi",udi).whereEqualTo("di",di).whereEqualTo("received",false).get();
-        shipmentTask.addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
-                Shipment shipment = task.getResult().getDocuments().get(0).toObject(Shipment.class);
-                DocumentReference sourceHospitalReference = FirestoreReferences.getHospitalReference(networkReference,shipment.getSourceHospitalId());
-                CollectionReference sourceInventoryReference = FirestoreReferences.getInventoryReference(sourceHospitalReference);
-                getAutoPopulatedDeviceFromFirestore(sourceInventoryReference,shipment.getDi(),shipment.getUdi(),shippedDeviceLiveData,shipment);
-            } else {
-                shippedDeviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
             }
         });
     }

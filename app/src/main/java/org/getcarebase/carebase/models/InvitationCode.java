@@ -1,42 +1,75 @@
 package org.getcarebase.carebase.models;
 
-public class InvitationCode {
-    private final String invitationCode;
-    private final String networkId;
-    private final String networkName;
-    private final String hospitalId;
-    private final String hospitalName;
-    private final boolean valid;
+import com.google.firebase.firestore.DocumentId;
+import com.google.firebase.firestore.PropertyName;
 
-    public InvitationCode(String invitationCode, String networkId, String networkName, String hospitalId, String hospitalName, boolean valid) {
+public class InvitationCode {
+
+    private String invitationCode;
+    private String networkId;
+    private String networkName;
+    private String entityId;
+    private String entityName;
+    private boolean valid;
+
+    public InvitationCode() { }
+
+    @DocumentId
+    public void setInvitationCode(String invitationCode) {
         this.invitationCode = invitationCode;
+    }
+
+    @PropertyName("network_id")
+    public void setNetworkId(String networkId) {
         this.networkId = networkId;
+    }
+
+    @PropertyName("network_name")
+    public void setNetworkName(String networkName) {
         this.networkName = networkName;
-        this.hospitalId = hospitalId;
-        this.hospitalName = hospitalName;
+    }
+
+    @PropertyName("entity_id")
+    public void setEntityId(String entityId) {
+        this.entityId = entityId;
+    }
+
+    @PropertyName("entity_name")
+    public void setEntityName(String entityName) {
+        this.entityName = entityName;
+    }
+
+    @PropertyName("valid")
+    public void setValid(boolean valid) {
         this.valid = valid;
     }
 
+    @DocumentId
     public String getInvitationCode() {
         return invitationCode;
     }
 
+    @PropertyName("network_id")
     public String getNetworkId() {
         return networkId;
     }
 
+    @PropertyName("network_name")
     public String getNetworkName() {
         return networkName;
     }
 
-    public String getHospitalId() {
-        return hospitalId;
+    @PropertyName("entity_id")
+    public String getEntityId() {
+        return entityId;
     }
 
-    public String getHospitalName() {
-        return hospitalName;
+    @PropertyName("entity_name")
+    public String getEntityName() {
+        return entityName;
     }
 
+    @PropertyName("valid")
     public boolean isValid() {
         return valid;
     }

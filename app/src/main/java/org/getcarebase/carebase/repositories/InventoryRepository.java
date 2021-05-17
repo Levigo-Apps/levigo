@@ -84,8 +84,8 @@ public class InventoryRepository {
         Resource<List<String>> deviceTypeListResource = new Resource<>(deviceTypeList, new Request(null, Request.Status.LOADING));
         final MutableLiveData<Resource<List<String>>> deviceTypeListLiveData = new MutableLiveData<>(deviceTypeListResource);
 
-        String inventoryRefUrl = "networks/" + user.getNetworkId() + "/hospitals";
-        firestore.collection(inventoryRefUrl).document(user.getHospitalId()).get().addOnCompleteListener(task -> {
+        String inventoryRefUrl = "networks/" + user.getNetworkId() + "/entities";
+        firestore.collection(inventoryRefUrl).document(user.getEntityId()).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot documentSnapshot = task.getResult();
                 deviceTypeList = (List<String>) documentSnapshot.get("device_types");
@@ -105,8 +105,8 @@ public class InventoryRepository {
         Resource<List<DeviceModel>> deviceModelListResource = new Resource<>(deviceModelList, new Request(null, Request.Status.LOADING));
         final MutableLiveData<Resource<List<DeviceModel>>> deviceModelListLiveData = new MutableLiveData<>(deviceModelListResource);
 
-        String inventoryRefUrl = "networks/" + user.getNetworkId() + "/hospitals/"
-                + user.getHospitalId() + "/departments/default_department/dis";
+        String inventoryRefUrl = "networks/" + user.getNetworkId() + "/entities/"
+                + user.getEntityId() + "/departments/default_department/dis";
 
         firestore.collection(inventoryRefUrl).whereEqualTo("equipment_type", selectedType).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {

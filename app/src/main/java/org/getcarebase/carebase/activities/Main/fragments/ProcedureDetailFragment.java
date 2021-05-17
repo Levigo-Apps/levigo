@@ -60,7 +60,7 @@ public class ProcedureDetailFragment extends Fragment {
         procedureDetailViewModel.getUserLiveData().observe(getViewLifecycleOwner(),userResource -> {
             if (userResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                 User user = userResource.getData();
-                procedureDetailViewModel.setProcedureRepository(user.getNetworkId(),user.getHospitalId());
+                procedureDetailViewModel.setProcedureRepository(user.getNetworkId(),user.getEntityId());
                 procedureDetailViewModel.getProcedure(procedureId);
             } else if (userResource.getRequest().getStatus() == Request.Status.ERROR) {
                 requireActivity().onBackPressed();
