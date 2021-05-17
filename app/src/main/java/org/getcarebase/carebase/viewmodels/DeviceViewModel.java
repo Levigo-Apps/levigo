@@ -1,7 +1,5 @@
 package org.getcarebase.carebase.viewmodels;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -16,21 +14,23 @@ import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
 import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
-import org.getcarebase.carebase.repositories.HospitalRepository;
+import org.getcarebase.carebase.repositories.EntityRepository;
 import org.getcarebase.carebase.repositories.PendingDeviceRepository;
+import org.getcarebase.carebase.repositories.ShipmentRepository;
 import org.getcarebase.carebase.utils.Event;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
+import org.getcarebase.carebase.utils.SingleEventMediatorLiveData;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
 
 public class DeviceViewModel extends ViewModel {
     private DeviceRepository deviceRepository;
     private PendingDeviceRepository pendingDeviceRepository;
-    private HospitalRepository hospitalRepository;
+    private EntityRepository entityRepository;
+    private ShipmentRepository shipmentRepository;
     private final FirebaseAuthRepository authRepository;
 
     private LiveData<Resource<User>> userLiveData;
@@ -56,9 +56,17 @@ public class DeviceViewModel extends ViewModel {
         return deviceRepository.saveDevice(deviceModel);
     });
 
+    private final SingleEventMediatorLiveData<List<Shipment>> shipmentsLiveData = new SingleEventMediatorLiveData<>();
+
+    private final SingleEventMediatorLiveData<Shipment> shipmentLiveData = new SingleEventMediatorLiveData<>();
+
     private final MutableLiveData<Shipment> saveShipmentLiveData = new MutableLiveData<>();
     private final LiveData<Request> saveShipmentRequestLiveData =
-            Transformations.switchMap(saveShipmentLiveData, shipment -> hospitalRepository.saveShipment(shipment));
+            Transformations.switchMap(saveShipmentLiveData, shipment -> shipmentRepository.saveShipment(shipment));
+
+    private final MutableLiveData<Shipment> receiveShipmentLiveData = new MutableLiveData<>();
+    private final LiveData<Request> receiveShipmentRequestLiveData =
+            Transformations.switchMap(receiveShipmentLiveData,shipment -> shipmentRepository.receiveShipment(shipment));
 
     public DeviceViewModel() {
         authRepository = new FirebaseAuthRepository();
@@ -67,7 +75,9 @@ public class DeviceViewModel extends ViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        deviceRepository.destroy();
+        if (deviceRepository != null) {
+            deviceRepository.destroy();
+        }
     }
 
     public LiveData<Resource<User>> getUserLiveData() {
@@ -79,13 +89,15 @@ public class DeviceViewModel extends ViewModel {
 
     public void setupDeviceRepository() {
         User user = Objects.requireNonNull(userLiveData.getValue()).getData();
-        deviceRepository = new DeviceRepository(user.getNetworkId(), user.getHospitalId());
-        pendingDeviceRepository = new PendingDeviceRepository(user.getNetworkId(),user.getHospitalId());
+        deviceRepository = new DeviceRepository(user.getNetworkId(), user.getEntityId());
+        pendingDeviceRepository = new PendingDeviceRepository(user.getNetworkId(),user.getEntityId());
     }
 
-    public void setHospitalRepository(String hospitalId) {
+    // TODO new schema refactor
+    public void setupEntityRepository() {
         User user = Objects.requireNonNull(userLiveData.getValue()).getData();
-        hospitalRepository = new HospitalRepository(user.getNetworkId(), hospitalId);
+        entityRepository = new EntityRepository(user.getNetworkId());
+        shipmentRepository = new ShipmentRepository(user.getNetworkId());
     }
 
     public Map<String, List<String>> getDeviceTypes() {
@@ -93,11 +105,32 @@ public class DeviceViewModel extends ViewModel {
     }
 
     public LiveData<Resource<Map<String, String>>> getSitesLiveData() {
-        return hospitalRepository.getSiteOptions();
+        return entityRepository.getSiteOptions();
+    }
+
+    public LiveData<Resource<Map<String,String>>> getShipmentTrackingNumbersLiveData() {
+        return shipmentRepository.getShipmentTrackingNumbers();
     }
 
     public LiveData<Resource<String[]>> getPhysicalLocationsLiveData() {
         return deviceRepository.getPhysicalLocationOptions();
+    }
+
+//    public LiveData<Resource<List<Shipment>>> getShipmentsLiveData() {
+//        return shipmentRepository.getShipments();
+//    }
+
+    public void loadShipments(boolean onRefresh) {
+        shipmentsLiveData.addSource(shipmentRepository.getShipments(onRefresh));
+    }
+
+    public LiveData<Resource<List<Shipment>>> getShipmentsLiveData() {
+        return shipmentsLiveData.getLiveData();
+    }
+
+    public LiveData<Resource<Shipment>> getShipment(String shipmentId) {
+        shipmentLiveData.addSource(shipmentRepository.getShipment(shipmentId));
+        return shipmentLiveData.getLiveData();
     }
 
     public void savePhysicalLocation(String physicalLocation) {
@@ -124,6 +157,16 @@ public class DeviceViewModel extends ViewModel {
         saveShipmentLiveData.setValue(shipment);
     }
 
+    public void receiveShipment(List<Map<String,String>> items) {
+        Shipment shipment = Objects.requireNonNull(shipmentLiveData.getLiveData().getValue()).getData();
+        shipment.setItems(items);
+        receiveShipmentLiveData.setValue(shipment);
+    }
+
+    public LiveData<Request> getReceiveShipmentRequestLiveData() {
+        return receiveShipmentRequestLiveData;
+    }
+
     public LiveData<Resource<DeviceModel>> getAutoPopulatedDeviceLiveData() {
         return autoPopulatedDeviceLiveData;
     }
@@ -146,43 +189,38 @@ public class DeviceViewModel extends ViewModel {
 
     public void autoPopulatedScannedBarcode(String barcode) {
         autoPopulatedDeviceLiveData.setValue(new Resource<>(null,new Request(null,Request.Status.LOADING)));
-        List<LiveData<Resource<DeviceModel>>> databaseSources = deviceRepository.autoPopulateFromDatabaseAndShipment(barcode);
-        LiveData<Resource<DeviceModel>> inventorySource = databaseSources.get(0);
-        LiveData<Resource<DeviceModel>> shippedSource = databaseSources.get(1);
+        LiveData<Resource<DeviceModel>> inventorySource = deviceRepository.autoPopulateFromDatabase(barcode);
         LiveData<Resource<DeviceModel>> gudidSource = deviceRepository.autoPopulateFromGUDID(barcode);
-        DeviceSourceObserver deviceSourceObserver = new DeviceSourceObserver(inventorySource,shippedSource,gudidSource);
+        DeviceSourceObserver deviceSourceObserver = new DeviceSourceObserver(inventorySource,gudidSource);
         autoPopulatedDeviceLiveData.addSource(inventorySource,deviceSourceObserver);
-        autoPopulatedDeviceLiveData.addSource(shippedSource,deviceSourceObserver);
         autoPopulatedDeviceLiveData.addSource(gudidSource,deviceSourceObserver);
     }
 
     private class DeviceSourceObserver implements Observer<Resource<DeviceModel>> {
         private final LiveData<Resource<DeviceModel>> inventorySource;
-        private final LiveData<Resource<DeviceModel>> shippedSource;
         private final LiveData<Resource<DeviceModel>> gudidSource;
-        public DeviceSourceObserver(LiveData<Resource<DeviceModel>> inventorySource, LiveData<Resource<DeviceModel>> shippedSource, LiveData<Resource<DeviceModel>> gudidSource) {
+
+        public DeviceSourceObserver(LiveData<Resource<DeviceModel>> inventorySource,LiveData<Resource<DeviceModel>> gudidSource) {
             this.inventorySource = inventorySource;
-            this.shippedSource = shippedSource;
             this.gudidSource = gudidSource;
         }
         @Override
         public void onChanged(Resource<DeviceModel> deviceModelResource) {
             if (deviceModelResource.getRequest().getStatus() == Request.Status.SUCCESS
                 || deviceModelResource.getRequest().getStatus() == Request.Status.ERROR) {
-                mediateDataSource(inventorySource,shippedSource,gudidSource);
+                mediateDataSource(inventorySource,gudidSource);
             }
         }
     }
 
-    private void mediateDataSource(LiveData<Resource<DeviceModel>> inventorySource, LiveData<Resource<DeviceModel>> shippedSource, LiveData<Resource<DeviceModel>> gudidSource) {
+    private void mediateDataSource(LiveData<Resource<DeviceModel>> inventorySource, LiveData<Resource<DeviceModel>> gudidSource) {
         Resource<DeviceModel> inventoryResource = Objects.requireNonNull(inventorySource.getValue());
-        Resource<DeviceModel> shippedResource = Objects.requireNonNull(shippedSource.getValue());
         Resource<DeviceModel> gudidResource = Objects.requireNonNull(gudidSource.getValue());
-        if (inventoryResource.getRequest().getStatus() == Request.Status.LOADING || shippedResource.getRequest().getStatus() == Request.Status.LOADING ||  gudidResource.getRequest().getStatus() == Request.Status.LOADING) {
+        if (inventoryResource.getRequest().getStatus() == Request.Status.LOADING ||  gudidResource.getRequest().getStatus() == Request.Status.LOADING) {
             return;
         }
 
-        boolean databaseError = inventoryResource.getRequest().getStatus() == Request.Status.ERROR && shippedResource.getRequest().getStatus() == Request.Status.ERROR;
+        boolean databaseError = inventoryResource.getRequest().getStatus() == Request.Status.ERROR;
         if (gudidResource.getRequest().getStatus() == Request.Status.ERROR && gudidResource.getRequest().getResourceString() == R.string.error_something_wrong) {
             autoPopulatedDeviceLiveData.setValue(gudidResource);
         }
@@ -207,24 +245,11 @@ public class DeviceViewModel extends ViewModel {
             // device that is not in gudid but has device model information in database
             // device could not be auto populated (no data)
             // or device is in our database
-            if (shippedResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-                if (inventoryResource.getRequest().getResourceString() != null && inventoryResource.getRequest().getResourceString() == R.string.error_device_lookup) {
-                    shippedResource.getData().getProductions().get(0).setPhysicalLocation("");
-                    shippedResource.getData().setEquipmentType("");
-                    shippedResource.getData().setQuantity(0);
-                    autoPopulatedDeviceLiveData.setValue(shippedResource);
-                } else {
-                    inventoryResource.getData().setShipment(shippedResource.getData().getShipment());
-                    autoPopulatedDeviceLiveData.setValue(inventoryResource);
-                }
-            } else {
-                autoPopulatedDeviceLiveData.setValue(inventoryResource);
-            }
+            autoPopulatedDeviceLiveData.setValue(inventoryResource);
         }
 
         // stop listening to these sources
         autoPopulatedDeviceLiveData.removeSource(inventorySource);
-        autoPopulatedDeviceLiveData.removeSource(shippedSource);
         autoPopulatedDeviceLiveData.removeSource(gudidSource);
     }
 }

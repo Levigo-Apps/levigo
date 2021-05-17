@@ -39,6 +39,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.carebase.carebasescanner.ScanningActivity;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -49,6 +50,7 @@ import com.journeyapps.barcodescanner.CaptureActivity;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Login.LoginActivity;
 import org.getcarebase.carebase.activities.Main.adapters.HomePagerAdapter;
+import org.getcarebase.carebase.activities.Main.fragments.AddShipmentFragment;
 import org.getcarebase.carebase.activities.Main.fragments.EditEquipmentFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ErrorFragment;
 import org.getcarebase.carebase.activities.Main.fragments.InventoryStartFragment;
@@ -58,11 +60,15 @@ import org.getcarebase.carebase.activities.Main.fragments.LoadingFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ModelListFragment;
 import org.getcarebase.carebase.activities.Main.fragments.PendingUdiFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ProcedureStartFragment;
+import org.getcarebase.carebase.activities.Main.fragments.ShipmentStartFragment;
+import org.getcarebase.carebase.models.Entity;
 import org.getcarebase.carebase.models.Procedure;
+import org.getcarebase.carebase.models.TabType;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.InventoryViewModel;
 
+import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
@@ -70,8 +76,11 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_HANDLE_CAMERA_PERM = 1;
     private static final int RC_ADD_PROCEDURE = 2;
     private static final int RC_EDIT_DEVICE_DETAILS = 3;
+    private static final int RC_SCAN = 4;
 
     public static final int RESULT_EDITED = Activity.RESULT_FIRST_USER + 0;
+    public static final int RESULT_DEVICE_SCANNED = Activity.RESULT_FIRST_USER + 1;
+    public static final int RESULT_SHIPMENT_SCANNED = Activity.RESULT_FIRST_USER + 2;
 
     private Toolbar toolbar;
 
@@ -95,9 +104,9 @@ public class MainActivity extends AppCompatActivity {
         inventoryViewModel.getUserLiveData().observe(this, userResource -> {
             if (userResource.getRequest().getStatus() == Request.Status.SUCCESS) {
                 User currentUser = userResource.getData();
-                toolbar.setTitle(currentUser.getHospitalName());
+                toolbar.setTitle(currentUser.getEntityName());
                 toolbar.inflateMenu(R.menu.main_toolbar);
-                setUpViewPager();
+                inventoryViewModel.getEntityLiveData().observe(this,entityResource -> setUpViewPager(entityResource.getData()));
             } else if (userResource.getRequest().getStatus() == Request.Status.ERROR) {
                 Snackbar.make(findViewById(R.id.activity_main), userResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
             }
@@ -106,16 +115,20 @@ public class MainActivity extends AppCompatActivity {
         getPermissions();
     }
 
-    private void setUpViewPager() {
-        HomePagerAdapter adapter = new HomePagerAdapter(this);
+    private void setUpViewPager(Entity entity) {
+        List<TabType> tabs = entity.getTabs();
+        HomePagerAdapter adapter = new HomePagerAdapter(this,tabs);
         ViewPager2 viewPager = findViewById(R.id.home_view_pager);
         viewPager.setAdapter(adapter);
         TabLayout tabLayout = findViewById(R.id.home_tab_layout);
         new TabLayoutMediator(tabLayout,viewPager,(tab, position) -> {
-            switch (position) {
-                case 0: tab.setText("Inventory");
+            TabType type = tabs.get(position);
+            switch (type) {
+                case INVENTORY: tab.setText("Inventory");
                     break;
-                case 1: tab.setText("Procedures");
+                case PROCEDURES: tab.setText("Procedures");
+                    break;
+                case SHIPMENTS: tab.setText("Shipments");
                     break;
             }
         }).attach();
@@ -134,11 +147,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startScanner() {
-        IntentIntegrator integrator = new IntentIntegrator(this);
-        integrator.setCaptureActivity(CaptureActivity.class);
-        integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-        integrator.setBarcodeImageEnabled(true);
-        integrator.initiateScan();
+        Intent intent = new Intent(this, CarebaseScanningActivity.class);
+        intent.putExtra("device_result_code",RESULT_DEVICE_SCANNED);
+        intent.putExtra("shipment_result_code",RESULT_SHIPMENT_SCANNED);
+        startActivityForResult(intent,RC_SCAN);
     }
 
     private void getPermissions() {
@@ -152,15 +164,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (result != null && result.getContents() != null) {
-            String contents = result.getContents().trim();
-            if (!contents.equals("")) {
-                startItemForm(contents);
-            }
-
-            if (result.getBarcodeImagePath() != null) {
-                Log.d(TAG, "" + result.getBarcodeImagePath());
+        if (requestCode == RC_SCAN) {
+            if (resultCode == RESULT_DEVICE_SCANNED) {
+                String udi = Objects.requireNonNull(data).getStringExtra(CarebaseScanningActivity.ARG_UDI_RESULT);
+                startItemForm(udi);
+            } else if (resultCode == RESULT_SHIPMENT_SCANNED) {
+                String shipmentId = Objects.requireNonNull(data).getStringExtra(CarebaseScanningActivity.ARG_UDI_RESULT);
+                startShipmentForm(shipmentId);
             }
         } else if (requestCode == RC_ADD_PROCEDURE) {
             if (resultCode == RESULT_OK) {
@@ -175,8 +185,6 @@ public class MainActivity extends AppCompatActivity {
                 ft.attach(fragment);
                 ft.commit();
             }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -185,6 +193,19 @@ public class MainActivity extends AppCompatActivity {
             startItemFormOnline(barcode);
         else
             startItemFormOffline(barcode);
+    }
+
+    private void startShipmentForm(String shipmentId) {
+        AddShipmentFragment fragment = new AddShipmentFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("shipment_id", shipmentId);
+        fragment.setArguments(bundle);
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.slide_in_right,R.anim.slide_out_left);
+        transaction.add(R.id.activity_main,fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     public void startItemFormOnline(String barcode) {
@@ -297,6 +318,21 @@ public class MainActivity extends AppCompatActivity {
 
     public void removeProcedureEmptyScreen() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(ProcedureStartFragment.TAG);
+        if (fragment != null) {
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+    }
+
+    public void showShipmentEmptyScreen() {
+        Fragment fragment = new ShipmentStartFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.activity_main, fragment, ShipmentStartFragment.TAG)
+                .commit();
+    }
+
+    public void removeShipmentEmptyScreen() {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(ShipmentStartFragment.TAG);
         if (fragment != null) {
             getSupportFragmentManager().beginTransaction().remove(fragment).commit();
         }

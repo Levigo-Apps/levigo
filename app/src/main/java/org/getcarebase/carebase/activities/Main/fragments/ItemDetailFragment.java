@@ -133,32 +133,6 @@ public class ItemDetailFragment extends Fragment {
     private boolean editingExisting;
     private boolean isDi;
     private List<TextInputEditText> allSizeOptions;
-    private final List<String> PHYSICAL_LOCATIONS = Arrays.asList(
-            "Box - Central Lines",
-            "Box - Picc Lines",
-            "Box - Tunnels/ports",
-            "Box - Short Wires",
-            "Box - Perma dialysis",
-            "Box - Triple lumen dialysis",
-            "Box - Other permacath",
-            "Box - Microcath",
-            "Box - Biopsy",
-            "Cabinet 1",
-            "Cabinet 2",
-            "Cabinet 3",
-            "Hanger - drainage cath",
-            "Hanger - Nephrostemy",
-            "Hanger - Misc catheters",
-            "Hanger - 4 french catheters",
-            "Hanger - 5 french catheters",
-            "Hanger - Kumpe - 5 french",
-            "Hanger - Drainage tube",
-            "Hanger - Biliary catheters",
-            "Hanger - Specialized sheaths/introducers",
-            "Shelf - G J Tube",
-            "Shelf - Lung Biopsy, Flesh Kit",
-            "Shelf - Micropuncture sets/Wires",
-            "Other");
 
     private LinearLayout physicalLocationConstrainLayout;
     private LinearLayout typeConstrainLayout;
@@ -273,18 +247,7 @@ public class ItemDetailFragment extends Fragment {
         });
 
         //going back to inventory view
-        topToolBar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (requireActivity().getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                    requireActivity().getSupportFragmentManager().popBackStack();
-                } else {
-                    if (parent != null) {
-                        parent.onBackPressed();
-                    }
-                }
-            }
-        });
+        topToolBar.setNavigationOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
 
         // date picker for expiration date if entered manually
         final DatePickerDialog.OnDateSetListener date_exp = new DatePickerDialog.OnDateSetListener() {
@@ -431,7 +394,6 @@ public class ItemDetailFragment extends Fragment {
         deviceViewModel.getPhysicalLocationsLiveData().observe(getViewLifecycleOwner(), physicalLocationsResource -> {
             if(physicalLocationsResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 physicalLocationsAdapter.clear();
-                physicalLocationsAdapter.addAll(PHYSICAL_LOCATIONS);
                 physicalLocationsAdapter.addAll(Arrays.asList(physicalLocationsResource.getData()));
             } else {
                 Log.d(TAG,"Unable to fetch physical locations");
@@ -544,12 +506,6 @@ public class ItemDetailFragment extends Fragment {
             deviceProduction.setPhysicalLocation(physicalLocation.getText().toString().trim());
             deviceProduction.setQuantity(amount);
             deviceModel.addDeviceProduction(deviceProduction);
-
-            if (deviceViewModel.getAutoPopulatedDeviceLiveData().getValue() != null
-                    && deviceViewModel.getAutoPopulatedDeviceLiveData().getValue().getData() != null
-                    && deviceViewModel.getAutoPopulatedDeviceLiveData().getValue().getData().getShipment() != null) {
-                deviceModel.setShipment(deviceViewModel.getAutoPopulatedDeviceLiveData().getValue().getData().getShipment());
-            }
 
 //            if(!Objects.requireNonNull(costEditText.getText()).toString().trim().isEmpty()){
 //                String cleanString = costEditText.getText().toString().replaceAll("[$,.]", "");

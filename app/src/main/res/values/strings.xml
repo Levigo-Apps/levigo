@@ -43,6 +43,11 @@
     <string name="fluoro_time_label">Fluoro Time</string>
     <!--procedures end-->
 
+    <!--shipments start-->
+    <string name="new_shipment_devices_saved">Devices added to inventory</string>
+    <string name="shipment_not_found">No shipment with the given id can be found</string>
+    <!--shipments end-->
+
     <!--template values start-->
     <!--Depreciated-->
     <string name="unit_quantity_value">%1$d Units</string>

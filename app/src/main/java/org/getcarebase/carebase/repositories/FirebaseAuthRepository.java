@@ -125,18 +125,10 @@ public class FirebaseAuthRepository {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
-                        assert document != null;
-                        if (document.exists()) {
-                            Boolean isValid = document.getBoolean("valid");
-                            if (isValid != null && isValid ) {
+                        if (document != null && document.exists()) {
+                            InvitationCode invitationCode = document.toObject(InvitationCode.class);
+                            if (invitationCode.isValid()) {
                                 try {
-                                    // invitation code found and information about the code will be sent back
-                                    String networkId = Objects.requireNonNull(document.get("network_id")).toString();
-                                    String networkName = Objects.requireNonNull(document.get("network_name")).toString();
-                                    String hospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
-                                    String hospitalName = Objects.requireNonNull(document.get("hospital_name")).toString();
-
-                                    InvitationCode invitationCode = new InvitationCode(invitationCodeString,networkId,networkName,hospitalId,hospitalName,true);
                                     Resource<InvitationCode> request = new Resource<>(invitationCode, new Request(null, Request.Status.SUCCESS));
                                     result.setValue(request);
                                 } catch (NullPointerException e) {
@@ -217,9 +209,9 @@ public class FirebaseAuthRepository {
                 if (document.exists()) {
                     String networkId = Objects.requireNonNull(document.get("network_id")).toString();
                     String networkName = Objects.requireNonNull(document.get("network_name")).toString();
-                    String hospitalId = Objects.requireNonNull(document.get("hospital_id")).toString();
-                    String hospitalName = Objects.requireNonNull(document.get("hospital_name")).toString();
-                    User user = new User(firebaseUser.getUid(),firebaseUser.getEmail(),hospitalId,hospitalName,networkId,networkName);
+                    String entityId = Objects.requireNonNull(document.get("entity_id")).toString();
+                    String entityName = Objects.requireNonNull(document.get("entity_name")).toString();
+                    User user = new User(firebaseUser.getUid(),firebaseUser.getEmail(),entityId,entityName,networkId,networkName);
                     Resource<User> userResource = new Resource<>(user, new Request(null, Request.Status.SUCCESS));
                     userMutableLiveData.setValue(userResource);
                 }

@@ -5,8 +5,10 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import org.getcarebase.carebase.models.DeviceModel;
+import org.getcarebase.carebase.models.Entity;
 import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.User;
+import org.getcarebase.carebase.repositories.EntityRepository;
 import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
 import org.getcarebase.carebase.repositories.InventoryRepository;
 import org.getcarebase.carebase.utils.Request;
@@ -22,6 +24,7 @@ import java.util.Objects;
 public class InventoryViewModel extends ViewModel {
     private final InventoryRepository inventoryRepository;
     private final FirebaseAuthRepository authRepository;
+    private final EntityRepository entityRepository;
 
     private LiveData<Resource<User>> userLiveData;
 
@@ -31,6 +34,7 @@ public class InventoryViewModel extends ViewModel {
     public InventoryViewModel() {
         inventoryRepository = new InventoryRepository();
         authRepository = new FirebaseAuthRepository();
+        entityRepository = new EntityRepository();
     }
 
     public LiveData<Resource<User>> getUserLiveData() {
@@ -59,5 +63,8 @@ public class InventoryViewModel extends ViewModel {
     public LiveData<Resource<List<DeviceModel>>> getDeviceModelListWithTypeLiveData(String type) {
         return deviceModelLiveData.getLiveData();
     }
-    
+
+    public LiveData<Resource<Entity>> getEntityLiveData() {
+        return entityRepository.getEntity(Objects.requireNonNull(userLiveData.getValue()).getData());
+    }
 }

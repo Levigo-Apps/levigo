@@ -17,6 +17,7 @@ import com.google.firebase.firestore.Query.Direction;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceUsage;
 import org.getcarebase.carebase.models.Procedure;
+import org.getcarebase.carebase.utils.FirestoreReferences;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
@@ -36,16 +37,12 @@ public class ProcedureRepository {
     private final List<Procedure> procedures;
     private DocumentSnapshot lastResult; // last procedure
 
-    public ProcedureRepository(final String networkId, final String hospitalId) {
+    public ProcedureRepository(final String networkId, final String entityId) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        inventoryReference = firestore.collection("networks").document(networkId)
-                .collection("hospitals").document(hospitalId)
-                .collection("departments").document("default_department")
-                .collection("dis");
-        proceduresReference = firestore.collection("networks").document(networkId)
-                .collection("hospitals").document(hospitalId)
-                .collection("departments").document("default_department")
-                .collection("procedures");
+        DocumentReference networkReference = FirestoreReferences.getNetworkReference(networkId);
+        DocumentReference entityReference = FirestoreReferences.getEntityReference(networkReference,entityId);
+        inventoryReference = FirestoreReferences.getInventoryReference(entityReference);
+        proceduresReference = FirestoreReferences.getProceduresReference(entityReference);
         procedures = new ArrayList<>();
     }
 
