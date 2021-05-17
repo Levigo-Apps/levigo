@@ -50,6 +50,7 @@ import com.journeyapps.barcodescanner.CaptureActivity;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Login.LoginActivity;
 import org.getcarebase.carebase.activities.Main.adapters.HomePagerAdapter;
+import org.getcarebase.carebase.activities.Main.fragments.AddShipmentFragment;
 import org.getcarebase.carebase.activities.Main.fragments.EditEquipmentFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ErrorFragment;
 import org.getcarebase.carebase.activities.Main.fragments.InventoryStartFragment;
@@ -78,7 +79,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_SCAN = 4;
 
     public static final int RESULT_EDITED = Activity.RESULT_FIRST_USER + 0;
-    public static final int RESULT_SCANNED = Activity.RESULT_FIRST_USER + 1;
+    public static final int RESULT_DEVICE_SCANNED = Activity.RESULT_FIRST_USER + 1;
+    public static final int RESULT_SHIPMENT_SCANNED = Activity.RESULT_FIRST_USER + 2;
 
     private Toolbar toolbar;
 
@@ -146,7 +148,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void startScanner() {
         Intent intent = new Intent(this, CarebaseScanningActivity.class);
-        intent.putExtra("result_code",RESULT_SCANNED);
+        intent.putExtra("device_result_code",RESULT_DEVICE_SCANNED);
+        intent.putExtra("shipment_result_code",RESULT_SHIPMENT_SCANNED);
         startActivityForResult(intent,RC_SCAN);
     }
 
@@ -162,9 +165,12 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_SCAN) {
-            if (resultCode == RESULT_SCANNED) {
-               String udi = Objects.requireNonNull(data).getStringExtra(CarebaseScanningActivity.ARG_UDI_RESULT);
-               startItemForm(udi);
+            if (resultCode == RESULT_DEVICE_SCANNED) {
+                String udi = Objects.requireNonNull(data).getStringExtra(CarebaseScanningActivity.ARG_UDI_RESULT);
+                startItemForm(udi);
+            } else if (resultCode == RESULT_SHIPMENT_SCANNED) {
+                String shipmentId = Objects.requireNonNull(data).getStringExtra(CarebaseScanningActivity.ARG_UDI_RESULT);
+                startShipmentForm(shipmentId);
             }
         } else if (requestCode == RC_ADD_PROCEDURE) {
             if (resultCode == RESULT_OK) {
@@ -187,6 +193,19 @@ public class MainActivity extends AppCompatActivity {
             startItemFormOnline(barcode);
         else
             startItemFormOffline(barcode);
+    }
+
+    private void startShipmentForm(String shipmentId) {
+        AddShipmentFragment fragment = new AddShipmentFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("shipment_id", shipmentId);
+        fragment.setArguments(bundle);
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.slide_in_right,R.anim.slide_out_left);
+        transaction.add(R.id.activity_main,fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     public void startItemFormOnline(String barcode) {
@@ -309,7 +328,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.activity_main, fragment, ShipmentStartFragment.TAG)
-                .addToBackStack(null)
                 .commit();
     }
 

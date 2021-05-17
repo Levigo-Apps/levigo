@@ -19,7 +19,6 @@ public class DeviceModel implements Serializable {
     private String subType;
     private String usage;
     private int quantity;
-    private Shipment shipment;
     private final List<DeviceProduction> productions = new ArrayList<>();
     private final Map<String, Object> specifications = new HashMap<String, Object>();
 
@@ -61,10 +60,6 @@ public class DeviceModel implements Serializable {
         this.quantity = quantity;
     }
 
-    public void setShipment(Shipment shipment){
-        this.shipment = shipment;
-    }
-
     public void addDeviceProduction(DeviceProduction production) {
         productions.add(production);
     }
@@ -101,10 +96,6 @@ public class DeviceModel implements Serializable {
 
     public int getQuantity() {
         return quantity;
-    }
-
-    public Shipment getShipment() {
-        return shipment;
     }
 
     public List<DeviceProduction> getProductions() {
