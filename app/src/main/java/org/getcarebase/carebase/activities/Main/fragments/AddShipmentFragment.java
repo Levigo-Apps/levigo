@@ -82,7 +82,7 @@ public class AddShipmentFragment extends Fragment {
            }
        });
 
-        return rootView;
+       return rootView;
     }
 
     private void loadPhysicalLocations(Resource<String[]> physicalLocationsResource) {
@@ -110,6 +110,7 @@ public class AddShipmentFragment extends Fragment {
             shipmentAdapter.notifyDataSetChanged();
         } else if (shipmentResource.getRequest().getStatus() == Request.Status.ERROR) {
             Snackbar.make(rootView,shipmentResource.getRequest().getResourceString(),Snackbar.LENGTH_LONG).show();
+            requireActivity().getSupportFragmentManager().popBackStack();
         }
     }
 

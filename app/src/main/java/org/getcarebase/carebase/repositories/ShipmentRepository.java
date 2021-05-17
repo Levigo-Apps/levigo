@@ -97,8 +97,13 @@ public class ShipmentRepository {
         MutableLiveData<Resource<Shipment>> shipmentLiveData = new MutableLiveData<>();
         shipmentReference.document(shipmentId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                Shipment shipment = task.getResult().toObject(Shipment.class);
-                shipmentLiveData.setValue(new Resource<>(shipment,new Request(null, Request.Status.SUCCESS)));
+                if (task.getResult().exists()) {
+                    Shipment shipment = task.getResult().toObject(Shipment.class);
+                    shipmentLiveData.setValue(new Resource<>(shipment,new Request(null, Request.Status.SUCCESS)));
+                } else {
+                    shipmentLiveData.setValue(new Resource<>(null,new Request(R.string.shipment_not_found, Request.Status.ERROR)));
+                }
+
             } else {
                 shipmentLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong, Request.Status.ERROR)));
             }
