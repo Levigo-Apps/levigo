@@ -8,7 +8,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -28,13 +27,12 @@ import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
 
 public class ShipmentRepository {
     private static final String TAG = ShipmentRepository.class.getName();
@@ -116,7 +114,7 @@ public class ShipmentRepository {
         shipmentReference.orderBy("date_time_shipped", Query.Direction.DESCENDING).limit(5).get().addOnCompleteListener(task -> {
            if (task.isSuccessful()) {
                QuerySnapshot snapshot = task.getResult();
-               Map<String,String> trackingNumbers = new TreeMap<>();
+               Map<String,String> trackingNumbers = new LinkedHashMap<>();
                if (snapshot != null && !snapshot.isEmpty()) {
                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
                        trackingNumbers.put(documentSnapshot.getId(),documentSnapshot.getString("destination_entity_id"));
@@ -255,59 +253,71 @@ public class ShipmentRepository {
 
     public LiveData<Request> saveShipment(Shipment shipment) {
         MutableLiveData<Request> saveShipmentRequest = new MutableLiveData<>();
-        List<Task<?>> tasks = new ArrayList<>();
 
-        List<Map<String, String>> ship_items = new ArrayList<>();
-        Map<String, String> ship_item = new HashMap<>();
-        ship_item.put("di", shipment.getDi());
-        ship_item.put("udi", shipment.getUdi());
-        ship_item.put("name", shipment.getDeviceName());
-        ship_item.put("quantity", String.valueOf(shipment.getQuantity()));
-
+        List<Map<String, String>> shippedItemsArray = new ArrayList<>();
+        Map<String, String> shippedItem = new HashMap<>();
+        shippedItem.put("di", shipment.getDi());
+        shippedItem.put("udi", shipment.getUdi());
+        shippedItem.put("name", shipment.getDeviceName());
+        shippedItem.put("quantity", String.valueOf(shipment.getQuantity()));
         shipment.setShippedTime(new Date());
+        shipment.setItems(shippedItemsArray);
 
-        if (shipment.getTrackingNumber().contentEquals("temptrackingnumber")) {
-            ship_items.add(ship_item);
-            shipment.setItems(ship_items);
+        Task<?> saveShipmentTask = FirestoreReferences.getFirestoreReference().runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentReference shipmentDocumentReference;
+                if (shipment.getTrackingNumber().contentEquals("temptrackingnumber")) {
+                    shipmentDocumentReference = shipmentReference.document();
+                    shippedItemsArray.add(shippedItem);
+                } else {
+                    shipmentDocumentReference = shipmentReference.document(shipment.getTrackingNumber());
+                    DocumentSnapshot shipmentDocumentSnapshot = transaction.get(shipmentDocumentReference);
+                    List<Map<String,String>> oldShippedItemsArray = (List<Map<String, String>>) shipmentDocumentSnapshot.get("items");
+                    shippedItemsArray.addAll(oldShippedItemsArray);
 
-            DocumentReference newShipmentDocument = shipmentReference.document();
-            tasks.add(newShipmentDocument.set(shipment));
-        } else {
-            // TODO make this atomic
-            DocumentReference oldShipmentDocument = shipmentReference.document(shipment.getTrackingNumber());
-            oldShipmentDocument.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    if (documentSnapshot != null && documentSnapshot.exists()) {
-                        // Add device in shipment object to existing document
-                        ship_items.clear();
-                        ship_items.addAll((List<Map<String, String>>) documentSnapshot.get("items"));
-                        ship_items.add(ship_item);
-                        shipment.setItems(ship_items);
-                        tasks.add(oldShipmentDocument.set(shipment));
+                    // check if item already exists
+                    boolean exists = false;
+                    for (Map<String,String> item : shippedItemsArray) {
+                        String di = item.getOrDefault("di","");
+                        String udi = item.getOrDefault("udi","");
+                        if (shipment.getDi().equals(di) && shipment.getUdi().equals(udi)) {
+                            // increment quantities
+                            int currentQuantity = Integer.parseInt(item.get("quantity"));
+                            item.put("quantity",Integer.toString(currentQuantity + shipment.getQuantity()));
+                            exists = true;
+                            break;
+                        }
+                    }
+                    if (!exists) {
+                        shippedItemsArray.add(shippedItem);
                     }
                 }
-            });
-        }
 
-//        // update device model and production quantities
-//        DocumentReference currentHospitalReference = FirestoreReferences.getHospitalReference(
-//                networkReference, shipment.getSourceHospitalId());
-//        CollectionReference inventoryReference = FirestoreReferences.getInventoryReference(currentHospitalReference);
-//        DocumentReference deviceModelReference = inventoryReference.document(shipment.getDi());
-//        DocumentReference deviceProductionReference = deviceModelReference.collection("udis").document(shipment.getUdi());
-//        tasks.add(deviceModelReference.update("quantity", FieldValue.increment(-1*shipment.getShippedQuantity())));
-//        tasks.add(deviceProductionReference.update("quantity",FieldValue.increment(-1*shipment.getShippedQuantity())));
-//
-        Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
+                transaction.set(shipmentDocumentReference,shipment);
+
+                // update device model and production quantities
+                DocumentReference currentHospitalReference = FirestoreReferences.getEntityReference(
+                        networkReference, shipment.getSourceEntityId());
+                CollectionReference inventoryReference = FirestoreReferences.getInventoryReference(currentHospitalReference);
+                DocumentReference deviceModelReference = inventoryReference.document(shipment.getDi());
+                DocumentReference deviceProductionReference = deviceModelReference.collection("udis").document(shipment.getUdi());
+                transaction.update(deviceModelReference,"quantity", FieldValue.increment(-1*shipment.getQuantity()));
+                transaction.update(deviceProductionReference,"quantity",FieldValue.increment(-1*shipment.getQuantity()));
+                return null;
+            }
+        });
+
+        saveShipmentTask.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 saveShipmentRequest.setValue(new Request(null, Request.Status.SUCCESS));
             }
             else {
-                saveShipmentRequest.setValue(new Request(null, Request.Status.ERROR));
+                saveShipmentRequest.setValue(new Request(R.string.error_something_wrong, Request.Status.ERROR));
             }
         });
-        //saveShipmentRequest.setValue(new Request(null, Request.Status.ERROR));
+
         return saveShipmentRequest;
     }
 }
