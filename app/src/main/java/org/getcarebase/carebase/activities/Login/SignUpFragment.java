@@ -51,6 +51,10 @@ import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 import org.getcarebase.carebase.viewmodels.AuthViewModel;
 
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Signs up new user
  */
@@ -59,18 +63,26 @@ public class SignUpFragment extends Fragment {
     public static final String TAG = SignUpFragment.class.getName();
 
     private View rootView;
-    private LinearLayout emailPasswordLayout;
-    private Button submitInvitationCode;
-    private TextInputLayout invitationCodeLayout;
-    private TextInputEditText invitationCodeBox;
-    private TextInputEditText emailField;
-    private TextInputEditText passwordField;
-    private TextInputEditText confirmPasswordField;
-    private Button signUpButton;
+    private View invitationCodeLayout;
+    private Button submitInvitationCodeButton;
+    private TextInputLayout invitationCodeTextInputLayout;
+    private TextInputEditText invitationCodeEditText;
+
+    private View createAccountLayout;
     private TextView networkNameTextView;
     private TextView entityNameTextView;
+    private TextInputLayout emailTextInputLayout;
+    private TextInputEditText emailField;
+    private TextInputLayout passwordTextInputLayout;
+    private TextInputEditText passwordField;
+    private TextInputLayout confirmPasswordTextInputLayout;
+    private TextInputEditText confirmPasswordField;
+    private Button signUpButton;
 
     private AuthViewModel authViewModel;
+
+    final Pattern emailPattern = Pattern.compile("\\b[\\w\\.-]+@[\\w\\.-]+\\.\\w{2,4}\\b");
+    final Pattern passwordPattern = Pattern.compile("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$");
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -85,50 +97,42 @@ public class SignUpFragment extends Fragment {
             }
         });
 
-        networkNameTextView = rootView.findViewById(R.id.signup_network_name);
-        entityNameTextView = rootView.findViewById(R.id.signup_site_name);
-
-        emailPasswordLayout = rootView.findViewById(R.id.signup_email_password_layout);
-        emailField = rootView.findViewById(R.id.signup_email);
-        passwordField = rootView.findViewById(R.id.signup_password);
-        confirmPasswordField = rootView.findViewById(R.id.signup_password_confirm);
-        signUpButton = rootView.findViewById(R.id.signup_button);
-
-        // Email password fields disabled until valid invitation code
-        emailPasswordLayout.setVisibility(View.GONE);
-        signUpButton.setEnabled(false);
-
-        submitInvitationCode = rootView.findViewById(R.id.submit_invitation_code_button);
-        // Disabled until not empty
-        submitInvitationCode.setEnabled(false);
-        invitationCodeLayout = rootView.findViewById(R.id.textInputLayout_invitationCode);
-        invitationCodeBox = rootView.findViewById(R.id.et_InvitationCode);
-
-        Button contactUsButton = rootView.findViewById(R.id.contact_us_button);
-        contactUsButton.setOnClickListener(this::composeEmail);
-
-        Button demoButton = rootView.findViewById(R.id.demo_login_button);
-        demoButton.setOnClickListener(this::demoLogin);
-
         MaterialToolbar toolbar = rootView.findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> Navigation.findNavController(requireActivity(),R.id.main_content).popBackStack());
 
-        invitationCodeBox.addTextChangedListener(new TextWatcher() {
+        invitationCodeLayout = rootView.findViewById(R.id.invitation_code_layout);
+        submitInvitationCodeButton = rootView.findViewById(R.id.submit_invitation_code_button);
+        invitationCodeTextInputLayout = rootView.findViewById(R.id.invitation_code_text_input_layout);
+        invitationCodeEditText = rootView.findViewById(R.id.invitation_code_edit_text);
+
+        createAccountLayout = rootView.findViewById(R.id.signup_email_password_layout);
+        networkNameTextView = rootView.findViewById(R.id.signup_network_name);
+        entityNameTextView = rootView.findViewById(R.id.signup_site_name);
+        emailTextInputLayout = rootView.findViewById(R.id.signup_email_text_input_layout);
+        emailField = rootView.findViewById(R.id.signup_email);
+        passwordTextInputLayout = rootView.findViewById(R.id.password_text_input_layout);
+        passwordField = rootView.findViewById(R.id.signup_password);
+        confirmPasswordTextInputLayout = rootView.findViewById(R.id.confirm_password_text_input_layout);
+        confirmPasswordField = rootView.findViewById(R.id.signup_password_confirm);
+        signUpButton = rootView.findViewById(R.id.signup_button);
+
+
+        invitationCodeEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 // enables the submit button if invitation code is not empty
-                submitInvitationCode.setEnabled(s.toString().trim().length() != 0);
+                submitInvitationCodeButton.setEnabled(s.toString().trim().length() != 0);
             }
 
             @Override
             public void afterTextChanged(Editable s) {}
         });
 
-        submitInvitationCode.setOnClickListener(v -> {
-            String invitationCode = invitationCodeBox.getText().toString();
+        submitInvitationCodeButton.setOnClickListener(v -> {
+            String invitationCode = Objects.requireNonNull(invitationCodeEditText.getText()).toString();
             checkInvitationCode(invitationCode);
         });
 
@@ -145,9 +149,23 @@ public class SignUpFragment extends Fragment {
                 String p = passwordField.getText().toString().trim();
                 String cp = confirmPasswordField.getText().toString().trim();
 
-                // enable sign up if password fields match and
-                // if all fields are not empty
-                signUpButton.setEnabled(p.equals(cp) && e.length() != 0 || p.length() != 0);
+                emailTextInputLayout.setError(null);
+                passwordTextInputLayout.setError(null);
+                confirmPasswordTextInputLayout.setError(null);
+
+                Matcher emailMatcher = emailPattern.matcher(e);
+                Matcher passwordMatcher = passwordPattern.matcher(p);
+                if (!emailMatcher.matches()) {
+                    emailTextInputLayout.setError("Enter a valid email");
+                } else if (!passwordMatcher.matches())  {
+                    passwordTextInputLayout.setError("Password should have minimum 8 characters, at least 1 uppercase letter, 1 lowercase letter and 1 number");
+                } else if (!p.equals(cp) && passwordMatcher.matches()) {
+                    passwordTextInputLayout.setError("Passwords do not match");
+                    confirmPasswordTextInputLayout.setError("Passwords do not match");
+                } else {
+                    signUpButton.setEnabled(true);
+                }
+
             }
         };
         emailField.addTextChangedListener(emailPasswordWatcher);
@@ -171,11 +189,11 @@ public class SignUpFragment extends Fragment {
                 // Display authorized network and hospital
                 networkNameTextView.setText(code.getNetworkName());
                 entityNameTextView.setText(code.getEntityName());
-                emailPasswordLayout.setVisibility(View.VISIBLE);
-                invitationCodeLayout.setEnabled(false);
+                createAccountLayout.setVisibility(View.VISIBLE);
+                invitationCodeLayout.setVisibility(View.GONE);
             }
             else if (invitationCodeResource.getRequest().getStatus() == Request.Status.ERROR) {
-                invitationCodeLayout.setError("Invalid invitation code");
+                invitationCodeTextInputLayout.setError("Invalid invitation code");
                 Snackbar.make(rootView,invitationCodeResource.getRequest().getResourceString(),Snackbar.LENGTH_LONG);
             }
         });
@@ -183,19 +201,5 @@ public class SignUpFragment extends Fragment {
 
     private void createUser(final String email, final String password) {
         authViewModel.createUser(email,password);
-    }
-
-    public void composeEmail(View view) {
-        Intent intent = new Intent(Intent.ACTION_SENDTO);
-        final String SUPPORT_EMAIL = "elliot@getcarebase.org";
-        intent.setData(Uri.parse("mailto:" + SUPPORT_EMAIL));
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Admin Account Request");
-        if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
-            startActivity(intent);
-        }
-    }
-
-    public void demoLogin(View view) {
-        authViewModel.signInWithEmailAndPassword("demo_user@getcarebase.org", "demo_user");
     }
 }
