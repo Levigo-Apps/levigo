@@ -8,6 +8,7 @@ public class Entity {
     private String name;
     private List<String> types;
     private List<TabType> tabs;
+    private String type;
 
     @PropertyName("name")
     public String getName() {
@@ -37,5 +38,15 @@ public class Entity {
     @PropertyName("tabs")
     public void setTabs(List<TabType> tabs) {
         this.tabs = tabs;
+    }
+
+    @PropertyName("type")
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    @PropertyName("type")
+    public String getType() {
+        return type;
     }
 }

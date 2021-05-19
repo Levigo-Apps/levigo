@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
+import org.getcarebase.carebase.models.Entity;
 import org.getcarebase.carebase.models.PendingDevice;
 import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.models.User;
@@ -38,6 +39,8 @@ public class DeviceViewModel extends ViewModel {
     private final MediatorLiveData<Resource<DeviceModel>> autoPopulatedDeviceLiveData = new MediatorLiveData<>();
 
     private LiveData<Resource<DeviceModel>> deviceInFirebaseLiveData;
+
+    private LiveData<Resource<String>> entityTypeLiveData;
 
     private final MutableLiveData<String> savePhysicalLocationLiveData = new MutableLiveData<>();
 
@@ -106,6 +109,20 @@ public class DeviceViewModel extends ViewModel {
 
     public LiveData<Resource<Map<String, String>>> getSitesLiveData() {
         return entityRepository.getSiteOptions();
+    }
+
+    public LiveData<Resource<String>> getEntityType() {
+        if (entityTypeLiveData == null) {
+            LiveData<Resource<Entity>> entityLiveData = entityRepository.getEntity(Objects.requireNonNull(userLiveData.getValue()).getData());
+            entityTypeLiveData = Transformations.map(entityLiveData, entityResource -> {
+                if (entityResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                    return new Resource<>(entityResource.getData().getType(),new Request(null, Request.Status.SUCCESS));
+                } else {
+                    return new Resource<>(null,entityResource.getRequest());
+                }
+            });
+        }
+        return entityTypeLiveData;
     }
 
     public LiveData<Resource<Map<String,String>>> getShipmentTrackingNumbersLiveData() {
