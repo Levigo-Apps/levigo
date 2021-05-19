@@ -31,6 +31,7 @@
     <!--adding a device end-->
 
     <!--procedures start-->
+    <string name="procedures_list_end">Reached end of procedures</string>
     <string name="error_device_already_entered">The device has already been recorded</string>
     <string name="error_procedure_no_devices">Please scan the devices used in the procedure</string>
     <string name="procedure_date_label">Procedure Date</string>
