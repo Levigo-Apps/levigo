@@ -84,19 +84,19 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
 
         ProceduresAdapter proceduresAdapter = new ProceduresAdapter(procedureClickCallback);
         proceduresRecyclerView.setAdapter(proceduresAdapter);
-        proceduresAdapter.setOnBottmReachedCallback(onBottomReachedCallback);
 
         proceduresViewModel.getProceduresLiveData().observe(getViewLifecycleOwner(), proceduresResource -> {
             if (proceduresResource.getRequest().getStatus() == Request.Status.LOADING) {
-                ((MainActivity) getActivity()).showLoadingScreen();
+                ((MainActivity) requireActivity()).showLoadingScreen();
             } else {
-                ((MainActivity) getActivity()).removeLoadingScreen();
+                ((MainActivity) requireActivity()).removeLoadingScreen();
                 if (proceduresResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-                    if (proceduresResource.getData().size() == 0) {
-                        ((MainActivity) getActivity()).showProcedureEmptyScreen();
-                    } else {
-                        ((MainActivity) getActivity()).removeProcedureEmptyScreen();
+                    if (proceduresResource.getData() == null) {
+                        ((MainActivity) requireActivity()).showProcedureEmptyScreen();
+                    } else if (proceduresResource.getRequest().getResourceString() == null){
+                        ((MainActivity) requireActivity()).removeProcedureEmptyScreen();
                         proceduresAdapter.setProcedures(proceduresResource.getData());
+                        proceduresAdapter.setOnBottmReachedCallback(onBottomReachedCallback);
                         proceduresAdapter.notifyDataSetChanged();
                     }
                     swipeRefreshLayout.setRefreshing(false);
@@ -121,9 +121,9 @@ public class ProceduresFragment extends FloatingActionButtonManagerFragment {
 
     @Override
     public void onPause() {
-        ((MainActivity) getActivity()).removeErrorScreen();
-        ((MainActivity) getActivity()).removeProcedureEmptyScreen();
-        ((MainActivity) getActivity()).removeLoadingScreen();
+        ((MainActivity) requireActivity()).removeErrorScreen();
+        ((MainActivity) requireActivity()).removeProcedureEmptyScreen();
+        ((MainActivity) requireActivity()).removeLoadingScreen();
         super.onPause();
     }
 

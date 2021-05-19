@@ -104,8 +104,12 @@ public class ProceduresAdapter extends RecyclerView.Adapter<ProceduresAdapter.Vi
             }
         });
         // check if position is last and override the on bottom reached callback function
-        if ((position >= getItemCount() - 1)){
-            onBottomReachedCallback.onBottomReached();
+        if ((position >= getItemCount() - 1)) {
+            if (onBottomReachedCallback != null) {
+                onBottomReachedCallback.onBottomReached();
+                onBottomReachedCallback = null;
+            }
+
         }
     }
 

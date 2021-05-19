@@ -111,9 +111,16 @@ public class ProcedureRepository {
                // store the last procedure
                if (task.getResult().size() > 0) {
                    lastResult = task.getResult().getDocuments().get(task.getResult().size() -1);
-                   // set live data only if there was a new change
+                   // procedures fetched
                    proceduresLiveData.setValue(new Resource<>(procedures,new Request(null, Request.Status.SUCCESS)));
+               } else if (lastResult == null) {
+                   // no procedures
+                   proceduresLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.SUCCESS)));
+               } else {
+                   // reached end of procedures list
+                   proceduresLiveData.setValue(new Resource<>(procedures,new Request(R.string.procedures_list_end, Request.Status.SUCCESS)));
                }
+
            } else {
                proceduresLiveData.setValue(new Resource<>(null,new Request(R.string.error_something_wrong,Request.Status.ERROR)));
            }
