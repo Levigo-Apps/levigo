@@ -51,6 +51,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
 import org.getcarebase.carebase.R;;
+import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.models.Cost;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceProduction;
@@ -87,7 +88,7 @@ public class ItemDetailFragment extends Fragment {
     private final CollectionReference usersRef = db.collection("users");
 
     private static final String TAG = ItemDetailFragment.class.getSimpleName();
-    private Activity parent;
+    private MainActivity parent;
     private Calendar myCalendar;
 
     // USER INPUT VALUES
@@ -149,7 +150,7 @@ public class ItemDetailFragment extends Fragment {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_itemdetail, container, false);
         myCalendar = Calendar.getInstance();
-        parent = getActivity();
+        parent = (MainActivity) requireActivity();
         linearLayout = rootView.findViewById(R.id.itemdetail_linearlayout);
         udiEditText = rootView.findViewById(R.id.detail_udi);
         nameEditText = rootView.findViewById(R.id.detail_name);
@@ -194,6 +195,7 @@ public class ItemDetailFragment extends Fragment {
         deviceViewModel = new ViewModelProvider(this).get(DeviceViewModel.class);
         // if it is viable, find a way to get the user from inventoryViewModel from main activity
         // instead of waiting again to get the user again
+        parent.showLoadingScreen();
         deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
             deviceViewModel.setupDeviceRepository();
             deviceViewModel.setupEntityRepository();
@@ -201,6 +203,7 @@ public class ItemDetailFragment extends Fragment {
                 setupOptionFields();
                 setupAutoPopulate();
                 setupSaveDevice();
+                parent.removeLoadingScreen();
                 handleArguments();
             });
         });
@@ -320,6 +323,7 @@ public class ItemDetailFragment extends Fragment {
         boolean isDistributor = deviceViewModel.getEntityType().getValue().getData().equals("distributor");
         deviceViewModel.getAutoPopulatedDeviceLiveData().observe(getViewLifecycleOwner(), deviceModelResource -> {
             if (deviceModelResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
+                parent.removeLoadingScreen();
                 DeviceModel deviceModel = deviceModelResource.getData();
                 if (deviceModel.getProductions().size() != 0) {
                     DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
@@ -360,6 +364,7 @@ public class ItemDetailFragment extends Fragment {
                     addItemSpecs(specification.getKey(),specification.getValue().toString(),rootView);
                 }
             } else if (deviceModelResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR) {
+                parent.removeLoadingScreen();
                 Snackbar.make(rootView, deviceModelResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
             }
         });
@@ -419,6 +424,7 @@ public class ItemDetailFragment extends Fragment {
             String barcode;
             String pendingDeviceId;
             if ((barcode = getArguments().getString("barcode")) != null) {
+                parent.showLoadingScreen();
                 udiEditText.setText(barcode);
                 deviceViewModel.autoPopulatedScannedBarcode(barcode);
             // this device is a pending device
