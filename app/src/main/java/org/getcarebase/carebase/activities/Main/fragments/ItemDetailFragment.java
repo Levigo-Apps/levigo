@@ -196,10 +196,13 @@ public class ItemDetailFragment extends Fragment {
         // instead of waiting again to get the user again
         deviceViewModel.getUserLiveData().observe(getViewLifecycleOwner(), userResource -> {
             deviceViewModel.setupDeviceRepository();
-            setupOptionFields();
-            setupAutoPopulate();
-            setupSaveDevice();
-            handleArguments();
+            deviceViewModel.setupEntityRepository();
+            deviceViewModel.getEntityType().observe(getViewLifecycleOwner(), entityTypeResource -> {
+                setupOptionFields();
+                setupAutoPopulate();
+                setupSaveDevice();
+                handleArguments();
+            });
         });
 
         // NumberPicker Dialog for NumberAdded field
@@ -314,24 +317,25 @@ public class ItemDetailFragment extends Fragment {
     }
 
     private void setupAutoPopulate() {
+        boolean isDistributor = deviceViewModel.getEntityType().getValue().getData().equals("distributor");
         deviceViewModel.getAutoPopulatedDeviceLiveData().observe(getViewLifecycleOwner(), deviceModelResource -> {
             if (deviceModelResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
                 DeviceModel deviceModel = deviceModelResource.getData();
                 if (deviceModel.getProductions().size() != 0) {
                     DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
                     expiration.setText(deviceProduction.getExpirationDate());
-                    expiration.setEnabled(deviceProduction.getExpirationDate() == null);
+                    expiration.setEnabled(deviceProduction.getExpirationDate() == null || isDistributor);
                     physicalLocation.setText(deviceProduction.getPhysicalLocation());
                     lotNumber.setText(deviceProduction.getLotNumber());
-                    lotNumber.setEnabled(deviceProduction.getLotNumber() == null);
+                    lotNumber.setEnabled(deviceProduction.getLotNumber() == null || isDistributor);
                     referenceNumber.setText(deviceProduction.getReferenceNumber());
-                    referenceNumber.setEnabled(deviceProduction.getReferenceNumber() == null);
+                    referenceNumber.setEnabled(deviceProduction.getReferenceNumber() == null || isDistributor);
                 }
 
                 deviceIdentifier.setText(deviceModel.getDeviceIdentifier());
-                deviceIdentifier.setEnabled(deviceModel.getDeviceIdentifier() == null);
+                deviceIdentifier.setEnabled(deviceModel.getDeviceIdentifier() == null || isDistributor);
                 nameEditText.setText(deviceModel.getName());
-                nameEditText.setEnabled(deviceModel.getName() == null);
+                nameEditText.setEnabled(deviceModel.getName() == null || isDistributor);
                 quantity.setText(Integer.toString(deviceModel.getQuantity()));
                 quantity.setEnabled(false);
                 equipmentType.setText(deviceModel.getEquipmentType());
@@ -346,9 +350,9 @@ public class ItemDetailFragment extends Fragment {
                     multiUse.setChecked(true);
                 }
                 deviceDescription.setText(deviceModel.getDescription());
-                deviceDescription.setEnabled(deviceModel.getDescription() == null);
+                deviceDescription.setEnabled(deviceModel.getDescription() == null || isDistributor);
                 company.setText(deviceModel.getCompany());
-                company.setEnabled(deviceModel.getCompany() == null);
+                company.setEnabled(deviceModel.getCompany() == null || isDistributor);
                 if (numberAdded.getText() == null || numberAdded.getText().toString().trim().isEmpty()) {
                     numberAdded.setText("1");
                 }
