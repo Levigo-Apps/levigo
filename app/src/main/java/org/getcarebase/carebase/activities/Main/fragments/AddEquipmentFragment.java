@@ -110,7 +110,7 @@ public class AddEquipmentFragment extends Fragment {
 
     private void startScanner() {
         Intent intent = new Intent(requireActivity(), CarebaseScanningActivity.class);
-        intent.putExtra("result_code",RESULT_SCANNED);
+        intent.putExtra("device_result_code",RESULT_SCANNED);
         startActivityForResult(intent,RC_SCAN);
     }
 
