@@ -32,6 +32,7 @@ import org.getcarebase.carebase.utils.FirestoreReferences;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -173,7 +174,7 @@ public class DeviceRepository {
 
         // save device production
         DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
-        deviceProduction.setUniqueDeviceIdentifier(cleanBarcode(deviceProduction.getUniqueDeviceIdentifier()));
+        deviceProduction.setUniqueDeviceIdentifier(cleanBarcode(deviceProduction.getUniqueDeviceIdentifier()).replace('/','&'));
         // if udi and di are same we make udi unique so other scans do not overwrite (hibcc)
         if (deviceProduction.getUniqueDeviceIdentifier().equals(deviceModel.getDeviceIdentifier())) {
             String expirationDate = deviceProduction.getExpirationDate();
@@ -216,34 +217,27 @@ public class DeviceRepository {
         String udi = cleanBarcode(temp_udi);
         MutableLiveData<Resource<DeviceModel>> deviceLiveData = new MutableLiveData<>();
         deviceLiveData.setValue(new Resource<>(null, new Request(null,Request.Status.LOADING)));
-        String hibccDi = extractHibcc(udi);
-        if (hibccDi == null) {
-            accessGUDIDAPI.getParseUdiResponse(udi).enqueue(new Callback<ParseUDIResponse>() {
-                @Override
-                public void onResponse(Call<ParseUDIResponse> call, retrofit2.Response<ParseUDIResponse> response) {
-                    String deviceModelId;
-                    String deviceProductionId;
-                    if (response.isSuccessful()) {
-                        deviceModelId = Objects.requireNonNull(response.body()).getDi();
-                        deviceProductionId = response.body().getUdi();
-                    } else {
-                        deviceModelId = udi;
-                        deviceProductionId = udi;
-                    }
-                    getAutoPopulatedDeviceFromFirestore(inventoryReference,deviceModelId,deviceProductionId,deviceLiveData);
+        accessGUDIDAPI.getParseUdiResponse(udi).enqueue(new Callback<ParseUDIResponse>() {
+            @Override
+            public void onResponse(Call<ParseUDIResponse> call, retrofit2.Response<ParseUDIResponse> response) {
+                String deviceModelId;
+                String deviceProductionId;
+                if (response.isSuccessful()) {
+                    deviceModelId = Objects.requireNonNull(response.body()).getDi();
+                    deviceProductionId = response.body().getUdi().replace('/','&');
+                } else {
+                    deviceModelId = udi;
+                    deviceProductionId = udi;
                 }
+                getAutoPopulatedDeviceFromFirestore(inventoryReference,deviceModelId,deviceProductionId,deviceLiveData);
+            }
 
-                @Override
-                public void onFailure(Call<ParseUDIResponse> call, Throwable t) {
-                    Log.e(TAG, "onFailure: ", t);
-                    deviceLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
-                }
-            });
-        } else {
-            // if it is in hibcc format
-            getAutoPopulatedDeviceFromFirestore(inventoryReference,udi,udi,deviceLiveData);
-        }
-
+            @Override
+            public void onFailure(Call<ParseUDIResponse> call, Throwable t) {
+                Log.e(TAG, "onFailure: ", t);
+                deviceLiveData.setValue(new Resource<>(null, new Request(R.string.error_something_wrong, Request.Status.ERROR)));
+            }
+        });
         return deviceLiveData;
     }
     /**
@@ -287,16 +281,6 @@ public class DeviceRepository {
         });
 
         return deviceLiveData;
-    }
-
-    // Removes parentheses from barcode (udi) for uniform structure
-    private String cleanBarcode(final String barcode) {
-        StringBuilder ans = new StringBuilder();
-        for (int i = 0; i < barcode.length(); i++) {
-            char c = barcode.charAt(i);
-            if (c != '(' && c != ')') ans.append(c);
-        }
-        return ans.toString();
     }
 
     /**
@@ -474,22 +458,19 @@ public class DeviceRepository {
             }
         };
 
-        String hibccDi = extractHibcc(udi);
-        if (hibccDi != null) {
-            accessGUDIDAPI.getDIDeviceModel(hibccDi).enqueue(callback);
-        } else {
-            accessGUDIDAPI.getDeviceModel(udi).enqueue(callback);
-        }
+        accessGUDIDAPI.getDeviceModel(udi).enqueue(callback);
 
         return deviceLiveData;
     }
 
-    // removes plus and check character from valid hibcc di
-    // if it is not it will return null
-    public static String extractHibcc(String udi) {
-        if (udi.charAt(0) == '+')
-            return udi.substring(1, udi.length() - 1);
-        return null;
+    // Removes parentheses from barcode (udi) for uniform structure
+    private String cleanBarcode(final String barcode) {
+        StringBuilder ans = new StringBuilder();
+        for (int i = 0; i < barcode.length(); i++) {
+            char c = barcode.charAt(i);
+            if (c != '(' && c != ')') ans.append(c);
+        }
+        return ans.toString();
     }
 
  }
