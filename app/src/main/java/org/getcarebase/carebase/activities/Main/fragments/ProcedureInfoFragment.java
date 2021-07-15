@@ -53,7 +53,7 @@ public class ProcedureInfoFragment extends Fragment {
     private TextInputEditText timeInEditText;
     private TextInputEditText timeOutEditText;
     private TextInputEditText roomTimeEditText;
-    private TextInputEditText fluoroTimeEditText;
+    private EditText fluoroTimeEditText;
     private TextInputEditText accessionNumberEditText;
 
     Calendar myCalendar;

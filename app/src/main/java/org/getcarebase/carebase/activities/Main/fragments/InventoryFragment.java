@@ -121,7 +121,7 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
 
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .setCustomAnimations(R.anim.fragment_fade_enter, R.anim.fragment_fade_exit)
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                 .add(R.id.activity_main, fragment, ModelListFragment.TAG)
                 .addToBackStack(null)
                 .commit();

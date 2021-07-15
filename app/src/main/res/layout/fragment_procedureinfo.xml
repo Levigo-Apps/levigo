@@ -158,11 +158,12 @@
                     app:boxStrokeColor="@color/colorPrimary"
                     app:suffixText="mm:ss">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <com.vicmikhailau.maskededittext.MaskedEditText
                         android:id="@+id/procedure_fluoroTime"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:inputType="time" />
+                        android:inputType="time"
+                        app:mask="##:##"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
 
