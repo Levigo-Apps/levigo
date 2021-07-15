@@ -95,25 +95,11 @@
                 app:label_text="Quantity" />
 
             <org.getcarebase.carebase.views.DetailLabeledTextView
-                android:id="@+id/physicallocation_edittext"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                app:label_text="Location" />
-
-            <org.getcarebase.carebase.views.DetailLabeledTextView
                 android:id="@+id/expiration_edittext"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
                 app:label_text="Expiration" />
-
-            <org.getcarebase.carebase.views.DetailLabeledTextView
-                android:id="@+id/usage_edittext"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                app:label_text="Use" />
 
 <!--            <org.getcarebase.carebase.views.DetailLabeledTextView-->
 <!--                android:id="@+id/unitcost_edittext"-->
@@ -127,7 +113,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                app:label_text="Manufacture" />
+                app:label_text="Manufacturer" />
 
             <org.getcarebase.carebase.views.DetailLabeledTextView
                 android:id="@+id/lotnumber_edittext"
@@ -197,22 +183,14 @@
             android:layout_marginVertical="12dp"
             android:background="@color/colorLightGrey"/>
 
-        <GridLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp"
-            android:columnCount="2"
-            android:rowCount="5"
-            android:useDefaultMargins="true">
 
         <org.getcarebase.carebase.views.DetailLabeledTextView
             android:id="@+id/lasteupdate_edittext"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
             app:label_text="Updated" />
-        </GridLayout>
+
     </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

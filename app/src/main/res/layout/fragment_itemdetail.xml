@@ -130,27 +130,6 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <LinearLayout
-                    android:id="@+id/physicalLocationLinearLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense.ExposedDropdownMenu"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/physical_location_lbl"
-                        app:boxStrokeColor="@color/colorPrimary">
-
-                        <AutoCompleteTextView
-                            android:id="@+id/detail_physical_location"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:completionThreshold="1"
-                            android:background="@color/filledBoxBackground"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-
-                <LinearLayout
                     android:id="@+id/typeLinearLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -189,27 +168,6 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
-
-                <RadioGroup
-                    android:id="@+id/RadioGroup_id"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/RadioButton_single"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/SingleUse_lbl"
-                        android:textColor="@android:color/black" />
-
-                    <RadioButton
-                        android:id="@+id/radio_multiuse"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/reusable_lbl"
-                        android:textColor="@android:color/black" />
-                </RadioGroup>
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"

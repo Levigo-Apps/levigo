@@ -218,7 +218,6 @@ public class ShipmentRepository {
                     destinationEntityReference.update("device_types", FieldValue.arrayUnion(sourceDeviceModel.getEquipmentType()));
 
                     DeviceProduction sourceDeviceProduction = sourceDeviceModel.getProductions().get(0);
-                    sourceDeviceProduction.setPhysicalLocation(physicalLocation);
                     if (destinationDeviceProductionMap.containsKey(udi)) {
                         // increment quantity
                         DeviceProduction destinationDeviceProduction = Objects.requireNonNull(destinationDeviceProductionMap.get(udi));
