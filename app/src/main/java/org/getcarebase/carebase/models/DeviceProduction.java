@@ -20,7 +20,6 @@ public class DeviceProduction {
     private String expirationDate;
     private String lotNumber;
     private String notes;
-    private String physicalLocation;
     private int quantity;
     private String referenceNumber;
     private final List<Cost> costs = new ArrayList<>();
@@ -57,10 +56,6 @@ public class DeviceProduction {
         this.notes = notes;
     }
 
-    public void setPhysicalLocation(String physicalLocation) {
-        this.physicalLocation = physicalLocation;
-    }
-
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
@@ -92,7 +87,6 @@ public class DeviceProduction {
         this.expirationDate = (String) data.get("expiration");
         this.lotNumber = (String) data.get("lot_number");
         this.notes = (String) data.get("notes");
-        this.physicalLocation = (String) data.get("physical_location");
         try {
             this.quantity = Integer.parseInt((String) data.get("quantity"));
         } catch(ClassCastException e) {
@@ -109,7 +103,6 @@ public class DeviceProduction {
         map.put("expiration",expirationDate);
         map.put("lot_number",lotNumber);
         map.put("notes",notes);
-        map.put("physical_location",physicalLocation);
         map.put("quantity", FieldValue.increment(quantity));
         map.put("reference_number",referenceNumber);
         return map;
@@ -138,10 +131,6 @@ public class DeviceProduction {
     @PropertyName("notes")
     public String getNotes() {
         return notes;
-    }
-    @PropertyName("physical_location")
-    public String getPhysicalLocation() {
-        return physicalLocation;
     }
     @Exclude
     public String getStringQuantity() {

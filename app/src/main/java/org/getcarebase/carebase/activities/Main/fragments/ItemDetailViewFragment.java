@@ -40,9 +40,7 @@ public class ItemDetailViewFragment extends Fragment {
     private DetailLabeledTextView deviceIdentifier;
     private DetailLabeledTextView quantity;
     private DetailLabeledTextView expiration;
-    private DetailLabeledTextView physicalLocation;
     private DetailLabeledTextView type;
-    private DetailLabeledTextView usage;
     private DetailLabeledTextView referenceNumber;
     private DetailLabeledTextView lotNumber;
     private DetailLabeledTextView manufacturer;
@@ -64,9 +62,7 @@ public class ItemDetailViewFragment extends Fragment {
         deviceIdentifier = rootView.findViewById(R.id.di_edittext);
         quantity = rootView.findViewById(R.id.quantity_edittext);
         expiration = rootView.findViewById(R.id.expiration_edittext);
-        physicalLocation = rootView.findViewById(R.id.physicallocation_edittext);
         type = rootView.findViewById(R.id.type_edittext);
-        usage = rootView.findViewById(R.id.usage_edittext);
         referenceNumber = rootView.findViewById(R.id.referencenumber_edittext);
         lotNumber = rootView.findViewById(R.id.lotnumber_edittext);
         manufacturer = rootView.findViewById(R.id.company_edittext);
@@ -87,8 +83,6 @@ public class ItemDetailViewFragment extends Fragment {
                 DeviceModel deviceModel = resourceData.getData();
 
                 type.setTextValue(deviceModel.getEquipmentType());
-                String usageStr = deviceModel.getUsage();
-                usage.setTextValue(usageStr);
                 deviceDescription.setTextValue(deviceModel.getDescription());
                 deviceIdentifier.setTextValue(deviceModel.getDeviceIdentifier());
                 itemName.setText(deviceModel.getName());
@@ -103,7 +97,6 @@ public class ItemDetailViewFragment extends Fragment {
                 DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
                 expiration.setTextValue(deviceProduction.getExpirationDate());
                 lotNumber.setTextValue(deviceProduction.getLotNumber());
-                physicalLocation.setTextValue(deviceProduction.getPhysicalLocation());
                 itemQuantity = deviceProduction.getStringQuantity();
                 quantity.setTextValue(itemQuantity);
                 currentDate = deviceProduction.getDateAdded();

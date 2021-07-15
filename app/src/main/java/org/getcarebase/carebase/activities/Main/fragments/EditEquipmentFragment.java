@@ -74,9 +74,6 @@ public class EditEquipmentFragment extends Fragment {
     private TextInputEditText quantity;
     private TextInputEditText lotNumber;
     private TextInputEditText expiration;
-    private TextInputEditText usageEditText;
-//    private AutoCompleteTextView physicalLocation;
-    private TextInputEditText physicalLocation;
     private TextInputEditText company;
 //    private AutoCompleteTextView equipmentType;
     private TextInputEditText updateDateEditText;
@@ -89,33 +86,6 @@ public class EditEquipmentFragment extends Fragment {
 
     private int modelQuantityBeforeEdit;
     private int productionQuantityBeforeEdit;
-
-    private final List<String> PHYSICAL_LOCATIONS = Arrays.asList(
-            "Box - Central Lines",
-            "Box - Picc Lines",
-            "Box - Tunnels/ports",
-            "Box - Short Wires",
-            "Box - Perma dialysis",
-            "Box - Triple lumen dialysis",
-            "Box - Other permacath",
-            "Box - Microcath",
-            "Box - Biopsy",
-            "Cabinet 1",
-            "Cabinet 2",
-            "Cabinet 3",
-            "Hanger - drainage cath",
-            "Hanger - Nephrostemy",
-            "Hanger - Misc catheters",
-            "Hanger - 4 french catheters",
-            "Hanger - 5 french catheters",
-            "Hanger - Kumpe - 5 french",
-            "Hanger - Drainage tube",
-            "Hanger - Biliary catheters",
-            "Hanger - Specialized sheaths/introducers",
-            "Shelf - G J Tube",
-            "Shelf - Lung Biopsy, Flesh Kit",
-            "Shelf - Micropuncture sets/Wires",
-            "Other");
 
     private DeviceViewModel deviceViewModel;
     private View rootView;
@@ -137,8 +107,6 @@ public class EditEquipmentFragment extends Fragment {
         quantity = rootView.findViewById(R.id.detail_quantity);
         lotNumber = rootView.findViewById(R.id.detail_lot_number);
         expiration = rootView.findViewById(R.id.detail_expiration_date);
-        usageEditText = rootView.findViewById(R.id.detail_usage);
-        physicalLocation = rootView.findViewById(R.id.detail_physical_location);
         company = rootView.findViewById(R.id.detail_company);
         updateDateEditText = rootView.findViewById(R.id.detail_update_date);
         updateTimeEditText = rootView.findViewById(R.id.detail_update_time);
@@ -163,9 +131,7 @@ public class EditEquipmentFragment extends Fragment {
                 subTypeTextView.setText(deviceModel.getSubType());
                 subTypeLayout.setVisibility(View.VISIBLE);
             }
-            deviceIdentifier.setText(deviceModel.getDeviceIdentifier());
-            String usageStr = deviceModel.getUsage();
-            usageEditText.setText(usageStr);
+            deviceIdentifier.setText(deviceModel.getDeviceIdentifier());;
             company.setText(deviceModel.getCompany());
             modelQuantityBeforeEdit = deviceModel.getQuantity();
 
@@ -175,7 +141,6 @@ public class EditEquipmentFragment extends Fragment {
             quantity.setText(deviceProduction.getStringQuantity());
             lotNumber.setText(deviceProduction.getLotNumber());
             expiration.setText(deviceProduction.getExpirationDate());
-            physicalLocation.setText(deviceProduction.getPhysicalLocation());
             currentDate = deviceProduction.getDateAdded();
             currentTime = deviceProduction.getTimeAdded();
             updateDateEditText.setText(currentDate);
@@ -185,8 +150,6 @@ public class EditEquipmentFragment extends Fragment {
             deviceIdentifier.setEnabled(deviceModel.getDeviceIdentifier() == null);
             lotNumber.setEnabled(deviceProduction.getLotNumber() == null);
             expiration.setEnabled(deviceProduction.getExpirationDate() == null);
-            usageEditText.setEnabled(deviceModel.getUsage() == null);
-            physicalLocation.setEnabled(deviceProduction.getPhysicalLocation() == null);
             company.setEnabled(deviceModel.getCompany() == null);
             updateDateEditText.setEnabled(false);
             updateTimeEditText.setEnabled(false);
@@ -274,7 +237,7 @@ public class EditEquipmentFragment extends Fragment {
         boolean isValid = true;
 
         List<EditText> requiredEditTexts = new ArrayList<>(Arrays.asList(udiEditText, nameEditText, deviceIdentifier,
-                quantity, expiration, usageEditText, physicalLocation, company,
+                quantity, expiration, company,
                 equipmentType));
         for (EditText editText : requiredEditTexts) {
             if (editText.getText().toString().trim().isEmpty()) {
@@ -304,13 +267,11 @@ public class EditEquipmentFragment extends Fragment {
             int currentProductionQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
             int quantityDifference = currentProductionQuantity - productionQuantityBeforeEdit;
             deviceModel.setQuantity(modelQuantityBeforeEdit+quantityDifference);
-            deviceModel.setUsage(usageEditText.getText().toString().trim());
 
             DeviceProduction deviceProduction = new DeviceProduction();
             deviceProduction.setUniqueDeviceIdentifier(Objects.requireNonNull(udiEditText.getText()).toString().trim());
             deviceProduction.setExpirationDate(Objects.requireNonNull(expiration.getText()).toString().trim());
             deviceProduction.setLotNumber(Objects.requireNonNull(lotNumber.getText()).toString().trim());
-            deviceProduction.setPhysicalLocation(physicalLocation.getText().toString().trim());
             // set to number difference because FieldValue.increment() is used in DeviceProduction toMap()
             deviceProduction.setQuantity(quantityDifference);
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);

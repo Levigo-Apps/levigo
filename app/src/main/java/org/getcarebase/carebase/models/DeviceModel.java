@@ -17,7 +17,6 @@ public class DeviceModel implements Serializable {
     private String description;
     private String equipmentType;
     private String subType;
-    private String usage;
     private int quantity;
     private final List<DeviceProduction> productions = new ArrayList<>();
     private final Map<String, Object> specifications = new HashMap<String, Object>();
@@ -50,10 +49,6 @@ public class DeviceModel implements Serializable {
 
     public void setSubType(String subType) {
         this.subType = subType;
-    }
-
-    public void setUsage(String usage) {
-        this.usage = usage;
     }
 
     public void setQuantity(int quantity) {
@@ -90,10 +85,6 @@ public class DeviceModel implements Serializable {
 
     public String getSubType() { return subType; }
 
-    public String getUsage() {
-        return usage;
-    }
-
     public int getQuantity() {
         return quantity;
     }
@@ -123,8 +114,10 @@ public class DeviceModel implements Serializable {
         data.remove("site_name");
         this.subType = (String) data.get("sub_type");
         data.remove("sub_type");
-        this.usage = (String) data.get("usage");
+        // DEPRECIATED
         data.remove("usage");
+        // DEPRECIATED
+        data.remove("physical_location");
         try {
             this.quantity = Integer.parseInt((String) data.get("quantity"));
         } catch(ClassCastException e) {
@@ -143,9 +136,7 @@ public class DeviceModel implements Serializable {
         map.put("equipment_type",equipmentType);
         map.put("sub_type",subType);
         map.put("name",name);
-//        map.put("quantity",Integer.toString(quantity));
         map.put("quantity",quantity);
-        map.put("usage",usage);
         map.putAll(specifications);
         return map;
     }

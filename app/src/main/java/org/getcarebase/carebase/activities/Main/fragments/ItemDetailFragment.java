@@ -77,16 +77,6 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class ItemDetailFragment extends Fragment {
-
-    private String mNetworkId;
-    private String mHospitalId;
-    private String mUser;
-    private String mHospitalName;
-
-    // Firebase database
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final CollectionReference usersRef = db.collection("users");
-
     private static final String TAG = ItemDetailFragment.class.getSimpleName();
     private MainActivity parent;
     private Calendar myCalendar;
@@ -104,7 +94,6 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText quantity;
     private TextInputEditText lotNumber;
     private TextInputEditText referenceNumber;
-    private AutoCompleteTextView physicalLocation;
     private TextInputEditText numberAdded;
     private TextView specsTextView;
     private LinearLayout linearLayout;
@@ -112,31 +101,11 @@ public class ItemDetailFragment extends Fragment {
 
     private Button saveButton;
     private MaterialButton removeSizeButton;
-    private RadioGroup useRadioGroup;
-    private RadioButton singleUseButton;
-    private RadioButton multiUse;
     private Button addSizeButton;
 
-    private String itemQuantity = "0";
-    private String diQuantity = "0";
     private int emptySizeFieldCounter = 0;
-    private int typeCounter;
-    private int siteCounter;
-    private int locCounter;
-    private boolean chosenType;
-    private boolean chosenLocation;
     private boolean isAddSizeButtonClicked;
-    private boolean chosenSite;
-    private boolean checkEditTexts;
-    private boolean checkAutocompleteTexts;
-    private boolean isProcedureInfoReturned;
-    private boolean isUdisReturned;
-    private boolean editingExisting;
-    private boolean isDi;
     private List<TextInputEditText> allSizeOptions;
-
-    private LinearLayout physicalLocationConstrainLayout;
-    private LinearLayout typeConstrainLayout;
 
     private float dp;
 
@@ -159,7 +128,6 @@ public class ItemDetailFragment extends Fragment {
         subTypeLayout = rootView.findViewById(R.id.detail_subtype_layout);
         company = rootView.findViewById(R.id.detail_company);
         expiration = rootView.findViewById(R.id.detail_expiration_date);
-        physicalLocation = rootView.findViewById(R.id.detail_physical_location);
         lotNumber = rootView.findViewById(R.id.detail_lot_number);
         referenceNumber = rootView.findViewById(R.id.detail_reference_number);
         numberAdded = rootView.findViewById(R.id.detail_number_added);
@@ -170,24 +138,10 @@ public class ItemDetailFragment extends Fragment {
         saveButton = rootView.findViewById(R.id.detail_save_button);
         Button rescanButton = rootView.findViewById(R.id.detail_rescan_button);
         final Button autoPopulateButton = rootView.findViewById(R.id.detail_autopop_button);
-        useRadioGroup = rootView.findViewById(R.id.RadioGroup_id);
-        singleUseButton = rootView.findViewById(R.id.RadioButton_single);
-        singleUseButton.setChecked(true);
-        multiUse = rootView.findViewById(R.id.radio_multiuse);
         TextInputLayout numberAddedLayout = rootView.findViewById(R.id.numberAddedLayout);
         MaterialToolbar topToolBar = rootView.findViewById(R.id.topAppBar);
 //        costEditText = rootView.findViewById(R.id.detail_equipment_cost);
-        physicalLocationConstrainLayout = rootView.findViewById(R.id.physicalLocationLinearLayout);
-        typeConstrainLayout = rootView.findViewById(R.id.typeLinearLayout);
-        chosenType = false;
-        chosenSite = false;
-        isProcedureInfoReturned = false;
-        chosenLocation = false;
-        checkAutocompleteTexts = false;
-        checkEditTexts = false;
-        isUdisReturned = false;
         isAddSizeButtonClicked = true;
-        editingExisting = false;
         addSizeButton = rootView.findViewById(R.id.button_addsize);
         specsTextView = rootView.findViewById(R.id.detail_specs_textview);
         allSizeOptions = new ArrayList<>();
@@ -329,7 +283,6 @@ public class ItemDetailFragment extends Fragment {
                     DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
                     expiration.setText(deviceProduction.getExpirationDate());
                     expiration.setEnabled(deviceProduction.getExpirationDate() == null || isDistributor);
-                    physicalLocation.setText(deviceProduction.getPhysicalLocation());
                     lotNumber.setText(deviceProduction.getLotNumber());
                     lotNumber.setEnabled(deviceProduction.getLotNumber() == null || isDistributor);
                     referenceNumber.setText(deviceProduction.getReferenceNumber());
@@ -346,12 +299,6 @@ public class ItemDetailFragment extends Fragment {
                 if (deviceModel.getSubType() != null) {
                     subTypeLayout.setVisibility(View.VISIBLE);
                     subTypeTextView.setText(deviceModel.getSubType());
-                }
-                if (deviceModel.getUsage() != null && deviceModel.getUsage().equals("Single Use")) {
-                    singleUseButton.setChecked(true);
-                }
-                else if (deviceModel.getUsage() != null && deviceModel.getUsage().equals("Reusable")){
-                    multiUse.setChecked(true);
                 }
                 deviceDescription.setText(deviceModel.getDescription());
                 deviceDescription.setEnabled(deviceModel.getDescription() == null || isDistributor);
@@ -398,20 +345,6 @@ public class ItemDetailFragment extends Fragment {
             subTypeTextView.setText("",false);
         });
 
-        // set up physical locations
-        final ArrayAdapter<String> physicalLocationsAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
-        deviceViewModel.getPhysicalLocationsLiveData().observe(getViewLifecycleOwner(), physicalLocationsResource -> {
-            if(physicalLocationsResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS) {
-                physicalLocationsAdapter.clear();
-                physicalLocationsAdapter.addAll(Arrays.asList(physicalLocationsResource.getData()));
-            } else {
-                Log.d(TAG,"Unable to fetch physical locations");
-                Snackbar.make(rootView, R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
-            }
-        });
-        physicalLocation.setAdapter(physicalLocationsAdapter);
-        physicalLocation.setOnItemClickListener((adapterView, view, position, id) -> addNewLoc(adapterView, view, position));
-
         deviceViewModel.getSavePhysicalLocationRequestLiveData().observe(getViewLifecycleOwner(),request -> {
             if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS || request.getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR) {
                 Snackbar.make(rootView, request.getResourceString(), Snackbar.LENGTH_LONG).show();
@@ -448,7 +381,6 @@ public class ItemDetailFragment extends Fragment {
     private void setPendingDataFields(PendingDevice pendingDevice) {
         udiEditText.setText(pendingDevice.getUniqueDeviceIdentifier());
         numberAdded.setText(pendingDevice.getQuantity());
-        physicalLocation.setText(pendingDevice.getPhysicalLocation());
     }
 
     // not in mvvm style - need to use data bindings
@@ -457,7 +389,7 @@ public class ItemDetailFragment extends Fragment {
         boolean isValid = true;
 
         List<EditText> requiredEditTexts = new ArrayList<>(allSizeOptions);
-        requiredEditTexts.addAll(Arrays.asList(udiEditText, deviceIdentifier, nameEditText, expiration, physicalLocation, equipmentType, company, numberAdded));
+        requiredEditTexts.addAll(Arrays.asList(udiEditText, deviceIdentifier, nameEditText, expiration, equipmentType, company, numberAdded));
         if (subTypeLayout.getVisibility() == View.VISIBLE) {
             requiredEditTexts.add(subTypeTextView);
         }
@@ -488,10 +420,6 @@ public class ItemDetailFragment extends Fragment {
             if (subTypeTextView.getVisibility() == View.VISIBLE) {
                 deviceModel.setSubType(subTypeTextView.getText().toString().trim());
             }
-            int radioButtonInt = useRadioGroup.getCheckedRadioButtonId();
-            final RadioButton radioButton = rootView.findViewById(radioButtonInt);
-            final String usage = radioButton.getText().toString();
-            deviceModel.setUsage(usage);
             int currentQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
             int amount = Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
             deviceModel.setQuantity(currentQuantity + amount);
@@ -513,7 +441,6 @@ public class ItemDetailFragment extends Fragment {
             deviceProduction.setTimeAdded(timeFormat.format((new Date())));
             deviceProduction.setExpirationDate(Objects.requireNonNull(expiration.getText()).toString().trim());
             deviceProduction.setLotNumber(Objects.requireNonNull(lotNumber.getText()).toString().trim());
-            deviceProduction.setPhysicalLocation(physicalLocation.getText().toString().trim());
             deviceProduction.setQuantity(amount);
             deviceModel.addDeviceProduction(deviceProduction);
 
@@ -669,55 +596,6 @@ public class ItemDetailFragment extends Fragment {
         allSizeOptions.add(sizeValue);
         linearLayout.addView(layoutSize, (rowLoc++) + linearLayout.indexOfChild(specsTextView));
         rowIndex++;
-    }
-
-    private void addNewLoc(final AdapterView<?> adapterView, View view, int i) {
-        String selected = (String) adapterView.getItemAtPosition(i);
-        final TextInputLayout otherPhysicalLocationLayout;
-        if (selected.equals("Other")) {
-            saveButton.setEnabled(false);
-            chosenLocation = true;
-            otherPhysicalLocationLayout = (TextInputLayout) View.inflate(view.getContext(), R.layout.activity_itemdetail_materialcomponent, null);
-            otherPhysicalLocationLayout.setHint("Enter physical location");
-            otherPhysicalLocationLayout.setGravity(Gravity.END);
-            otherPhysicalLocationLayout.setId(View.generateViewId());
-            EditText otherPhysicalLocationEditText = new TextInputEditText(otherPhysicalLocationLayout.getContext());
-            otherPhysicalLocationEditText.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(), WRAP_CONTENT));
-            otherPhysicalLocationLayout.addView(otherPhysicalLocationEditText);
-            linearLayout.addView(otherPhysicalLocationLayout, 1 + linearLayout.indexOfChild(physicalLocationConstrainLayout));
-
-            MaterialButton submitPhysicalLocationButton = new MaterialButton(view.getContext(), null, R.attr.materialButtonOutlinedStyle);
-            submitPhysicalLocationButton.setText(R.string.submitLocation_lbl);
-            submitPhysicalLocationButton.setLayoutParams(new LinearLayout.LayoutParams(udiEditText.getWidth(),
-                    WRAP_CONTENT));
-            otherPhysicalLocationLayout.addView(submitPhysicalLocationButton);
-            TextWatcher physicalLocationWatcher = new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    if (!(editable.toString().trim().isEmpty())) {
-                       submitPhysicalLocationButton.setEnabled(true);
-                    }
-                }
-            };
-            otherPhysicalLocationEditText.addTextChangedListener(physicalLocationWatcher);
-
-            submitPhysicalLocationButton.setOnClickListener(submitPhysicalLocationView -> {
-                hideKeyboard();
-                deviceViewModel.savePhysicalLocation(Objects.requireNonNull(otherPhysicalLocationEditText.getText()).toString().trim());
-                saveButton.setEnabled(true);
-            });
-
-        } else if (chosenLocation) {
-            saveButton.setEnabled(true);
-            chosenLocation = false;
-            linearLayout.removeViewAt(1 + linearLayout.indexOfChild(physicalLocationConstrainLayout));
-        }
     }
 
     private void saveData() {
