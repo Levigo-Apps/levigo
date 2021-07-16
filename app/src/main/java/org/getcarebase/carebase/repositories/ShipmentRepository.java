@@ -204,7 +204,6 @@ public class ShipmentRepository {
                     int units = Integer.parseInt(shipmentItem.get("quantity"));
                     String physicalLocation = shipmentItem.get("physical_location");
 
-
                     DeviceModel sourceDeviceModel = sourceDevices.get(i);
                     if (destinationDeviceModelMap.containsKey(di)) {
                         // increment quantity

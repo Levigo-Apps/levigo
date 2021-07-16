@@ -105,6 +105,7 @@ public class DeviceProduction {
         map.put("notes",notes);
         map.put("quantity", FieldValue.increment(quantity));
         map.put("reference_number",referenceNumber);
+        map.put("physical_location","");
         return map;
     }
 

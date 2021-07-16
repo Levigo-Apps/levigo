@@ -116,8 +116,6 @@ public class DeviceModel implements Serializable {
         data.remove("sub_type");
         // DEPRECIATED
         data.remove("usage");
-        // DEPRECIATED
-        data.remove("physical_location");
         try {
             this.quantity = Integer.parseInt((String) data.get("quantity"));
         } catch(ClassCastException e) {

@@ -69,7 +69,6 @@ public class AddShipmentFragment extends Fragment {
            deviceViewModel.setupDeviceRepository();
            deviceViewModel.setupEntityRepository();
            deviceViewModel.getShipment(shipment_id).observe(getViewLifecycleOwner(),this::loadShipment);
-           deviceViewModel.getPhysicalLocationsLiveData().observe(getViewLifecycleOwner(),this::loadPhysicalLocations);
            saveButton.setEnabled(true);
        });
 
@@ -85,16 +84,16 @@ public class AddShipmentFragment extends Fragment {
        return rootView;
     }
 
-    private void loadPhysicalLocations(Resource<String[]> physicalLocationsResource) {
-        if (physicalLocationsResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-            List<String> physicalLocations = Arrays.asList(physicalLocationsResource.getData());
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),R.layout.dropdown_menu_popup_item,physicalLocations);
-            shipmentAdapter.setPhysicalLocationAdapter(adapter);
-            shipmentAdapter.notifyDataSetChanged();
-        } else if (physicalLocationsResource.getRequest().getStatus() == Request.Status.ERROR) {
-            Snackbar.make(rootView,physicalLocationsResource.getRequest().getResourceString(),Snackbar.LENGTH_LONG).show();
-        }
-    }
+//    private void loadPhysicalLocations(Resource<String[]> physicalLocationsResource) {
+//        if (physicalLocationsResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+//            List<String> physicalLocations = Arrays.asList(physicalLocationsResource.getData());
+//            ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),R.layout.dropdown_menu_popup_item,physicalLocations);
+//            shipmentAdapter.setPhysicalLocationAdapter(adapter);
+//            shipmentAdapter.notifyDataSetChanged();
+//        } else if (physicalLocationsResource.getRequest().getStatus() == Request.Status.ERROR) {
+//            Snackbar.make(rootView,physicalLocationsResource.getRequest().getResourceString(),Snackbar.LENGTH_LONG).show();
+//        }
+//    }
 
     private void loadShipment(Resource<Shipment> shipmentResource) {
         if (shipmentResource.getRequest().getStatus() == Request.Status.SUCCESS){
@@ -116,12 +115,12 @@ public class AddShipmentFragment extends Fragment {
 
     private void saveReceiveShipment() {
         // check if all physical locations are set
-        for (Map<String,String> item : shipmentAdapter.getItems()) {
-            if (!item.containsKey("physical_location")) {
-                Snackbar.make(rootView,"Set the physical location for each device", Snackbar.LENGTH_LONG).show();
-                return;
-            }
-        }
+//        for (Map<String,String> item : shipmentAdapter.getItems()) {
+//            if (!item.containsKey("physical_location")) {
+//                Snackbar.make(rootView,"Set the physical location for each device", Snackbar.LENGTH_LONG).show();
+//                return;
+//            }
+//        }
 
         deviceViewModel.receiveShipment(shipmentAdapter.getItems());
     }
