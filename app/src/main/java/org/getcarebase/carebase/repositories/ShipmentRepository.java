@@ -204,7 +204,6 @@ public class ShipmentRepository {
                     int units = Integer.parseInt(shipmentItem.get("quantity"));
                     String physicalLocation = shipmentItem.get("physical_location");
 
-
                     DeviceModel sourceDeviceModel = sourceDevices.get(i);
                     if (destinationDeviceModelMap.containsKey(di)) {
                         // increment quantity
@@ -218,7 +217,6 @@ public class ShipmentRepository {
                     destinationEntityReference.update("device_types", FieldValue.arrayUnion(sourceDeviceModel.getEquipmentType()));
 
                     DeviceProduction sourceDeviceProduction = sourceDeviceModel.getProductions().get(0);
-                    sourceDeviceProduction.setPhysicalLocation(physicalLocation);
                     if (destinationDeviceProductionMap.containsKey(udi)) {
                         // increment quantity
                         DeviceProduction destinationDeviceProduction = Objects.requireNonNull(destinationDeviceProductionMap.get(udi));

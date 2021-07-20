@@ -31,7 +31,7 @@ public class AddShipmentAdapter extends RecyclerView.Adapter<AddShipmentAdapter.
             nameView = view.findViewById(R.id.name_text_view);
             udiView = view.findViewById(R.id.udi_text_view);
             countView = view.findViewById(R.id.count_text_view);
-            physicalLocationTextView = view.findViewById(R.id.detail_physical_location);
+//            physicalLocationTextView = view.findViewById(R.id.detail_physical_location);
         }
     }
 
@@ -66,17 +66,18 @@ public class AddShipmentAdapter extends RecyclerView.Adapter<AddShipmentAdapter.
         holder.nameView.setText(item.get("name"));
         holder.udiView.setText(item.get("udi"));
         holder.countView.setText(item.get("quantity"));
-        String physicalLocation = items.get(position).getOrDefault("physical_location","");
-        holder.physicalLocationTextView.setText(physicalLocation);
-        holder.physicalLocationTextView.setAdapter(physicalLocationAdapter);
-        holder.physicalLocationTextView.setOnItemClickListener((adapterView, view, i, l) -> {
-            String selected = (String) adapterView.getItemAtPosition(i);
-            items.get(position).put("physical_location",selected);
-        });
+//        String physicalLocation = items.get(position).getOrDefault("physical_location","");
+//        holder.physicalLocationTextView.setText(physicalLocation);
+//        holder.physicalLocationTextView.setAdapter(physicalLocationAdapter);
+//        holder.physicalLocationTextView.setOnItemClickListener((adapterView, view, i, l) -> {
+//            String selected = (String) adapterView.getItemAtPosition(i);
+//            items.get(position).put("physical_location",selected);
+//        });
     }
 
     @Override
     public int getItemCount() {
-        return (items == null || physicalLocationAdapter == null) ? 0 : items.size();
+//        return (items == null || physicalLocationAdapter == null) ? 0 : items.size();
+        return items == null ? 0 : items.size();
     }
 }
