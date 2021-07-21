@@ -42,7 +42,6 @@ public class ModelListFragment extends Fragment {
 
     private View rootView;
     private RecyclerView modelListRecyclerView;
-    private AutoCompleteTextView subcategories;
     private TextInputLayout filterLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
     private DeviceModelsAdapter deviceModelsAdapter;
@@ -53,12 +52,9 @@ public class ModelListFragment extends Fragment {
 
     private InventoryViewModel inventoryViewModel;
 
-    private List<String> SUBCATEGORIES;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_model_list, container, false);
-        subcategories = rootView.findViewById(R.id.type_subcategories);
         filterLayout = rootView.findViewById(R.id.filter_layout);
         modelListRecyclerView = rootView.findViewById(R.id.types_dis);
         swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_model_list);
@@ -86,8 +82,6 @@ public class ModelListFragment extends Fragment {
         inventoryViewModel = new ViewModelProvider(requireActivity()).get(InventoryViewModel.class);
         initModelList();
 
-        setupFilter();
-
         // on refresh update inventory
         swipeRefreshLayout.setOnRefreshListener(() -> swipeRefresh());
 
@@ -98,37 +92,6 @@ public class ModelListFragment extends Fragment {
 
     private void swipeRefresh() {
         inventoryViewModel.loadDeviceModel(type);
-        subcategories.setText("All", false);
-    }
-
-    /**
-     * sets up the option fields such as device type, site, and physical location
-     */
-    private void setupFilter() {
-        SUBCATEGORIES = DeviceRepository.getDeviceTypeOptions().get(type);
-        // Display filter dropdown only if subcategories is nonnull
-        if (SUBCATEGORIES == null) {
-            filterLayout.setVisibility(View.GONE);
-        } else {
-            subcategories.setCursorVisible(false);
-            List<String> AllSubcategories = new ArrayList<>();
-            AllSubcategories.add("All");
-            AllSubcategories.addAll(SUBCATEGORIES);
-            subcategories.setText(AllSubcategories.get(0), false);
-            // set up device subcategories
-            final ArrayAdapter<String> subcategoryAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
-            subcategoryAdapter.addAll(AllSubcategories);
-            subcategories.setAdapter(subcategoryAdapter);
-
-            subcategories.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view,
-                                        int position, long id) {
-                    // filter logic
-                    deviceModelsAdapter.filterSubtype(subcategoryAdapter.getItem(position));
-                }
-            });
-        }
     }
 
     private void initModelList() {

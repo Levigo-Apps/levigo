@@ -15,8 +15,10 @@ public class DeviceModel implements Serializable {
     private String name;
     private String company;
     private String description;
+    // fda product code classification
+    private String productCode;
     private String equipmentType;
-    private String subType;
+    private List<String> tags;
     private int quantity;
     private final List<DeviceProduction> productions = new ArrayList<>();
     private final Map<String, Object> specifications = new HashMap<String, Object>();
@@ -43,12 +45,16 @@ public class DeviceModel implements Serializable {
         this.description = description;
     }
 
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
+    }
+
     public void setEquipmentType(String equipmentType) {
         this.equipmentType = equipmentType;
     }
 
-    public void setSubType(String subType) {
-        this.subType = subType;
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 
     public void setQuantity(int quantity) {
@@ -79,11 +85,15 @@ public class DeviceModel implements Serializable {
         return description;
     }
 
+    public String getProductCode() {
+        return productCode;
+    }
+
     public String getEquipmentType() {
         return equipmentType;
     }
 
-    public String getSubType() { return subType; }
+    public List<String> getTags() { return tags; }
 
     public int getQuantity() {
         return quantity;
@@ -108,14 +118,16 @@ public class DeviceModel implements Serializable {
         data.remove("device_description");
         this.equipmentType = (String) data.get("equipment_type");
         data.remove("equipment_type");
+        this.tags = (List<String>) data.get("tags");
+        data.remove("tags");
         // DEPRECIATED
         data.remove("medical_specialty");
         // DEPRECIATED
         data.remove("site_name");
-        this.subType = (String) data.get("sub_type");
-        data.remove("sub_type");
         // DEPRECIATED
         data.remove("usage");
+        // DEPRECIATED
+        data.remove("sub_type");
         try {
             this.quantity = Integer.parseInt((String) data.get("quantity"));
         } catch(ClassCastException e) {
@@ -132,7 +144,7 @@ public class DeviceModel implements Serializable {
         map.put("device_description",description);
         map.put("di",deviceIdentifier);
         map.put("equipment_type",equipmentType);
-        map.put("sub_type",subType);
+        map.put("tags",tags);
         map.put("name",name);
         map.put("quantity",quantity);
         map.putAll(specifications);

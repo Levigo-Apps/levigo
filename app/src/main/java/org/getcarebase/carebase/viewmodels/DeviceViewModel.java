@@ -108,10 +108,6 @@ public class DeviceViewModel extends ViewModel {
         shipmentRepository = new ShipmentRepository(user.getNetworkId());
     }
 
-    public Map<String, List<String>> getDeviceTypes() {
-        return deviceRepository.getDeviceTypeOptions();
-    }
-
     public LiveData<Resource<Map<String, String>>> getSitesLiveData() {
         return entityRepository.getSiteOptions();
     }
