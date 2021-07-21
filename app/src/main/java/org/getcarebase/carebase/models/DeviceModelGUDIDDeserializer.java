@@ -53,6 +53,7 @@ public class DeviceModelGUDIDDeserializer implements JsonDeserializer<DeviceMode
         if (deviceObject.has("deviceDescription") && !deviceObject.get("deviceDescription").isJsonNull()) {
             deviceModel.setDescription(deviceObject.getAsJsonPrimitive("deviceDescription").getAsString());
         }
+        deviceModel.setProductCode(deviceObject.getAsJsonObject("productCodes").getAsJsonArray("fdaProductCode").get(0).getAsJsonObject().get("productCode").getAsString());
 
         // add device sizes to specifications
         if (deviceObject.has("deviceSizes") && !deviceObject.get("deviceSizes").isJsonNull()) {

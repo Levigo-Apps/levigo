@@ -26,6 +26,7 @@ import org.getcarebase.carebase.models.DeviceModelGUDIDDeserializer;
 import org.getcarebase.carebase.models.DeviceProduction;
 import org.getcarebase.carebase.models.ParseUDIResponse;
 import org.getcarebase.carebase.models.Procedure;
+import org.getcarebase.carebase.models.ProductCode;
 import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.utils.Event;
 import org.getcarebase.carebase.utils.FirestoreReferences;
@@ -80,27 +81,6 @@ public class DeviceRepository {
         if (deviceProductionListenerRegistration != null){
             deviceProductionListenerRegistration.remove();
         }
-    }
-
-    /**
-     * Gets the possible device types
-     * @return a map of device types
-     */
-    public static Map<String,List<String>> getDeviceTypeOptions() {
-        Map<String,List<String>> deviceTypes = new LinkedHashMap<>();
-        deviceTypes.put("Balloons", null);
-        deviceTypes.put("Catheters",Arrays.asList("Microcatheter","Diagnostic Catheter","Flush","Directional"));
-        deviceTypes.put("Dilators",null);
-        deviceTypes.put("Drainage",Arrays.asList("Biliary","Nephrostomy","Multipurpose"));
-        deviceTypes.put("Embolic Agents",Arrays.asList("Coils","Gelfoam","PVA"));
-        deviceTypes.put("Inflation Devices",null);
-        deviceTypes.put("Needles",Arrays.asList("Micropuncture","Non-vascular access","Biopsy","Other"));
-        deviceTypes.put("Sheath",null);
-        deviceTypes.put("Stents",null);
-        deviceTypes.put("Vascular Access",Arrays.asList("Picc","Dialysis","Port","Hickman","Other"));
-        deviceTypes.put("Wire",Arrays.asList("Microwire","Glidewire","Regular Wire", "Stiff Wire"));
-        deviceTypes.put("Other",Arrays.asList("U/S Equipment","Syringe","Drainage Bags/Kits","Securement/Sutures"));
-        return deviceTypes;
     }
 
     /**
@@ -445,7 +425,7 @@ public class DeviceRepository {
                     if (deviceModel.getDeviceIdentifier() == null) {
                         deviceModel.setDeviceIdentifier(udi);
                     }
-                    deviceLiveData.setValue(new Resource<>(response.body(), new Request(null, Request.Status.SUCCESS)));
+                    translateProductCode(deviceModel,deviceLiveData);
                 } else {
                     deviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_device_lookup, Request.Status.ERROR)));
                 }
@@ -461,6 +441,26 @@ public class DeviceRepository {
         accessGUDIDAPI.getDeviceModel(udi).enqueue(callback);
 
         return deviceLiveData;
+    }
+
+    /**
+     * Look up type and tags for the given product code
+     * @param device the device model given from the response of the GUDID api that will contain the
+     *               product code
+     * @param deviceLiveData the live data to set after product code is looked up
+     */
+    public void translateProductCode(DeviceModel device,MutableLiveData<Resource<DeviceModel>> deviceLiveData) {
+        String productCode = device.getProductCode();
+        FirestoreReferences.getProductCodeReference(productCode).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                ProductCode code = task.getResult().toObject(ProductCode.class);
+                device.setEquipmentType(code.getType());
+                device.setTags(code.getTags());
+                deviceLiveData.setValue(new Resource<>(device, new Request(null, Request.Status.SUCCESS)));
+            } else {
+                deviceLiveData.setValue(new Resource<>(device, new Request(R.string.device_type_not_found,Request.Status.ERROR)));
+            }
+        });
     }
 
     // Removes parentheses from barcode (udi) for uniform structure

@@ -84,9 +84,7 @@ public class ItemDetailFragment extends Fragment {
     // USER INPUT VALUES
     private TextInputEditText udiEditText;
     private TextInputEditText nameEditText;
-    private AutoCompleteTextView equipmentType;
-    private AutoCompleteTextView subTypeTextView;
-    private TextInputLayout subTypeLayout;
+    private TextInputEditText equipmentType;
     private TextInputEditText company;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText deviceDescription;
@@ -124,8 +122,6 @@ public class ItemDetailFragment extends Fragment {
         udiEditText = rootView.findViewById(R.id.detail_udi);
         nameEditText = rootView.findViewById(R.id.detail_name);
         equipmentType = rootView.findViewById(R.id.detail_type);
-        subTypeTextView = rootView.findViewById(R.id.detail_subtype);
-        subTypeLayout = rootView.findViewById(R.id.detail_subtype_layout);
         company = rootView.findViewById(R.id.detail_company);
         expiration = rootView.findViewById(R.id.detail_expiration_date);
         lotNumber = rootView.findViewById(R.id.detail_lot_number);
@@ -154,7 +150,6 @@ public class ItemDetailFragment extends Fragment {
             deviceViewModel.setupDeviceRepository();
             deviceViewModel.setupEntityRepository();
             deviceViewModel.getEntityType().observe(getViewLifecycleOwner(), entityTypeResource -> {
-                setupOptionFields();
                 setupAutoPopulate();
                 setupSaveDevice();
                 parent.removeLoadingScreen();
@@ -296,10 +291,7 @@ public class ItemDetailFragment extends Fragment {
                 quantity.setText(Integer.toString(deviceModel.getQuantity()));
                 quantity.setEnabled(false);
                 equipmentType.setText(deviceModel.getEquipmentType());
-                if (deviceModel.getSubType() != null) {
-                    subTypeLayout.setVisibility(View.VISIBLE);
-                    subTypeTextView.setText(deviceModel.getSubType());
-                }
+                equipmentType.setEnabled(false);
                 deviceDescription.setText(deviceModel.getDescription());
                 deviceDescription.setEnabled(deviceModel.getDescription() == null || isDistributor);
                 company.setText(deviceModel.getCompany());
@@ -313,41 +305,6 @@ public class ItemDetailFragment extends Fragment {
             } else if (deviceModelResource.getRequest().getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR) {
                 parent.removeLoadingScreen();
                 Snackbar.make(rootView, deviceModelResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    /**
-     * sets up the option fields such as device type, site, and physical location
-     */
-    private void setupOptionFields() {
-        // set up device types
-        final ArrayAdapter<String> deviceTypeAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
-        final ArrayAdapter<String> subTypeAdapter = new ArrayAdapter<>(rootView.getContext(),R.layout.dropdown_menu_popup_item,new ArrayList<>());
-        subTypeTextView.setAdapter(subTypeAdapter);
-        Map<String,List<String>> deviceTypes = deviceViewModel.getDeviceTypes();
-        deviceTypeAdapter.addAll(deviceTypes.keySet());
-        equipmentType.setAdapter(deviceTypeAdapter);
-
-        equipmentType.setOnItemClickListener((parent, view, position, id) -> {
-            subTypeTextView.clearListSelection();
-            String type = parent.getItemAtPosition(position).toString();
-            subTypeAdapter.clear();
-            if (deviceTypes.get(type) != null) {
-                // make subtype text field appear
-                subTypeAdapter.addAll(deviceTypes.get(type));
-                subTypeLayout.setVisibility(View.VISIBLE);
-            } else {
-                // make subtype text field disappear
-                subTypeLayout.setVisibility(View.GONE);
-            }
-            subTypeAdapter.notifyDataSetChanged();
-            subTypeTextView.setText("",false);
-        });
-
-        deviceViewModel.getSavePhysicalLocationRequestLiveData().observe(getViewLifecycleOwner(),request -> {
-            if (request.getStatus() == org.getcarebase.carebase.utils.Request.Status.SUCCESS || request.getStatus() == org.getcarebase.carebase.utils.Request.Status.ERROR) {
-                Snackbar.make(rootView, request.getResourceString(), Snackbar.LENGTH_LONG).show();
             }
         });
     }
@@ -390,24 +347,10 @@ public class ItemDetailFragment extends Fragment {
 
         List<EditText> requiredEditTexts = new ArrayList<>(allSizeOptions);
         requiredEditTexts.addAll(Arrays.asList(udiEditText, deviceIdentifier, nameEditText, expiration, equipmentType, company, numberAdded));
-        if (subTypeLayout.getVisibility() == View.VISIBLE) {
-            requiredEditTexts.add(subTypeTextView);
-        }
         for (EditText editText : requiredEditTexts) {
             if (editText.getText().toString().trim().isEmpty()) {
                 isValid = false;
             }
-        }
-
-        // check that equipment types and sub types are valid
-        Map<String, List<String>> deviceTypes = deviceViewModel.getDeviceTypes();
-        if (deviceTypes.containsKey(equipmentType.getText().toString())) {
-            List<String> subTypes = deviceTypes.get(equipmentType.getText().toString());
-            if (subTypes != null && !subTypes.contains(subTypeTextView.getText().toString())) {
-                isValid = false;
-            }
-        } else {
-            isValid = false;
         }
 
         if (isValid) {
@@ -417,9 +360,6 @@ public class ItemDetailFragment extends Fragment {
             deviceModel.setCompany(Objects.requireNonNull(company.getText()).toString().trim());
             deviceModel.setDescription(Objects.requireNonNull(deviceDescription.getText()).toString().trim());
             deviceModel.setEquipmentType(equipmentType.getText().toString().trim());
-            if (subTypeTextView.getVisibility() == View.VISIBLE) {
-                deviceModel.setSubType(subTypeTextView.getText().toString().trim());
-            }
             int currentQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
             int amount = Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
             deviceModel.setQuantity(currentQuantity + amount);
