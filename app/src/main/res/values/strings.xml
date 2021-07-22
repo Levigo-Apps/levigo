@@ -62,6 +62,7 @@
     <string name="notes_lbl">Notes</string>
     <string name="save_lbl">Save</string>
     <string name="type_lbl">Type</string>
+    <string name="tags_lbl">Tags</string>
     <string name="company_lbl">Company</string>
     <string name="quantity_lbl">Quantity</string>
     <string name="save_changes_lbl">Save changes</string>

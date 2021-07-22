@@ -7,8 +7,10 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -40,6 +42,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.ChipDrawable;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -85,6 +88,7 @@ public class ItemDetailFragment extends Fragment {
     private TextInputEditText udiEditText;
     private TextInputEditText nameEditText;
     private TextInputEditText equipmentType;
+    private TextInputEditText equipmentTags;
     private TextInputEditText company;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText deviceDescription;
@@ -122,6 +126,7 @@ public class ItemDetailFragment extends Fragment {
         udiEditText = rootView.findViewById(R.id.detail_udi);
         nameEditText = rootView.findViewById(R.id.detail_name);
         equipmentType = rootView.findViewById(R.id.detail_type);
+        equipmentTags = rootView.findViewById(R.id.detail_tags);
         company = rootView.findViewById(R.id.detail_company);
         expiration = rootView.findViewById(R.id.detail_expiration_date);
         lotNumber = rootView.findViewById(R.id.detail_lot_number);
@@ -292,6 +297,7 @@ public class ItemDetailFragment extends Fragment {
                 quantity.setEnabled(false);
                 equipmentType.setText(deviceModel.getEquipmentType());
                 equipmentType.setEnabled(false);
+                setEquipmentTags(deviceModel.getTags());
                 deviceDescription.setText(deviceModel.getDescription());
                 deviceDescription.setEnabled(deviceModel.getDescription() == null || isDistributor);
                 company.setText(deviceModel.getCompany());
@@ -333,6 +339,21 @@ public class ItemDetailFragment extends Fragment {
             }
 
         }
+    }
+
+    private void setEquipmentTags(List<String> tags) {
+        int spannedLength = 0;
+        for (String tag : tags) {
+            equipmentTags.append(tag);
+            ChipDrawable chip = ChipDrawable.createFromResource(requireContext(), R.xml.standalone_chip);
+            chip.setText(tag);
+            chip.setBounds(0, 0, chip.getIntrinsicWidth(), chip.getIntrinsicHeight());
+            ImageSpan span = new ImageSpan(chip);
+            Editable text = equipmentTags.getText();
+            text.setSpan(span, spannedLength, text.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            spannedLength += tag.length();
+        }
+        equipmentTags.setEnabled(false);
     }
 
     private void setPendingDataFields(PendingDevice pendingDevice) {
