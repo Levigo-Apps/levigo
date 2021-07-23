@@ -24,10 +24,13 @@ import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.activities.Main.adapters.TypesAdapter;
 import org.getcarebase.carebase.models.DeviceModel;
+import org.getcarebase.carebase.models.DeviceType;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.InventoryViewModel;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
@@ -113,10 +116,11 @@ public class InventoryFragment extends MiniFloatingActionButtonManagerFragment {
         super.onPause();
     }
 
-    public void showModelList(final String type) {
+    public void showModelList(final DeviceType deviceType) {
         Fragment fragment = new ModelListFragment();
         Bundle bundle = new Bundle();
-        bundle.putString("type", type);
+        bundle.putString("type", deviceType.getType());
+        bundle.putStringArray("tags", deviceType.getTags().toArray(new String[0]));
         fragment.setArguments(bundle);
 
         requireActivity().getSupportFragmentManager()

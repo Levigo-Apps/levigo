@@ -16,9 +16,12 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -34,30 +37,34 @@ import org.getcarebase.carebase.viewmodels.DeviceViewModel;
 import org.getcarebase.carebase.viewmodels.InventoryViewModel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ModelListFragment extends Fragment {
     public static final String TAG = ModelListFragment.class.getName();
 
     private View rootView;
     private RecyclerView modelListRecyclerView;
-    private TextInputLayout filterLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
     private DeviceModelsAdapter deviceModelsAdapter;
+    private ChipGroup tagChipGroup;
 
     private Activity parent;
 
     private String type;
+    private String[] tags;
 
     private InventoryViewModel inventoryViewModel;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_model_list, container, false);
-        filterLayout = rootView.findViewById(R.id.filter_layout);
         modelListRecyclerView = rootView.findViewById(R.id.types_dis);
         swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_model_list);
+        tagChipGroup = rootView.findViewById(R.id.chip_group);
         parent = getActivity();
         MaterialToolbar topToolBar = rootView.findViewById(R.id.type_title);
 
@@ -65,6 +72,8 @@ public class ModelListFragment extends Fragment {
 
         if (bundle != null) {
             type = bundle.getString("type");
+            tags = bundle.getStringArray("tags");
+            Arrays.sort(tags);
         }
 
         topToolBar.setTitle(type);
@@ -83,15 +92,31 @@ public class ModelListFragment extends Fragment {
         initModelList();
 
         // on refresh update inventory
-        swipeRefreshLayout.setOnRefreshListener(() -> swipeRefresh());
+        swipeRefreshLayout.setOnRefreshListener(this::swipeRefresh);
 
-        inventoryViewModel.loadDeviceModel(type);
+        // set up tag chip group
+        for (String tag : tags) {
+            Chip chip = new Chip(requireContext());
+            chip.setText(tag);
+            chip.setCheckable(true);
+            tagChipGroup.addView(chip);
+            chip.setOnCheckedChangeListener((buttonView, isChecked) -> swipeRefresh());
+        }
+
+        inventoryViewModel.loadDeviceModel(type,getSelectedTags());
 
         return rootView;
     }
 
+    private List<String> getSelectedTags() {
+        return tagChipGroup.getCheckedChipIds().stream().map(id -> {
+            Chip selectedChip = tagChipGroup.findViewById(id);
+            return selectedChip.getText().toString();
+        }).collect(Collectors.toList());
+    }
+
     private void swipeRefresh() {
-        inventoryViewModel.loadDeviceModel(type);
+        inventoryViewModel.loadDeviceModel(type,getSelectedTags());
     }
 
     private void initModelList() {

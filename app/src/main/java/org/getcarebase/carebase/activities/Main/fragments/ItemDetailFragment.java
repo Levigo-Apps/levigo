@@ -105,6 +105,7 @@ public class ItemDetailFragment extends Fragment {
     private MaterialButton removeSizeButton;
     private Button addSizeButton;
 
+    private List<String> tags;
     private int emptySizeFieldCounter = 0;
     private boolean isAddSizeButtonClicked;
     private List<TextInputEditText> allSizeOptions;
@@ -342,6 +343,7 @@ public class ItemDetailFragment extends Fragment {
     }
 
     private void setEquipmentTags(List<String> tags) {
+        this.tags = tags;
         int spannedLength = 0;
         for (String tag : tags) {
             equipmentTags.append(tag);
@@ -381,6 +383,7 @@ public class ItemDetailFragment extends Fragment {
             deviceModel.setCompany(Objects.requireNonNull(company.getText()).toString().trim());
             deviceModel.setDescription(Objects.requireNonNull(deviceDescription.getText()).toString().trim());
             deviceModel.setEquipmentType(equipmentType.getText().toString().trim());
+            deviceModel.setTags(tags);
             int currentQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
             int amount = Integer.parseInt(Objects.requireNonNull(numberAdded.getText()).toString());
             deviceModel.setQuantity(currentQuantity + amount);
