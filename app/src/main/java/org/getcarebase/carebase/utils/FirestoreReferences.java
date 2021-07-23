@@ -36,8 +36,8 @@ public class FirestoreReferences {
                 .collection("procedures");
     }
 
-    public static DocumentReference getDeviceTypesReference(DocumentReference entityReference) {
-        return entityReference.collection("types").document("type_options");
+    public static CollectionReference getDeviceTypesReference(DocumentReference entityReference) {
+        return entityReference.collection("device_types");
     }
 
     public static DocumentReference getPhysicalLocations(DocumentReference entityReference) {

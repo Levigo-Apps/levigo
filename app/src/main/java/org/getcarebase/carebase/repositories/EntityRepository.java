@@ -21,20 +21,13 @@ import java.util.Objects;
 
 public class EntityRepository {
     private static final String TAG = EntityRepository.class.getName();
-
-    private final String networkId;
-//    private final String entityId;
     private final DocumentReference networkReference;
-//    private final DocumentReference entityReference;
-//    private final CollectionReference shipmentReference;
 
     public EntityRepository() {
-        this.networkId = null;
         networkReference = null;
     }
 
     public EntityRepository(String networkId) {
-        this.networkId = networkId;
         this.networkReference = FirestoreReferences.getNetworkReference(networkId);
     }
 
@@ -77,7 +70,6 @@ public class EntityRepository {
                 sitesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
             }
         });
-        // sitesLiveData.setValue(new Resource<>(null,new Request(null, Request.Status.ERROR)));
         return sitesLiveData;
     }
 }

@@ -14,16 +14,18 @@ import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.activities.Main.fragments.InventoryFragment;
 import org.getcarebase.carebase.models.DeviceModel;
+import org.getcarebase.carebase.models.DeviceType;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder> {
     private final InventoryFragment inventoryFragment;
-    private List<String> typeList;
+    private List<DeviceType> typeList;
 
     public static class TypesHolder extends RecyclerView.ViewHolder {
         public TextView itemType;
@@ -38,9 +40,9 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
         this.inventoryFragment = inventoryFragment;
     }
 
-    public void setTypeList(List<String> typeList) {
+    public void setTypeList(List<DeviceType> typeList) {
         this.typeList = typeList;
-        Collections.sort(this.typeList);
+        this.typeList.sort((o1, o2) -> o1.getType().compareTo(o2.getType()));
     }
 
     @NonNull
@@ -52,11 +54,12 @@ public class TypesAdapter extends RecyclerView.Adapter<TypesAdapter.TypesHolder>
 
     @Override
     public void onBindViewHolder(TypesHolder holder, int position){
-        String type = typeList.get(position);
+        DeviceType deviceType = typeList.get(position);
+        String type = deviceType.getType();
 
         holder.itemType.setText(type);
 
-        holder.itemView.setOnClickListener(view -> inventoryFragment.showModelList(type));
+        holder.itemView.setOnClickListener(view -> inventoryFragment.showModelList(deviceType));
     }
 
     @Override

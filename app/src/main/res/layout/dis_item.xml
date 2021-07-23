@@ -61,11 +61,19 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/dis_di"
+            app:layout_constraintBottom_toBottomOf="@id/divider"/>
+
         <View
+            android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="0.8dp"
             android:background="@color/colorLightGrey"
-            app:layout_constraintTop_toBottomOf="@id/dis_di"
+            app:layout_constraintTop_toBottomOf="@id/chip_group"
             android:layout_marginVertical="16dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

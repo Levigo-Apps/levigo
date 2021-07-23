@@ -2,6 +2,8 @@ package org.getcarebase.carebase.repositories;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -12,10 +14,12 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.Transaction;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.api.AccessGUDIDAPI;
@@ -24,6 +28,7 @@ import org.getcarebase.carebase.models.Cost;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceModelGUDIDDeserializer;
 import org.getcarebase.carebase.models.DeviceProduction;
+import org.getcarebase.carebase.models.DeviceType;
 import org.getcarebase.carebase.models.ParseUDIResponse;
 import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.ProductCode;
@@ -36,6 +41,7 @@ import org.getcarebase.carebase.utils.Resource;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +61,7 @@ public class DeviceRepository {
     private final AccessGUDIDAPI accessGUDIDAPI = AccessGUDIDAPIInstanceFactory.getRetrofitInstance(DeviceModel.class, new DeviceModelGUDIDDeserializer()).create(AccessGUDIDAPI.class);
 
     private final DocumentReference networkReference;
-    private final DocumentReference hospitalReference;
+    private final DocumentReference entityReference;
     private final CollectionReference inventoryReference;
     private final CollectionReference proceduresReference;
     private final CollectionReference shipmentReference;
@@ -67,11 +73,11 @@ public class DeviceRepository {
 
     public DeviceRepository(String networkId, String entityId) {
         networkReference = FirestoreReferences.getNetworkReference(networkId);
-        hospitalReference = FirestoreReferences.getEntityReference(networkReference, entityId);
-        inventoryReference = FirestoreReferences.getInventoryReference(hospitalReference);
-        proceduresReference = FirestoreReferences.getProceduresReference(hospitalReference);
-        shipmentReference = FirestoreReferences.getShipmentReference(hospitalReference);
-        physicalLocationsReference = FirestoreReferences.getPhysicalLocations(hospitalReference);
+        entityReference = FirestoreReferences.getEntityReference(networkReference, entityId);
+        inventoryReference = FirestoreReferences.getInventoryReference(entityReference);
+        proceduresReference = FirestoreReferences.getProceduresReference(entityReference);
+        shipmentReference = FirestoreReferences.getShipmentReference(entityReference);
+        physicalLocationsReference = FirestoreReferences.getPhysicalLocations(entityReference);
     }
 
     public void destroy() {
@@ -172,8 +178,11 @@ public class DeviceRepository {
 //            tasks.add(deviceProductionReference.collection("equipment_cost").add(cost));
 //        }
 
-        // update device_type collection count field
-        tasks.add(hospitalReference.update("device_types", FieldValue.arrayUnion(deviceModel.getEquipmentType())));
+        // add device type to device_type collection
+        DocumentReference deviceTypeRef = entityReference.collection("device_types").document(deviceModel.getEquipmentType());
+        Map<String,Object> deviceType = new HashMap<>();
+        deviceType.put("tags",FieldValue.arrayUnion(deviceModel.getTags().toArray()));
+        tasks.add(deviceTypeRef.set(deviceType,SetOptions.merge()));
 
         Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {

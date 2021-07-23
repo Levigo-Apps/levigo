@@ -15,6 +15,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
@@ -45,9 +47,7 @@ public class ItemDetailViewFragment extends Fragment {
     private DetailLabeledTextView lotNumber;
     private DetailLabeledTextView manufacturer;
     private DetailLabeledTextView lastUpdate;
-    private DetailLabeledTextView notes;
     private DetailLabeledTextView deviceDescription;;
-    private DetailLabeledTextView subtype;
 
 
     @Override
@@ -63,6 +63,7 @@ public class ItemDetailViewFragment extends Fragment {
         quantity = rootView.findViewById(R.id.quantity_edittext);
         expiration = rootView.findViewById(R.id.expiration_edittext);
         type = rootView.findViewById(R.id.type_edittext);
+        ChipGroup tagChipGroup = rootView.findViewById(R.id.chip_group);
         referenceNumber = rootView.findViewById(R.id.referencenumber_edittext);
         lotNumber = rootView.findViewById(R.id.lotnumber_edittext);
         manufacturer = rootView.findViewById(R.id.company_edittext);
@@ -82,6 +83,11 @@ public class ItemDetailViewFragment extends Fragment {
                 DeviceModel deviceModel = resourceData.getData();
 
                 type.setTextValue(deviceModel.getEquipmentType());
+                for (String tag : deviceModel.getTags()) {
+                    Chip chip = new Chip(requireContext());
+                    chip.setText(tag);
+                    tagChipGroup.addView(chip);
+                }
                 deviceDescription.setTextValue(deviceModel.getDescription());
                 deviceIdentifier.setTextValue(deviceModel.getDeviceIdentifier());
                 itemName.setText(deviceModel.getName());

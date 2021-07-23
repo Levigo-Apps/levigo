@@ -13,6 +13,9 @@ import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.activities.Main.fragments.InventoryFragment;
@@ -26,13 +29,12 @@ import java.util.List;
 public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapter.DeviceModelHolder> {
     private final ModelListFragment modelListFragment;
     private List<DeviceModel> deviceModels;
-    private List<DeviceModel> deviceModelsCopy = new ArrayList<>();
 
     public static class DeviceModelHolder extends RecyclerView.ViewHolder {
         public RecyclerView itemUDIs;
         public TextView itemName, itemQuantity, itemDI;
+        public ChipGroup tagChipGroup;
         public ConstraintLayout itemType;
-
 
         public DeviceModelHolder(View view){
             super(view);
@@ -40,6 +42,7 @@ public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapte
             itemDI = view.findViewById(R.id.dis_di);
             itemName = view.findViewById(R.id.dis_name);
             itemQuantity = view.findViewById(R.id.dis_quantity);
+            tagChipGroup = view.findViewById(R.id.chip_group);
 
             itemType = view.findViewById(R.id.dis_type);
             itemType.setOnClickListener(view1 -> {
@@ -59,7 +62,6 @@ public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapte
 
     public void setDeviceModels(List<DeviceModel> deviceModels) {
         this.deviceModels = deviceModels;
-        deviceModelsCopy.addAll(this.deviceModels);
     }
 
     @NonNull
@@ -75,7 +77,12 @@ public class DeviceModelsAdapter extends RecyclerView.Adapter<DeviceModelsAdapte
         holder.itemName.setText(deviceModel.getName());
         holder.itemQuantity.setText(modelListFragment.getString(R.string.unit_quantity_value,deviceModel.getQuantity()));
         holder.itemDI.setText(deviceModel.getDeviceIdentifier());
-
+        holder.tagChipGroup.removeAllViews();
+        for (String tag : deviceModel.getTags()) {
+            Chip chip = new Chip(modelListFragment.requireContext());
+            chip.setText(tag);
+            holder.tagChipGroup.addView(chip);
+        }
 
         DeviceProductionsAdapter deviceProductionsAdapter = new DeviceProductionsAdapter(modelListFragment, deviceModel.getDeviceIdentifier(), deviceModel.getProductions());
 
