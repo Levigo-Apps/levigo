@@ -10,6 +10,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.text.Editable;
+import android.text.Spanned;
+import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +30,7 @@ import android.widget.Toast;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.ChipDrawable;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -67,15 +71,13 @@ public class EditEquipmentFragment extends Fragment {
     // USER INPUT VALUES
     private TextInputEditText udiEditText;
     private TextInputEditText nameEditText;
-    private AutoCompleteTextView equipmentType;
-    private AutoCompleteTextView subTypeTextView;
-    private TextInputLayout subTypeLayout;
+    private TextInputEditText equipmentType;
+    private TextInputEditText equipmentTags;
     private TextInputEditText deviceIdentifier;
     private TextInputEditText quantity;
     private TextInputEditText lotNumber;
     private TextInputEditText expiration;
     private TextInputEditText company;
-//    private AutoCompleteTextView equipmentType;
     private TextInputEditText updateDateEditText;
     private TextInputEditText updateTimeEditText;
 
@@ -86,6 +88,7 @@ public class EditEquipmentFragment extends Fragment {
 
     private int modelQuantityBeforeEdit;
     private int productionQuantityBeforeEdit;
+    private List<String> tags;
 
     private DeviceViewModel deviceViewModel;
     private View rootView;
@@ -101,8 +104,7 @@ public class EditEquipmentFragment extends Fragment {
         udiEditText = rootView.findViewById(R.id.detail_udi);
         nameEditText = rootView.findViewById(R.id.detail_name);
         equipmentType = rootView.findViewById(R.id.detail_type);
-        subTypeTextView = rootView.findViewById(R.id.detail_subtype);
-        subTypeLayout = rootView.findViewById(R.id.detail_subtype_layout);
+        equipmentTags = rootView.findViewById(R.id.detail_tags);
         deviceIdentifier = rootView.findViewById(R.id.detail_di);
         quantity = rootView.findViewById(R.id.detail_quantity);
         lotNumber = rootView.findViewById(R.id.detail_lot_number);
@@ -127,10 +129,7 @@ public class EditEquipmentFragment extends Fragment {
 
             nameEditText.setText(deviceModel.getName());
             equipmentType.setText(deviceModel.getEquipmentType());
-            if (deviceModel.getSubType() != null) {
-                subTypeTextView.setText(deviceModel.getSubType());
-                subTypeLayout.setVisibility(View.VISIBLE);
-            }
+            setEquipmentTags(deviceModel.getTags());
             deviceIdentifier.setText(deviceModel.getDeviceIdentifier());;
             company.setText(deviceModel.getCompany());
             modelQuantityBeforeEdit = deviceModel.getQuantity();
@@ -146,6 +145,7 @@ public class EditEquipmentFragment extends Fragment {
             updateDateEditText.setText(currentDate);
             updateTimeEditText.setText(currentTime);
 
+            equipmentType.setEnabled(false);
             udiEditText.setEnabled(false);
             deviceIdentifier.setEnabled(deviceModel.getDeviceIdentifier() == null);
             lotNumber.setEnabled(deviceProduction.getLotNumber() == null);
@@ -157,29 +157,6 @@ public class EditEquipmentFragment extends Fragment {
         else if (deviceModelResource.getRequest().getStatus() == Request.Status.ERROR) {
             Snackbar.make(rootView, deviceModelResource.getRequest().getResourceString(), Snackbar.LENGTH_LONG).show();
         }
-
-        // set up device types
-        final ArrayAdapter<String> deviceTypeAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.dropdown_menu_popup_item,new ArrayList<>());
-        final ArrayAdapter<String> subTypeAdapter = new ArrayAdapter<>(rootView.getContext(),R.layout.dropdown_menu_popup_item,new ArrayList<>());
-        subTypeTextView.setAdapter(subTypeAdapter);
-        Map<String,List<String>> deviceTypes = deviceViewModel.getDeviceTypes();
-        deviceTypeAdapter.addAll(deviceTypes.keySet());
-        equipmentType.setAdapter(deviceTypeAdapter);
-
-        equipmentType.setOnItemClickListener((parent, view, position, id) -> {
-            String type = parent.getItemAtPosition(position).toString();
-            subTypeAdapter.clear();
-            if (deviceTypes.get(type) != null) {
-                // make subtype text field appear
-                subTypeAdapter.addAll(deviceTypes.get(type));
-                subTypeLayout.setVisibility(View.VISIBLE);
-            } else {
-                // make subtype text field disappear
-                subTypeLayout.setVisibility(View.GONE);
-            }
-            subTypeAdapter.notifyDataSetChanged();
-            subTypeTextView.setText("",false);
-        });
 
         //going back to inventory view
         toolBar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -226,6 +203,22 @@ public class EditEquipmentFragment extends Fragment {
         }
     }
 
+    private void setEquipmentTags(List<String> tags) {
+        this.tags = tags;
+        int spannedLength = 0;
+        for (String tag : tags) {
+            equipmentTags.append(tag);
+            ChipDrawable chip = ChipDrawable.createFromResource(requireContext(), R.xml.standalone_chip);
+            chip.setText(tag);
+            chip.setBounds(0, 0, chip.getIntrinsicWidth(), chip.getIntrinsicHeight());
+            ImageSpan span = new ImageSpan(chip);
+            Editable text = equipmentTags.getText();
+            text.setSpan(span, spannedLength, text.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            spannedLength += tag.length();
+        }
+        equipmentTags.setEnabled(false);
+    }
+
     // not in mvvm style - need to use data bindings
     // packages all the fields into a DeviceModel object
     private DeviceModel isFieldsValid() {
@@ -245,25 +238,13 @@ public class EditEquipmentFragment extends Fragment {
             }
         }
 
-        // check that equipment types and sub types are valid
-        Map<String, List<String>> deviceTypes = deviceViewModel.getDeviceTypes();
-        List<String> subTypes = null;
-        if (deviceTypes.containsKey(equipmentType.getText().toString())) {
-            subTypes = deviceTypes.get(equipmentType.getText().toString());
-            if (subTypes != null && !subTypes.contains(subTypeTextView.getText().toString())) {
-                isValid = false;
-            }
-        } else {
-            isValid = false;
-        }
-
         if (isValid) {
             DeviceModel deviceModel = new DeviceModel();
             deviceModel.setDeviceIdentifier(Objects.requireNonNull(deviceIdentifier.getText()).toString().trim());
             deviceModel.setName(Objects.requireNonNull(nameEditText.getText()).toString().trim());
             deviceModel.setCompany(Objects.requireNonNull(company.getText()).toString().trim());
             deviceModel.setEquipmentType(equipmentType.getText().toString().trim());
-            if (subTypes != null) deviceModel.setSubType(subTypeTextView.getText().toString().trim());
+            deviceModel.setTags(tags);
             int currentProductionQuantity = Integer.parseInt(Objects.requireNonNull(quantity.getText()).toString());
             int quantityDifference = currentProductionQuantity - productionQuantityBeforeEdit;
             deviceModel.setQuantity(modelQuantityBeforeEdit+quantityDifference);

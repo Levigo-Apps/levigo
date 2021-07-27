@@ -2,6 +2,8 @@ package org.getcarebase.carebase.repositories;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -12,10 +14,12 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.Transaction;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.api.AccessGUDIDAPI;
@@ -24,8 +28,10 @@ import org.getcarebase.carebase.models.Cost;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceModelGUDIDDeserializer;
 import org.getcarebase.carebase.models.DeviceProduction;
+import org.getcarebase.carebase.models.DeviceType;
 import org.getcarebase.carebase.models.ParseUDIResponse;
 import org.getcarebase.carebase.models.Procedure;
+import org.getcarebase.carebase.models.ProductCode;
 import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.utils.Event;
 import org.getcarebase.carebase.utils.FirestoreReferences;
@@ -35,6 +41,7 @@ import org.getcarebase.carebase.utils.Resource;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +61,7 @@ public class DeviceRepository {
     private final AccessGUDIDAPI accessGUDIDAPI = AccessGUDIDAPIInstanceFactory.getRetrofitInstance(DeviceModel.class, new DeviceModelGUDIDDeserializer()).create(AccessGUDIDAPI.class);
 
     private final DocumentReference networkReference;
-    private final DocumentReference hospitalReference;
+    private final DocumentReference entityReference;
     private final CollectionReference inventoryReference;
     private final CollectionReference proceduresReference;
     private final CollectionReference shipmentReference;
@@ -66,11 +73,11 @@ public class DeviceRepository {
 
     public DeviceRepository(String networkId, String entityId) {
         networkReference = FirestoreReferences.getNetworkReference(networkId);
-        hospitalReference = FirestoreReferences.getEntityReference(networkReference, entityId);
-        inventoryReference = FirestoreReferences.getInventoryReference(hospitalReference);
-        proceduresReference = FirestoreReferences.getProceduresReference(hospitalReference);
-        shipmentReference = FirestoreReferences.getShipmentReference(hospitalReference);
-        physicalLocationsReference = FirestoreReferences.getPhysicalLocations(hospitalReference);
+        entityReference = FirestoreReferences.getEntityReference(networkReference, entityId);
+        inventoryReference = FirestoreReferences.getInventoryReference(entityReference);
+        proceduresReference = FirestoreReferences.getProceduresReference(entityReference);
+        shipmentReference = FirestoreReferences.getShipmentReference(entityReference);
+        physicalLocationsReference = FirestoreReferences.getPhysicalLocations(entityReference);
     }
 
     public void destroy() {
@@ -80,27 +87,6 @@ public class DeviceRepository {
         if (deviceProductionListenerRegistration != null){
             deviceProductionListenerRegistration.remove();
         }
-    }
-
-    /**
-     * Gets the possible device types
-     * @return a map of device types
-     */
-    public static Map<String,List<String>> getDeviceTypeOptions() {
-        Map<String,List<String>> deviceTypes = new LinkedHashMap<>();
-        deviceTypes.put("Balloons", null);
-        deviceTypes.put("Catheters",Arrays.asList("Microcatheter","Diagnostic Catheter","Flush","Directional"));
-        deviceTypes.put("Dilators",null);
-        deviceTypes.put("Drainage",Arrays.asList("Biliary","Nephrostomy","Multipurpose"));
-        deviceTypes.put("Embolic Agents",Arrays.asList("Coils","Gelfoam","PVA"));
-        deviceTypes.put("Inflation Devices",null);
-        deviceTypes.put("Needles",Arrays.asList("Micropuncture","Non-vascular access","Biopsy","Other"));
-        deviceTypes.put("Sheath",null);
-        deviceTypes.put("Stents",null);
-        deviceTypes.put("Vascular Access",Arrays.asList("Picc","Dialysis","Port","Hickman","Other"));
-        deviceTypes.put("Wire",Arrays.asList("Microwire","Glidewire","Regular Wire", "Stiff Wire"));
-        deviceTypes.put("Other",Arrays.asList("U/S Equipment","Syringe","Drainage Bags/Kits","Securement/Sutures"));
-        return deviceTypes;
     }
 
     /**
@@ -192,8 +178,11 @@ public class DeviceRepository {
 //            tasks.add(deviceProductionReference.collection("equipment_cost").add(cost));
 //        }
 
-        // update device_type collection count field
-        tasks.add(hospitalReference.update("device_types", FieldValue.arrayUnion(deviceModel.getEquipmentType())));
+        // add device type to device_type collection
+        DocumentReference deviceTypeRef = entityReference.collection("device_types").document(deviceModel.getEquipmentType());
+        Map<String,Object> deviceType = new HashMap<>();
+        deviceType.put("tags",FieldValue.arrayUnion(deviceModel.getTags().toArray()));
+        tasks.add(deviceTypeRef.set(deviceType,SetOptions.merge()));
 
         Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -445,7 +434,7 @@ public class DeviceRepository {
                     if (deviceModel.getDeviceIdentifier() == null) {
                         deviceModel.setDeviceIdentifier(udi);
                     }
-                    deviceLiveData.setValue(new Resource<>(response.body(), new Request(null, Request.Status.SUCCESS)));
+                    translateProductCode(deviceModel,deviceLiveData);
                 } else {
                     deviceLiveData.setValue(new Resource<>(null,new Request(R.string.error_device_lookup, Request.Status.ERROR)));
                 }
@@ -461,6 +450,26 @@ public class DeviceRepository {
         accessGUDIDAPI.getDeviceModel(udi).enqueue(callback);
 
         return deviceLiveData;
+    }
+
+    /**
+     * Look up type and tags for the given product code
+     * @param device the device model given from the response of the GUDID api that will contain the
+     *               product code
+     * @param deviceLiveData the live data to set after product code is looked up
+     */
+    public void translateProductCode(DeviceModel device,MutableLiveData<Resource<DeviceModel>> deviceLiveData) {
+        String productCode = device.getProductCode();
+        FirestoreReferences.getProductCodeReference(productCode).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                ProductCode code = task.getResult().toObject(ProductCode.class);
+                device.setEquipmentType(code.getType());
+                device.setTags(code.getTags());
+                deviceLiveData.setValue(new Resource<>(device, new Request(null, Request.Status.SUCCESS)));
+            } else {
+                deviceLiveData.setValue(new Resource<>(device, new Request(R.string.device_type_not_found,Request.Status.ERROR)));
+            }
+        });
     }
 
     // Removes parentheses from barcode (udi) for uniform structure

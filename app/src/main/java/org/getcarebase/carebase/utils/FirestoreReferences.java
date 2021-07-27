@@ -10,6 +10,10 @@ public class FirestoreReferences {
         return FirebaseFirestore.getInstance();
     }
 
+    public static DocumentReference getProductCodeReference(String productCode) {
+        return FirebaseFirestore.getInstance().collection("fda_product_codes").document(productCode);
+    }
+
     public static DocumentReference getNetworkReference(String networkId) {
         return FirebaseFirestore.getInstance().collection("networks").document(networkId);
     }
@@ -32,8 +36,8 @@ public class FirestoreReferences {
                 .collection("procedures");
     }
 
-    public static DocumentReference getDeviceTypesReference(DocumentReference entityReference) {
-        return entityReference.collection("types").document("type_options");
+    public static CollectionReference getDeviceTypesReference(DocumentReference entityReference) {
+        return entityReference.collection("device_types");
     }
 
     public static DocumentReference getPhysicalLocations(DocumentReference entityReference) {

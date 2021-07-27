@@ -5,6 +5,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import org.getcarebase.carebase.models.DeviceModel;
+import org.getcarebase.carebase.models.DeviceType;
 import org.getcarebase.carebase.models.Entity;
 import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.User;
@@ -28,7 +29,7 @@ public class InventoryViewModel extends ViewModel {
 
     private LiveData<Resource<User>> userLiveData;
 
-    private final SingleEventMediatorLiveData<List<String>> typeListLiveData = new SingleEventMediatorLiveData<>();
+    private final SingleEventMediatorLiveData<List<DeviceType>> typeListLiveData = new SingleEventMediatorLiveData<>();
     private final SingleEventMediatorLiveData<List<DeviceModel>> deviceModelLiveData = new SingleEventMediatorLiveData<>();
 
     public InventoryViewModel() {
@@ -52,11 +53,11 @@ public class InventoryViewModel extends ViewModel {
         typeListLiveData.addSource(inventoryRepository.getAllTypes(Objects.requireNonNull(userLiveData.getValue()).getData()));
     }
 
-    public void loadDeviceModel(String type) {
-        deviceModelLiveData.addSource(inventoryRepository.getDevicesWithType(Objects.requireNonNull(userLiveData.getValue()).getData(), type));
+    public void loadDeviceModel(String type,List<String> tags) {
+        deviceModelLiveData.addSource(inventoryRepository.getDevicesWithType(Objects.requireNonNull(userLiveData.getValue()).getData(), type, tags));
     }
 
-    public LiveData<Resource<List<String>>> getTypeListLiveData() {
+    public LiveData<Resource<List<DeviceType>>> getTypeListLiveData() {
         return typeListLiveData.getLiveData();
     }
 

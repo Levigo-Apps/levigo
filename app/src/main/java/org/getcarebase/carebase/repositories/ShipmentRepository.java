@@ -16,6 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Transaction;
 
 import org.getcarebase.carebase.R;
@@ -202,7 +203,6 @@ public class ShipmentRepository {
                     String di = shipmentItem.get("di");
                     String udi = shipmentItem.get("udi");
                     int units = Integer.parseInt(shipmentItem.get("quantity"));
-                    String physicalLocation = shipmentItem.get("physical_location");
 
                     DeviceModel sourceDeviceModel = sourceDevices.get(i);
                     if (destinationDeviceModelMap.containsKey(di)) {
@@ -214,7 +214,11 @@ public class ShipmentRepository {
                     }
 
                     // add equipment type to entities device_types array if it does not exist
-                    destinationEntityReference.update("device_types", FieldValue.arrayUnion(sourceDeviceModel.getEquipmentType()));
+                    transaction.update(destinationEntityReference,"device_types", FieldValue.arrayUnion(sourceDeviceModel.getEquipmentType()));
+                    DocumentReference deviceTypeRef = destinationEntityReference.collection("device_types").document(sourceDeviceModel.getEquipmentType());
+                    Map<String,Object> deviceType = new HashMap<>();
+                    deviceType.put("tags",FieldValue.arrayUnion(sourceDeviceModel.getTags().toArray()));
+                    transaction.set(deviceTypeRef, deviceType, SetOptions.merge());
 
                     DeviceProduction sourceDeviceProduction = sourceDeviceModel.getProductions().get(0);
                     if (destinationDeviceProductionMap.containsKey(udi)) {
