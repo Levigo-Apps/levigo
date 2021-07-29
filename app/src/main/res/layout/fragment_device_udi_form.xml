@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="viewmodel"
+            type="org.getcarebase.carebase.viewmodels.AddDeviceViewModel"/>
+    </data>
+    <RelativeLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            style="@style/Widget.Carebase.ToolBar.Gradient"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            app:title="Add Device"
+            app:navigationIcon="@drawable/ic_baseline_close_24"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:hint="@string/barcode_udi_label"
+            android:layout_centerVertical="true">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@={viewmodel.uniqueDeviceIdentifierLiveData}"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:text="@string/autopopulate_lbl"
+            android:onClick="@{() -> viewmodel.onAutoPopulate()}"
+            android:enabled="@{viewmodel.uniqueDeviceIdentifierLiveData.length() > 5}"
+            android:layout_alignParentBottom="true"/>
+    </RelativeLayout>
+</layout>

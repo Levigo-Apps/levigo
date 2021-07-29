@@ -44,6 +44,12 @@
             android:screenOrientation="portrait"/>
 
         <activity
+            android:name=".activities.Main.AddDeviceActivity"
+            android:parentActivityName=".activities.Main.MainActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"/>
+
+        <activity
             android:name=".activities.Main.AddProcedureActivity"
             android:parentActivityName=".activities.Main.MainActivity"
             android:windowSoftInputMode="adjustPan"
