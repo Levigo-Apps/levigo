@@ -8,14 +8,24 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.databinding.BindingAdapter;
+import androidx.databinding.BindingMethod;
+import androidx.databinding.BindingMethods;
 
 import com.google.common.escape.CharEscaper;
 
 import org.getcarebase.carebase.R;
-
+@BindingMethods({
+        @BindingMethod(
+                type = DetailLabeledTextView.class,
+                attribute = "android:text",
+                method = "setTextValue"),
+})
 public class DetailLabeledTextView extends LinearLayout {
     private final TextView valueTextView;
     private final TextView labelTextView;
+
+
 
     public DetailLabeledTextView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
