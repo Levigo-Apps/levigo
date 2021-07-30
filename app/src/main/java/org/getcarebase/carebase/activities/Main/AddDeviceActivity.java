@@ -13,8 +13,10 @@ import com.google.android.material.snackbar.Snackbar;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Main.fragments.DeviceDataFormFragment;
 import org.getcarebase.carebase.activities.Main.fragments.DeviceUDIFormFragment;
+import org.getcarebase.carebase.activities.Main.fragments.LoadingFragment;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.utils.Request;
+import org.getcarebase.carebase.utils.Resource;
 import org.getcarebase.carebase.viewmodels.AddDeviceViewModel;
 
 public class AddDeviceActivity extends AppCompatActivity {
@@ -41,11 +43,30 @@ public class AddDeviceActivity extends AppCompatActivity {
 
         viewModel.getDeviceModelLiveData().observe(this,resource -> {
             if (resource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                removeLoadingScreen();
                 goToAddDeviceDataFragment();
             } else if (resource.getRequest().getStatus() == Request.Status.ERROR) {
+                removeLoadingScreen();
                 Snackbar.make(view,resource.getRequest().getResourceString(),Snackbar.LENGTH_LONG);
+            } else if (resource.getRequest().getStatus() == Request.Status.LOADING) {
+                showLoadingScreen();
             }
         });
+    }
+
+    public void showLoadingScreen() {
+        Fragment fragment = new LoadingFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.frame_layout, fragment, LoadingFragment.TAG)
+                .commit();
+    }
+
+    public void removeLoadingScreen() {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(LoadingFragment.TAG);
+        if (fragment != null) {
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+        }
     }
 
     private void setup(User user) {

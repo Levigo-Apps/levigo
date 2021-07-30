@@ -43,6 +43,7 @@ public class AddDeviceViewModel extends ViewModel {
 
     public void onAutoPopulate() {
         String barcode = uniqueDeviceIdentifierLiveData.getValue();
+        deviceModelLiveData.setValue(new Resource<>(null,new Request(null,Request.Status.LOADING)));
         LiveData<Resource<DeviceModel>> inventorySource = deviceRepository.autoPopulateFromDatabase(barcode);
         LiveData<Resource<DeviceModel>> gudidSource = deviceRepository.autoPopulateFromGUDID(barcode);
         DeviceSourceObserver deviceSourceObserver = new DeviceSourceObserver(inventorySource,gudidSource);
