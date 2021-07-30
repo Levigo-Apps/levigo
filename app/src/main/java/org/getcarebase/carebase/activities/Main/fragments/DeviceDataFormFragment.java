@@ -80,9 +80,9 @@ public class DeviceDataFormFragment extends Fragment {
     }
 
     public void onRemoveCustomField(View view) {
-        customFieldsLayout.removeView((View) view.getParent());
-        if (customFieldsLayout.getChildCount() == 0) {
+        if (customFieldsLayout.getChildCount() - 1 == 1) {
             noSpecificationsTextView.setVisibility(View.VISIBLE);
         }
+        customFieldsLayout.removeView((View) view.getParent());
     }
 }
