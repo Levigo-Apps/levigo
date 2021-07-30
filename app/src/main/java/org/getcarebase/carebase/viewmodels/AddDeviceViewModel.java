@@ -16,6 +16,7 @@ import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
+import java.util.Map;
 import java.util.Objects;
 
 public class AddDeviceViewModel extends ViewModel {
@@ -25,6 +26,7 @@ public class AddDeviceViewModel extends ViewModel {
     private LiveData<Resource<User>> userLiveData;
     public MutableLiveData<String> uniqueDeviceIdentifierLiveData = new MutableLiveData<>();
     private final MediatorLiveData<Resource<DeviceModel>> deviceModelLiveData = new MediatorLiveData<>();
+    private final MutableLiveData<Map<String,Integer>> errorsLiveData = new MutableLiveData<>();
 
     public LiveData<Resource<User>> getUserLiveData() {
         if (userLiveData == null) {
@@ -37,8 +39,47 @@ public class AddDeviceViewModel extends ViewModel {
         return deviceModelLiveData;
     }
 
+    public MutableLiveData<Map<String, Integer>> getErrorsLiveData() {
+        return errorsLiveData;
+    }
+
     public void setupDeviceRepository(String networkId, String entityId) {
         deviceRepository = new DeviceRepository(networkId,entityId);
+    }
+
+    // TODO: add error live data for validation
+
+    public void onNameChanged(CharSequence name) {
+        Objects.requireNonNull(deviceModelLiveData.getValue()).getData().setName(name.toString());
+    }
+
+    public void onExpirationDateChanged(CharSequence expirationDate) {
+        Objects.requireNonNull(deviceModelLiveData.getValue()).getData().getProductions().get(0).setExpirationDate(expirationDate.toString());
+    }
+
+    public void onDescriptionChanged(CharSequence description) {
+        Objects.requireNonNull(deviceModelLiveData.getValue()).getData().setDescription(description.toString());
+    }
+
+    public void onLotNumberChanged(CharSequence lotNumber) {
+        Objects.requireNonNull(deviceModelLiveData.getValue()).getData().getProductions().get(0).setLotNumber(lotNumber.toString());
+    }
+
+    public void onReferenceNumberChanged(CharSequence referenceNumber) {
+        Objects.requireNonNull(deviceModelLiveData.getValue()).getData().getProductions().get(0).setLotNumber(referenceNumber.toString());
+    }
+
+    public void onQuantityChanged(CharSequence quantity) {
+        DeviceModel deviceModel = Objects.requireNonNull(deviceModelLiveData.getValue()).getData();
+        int amountAdded;
+        if (quantity.toString().equals("")) {
+            amountAdded = 0;
+        } else {
+            amountAdded = Integer.parseInt(quantity.toString());
+        }
+
+        deviceModel.setQuantity(deviceModel.getQuantity() + amountAdded);
+        deviceModel.getProductions().get(0).setQuantity(amountAdded);
     }
 
     public void onAutoPopulate() {
@@ -49,6 +90,10 @@ public class AddDeviceViewModel extends ViewModel {
         DeviceSourceObserver deviceSourceObserver = new DeviceSourceObserver(inventorySource,gudidSource);
         deviceModelLiveData.addSource(inventorySource,deviceSourceObserver);
         deviceModelLiveData.addSource(gudidSource,deviceSourceObserver);
+    }
+
+    public void onSave() {
+        errorsLiveData.setValue(Objects.requireNonNull(deviceModelLiveData.getValue()).getData().isValid());
     }
 
     private class DeviceSourceObserver implements Observer<Resource<DeviceModel>> {
