@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
     <data>
+        <import type="android.view.View"/>
         <variable
                 name="viewmodel"
                 type="org.getcarebase.carebase.viewmodels.AddDeviceViewModel"/>
@@ -174,11 +175,48 @@
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
-                <com.google.android.material.button.MaterialButton
+                <LinearLayout
+                    android:id="@+id/detail_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:enabled="false"
-                    android:text="@string/save_lbl"/>
+                    android:padding="16dp"
+                    android:background="#FAFAFA"
+                    android:elevation="2dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TextAppearance.Carebase.TextView.CardTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/specifications_label"/>
+
+                    <LinearLayout
+                        android:id="@+id/custom_fields_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/no_spec_text_view"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginVertical="8dp"
+                            android:layout_gravity="center_horizontal"
+                            android:text="No Specifications" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:id="@+id/add_custom_field_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="add"/>
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_continue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fui_continue"/>
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

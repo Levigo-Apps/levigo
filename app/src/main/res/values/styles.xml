@@ -38,6 +38,12 @@
         <item name="boxStrokeColor">@color/colorPrimaryDark</item>
     </style>
 
+    <style name="TextAppearance.Carebase.TextView.CardTitle" parent="TextAppearance.MaterialComponents.Overline">
+        <item name="android:textSize">5pt</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="TextAppearance.Codebase.TextInputLayout.HintText" parent="TextAppearance.MaterialComponents.Subtitle2">
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>

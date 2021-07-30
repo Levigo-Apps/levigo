@@ -1,11 +1,8 @@
 package org.getcarebase.carebase.activities.Main;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -19,7 +16,6 @@ import org.getcarebase.carebase.activities.Main.fragments.DeviceUDIFormFragment;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.viewmodels.AddDeviceViewModel;
-import org.getcarebase.carebase.viewmodels.AuthViewModel;
 
 public class AddDeviceActivity extends AppCompatActivity {
 
@@ -51,6 +47,7 @@ public class AddDeviceActivity extends AppCompatActivity {
             }
         });
     }
+
     private void setup(User user) {
         viewModel.setupDeviceRepository(user.getNetworkId(),user.getEntityId());
 
