@@ -59,13 +59,21 @@ public class DeviceDataFormFragment extends Fragment {
         }
         binding.addCustomFieldButton.setOnClickListener(v -> addCustomField("","",true));
 
+        viewModel.getErrorsLiveData().observe(getViewLifecycleOwner(),errors -> {
+            for (Map.Entry<String,Integer> error : errors.entrySet()) {
+                if (error.getKey().equals("all")) {
+                    Snackbar.make(requireView(),error.getValue(),Snackbar.LENGTH_LONG).show();
+                }
+            }
+        });
+
         return binding.getRoot();
     }
 
     public void addCustomField(String name, String value, boolean removable) {
         noSpecificationsTextView.setVisibility(View.GONE);
         if (customFieldsLayout.getChildCount() > 11) {
-            Snackbar.make(customFieldsLayout,"Custom field limit reached", Snackbar.LENGTH_LONG);
+            Snackbar.make(requireView(),"Custom field limit reached", Snackbar.LENGTH_LONG).show();
             return;
         }
         CustomFieldFormBinding binding = DataBindingUtil.inflate(getLayoutInflater(),R.layout.custom_field_form,customFieldsLayout,false);

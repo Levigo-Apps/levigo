@@ -94,12 +94,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:hint="@string/name_label"
+                        app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`name`,0)}"
                         app:boxStrokeColor="@color/colorPrimary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="@{viewmodel.deviceModelLiveData.data.name}"/>
+                            android:text="@{viewmodel.deviceModelLiveData.data.name}"
+                            android:onTextChanged="@{(s,start,before,count) -> viewmodel.onNameChanged(s)}"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -108,12 +110,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:hint="@string/expiration_date_lbl"
+                        app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`expirationDate`,0)}"
                         app:boxStrokeColor="@color/colorPrimary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:text="@{viewmodel.deviceModelLiveData.data.productions.get(0).expirationDate}"
+                            android:onTextChanged="@{(s,start,before,count) -> viewmodel.onExpirationDateChanged(s)}"
                             android:inputType="date"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -123,12 +127,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:hint="@string/device_description_label"
+                        app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`description`,0)}"
                         app:boxStrokeColor="@color/colorPrimary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="@{viewmodel.deviceModelLiveData.data.description}"/>
+                            android:text="@{viewmodel.deviceModelLiveData.data.description}"
+                            android:onTextChanged="@{(s,start,before,count) -> viewmodel.onDescriptionChanged(s)}"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -137,12 +143,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:hint="@string/lot_number_label"
+                        app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`lotNumber`,0)}"
                         app:boxStrokeColor="@color/colorPrimary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="@{viewmodel.deviceModelLiveData.data.productions.get(0).lotNumber}"/>
+                            android:text="@{viewmodel.deviceModelLiveData.data.productions.get(0).lotNumber}"
+                            android:onTextChanged="@{(s,start,before,count) -> viewmodel.onLotNumberChanged(s)}"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -151,12 +159,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:hint="@string/reference_number_label"
+                        app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`referenceNumber`,0)}"
                         app:boxStrokeColor="@color/colorPrimary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="@{viewmodel.deviceModelLiveData.data.productions.get(0).referenceNumber}"/>
+                            android:text="@{viewmodel.deviceModelLiveData.data.productions.get(0).referenceNumber}"
+                            android:onTextChanged="@{(s,start,before,count) -> viewmodel.onReferenceNumberChanged(s)}"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -164,12 +174,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/quantity_label"
+                        app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`quantity`,0)}"
                         app:boxStrokeColor="@color/colorPrimary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:text="1"
+                            android:onTextChanged="@{(s,start,before,count) -> viewmodel.onQuantityChanged(s)}"
                             android:inputType="number"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -217,7 +229,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@string/fui_continue"/>
+                    android:onClick="@{() -> viewmodel.onSave()}"
+                    android:text="@string/save_lbl"/>
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
