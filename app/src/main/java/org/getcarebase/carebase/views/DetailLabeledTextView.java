@@ -25,8 +25,6 @@ public class DetailLabeledTextView extends LinearLayout {
     private final TextView valueTextView;
     private final TextView labelTextView;
 
-
-
     public DetailLabeledTextView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         View rootView = inflate(context,R.layout.detail_text_view_layout,this);

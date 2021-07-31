@@ -28,6 +28,7 @@ public class DeviceUDIFormFragment extends Fragment {
         FragmentDeviceUdiFormBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_device_udi_form, container, false);
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.setViewmodel(viewModel);
+        binding.toolbar.setNavigationOnClickListener(v -> requireActivity().finish());
         return binding.getRoot();
     }
 }

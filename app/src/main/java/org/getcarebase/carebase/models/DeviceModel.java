@@ -75,6 +75,11 @@ public class DeviceModel implements Serializable {
         specifications.put(spec,value);
     }
 
+    public void setSpecifications(Map<String,String> specifications) {
+        this.specifications.clear();
+        this.specifications.putAll(specifications);
+    }
+
     public String getDeviceIdentifier() {
         return deviceIdentifier;
     }
