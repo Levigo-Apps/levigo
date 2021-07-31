@@ -37,7 +37,7 @@ public class AddDeviceActivity extends AppCompatActivity {
                 User user = resource.getData();
                 setup(user);
             } else if (resource.getRequest().getStatus() == Request.Status.ERROR) {
-                Snackbar.make(view,resource.getRequest().getResourceString(),Snackbar.LENGTH_LONG);
+                Snackbar.make(view,resource.getRequest().getResourceString(),Snackbar.LENGTH_LONG).show();
             }
         });
 
@@ -47,8 +47,24 @@ public class AddDeviceActivity extends AppCompatActivity {
                 goToAddDeviceDataFragment();
             } else if (resource.getRequest().getStatus() == Request.Status.ERROR) {
                 removeLoadingScreen();
-                Snackbar.make(view,resource.getRequest().getResourceString(),Snackbar.LENGTH_LONG);
+                Snackbar.make(view,resource.getRequest().getResourceString(),Snackbar.LENGTH_LONG).show();
             } else if (resource.getRequest().getStatus() == Request.Status.LOADING) {
+                showLoadingScreen();
+            }
+        });
+
+        viewModel.saveDeviceRequestLivedata.observe(this, requestEvent -> {
+            Request request = requestEvent.getContentIfNotHandled();
+            if (request.getStatus() == Request.Status.SUCCESS) {
+                // finish activity
+                removeLoadingScreen();
+                setResult(RESULT_OK);
+                finish();
+            }
+            else if (request.getStatus() == Request.Status.ERROR) {
+                removeLoadingScreen();
+                Snackbar.make(view,request.getResourceString(),Snackbar.LENGTH_LONG).show();
+            } else if (request.getStatus() == Request.Status.LOADING) {
                 showLoadingScreen();
             }
         });

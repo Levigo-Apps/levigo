@@ -9,7 +9,8 @@ public class DataBindingAdapters {
     public static void setErrorMessage(TextInputLayout view, int errorResource) {
         if (errorResource != 0) {
             view.setError(view.getResources().getString(errorResource));
-            view.invalidate();
+        } else {
+            view.setError(null);
         }
 
     }

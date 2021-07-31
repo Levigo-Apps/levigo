@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import org.getcarebase.carebase.R;
@@ -13,6 +14,7 @@ import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
 import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
+import org.getcarebase.carebase.utils.Event;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
@@ -27,6 +29,8 @@ public class AddDeviceViewModel extends ViewModel {
     public MutableLiveData<String> uniqueDeviceIdentifierLiveData = new MutableLiveData<>();
     private final MediatorLiveData<Resource<DeviceModel>> deviceModelLiveData = new MediatorLiveData<>();
     private final MutableLiveData<Map<String,Integer>> errorsLiveData = new MutableLiveData<>();
+    private final MutableLiveData<DeviceModel> saveDeviceLiveData = new MutableLiveData<>();
+    public final LiveData<Event<Request>> saveDeviceRequestLivedata = Transformations.switchMap(saveDeviceLiveData,device -> deviceRepository.saveDevice(device));
 
     public LiveData<Resource<User>> getUserLiveData() {
         if (userLiveData == null) {
@@ -71,15 +75,11 @@ public class AddDeviceViewModel extends ViewModel {
 
     public void onQuantityChanged(CharSequence quantity) {
         DeviceModel deviceModel = Objects.requireNonNull(deviceModelLiveData.getValue()).getData();
-        int amountAdded;
         if (quantity.toString().equals("")) {
-            amountAdded = 0;
+            deviceModel.getProductions().get(0).setQuantity(0);
         } else {
-            amountAdded = Integer.parseInt(quantity.toString());
+            deviceModel.getProductions().get(0).setQuantity((Integer.parseInt(quantity.toString())));
         }
-
-        deviceModel.setQuantity(deviceModel.getQuantity() + amountAdded);
-        deviceModel.getProductions().get(0).setQuantity(amountAdded);
     }
 
     public void onAutoPopulate() {
@@ -92,8 +92,11 @@ public class AddDeviceViewModel extends ViewModel {
         deviceModelLiveData.addSource(gudidSource,deviceSourceObserver);
     }
 
-    public void onSave() {
+    public void onSave(Map<String,String> specifications) {
         errorsLiveData.setValue(Objects.requireNonNull(deviceModelLiveData.getValue()).getData().isValid());
+        DeviceModel device = deviceModelLiveData.getValue().getData();
+        device.setSpecifications(specifications);
+        saveDeviceLiveData.setValue(device);
     }
 
     private class DeviceSourceObserver implements Observer<Resource<DeviceModel>> {

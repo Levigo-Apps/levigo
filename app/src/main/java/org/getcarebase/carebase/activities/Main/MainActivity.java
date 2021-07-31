@@ -71,8 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int RESULT_EDITED = Activity.RESULT_FIRST_USER;
     public static final int RESULT_DEVICE_SCANNED = Activity.RESULT_FIRST_USER + 1;
-    public static final int RESULT_DEVICE_ADDED = Activity.RESULT_FIRST_USER + 2;
-    public static final int RESULT_SHIPMENT_SCANNED = Activity.RESULT_FIRST_USER + 3;
+    public static final int RESULT_SHIPMENT_SCANNED = Activity.RESULT_FIRST_USER + 2;
 
     private Toolbar toolbar;
 
@@ -163,6 +162,10 @@ public class MainActivity extends AppCompatActivity {
             } else if (resultCode == RESULT_SHIPMENT_SCANNED) {
                 String shipmentId = Objects.requireNonNull(data).getStringExtra(CarebaseScanningActivity.ARG_UDI_RESULT);
                 startShipmentForm(shipmentId);
+            }
+        } else if (requestCode == RC_ADD_DEVICE) {
+            if (resultCode == RESULT_OK) {
+                Snackbar.make(findViewById(R.id.activity_main),"Device Saved", Snackbar.LENGTH_LONG).show();
             }
         } else if (requestCode == RC_ADD_PROCEDURE) {
             if (resultCode == RESULT_OK) {

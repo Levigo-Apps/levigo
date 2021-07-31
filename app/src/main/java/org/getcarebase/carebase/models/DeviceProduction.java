@@ -91,8 +91,6 @@ public class DeviceProduction {
         Map<String,Integer> errors = new HashMap<>();
         List<ValidationRule<DeviceProduction,?>> rules = new ArrayList<>();
         rules.add(new NonEmptyValidationRule<>("expirationDate",this::getExpirationDate));
-        rules.add(new NonEmptyValidationRule<>("lotNumber",this::getLotNumber));
-        rules.add(new NonEmptyValidationRule<>("referenceNumber",this::getReferenceNumber));
         rules.add(new GreaterThanZeroValidationRule<>("quantity",this::getQuantity));
         try {
             for (ValidationRule<DeviceProduction,?> rule : rules) {

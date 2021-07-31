@@ -16,6 +16,7 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             style="@style/Widget.Carebase.ToolBar.Gradient"
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:title="Add Device"
@@ -202,19 +203,19 @@
                         android:layout_height="wrap_content"
                         android:text="@string/specifications_label"/>
 
+                    <TextView
+                        android:id="@+id/no_spec_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="8dp"
+                        android:layout_gravity="center_horizontal"
+                        android:text="No Specifications" />
+
                     <LinearLayout
                         android:id="@+id/custom_fields_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/no_spec_text_view"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginVertical="8dp"
-                            android:layout_gravity="center_horizontal"
-                            android:text="No Specifications" />
-                    </LinearLayout>
+                        android:orientation="vertical"/>
 
                     <com.google.android.material.button.MaterialButton
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -225,11 +226,10 @@
                 </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/button_continue"
+                    android:id="@+id/button_save"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:onClick="@{() -> viewmodel.onSave()}"
                     android:text="@string/save_lbl"/>
             </LinearLayout>
         </ScrollView>

@@ -154,12 +154,16 @@ public class DeviceRepository {
     public LiveData<Event<Request>> saveDevice(DeviceModel deviceModel) {
         MutableLiveData<Event<Request>> saveDeviceRequest = new MutableLiveData<>();
         List<Task<?>> tasks = new ArrayList<>();
+        DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
+
+        // update device model quantity
+        deviceModel.setQuantity(deviceModel.getQuantity() + deviceProduction.getQuantity());
+
         // save device model
         DocumentReference deviceModelReference = inventoryReference.document(deviceModel.getDeviceIdentifier());
         tasks.add(deviceModelReference.set(deviceModel.toMap()));
 
         // save device production
-        DeviceProduction deviceProduction = deviceModel.getProductions().get(0);
         deviceProduction.setUniqueDeviceIdentifier(cleanBarcode(deviceProduction.getUniqueDeviceIdentifier()).replace('/','&'));
         // if udi and di are same we make udi unique so other scans do not overwrite (hibcc)
         if (deviceProduction.getUniqueDeviceIdentifier().equals(deviceModel.getDeviceIdentifier())) {
