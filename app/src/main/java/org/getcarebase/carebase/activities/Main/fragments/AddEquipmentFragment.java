@@ -1,6 +1,8 @@
 package org.getcarebase.carebase.activities.Main.fragments;
 
 
+import static android.app.Activity.RESULT_OK;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -29,6 +31,7 @@ import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
 
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.activities.Main.AddDeviceActivity;
 import org.getcarebase.carebase.activities.Main.CarebaseScanningActivity;
 import org.getcarebase.carebase.activities.Main.adapters.NewUsedDevicesAdapter;
 import org.getcarebase.carebase.models.Procedure;
@@ -39,6 +42,7 @@ import java.util.Objects;
 public class AddEquipmentFragment extends Fragment {
     public static final String TAG = AddEquipmentFragment.class.getSimpleName();
     private static final int RC_SCAN = 1;
+    private static final int RC_ADD_DEVICE = 2;
     private static final int RESULT_SCANNED = Activity.RESULT_FIRST_USER;
     private LinearLayout procedureDetailsView;
     private ProcedureViewModel procedureViewModel;
@@ -76,7 +80,7 @@ public class AddEquipmentFragment extends Fragment {
         procedureViewModel.getSaveProcedureRequestLiveData().observe(getViewLifecycleOwner(),request -> {
             if (request.getStatus() == Request.Status.SUCCESS) {
                 // go back to main activity
-                requireActivity().setResult(Activity.RESULT_OK);
+                requireActivity().setResult(RESULT_OK);
                 procedureViewModel.goToInventory();
             } else if (request.getStatus() == Request.Status.ERROR) {
                 Snackbar.make(rootView, request.getResourceString(), Snackbar.LENGTH_LONG).show();
@@ -123,6 +127,11 @@ public class AddEquipmentFragment extends Fragment {
                 procedureViewModel.addDeviceUsed(udi);
             }
         }
+        else if (requestCode == RC_ADD_DEVICE) {
+            if (resultCode == RESULT_OK) {
+                procedureViewModel.retryDeviceUsed();
+            }
+        }
     }
 
     public void offerEquipmentScan(View view, final String udi){
@@ -130,19 +139,10 @@ public class AddEquipmentFragment extends Fragment {
                 .setTitle("Scan device")
                 .setMessage("The device with the barcode: \n"+udi+"\ncould not be found in inventory.\nWould you like to add it now?")
                 .setPositiveButton("Scan", (dialogInterface, i) -> {
-                    ItemDetailFragment fragment = new ItemDetailFragment();
-                    Bundle bundle = new Bundle();
-                    bundle.putString("barcode", udi);
-                    fragment.setArguments(bundle);
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    Intent intent = new Intent(requireContext(), AddDeviceActivity.class);
+                    intent.putExtra("barcode",udi);
+                    startActivityForResult(intent,RC_ADD_DEVICE);
 
-                    //clears other fragments
-                    // fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.setCustomAnimations(R.anim.fui_slide_in_right, R.anim.fui_slide_out_left);
-                    fragmentTransaction.add(R.id.frame_layout, fragment);
-                    fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.commit();
                 })
                 .setNegativeButton("Cancel", (dialogInterface, i) -> {
                     dialogInterface.cancel();
