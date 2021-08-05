@@ -1,7 +1,5 @@
 package org.getcarebase.carebase.viewmodels;
 
-import androidx.databinding.Bindable;
-import androidx.databinding.InverseMethod;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -11,8 +9,10 @@ import androidx.lifecycle.ViewModel;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
+import org.getcarebase.carebase.models.Entity;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
+import org.getcarebase.carebase.repositories.EntityRepository;
 import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
 import org.getcarebase.carebase.utils.Event;
 import org.getcarebase.carebase.utils.Request;
@@ -23,10 +23,12 @@ import java.util.Objects;
 
 public class AddDeviceViewModel extends ViewModel {
     private final FirebaseAuthRepository authRepository = new FirebaseAuthRepository();
+    private final EntityRepository entityRepository = new EntityRepository();
     private DeviceRepository deviceRepository;
 
     private LiveData<Resource<User>> userLiveData;
     public MutableLiveData<String> uniqueDeviceIdentifierLiveData = new MutableLiveData<>();
+    private LiveData<Boolean> editableLiveData;
     private final MediatorLiveData<Resource<DeviceModel>> deviceModelLiveData = new MediatorLiveData<>();
     private final MutableLiveData<Map<String,Integer>> errorsLiveData = new MutableLiveData<>();
     private final MutableLiveData<DeviceModel> saveDeviceLiveData = new MutableLiveData<>();
@@ -45,6 +47,21 @@ public class AddDeviceViewModel extends ViewModel {
 
     public MutableLiveData<Map<String, Integer>> getErrorsLiveData() {
         return errorsLiveData;
+    }
+
+    public LiveData<Boolean> isEditable() {
+        if (editableLiveData == null) {
+            LiveData<Resource<Entity>> entityLiveData = entityRepository.getEntity(Objects.requireNonNull(userLiveData.getValue()).getData());
+            editableLiveData = Transformations.map(entityLiveData, entityResource -> {
+                if (entityResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                    Entity entity = entityResource.getData();
+                    return !entity.getType().equals("hospital");
+                } else {
+                    return false;
+                }
+            });
+        }
+        return editableLiveData;
     }
 
     public void setupDeviceRepository(String networkId, String entityId) {

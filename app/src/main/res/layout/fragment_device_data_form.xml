@@ -95,6 +95,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:hint="@string/name_label"
+                        android:enabled="@{viewmodel.isEditable(), default=false}"
                         app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`name`,0)}"
                         app:boxStrokeColor="@color/colorPrimary">
 
@@ -111,6 +112,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:hint="@string/expiration_date_lbl"
+                        android:enabled="@{viewmodel.isEditable(), default=false}"
                         app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`expirationDate`,0)}"
                         app:boxStrokeColor="@color/colorPrimary">
 
@@ -128,6 +130,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:hint="@string/device_description_label"
+                        android:enabled="@{viewmodel.isEditable(), default=false}"
                         app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`description`,0)}"
                         app:boxStrokeColor="@color/colorPrimary">
 
@@ -144,6 +147,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:hint="@string/lot_number_label"
+                        android:enabled="@{viewmodel.isEditable(), default=false}"
                         app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`lotNumber`,0)}"
                         app:boxStrokeColor="@color/colorPrimary">
 
@@ -160,6 +164,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:hint="@string/reference_number_label"
+                        android:enabled="@{viewmodel.isEditable(), default=false}"
                         app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`referenceNumber`,0)}"
                         app:boxStrokeColor="@color/colorPrimary">
 
@@ -175,6 +180,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/quantity_label"
+                        android:enabled="@{viewmodel.isEditable(), default=false}"
                         app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`quantity`,0)}"
                         app:boxStrokeColor="@color/colorPrimary">
 
@@ -222,6 +228,7 @@
                         android:id="@+id/add_custom_field_button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:enabled="@{viewmodel.isEditable(), default=false}"
                         android:text="add"/>
                 </LinearLayout>
 
