@@ -47,7 +47,6 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
         for (View fab : miniFABs) {
             container.addView(fab,0);
         }
-        super.onResume();
     }
 
     @Override
@@ -56,7 +55,6 @@ public class MiniFloatingActionButtonManagerFragment extends FloatingActionButto
         for (View fab : miniFABs) {
             container.removeView(fab);
         }
-        super.onPause();
     }
 
 
