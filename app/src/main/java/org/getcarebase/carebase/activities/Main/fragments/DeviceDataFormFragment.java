@@ -119,7 +119,7 @@ public class DeviceDataFormFragment extends Fragment {
             Snackbar.make(requireView(),"Custom field limit reached", Snackbar.LENGTH_LONG).show();
             return;
         }
-        if (getCustomFields() == null) {
+        if (removable && getCustomFields() == null) {
             return;
         }
         CustomFieldFormBinding binding = DataBindingUtil.inflate(getLayoutInflater(),R.layout.custom_field_form,customFieldsLayout,false);
@@ -130,11 +130,13 @@ public class DeviceDataFormFragment extends Fragment {
         }
         binding.setName(name);
         binding.setValue(value);
+        binding.setEditable(viewModel.isEditable());
+        binding.setLifecycleOwner(getViewLifecycleOwner());
         customFieldsLayout.addView(binding.getRoot());
     }
 
     public void onRemoveCustomField(View view) {
-        if (customFieldsLayout.getChildCount() - 1 == 1) {
+        if (customFieldsLayout.getChildCount() == 0) {
             noSpecificationsTextView.setVisibility(View.VISIBLE);
         }
         customFieldsLayout.removeView((View) view.getParent());

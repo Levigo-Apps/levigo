@@ -100,6 +100,7 @@ public class AddDeviceActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.frame_layout,fragment,DeviceUDIFormFragment.TAG)
+                .addToBackStack(null)
                 .commit();
     }
 
@@ -108,6 +109,7 @@ public class AddDeviceActivity extends AppCompatActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.frame_layout,fragment,DeviceDataFormFragment.TAG)
+                .addToBackStack(null)
                 .commit();
     }
 }

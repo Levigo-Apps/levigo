@@ -1,7 +1,5 @@
 package org.getcarebase.carebase.viewmodels;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -11,13 +9,12 @@ import androidx.lifecycle.ViewModel;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
-import org.getcarebase.carebase.models.Entity;
 import org.getcarebase.carebase.models.PendingDevice;
 import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
-import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
 import org.getcarebase.carebase.repositories.EntityRepository;
+import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
 import org.getcarebase.carebase.repositories.PendingDeviceRepository;
 import org.getcarebase.carebase.repositories.ShipmentRepository;
 import org.getcarebase.carebase.utils.Event;
@@ -25,9 +22,6 @@ import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 import org.getcarebase.carebase.utils.SingleEventMediatorLiveData;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -110,20 +104,6 @@ public class DeviceViewModel extends ViewModel {
 
     public LiveData<Resource<Map<String, String>>> getSitesLiveData() {
         return entityRepository.getSiteOptions();
-    }
-
-    public LiveData<Resource<String>> getEntityType() {
-        if (entityTypeLiveData == null) {
-            LiveData<Resource<Entity>> entityLiveData = entityRepository.getEntity(Objects.requireNonNull(userLiveData.getValue()).getData());
-            entityTypeLiveData = Transformations.map(entityLiveData, entityResource -> {
-                if (entityResource.getRequest().getStatus() == Request.Status.SUCCESS) {
-                    return new Resource<>(entityResource.getData().getType(),new Request(null, Request.Status.SUCCESS));
-                } else {
-                    return new Resource<>(null,entityResource.getRequest());
-                }
-            });
-        }
-        return entityTypeLiveData;
     }
 
     public LiveData<Resource<Map<String,String>>> getShipmentTrackingNumbersLiveData() {
