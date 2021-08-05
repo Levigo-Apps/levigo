@@ -23,6 +23,7 @@
     <string name="error_device_lookup">Could not find device information</string>
     <string name="error_partial_data_in_database">Only device model information is found for this device</string>
     <string name="error_missing_required_fields">Please enter all required fields</string>
+    <string name="error_must_be_greater_than_zero">Quantity must be greater than zero</string>
     <!--common errors end-->
 
     <!--adding a device start-->

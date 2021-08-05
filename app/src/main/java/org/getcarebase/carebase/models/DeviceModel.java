@@ -1,5 +1,11 @@
 package org.getcarebase.carebase.models;
 
+import android.util.Log;
+
+import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.utils.NonEmptyValidationRule;
+import org.getcarebase.carebase.utils.ValidationRule;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,6 +75,11 @@ public class DeviceModel implements Serializable {
         specifications.put(spec,value);
     }
 
+    public void setSpecifications(Map<String,String> specifications) {
+        this.specifications.clear();
+        this.specifications.putAll(specifications);
+    }
+
     public String getDeviceIdentifier() {
         return deviceIdentifier;
     }
@@ -105,6 +116,28 @@ public class DeviceModel implements Serializable {
 
     public List<Map.Entry<String,Object>> getSpecificationList() {
         return new ArrayList<>(specifications.entrySet());
+    }
+
+    public Map<String,Integer> isValid() {
+        Map<String,Integer> errors = new HashMap<>();
+        List<ValidationRule<DeviceModel,?>> rules = new ArrayList<>();
+        rules.add(new NonEmptyValidationRule<>("name",this::getName));
+        rules.add(new NonEmptyValidationRule<>("description",this::getDescription));
+
+        try {
+            for (ValidationRule<DeviceModel,?> rule : rules) {
+                String name = rule.getFieldName();
+                if (!rule.validate(this)) errors.put(name,rule.getReferenceString());
+            }
+            for (DeviceProduction production : productions) {
+                errors.putAll(production.isValid());
+            }
+        } catch (Exception e) {
+            Log.e(DeviceModel.class.getSimpleName(),e.getMessage(),e);
+            errors.clear();
+            errors.put("all", R.string.error_something_wrong);
+        }
+        return errors;
     }
 
     public void fromMap(Map<String,Object> data) {

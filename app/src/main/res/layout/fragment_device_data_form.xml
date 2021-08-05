@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+        <import type="android.view.View"/>
+        <variable
+                name="viewmodel"
+                type="org.getcarebase.carebase.viewmodels.AddDeviceViewModel"/>
+    </data>
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/white">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            style="@style/Widget.Carebase.ToolBar.Gradient"
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="Add Device"
+            app:navigationIcon="@drawable/icon_back"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="16dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:layout_marginTop="16dp"
+                    android:background="#FAFAFA"
+                    android:elevation="2dp"
+                    android:orientation="vertical">
+                    <org.getcarebase.carebase.views.DetailLabeledTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@{viewmodel.deviceModelLiveData.data.productions.get(0).uniqueDeviceIdentifier}"
+                        app:label_text="@string/udi_lbl"/>
+                    <org.getcarebase.carebase.views.DetailLabeledTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@{viewmodel.deviceModelLiveData.data.deviceIdentifier}"
+                        app:label_text="@string/device_identifier_lbl"/>
+                    <org.getcarebase.carebase.views.DetailLabeledTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@{viewmodel.deviceModelLiveData.data.company}"
+                        app:label_text="@string/company_lbl"/>
+                    <org.getcarebase.carebase.views.DetailLabeledTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@{viewmodel.deviceModelLiveData.data.equipmentType}"
+                        app:label_text="@string/type_label"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginBottom="8dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tags"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Overline" />
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chip_group"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <org.getcarebase.carebase.views.DetailLabeledTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@{Integer.toString(viewmodel.deviceModelLiveData.data.quantity)}"
+                        app:label_text="Current Quantity"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical">
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:hint="@string/name_label"
+                        android:enabled="@{viewmodel.isEditable(), default=false}"
+                        app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`name`,0)}"
+                        app:boxStrokeColor="@color/colorPrimary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="@{viewmodel.deviceModelLiveData.data.name}"
+                            android:onTextChanged="@{(s,start,before,count) -> viewmodel.onNameChanged(s)}"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:hint="@string/expiration_date_lbl"
+                        android:enabled="@{viewmodel.isEditable(), default=false}"
+                        app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`expirationDate`,0)}"
+                        app:boxStrokeColor="@color/colorPrimary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="@{viewmodel.deviceModelLiveData.data.productions.get(0).expirationDate}"
+                            android:onTextChanged="@{(s,start,before,count) -> viewmodel.onExpirationDateChanged(s)}"
+                            android:inputType="date"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:hint="@string/device_description_label"
+                        android:enabled="@{viewmodel.isEditable(), default=false}"
+                        app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`description`,0)}"
+                        app:boxStrokeColor="@color/colorPrimary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="@{viewmodel.deviceModelLiveData.data.description}"
+                            android:onTextChanged="@{(s,start,before,count) -> viewmodel.onDescriptionChanged(s)}"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:hint="@string/lot_number_label"
+                        android:enabled="@{viewmodel.isEditable(), default=false}"
+                        app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`lotNumber`,0)}"
+                        app:boxStrokeColor="@color/colorPrimary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="@{viewmodel.deviceModelLiveData.data.productions.get(0).lotNumber}"
+                            android:onTextChanged="@{(s,start,before,count) -> viewmodel.onLotNumberChanged(s)}"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:hint="@string/reference_number_label"
+                        android:enabled="@{viewmodel.isEditable(), default=false}"
+                        app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`referenceNumber`,0)}"
+                        app:boxStrokeColor="@color/colorPrimary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="@{viewmodel.deviceModelLiveData.data.productions.get(0).referenceNumber}"
+                            android:onTextChanged="@{(s,start,before,count) -> viewmodel.onReferenceNumberChanged(s)}"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/quantity_label"
+                        android:enabled="@{viewmodel.isEditable(), default=false}"
+                        app:errorText="@{viewmodel.errorsLiveData.getOrDefault(`quantity`,0)}"
+                        app:boxStrokeColor="@color/colorPrimary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="1"
+                            android:onTextChanged="@{(s,start,before,count) -> viewmodel.onQuantityChanged(s)}"
+                            android:inputType="number"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/detail_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:padding="16dp"
+                    android:background="#FAFAFA"
+                    android:elevation="2dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TextAppearance.Carebase.TextView.CardTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/specifications_label"/>
+
+                    <TextView
+                        android:id="@+id/no_spec_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="8dp"
+                        android:layout_gravity="center_horizontal"
+                        android:text="No Specifications" />
+
+                    <LinearLayout
+                        android:id="@+id/custom_fields_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:id="@+id/add_custom_field_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="@{viewmodel.isEditable(), default=false}"
+                        android:text="add"/>
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_save"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/save_lbl"/>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</layout>
