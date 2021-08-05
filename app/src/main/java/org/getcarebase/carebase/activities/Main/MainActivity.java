@@ -24,10 +24,6 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,30 +35,21 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.carebase.carebasescanner.ScanningActivity;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
-import com.journeyapps.barcodescanner.CaptureActivity;
 
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.activities.Login.LoginActivity;
 import org.getcarebase.carebase.activities.Main.adapters.HomePagerAdapter;
 import org.getcarebase.carebase.activities.Main.fragments.AddShipmentFragment;
-import org.getcarebase.carebase.activities.Main.fragments.EditEquipmentFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ErrorFragment;
 import org.getcarebase.carebase.activities.Main.fragments.InventoryStartFragment;
-import org.getcarebase.carebase.activities.Main.fragments.ItemDetailFragment;
-import org.getcarebase.carebase.activities.Main.fragments.ItemDetailOfflineFragment;
 import org.getcarebase.carebase.activities.Main.fragments.LoadingFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ModelListFragment;
-import org.getcarebase.carebase.activities.Main.fragments.PendingUdiFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ProcedureStartFragment;
 import org.getcarebase.carebase.activities.Main.fragments.ShipmentStartFragment;
 import org.getcarebase.carebase.models.Entity;
-import org.getcarebase.carebase.models.Procedure;
 import org.getcarebase.carebase.models.TabType;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.utils.Request;
@@ -77,8 +64,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_ADD_PROCEDURE = 2;
     private static final int RC_EDIT_DEVICE_DETAILS = 3;
     private static final int RC_SCAN = 4;
+    private static final int RC_ADD_DEVICE = 5;
 
-    public static final int RESULT_EDITED = Activity.RESULT_FIRST_USER + 0;
+    public static final int RESULT_EDITED = Activity.RESULT_FIRST_USER;
     public static final int RESULT_DEVICE_SCANNED = Activity.RESULT_FIRST_USER + 1;
     public static final int RESULT_SHIPMENT_SCANNED = Activity.RESULT_FIRST_USER + 2;
 
@@ -172,6 +160,10 @@ public class MainActivity extends AppCompatActivity {
                 String shipmentId = Objects.requireNonNull(data).getStringExtra(CarebaseScanningActivity.ARG_UDI_RESULT);
                 startShipmentForm(shipmentId);
             }
+        } else if (requestCode == RC_ADD_DEVICE) {
+            if (resultCode == RESULT_OK) {
+                Snackbar.make(findViewById(R.id.activity_main),"Device Saved", Snackbar.LENGTH_LONG).show();
+            }
         } else if (requestCode == RC_ADD_PROCEDURE) {
             if (resultCode == RESULT_OK) {
                 Snackbar.make(findViewById(R.id.activity_main),"Procedure Saved", Snackbar.LENGTH_LONG).show();
@@ -189,10 +181,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startItemForm(String barcode) {
-        if (isNetworkAvailable())
-            startItemFormOnline(barcode);
-        else
-            startItemFormOffline(barcode);
+       Intent intent = new Intent(this,AddDeviceActivity.class);
+       intent.putExtra("barcode",barcode);
+       startActivityForResult(intent,RC_ADD_DEVICE);
     }
 
     private void startShipmentForm(String shipmentId) {
@@ -208,68 +199,12 @@ public class MainActivity extends AppCompatActivity {
         transaction.commit();
     }
 
-    public void startItemFormOnline(String barcode) {
-        ItemDetailFragment fragment = new ItemDetailFragment();
-        if (!barcode.trim().isEmpty()) {
-            Bundle bundle = new Bundle();
-            bundle.putString("barcode", barcode);
-            fragment.setArguments(bundle);
-        }
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-
-        //clears other fragments
-//        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
-
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
-        fragmentTransaction.add(R.id.activity_main, fragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
-    }
 
     public void startDeviceDetail(final String di, final String udi) {
         Intent intent = new Intent(this,DeviceDetailActivity.class);
         intent.putExtra("di",di);
         intent.putExtra("udi",udi);
         startActivityForResult(intent, RC_EDIT_DEVICE_DETAILS);
-    }
-
-    public void startItemFormOffline(String barcode) {
-        ItemDetailOfflineFragment fragment = new ItemDetailOfflineFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString("barcode", barcode);
-        bundle.putBoolean("editingExisting", false);
-        fragment.setArguments(bundle);
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        // clears other fragments
-//        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_in_left);
-        fragmentTransaction.add(R.id.activity_main, fragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
-
-    }
-
-    public void startPendingEquipment(String barcode) {
-        PendingUdiFragment fragment = new PendingUdiFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString("barcode", barcode);
-        fragment.setArguments(bundle);
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        //clears other fragments
-        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
-        fragmentTransaction.add(R.id.activity_main, fragment, PendingUdiFragment.TAG);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
     }
 
     public void startProcedureInfo() {

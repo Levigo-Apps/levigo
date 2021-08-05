@@ -1,8 +1,15 @@
 package org.getcarebase.carebase.models;
 
+import android.util.Log;
+
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.PropertyName;
+
+import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.utils.GreaterThanZeroValidationRule;
+import org.getcarebase.carebase.utils.NonEmptyValidationRule;
+import org.getcarebase.carebase.utils.ValidationRule;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -78,6 +85,24 @@ public class DeviceProduction {
 
     public void addProcedures(List<Procedure> procedures) {
         this.procedures.addAll(procedures);
+    }
+
+    public Map<String,Integer> isValid() {
+        Map<String,Integer> errors = new HashMap<>();
+        List<ValidationRule<DeviceProduction,?>> rules = new ArrayList<>();
+        rules.add(new NonEmptyValidationRule<>("expirationDate",this::getExpirationDate));
+        rules.add(new GreaterThanZeroValidationRule<>("quantity",this::getQuantity));
+        try {
+            for (ValidationRule<DeviceProduction,?> rule : rules) {
+                String name = rule.getFieldName();
+                if (!rule.validate(this)) errors.put(name,rule.getReferenceString());
+            }
+        } catch (Exception e) {
+            Log.e(DeviceProduction.class.getSimpleName(),e.getMessage(),e);
+            errors.clear();
+            errors.put("all", R.string.error_something_wrong);
+        }
+        return errors;
     }
 
     public void fromMap(Map<String,Object> data) {
