@@ -194,7 +194,6 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/detail_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -230,6 +229,28 @@
                         android:layout_height="wrap_content"
                         android:enabled="@{viewmodel.isEditable(), default=false}"
                         android:text="add"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:padding="16dp"
+                    android:background="#FAFAFA"
+                    android:elevation="2dp"
+                    android:orientation="horizontal"
+                    android:visibility="@{viewmodel.isEditable() ? `visible` : `gone`}">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Add device(s) to a shipment"/>
+
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
                 </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
