@@ -48,7 +48,14 @@ public class AddDeviceViewModel extends ViewModel {
     }
 
     public LiveData<Resource<Map<String, String>>> getSitesLiveData() {
-        return entityRepository.getSiteOptions();
+        // remove user's entity
+        return Transformations.map(entityRepository.getSiteOptions(),sitesResource -> {
+            if (sitesResource.getRequest().getStatus() == Request.Status.SUCCESS) {
+                String entityId = Objects.requireNonNull(userLiveData.getValue()).getData().getEntityId();
+                sitesResource.getData().remove(entityId);
+            }
+            return sitesResource;
+        });
     }
 
     public LiveData<Resource<Map<String,String>>> getShipmentTrackingNumbersLiveData() {

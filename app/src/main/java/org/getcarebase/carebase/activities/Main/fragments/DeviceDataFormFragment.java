@@ -51,6 +51,7 @@ public class DeviceDataFormFragment extends Fragment {
 
         DeviceModel deviceModel = Objects.requireNonNull(viewModel.getDeviceModelLiveData().getValue()).getData();
 
+        // set up chips
         ChipGroup chipGroup = binding.chipGroup;
         for (String tag : deviceModel.getTags()) {
             Chip chip = new Chip(requireContext());
@@ -58,6 +59,7 @@ public class DeviceDataFormFragment extends Fragment {
             chipGroup.addView(chip);
         }
 
+        // set up specifications
         noSpecificationsTextView = binding.noSpecTextView;
         if (deviceModel.getSpecificationList().isEmpty()) {
             noSpecificationsTextView.setVisibility(View.VISIBLE);
@@ -68,11 +70,16 @@ public class DeviceDataFormFragment extends Fragment {
         }
         binding.addCustomFieldButton.setOnClickListener(v -> addCustomField("","",true));
 
+        // set up shipment info
         binding.shipmentInfoCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> toggleShipmentOptions(isChecked));
         shipmentOptionsLayout = binding.shipmentOptions;
+        viewModel.getShipmentTrackingNumbersLiveData().observe(getViewLifecycleOwner(),binding.shipmentDetailInputView::setTrackingNumbersOptions);
+        viewModel.getSitesLiveData().observe(getViewLifecycleOwner(),binding.shipmentDetailInputView::setDestinationOptions);
 
+        // set up save
         binding.buttonSave.setOnClickListener(v -> onSaveClicked());
 
+        // set up errors
         viewModel.getErrorsLiveData().observe(getViewLifecycleOwner(),errors -> {
             for (Map.Entry<String,Integer> error : errors.entrySet()) {
                 if (error.getKey().equals("all")) {
