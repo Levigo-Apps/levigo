@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -36,6 +38,7 @@ public class DeviceDataFormFragment extends Fragment {
 
     private LinearLayout customFieldsLayout;
     private TextView noSpecificationsTextView;
+    private LinearLayout shipmentOptionsLayout;
 
     @Nullable
     @Override
@@ -64,6 +67,9 @@ public class DeviceDataFormFragment extends Fragment {
             addCustomField(entry.getKey(),entry.getValue().toString(),false);
         }
         binding.addCustomFieldButton.setOnClickListener(v -> addCustomField("","",true));
+
+        binding.shipmentInfoCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> toggleShipmentOptions(isChecked));
+        shipmentOptionsLayout = binding.shipmentOptions;
 
         binding.buttonSave.setOnClickListener(v -> onSaveClicked());
 
@@ -111,6 +117,10 @@ public class DeviceDataFormFragment extends Fragment {
             }
         }
         return specifications;
+    }
+
+    public void toggleShipmentOptions(boolean isChecked) {
+        shipmentOptionsLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
     }
 
     public void addCustomField(String name, String value, boolean removable) {

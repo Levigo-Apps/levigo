@@ -86,7 +86,7 @@ public class AddDeviceActivity extends AppCompatActivity {
     }
 
     private void setup(User user) {
-        viewModel.setupDeviceRepository(user.getNetworkId(),user.getEntityId());
+        viewModel.setupRepositories(user.getNetworkId(),user.getEntityId());
 
         String barcode = getIntent().getStringExtra("barcode");
         viewModel.uniqueDeviceIdentifierLiveData.setValue(barcode);
