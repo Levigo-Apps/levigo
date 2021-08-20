@@ -14,6 +14,7 @@ import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
 import org.getcarebase.carebase.repositories.EntityRepository;
 import org.getcarebase.carebase.repositories.FirebaseAuthRepository;
+import org.getcarebase.carebase.repositories.ShipmentRepository;
 import org.getcarebase.carebase.utils.Event;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
@@ -23,8 +24,9 @@ import java.util.Objects;
 
 public class AddDeviceViewModel extends ViewModel {
     private final FirebaseAuthRepository authRepository = new FirebaseAuthRepository();
-    private final EntityRepository entityRepository = new EntityRepository();
+    private EntityRepository entityRepository;
     private DeviceRepository deviceRepository;
+    private ShipmentRepository shipmentRepository;
 
     private LiveData<Resource<User>> userLiveData;
     public MutableLiveData<String> uniqueDeviceIdentifierLiveData = new MutableLiveData<>();
@@ -43,6 +45,14 @@ public class AddDeviceViewModel extends ViewModel {
 
     public LiveData<Resource<DeviceModel>> getDeviceModelLiveData() {
         return deviceModelLiveData;
+    }
+
+    public LiveData<Resource<Map<String, String>>> getSitesLiveData() {
+        return entityRepository.getSiteOptions();
+    }
+
+    public LiveData<Resource<Map<String,String>>> getShipmentTrackingNumbersLiveData() {
+        return shipmentRepository.getShipmentTrackingNumbers();
     }
 
     public MutableLiveData<Map<String, Integer>> getErrorsLiveData() {
@@ -64,11 +74,11 @@ public class AddDeviceViewModel extends ViewModel {
         return editableLiveData;
     }
 
-    public void setupDeviceRepository(String networkId, String entityId) {
+    public void setupRepositories(String networkId, String entityId) {
         deviceRepository = new DeviceRepository(networkId,entityId);
+        entityRepository = new EntityRepository(networkId);
+        shipmentRepository = new ShipmentRepository(networkId);
     }
-
-    // TODO: add error live data for validation
 
     public void onNameChanged(CharSequence name) {
         Objects.requireNonNull(deviceModelLiveData.getValue()).getData().setName(name.toString());
