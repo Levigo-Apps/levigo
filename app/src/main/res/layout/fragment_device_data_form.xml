@@ -263,7 +263,12 @@
                         android:layout_height="wrap_content"
                         android:visibility="gone"
                         android:orientation="vertical">
-                        
+
+                        <org.getcarebase.carebase.views.ShipmentDetailInputView
+                            android:id="@+id/shipment_detail_input_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
                     </LinearLayout>
                 </LinearLayout>
 
