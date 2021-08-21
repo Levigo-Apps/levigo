@@ -1,7 +1,5 @@
 package org.getcarebase.carebase.models;
 
-import android.text.InputType;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -9,9 +7,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
-import org.json.JSONArray;
-
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * converts a DeviceModel in json format into a DeviceModel Java object
@@ -53,7 +51,13 @@ public class DeviceModelGUDIDDeserializer implements JsonDeserializer<DeviceMode
         if (deviceObject.has("deviceDescription") && !deviceObject.get("deviceDescription").isJsonNull()) {
             deviceModel.setDescription(deviceObject.getAsJsonPrimitive("deviceDescription").getAsString());
         }
-        deviceModel.setProductCode(deviceObject.getAsJsonObject("productCodes").getAsJsonArray("fdaProductCode").get(0).getAsJsonObject().get("productCode").getAsString());
+
+        JsonArray productCodesArray = deviceObject.getAsJsonObject("productCodes").getAsJsonArray("fdaProductCode");
+        List<String> codes = new ArrayList<>();
+        for (int i = 0; i < productCodesArray.size(); i++) {
+            codes.add(productCodesArray.get(i).getAsJsonObject().get("productCode").getAsString());
+        }
+        deviceModel.setProductCodes(codes);
 
         // add device sizes to specifications
         if (deviceObject.has("deviceSizes") && !deviceObject.get("deviceSizes").isJsonNull()) {
