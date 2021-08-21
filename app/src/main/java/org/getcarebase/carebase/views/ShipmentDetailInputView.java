@@ -55,40 +55,24 @@ public class ShipmentDetailInputView extends LinearLayout {
         trackingNumbersAdapter = new ArrayAdapter<>(getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
         destinationsAdapter = new ArrayAdapter<>(getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
 
-        binding.trackingNumberTextView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String trackingNumber = trackingNumbersAdapter.getItem(position);
-                onTrackingNumberSelection.update(trackingNumber);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                onTrackingNumberSelection.update(null);
-            }
+        binding.trackingNumberTextView.setOnItemClickListener((parent, view, position, id) -> {
+            String trackingNumber = trackingNumbersAdapter.getItem(position);
+            onTrackingNumberSelection.update(trackingNumber);
         });
 
-        binding.destinationTextView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String destinationName = destinationsAdapter.getItem(position);
-                String destinationId = null;
-                // destination ID reverse lookup
-                for (Map.Entry<String,String> entry : entityIdToEntityNameMap.entrySet()) {
-                    if (entry.getValue().equals(destinationName)) {
-                        destinationId = entry.getKey();
-                    }
+        binding.destinationTextView.setOnItemClickListener((parent, view, position, id) -> {
+            String destinationName = destinationsAdapter.getItem(position);
+            String destinationId = null;
+            // destination ID reverse lookup
+            for (Map.Entry<String,String> entry : entityIdToEntityNameMap.entrySet()) {
+                if (entry.getValue().equals(destinationName)) {
+                    destinationId = entry.getKey();
                 }
-                if (destinationId == null) {
-                    Log.e(TAG,"destination name is not recognized");
-                }
-                onDestinationSelection.update(destinationId,destinationName);
             }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                onDestinationSelection.update(null,null);
+            if (destinationId == null) {
+                Log.e(TAG,"destination name is not recognized");
             }
+            onDestinationSelection.update(destinationId,destinationName);
         });
     }
 
@@ -115,6 +99,8 @@ public class ShipmentDetailInputView extends LinearLayout {
                         String entityName = entityIdToEntityNameMap.get(entityId);
                         Log.d(TAG, "Matching Entity Name: " + entityName);
                         binding.destinationTextView.setText(entityName);
+                        binding.destinationLayout.setEnabled(false);
+                        onDestinationSelection.update(entityId,entityName);
                     }
                     binding.destinationLayout.setVisibility(View.VISIBLE);
                 }
@@ -131,6 +117,10 @@ public class ShipmentDetailInputView extends LinearLayout {
 
     public void setOnTrackingNumberSelection(OnTrackingNumberSelection onTrackingNumberSelection) {
         this.onTrackingNumberSelection = onTrackingNumberSelection;
+    }
+
+    public void setTrackingNumberError(Integer errorStringId) {
+        binding.trackingNumberLayout.setError(getContext().getText(errorStringId));
     }
 
     public interface OnTrackingNumberSelection {
@@ -153,6 +143,10 @@ public class ShipmentDetailInputView extends LinearLayout {
 
     public void setOnDestinationSelection(OnDestinationSelection onDestinationSelection) {
         this.onDestinationSelection = onDestinationSelection;
+    }
+
+    public void setDestinationError(Integer errorStringId) {
+        binding.destinationLayout.setError(getContext().getText(errorStringId));
     }
 
     public interface OnDestinationSelection {
