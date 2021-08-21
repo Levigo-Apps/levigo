@@ -133,7 +133,7 @@ public class ShipmentRepository {
     }
 
     public LiveData<Request> receiveShipment(Shipment shipment) {
-        MutableLiveData<Request> receiveShipmentRequest = new MutableLiveData<>();
+        MutableLiveData<Request> receiveShipmentRequest = new MutableLiveData<>(new Request(null,Request.Status.LOADING));
         Task<?> task = FirestoreReferences.getFirestoreReference().runTransaction(new Transaction.Function<Void>() {
             @Nullable
             @Override
