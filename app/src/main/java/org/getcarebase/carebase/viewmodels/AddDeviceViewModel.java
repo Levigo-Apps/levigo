@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel;
 import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.Entity;
+import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.models.User;
 import org.getcarebase.carebase.repositories.DeviceRepository;
 import org.getcarebase.carebase.repositories.EntityRepository;
@@ -19,6 +20,7 @@ import org.getcarebase.carebase.utils.Event;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -34,7 +36,20 @@ public class AddDeviceViewModel extends ViewModel {
     private final MediatorLiveData<Resource<DeviceModel>> deviceModelLiveData = new MediatorLiveData<>();
     private final MutableLiveData<Map<String,Integer>> errorsLiveData = new MutableLiveData<>();
     private final MutableLiveData<DeviceModel> saveDeviceLiveData = new MutableLiveData<>();
-    public final LiveData<Event<Request>> saveDeviceRequestLivedata = Transformations.switchMap(saveDeviceLiveData,device -> deviceRepository.saveDevice(device));
+    private final MutableLiveData<Shipment> saveShipment = new MutableLiveData<>(null);
+    public final LiveData<Event<Request>> saveRequestLivedata = Transformations.switchMap(saveDeviceLiveData,device -> {
+        LiveData<Event<Request>> saveDeviceRequestLiveData = deviceRepository.saveDevice(device);
+        if (saveShipment.getValue() != null) {
+            return Transformations.switchMap(saveDeviceRequestLiveData, saveDeviceRequest -> {
+                Request request = saveDeviceRequest.getContentIfNotHandled();
+                if (request.getStatus() == Request.Status.SUCCESS) {
+                    return shipmentRepository.saveShipment(saveShipment.getValue());
+                }
+                return new MutableLiveData<>(new Event<>(request));
+            });
+        }
+        return saveDeviceRequestLiveData;
+    });
 
     public LiveData<Resource<User>> getUserLiveData() {
         if (userLiveData == null) {
@@ -81,6 +96,10 @@ public class AddDeviceViewModel extends ViewModel {
         return editableLiveData;
     }
 
+    public LiveData<Boolean> isShipment() {
+        return Transformations.map(saveShipment, Objects::nonNull);
+    }
+
     public void setupRepositories(String networkId, String entityId) {
         deviceRepository = new DeviceRepository(networkId,entityId);
         entityRepository = new EntityRepository(networkId);
@@ -116,6 +135,35 @@ public class AddDeviceViewModel extends ViewModel {
         }
     }
 
+    public void toggleShipment(boolean isShipment) {
+        if (isShipment) {
+            Shipment shipment = new Shipment();
+            shipment.setUdi(uniqueDeviceIdentifierLiveData.getValue());
+            shipment.setDi(Objects.requireNonNull(deviceModelLiveData.getValue()).getData().getDeviceIdentifier());
+            shipment.setSourceEntityId(Objects.requireNonNull(userLiveData.getValue()).getData().getEntityId());
+            shipment.setSourceEntityName(userLiveData.getValue().getData().getEntityName());
+            saveShipment.setValue(shipment);
+        } else {
+            saveShipment.setValue(null);
+        }
+    }
+
+    public void onShipmentTrackerNumberChanged(String trackingNumber) {
+        Shipment shipment = Objects.requireNonNull(saveShipment.getValue());
+        shipment.setTrackingNumber(trackingNumber);
+    }
+
+    public void onShipmentDestinationChange(String destinationId, String destinationName) {
+        if (destinationId == null && destinationName != null) {
+            Map<String,Integer> invalidDestination = new HashMap<>();
+            invalidDestination.put("all",R.string.error_something_wrong);
+            errorsLiveData.setValue(invalidDestination);
+        }
+        Shipment shipment = Objects.requireNonNull(saveShipment.getValue());
+        shipment.setDestinationEntityId(destinationId);
+        shipment.setDestinationEntityName(destinationName);
+    }
+
     public void onAutoPopulate() {
         String barcode = uniqueDeviceIdentifierLiveData.getValue();
         deviceModelLiveData.setValue(new Resource<>(null,new Request(null,Request.Status.LOADING)));
@@ -126,6 +174,10 @@ public class AddDeviceViewModel extends ViewModel {
         deviceModelLiveData.addSource(gudidSource,deviceSourceObserver);
     }
 
+    /**
+     * Initiates save process by handling validation and then sends of request through livedata
+     * transformation
+     */
     public void onSave(Map<String,String> specifications) {
         errorsLiveData.setValue(Objects.requireNonNull(deviceModelLiveData.getValue()).getData().isValid());
         DeviceModel device = deviceModelLiveData.getValue().getData();

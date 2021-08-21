@@ -254,14 +254,15 @@
                         <com.google.android.material.checkbox.MaterialCheckBox
                             android:id="@+id/shipment_info_checkbox"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content"
+                            android:onCheckedChanged="@{(view,isChecked) -> viewmodel.toggleShipment(isChecked)}"/>
                     </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/shipment_options"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:visibility="gone"
+                        android:visibility="@{viewmodel.isShipment ? View.VISIBLE : View.GONE}"
                         android:orientation="vertical">
 
                         <org.getcarebase.carebase.views.ShipmentDetailInputView

@@ -23,6 +23,7 @@ import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceProduction;
 import org.getcarebase.carebase.models.Shipment;
+import org.getcarebase.carebase.utils.Event;
 import org.getcarebase.carebase.utils.FirestoreReferences;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
@@ -253,8 +254,8 @@ public class ShipmentRepository {
         return receiveShipmentRequest;
     }
 
-    public LiveData<Request> saveShipment(Shipment shipment) {
-        MutableLiveData<Request> saveShipmentRequest = new MutableLiveData<>();
+    public LiveData<Event<Request>> saveShipment(Shipment shipment) {
+        MutableLiveData<Event<Request>> saveShipmentRequest = new MutableLiveData<>();
 
         List<Map<String, String>> shippedItemsArray = new ArrayList<>();
         Map<String, String> shippedItem = new HashMap<>();
@@ -313,10 +314,10 @@ public class ShipmentRepository {
 
         saveShipmentTask.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                saveShipmentRequest.setValue(new Request(null, Request.Status.SUCCESS));
+                saveShipmentRequest.setValue(new Event<>(new Request(null, Request.Status.SUCCESS)));
             }
             else {
-                saveShipmentRequest.setValue(new Request(R.string.error_something_wrong, Request.Status.ERROR));
+                saveShipmentRequest.setValue(new Event<>(new Request(R.string.error_something_wrong, Request.Status.ERROR)));
             }
         });
 

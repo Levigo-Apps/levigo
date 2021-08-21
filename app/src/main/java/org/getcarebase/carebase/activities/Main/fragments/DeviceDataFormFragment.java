@@ -38,7 +38,6 @@ public class DeviceDataFormFragment extends Fragment {
 
     private LinearLayout customFieldsLayout;
     private TextView noSpecificationsTextView;
-    private LinearLayout shipmentOptionsLayout;
 
     @Nullable
     @Override
@@ -71,10 +70,10 @@ public class DeviceDataFormFragment extends Fragment {
         binding.addCustomFieldButton.setOnClickListener(v -> addCustomField("","",true));
 
         // set up shipment info
-        binding.shipmentInfoCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> toggleShipmentOptions(isChecked));
-        shipmentOptionsLayout = binding.shipmentOptions;
         viewModel.getShipmentTrackingNumbersLiveData().observe(getViewLifecycleOwner(),binding.shipmentDetailInputView::setTrackingNumbersOptions);
         viewModel.getSitesLiveData().observe(getViewLifecycleOwner(),binding.shipmentDetailInputView::setDestinationOptions);
+        binding.shipmentDetailInputView.setOnTrackingNumberSelection(viewModel::onShipmentTrackerNumberChanged);
+        binding.shipmentDetailInputView.setOnDestinationSelection(viewModel::onShipmentDestinationChange);
 
         // set up save
         binding.buttonSave.setOnClickListener(v -> onSaveClicked());
@@ -124,10 +123,6 @@ public class DeviceDataFormFragment extends Fragment {
             }
         }
         return specifications;
-    }
-
-    public void toggleShipmentOptions(boolean isChecked) {
-        shipmentOptionsLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
     }
 
     public void addCustomField(String name, String value, boolean removable) {
