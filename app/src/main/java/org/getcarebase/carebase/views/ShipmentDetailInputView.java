@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 
@@ -32,13 +33,16 @@ import java.util.Map;
 public class ShipmentDetailInputView extends LinearLayout {
     public static final String TAG = ShipmentDetailInputView.class.getSimpleName();
 
-    ViewShipmentDetailBinding binding;
+    private ViewShipmentDetailBinding binding;
 
-    ArrayAdapter<String> trackingNumbersAdapter;
-    ArrayAdapter<String> destinationsAdapter;
+    private OnTrackingNumberSelection onTrackingNumberSelection;
+    private OnDestinationSelection onDestinationSelection;
 
-    Map<String,String> trackingNumbersToEntityIdMap;
-    Map<String,String> entityIdToEntityNameMap;
+    private ArrayAdapter<String> trackingNumbersAdapter;
+    private ArrayAdapter<String> destinationsAdapter;
+
+    private Map<String,String> trackingNumbersToEntityIdMap;
+    private Map<String,String> entityIdToEntityNameMap;
 
     public ShipmentDetailInputView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -50,6 +54,42 @@ public class ShipmentDetailInputView extends LinearLayout {
         binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.view_shipment_detail,(ViewGroup) getParent(),true);
         trackingNumbersAdapter = new ArrayAdapter<>(getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
         destinationsAdapter = new ArrayAdapter<>(getContext(), R.layout.dropdown_menu_popup_item, new ArrayList<>());
+
+        binding.trackingNumberTextView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String trackingNumber = trackingNumbersAdapter.getItem(position);
+                onTrackingNumberSelection.update(trackingNumber);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                onTrackingNumberSelection.update(null);
+            }
+        });
+
+        binding.destinationTextView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String destinationName = destinationsAdapter.getItem(position);
+                String destinationId = null;
+                // destination ID reverse lookup
+                for (Map.Entry<String,String> entry : entityIdToEntityNameMap.entrySet()) {
+                    if (entry.getValue().equals(destinationName)) {
+                        destinationId = entry.getKey();
+                    }
+                }
+                if (destinationId == null) {
+                    Log.e(TAG,"destination name is not recognized");
+                }
+                onDestinationSelection.update(destinationId,destinationName);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                onDestinationSelection.update(null,null);
+            }
+        });
     }
 
     public void setTrackingNumbersOptions(Resource<Map<String,String>> trackingNumbersResource) {
@@ -89,6 +129,14 @@ public class ShipmentDetailInputView extends LinearLayout {
         }
     }
 
+    public void setOnTrackingNumberSelection(OnTrackingNumberSelection onTrackingNumberSelection) {
+        this.onTrackingNumberSelection = onTrackingNumberSelection;
+    }
+
+    public interface OnTrackingNumberSelection {
+        void update(String trackingNumber);
+    }
+
     public void setDestinationOptions(Resource<Map<String,String>> destinationsResource) {
         if (destinationsResource.getRequest().getStatus() == Request.Status.SUCCESS) {
             entityIdToEntityNameMap = destinationsResource.getData();
@@ -102,4 +150,13 @@ public class ShipmentDetailInputView extends LinearLayout {
             Snackbar.make(binding.getRoot(), R.string.error_something_wrong, Snackbar.LENGTH_LONG).show();
         }
     }
+
+    public void setOnDestinationSelection(OnDestinationSelection onDestinationSelection) {
+        this.onDestinationSelection = onDestinationSelection;
+    }
+
+    public interface OnDestinationSelection {
+        void update(String destinationId, String destinationName);
+    }
+
 }

@@ -53,7 +53,7 @@ public class AddDeviceActivity extends AppCompatActivity {
             }
         });
 
-        viewModel.saveDeviceRequestLivedata.observe(this, requestEvent -> {
+        viewModel.saveRequestLivedata.observe(this, requestEvent -> {
             Request request = requestEvent.getContentIfNotHandled();
             if (request.getStatus() == Request.Status.SUCCESS) {
                 // finish activity
