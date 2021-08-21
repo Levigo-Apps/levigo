@@ -194,7 +194,6 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/detail_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -230,6 +229,48 @@
                         android:layout_height="wrap_content"
                         android:enabled="@{viewmodel.isEditable(), default=false}"
                         android:text="add"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:padding="16dp"
+                    android:background="#FAFAFA"
+                    android:elevation="2dp"
+                    android:orientation="vertical"
+                    android:visibility="@{viewmodel.isEditable() ? View.VISIBLE : View.GONE}">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Add device(s) to a shipment"/>
+
+                        <com.google.android.material.checkbox.MaterialCheckBox
+                            android:id="@+id/shipment_info_checkbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onCheckedChanged="@{(view,isChecked) -> viewmodel.toggleShipment(isChecked)}"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/shipment_options"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="@{viewmodel.isShipment ? View.VISIBLE : View.GONE}"
+                        android:orientation="vertical">
+
+                        <org.getcarebase.carebase.views.ShipmentDetailInputView
+                            android:id="@+id/shipment_detail_input_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
                 </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton

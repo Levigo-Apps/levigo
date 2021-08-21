@@ -23,6 +23,7 @@ import org.getcarebase.carebase.R;
 import org.getcarebase.carebase.models.DeviceModel;
 import org.getcarebase.carebase.models.DeviceProduction;
 import org.getcarebase.carebase.models.Shipment;
+import org.getcarebase.carebase.utils.Event;
 import org.getcarebase.carebase.utils.FirestoreReferences;
 import org.getcarebase.carebase.utils.Request;
 import org.getcarebase.carebase.utils.Resource;
@@ -132,7 +133,7 @@ public class ShipmentRepository {
     }
 
     public LiveData<Request> receiveShipment(Shipment shipment) {
-        MutableLiveData<Request> receiveShipmentRequest = new MutableLiveData<>();
+        MutableLiveData<Request> receiveShipmentRequest = new MutableLiveData<>(new Request(null,Request.Status.LOADING));
         Task<?> task = FirestoreReferences.getFirestoreReference().runTransaction(new Transaction.Function<Void>() {
             @Nullable
             @Override
@@ -253,8 +254,8 @@ public class ShipmentRepository {
         return receiveShipmentRequest;
     }
 
-    public LiveData<Request> saveShipment(Shipment shipment) {
-        MutableLiveData<Request> saveShipmentRequest = new MutableLiveData<>();
+    public LiveData<Event<Request>> saveShipment(Shipment shipment) {
+        MutableLiveData<Event<Request>> saveShipmentRequest = new MutableLiveData<>();
 
         List<Map<String, String>> shippedItemsArray = new ArrayList<>();
         Map<String, String> shippedItem = new HashMap<>();
@@ -270,7 +271,7 @@ public class ShipmentRepository {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 DocumentReference shipmentDocumentReference;
-                if (shipment.getTrackingNumber().contentEquals("temptrackingnumber")) {
+                if (shipment.getTrackingNumber().contentEquals("Get New Tracking Number")) {
                     shipmentDocumentReference = shipmentReference.document();
                     shippedItemsArray.add(shippedItem);
                 } else {
@@ -313,10 +314,10 @@ public class ShipmentRepository {
 
         saveShipmentTask.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                saveShipmentRequest.setValue(new Request(null, Request.Status.SUCCESS));
+                saveShipmentRequest.setValue(new Event<>(new Request(null, Request.Status.SUCCESS)));
             }
             else {
-                saveShipmentRequest.setValue(new Request(R.string.error_something_wrong, Request.Status.ERROR));
+                saveShipmentRequest.setValue(new Event<>(new Request(R.string.error_something_wrong, Request.Status.ERROR)));
             }
         });
 

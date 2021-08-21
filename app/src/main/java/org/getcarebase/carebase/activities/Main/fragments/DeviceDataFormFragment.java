@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -48,6 +50,10 @@ public class DeviceDataFormFragment extends Fragment {
 
         DeviceModel deviceModel = Objects.requireNonNull(viewModel.getDeviceModelLiveData().getValue()).getData();
 
+        // TODO: Find better way to increment device model quantity
+        viewModel.onQuantityChanged("1");
+
+        // set up chips
         ChipGroup chipGroup = binding.chipGroup;
         for (String tag : deviceModel.getTags()) {
             Chip chip = new Chip(requireContext());
@@ -55,6 +61,7 @@ public class DeviceDataFormFragment extends Fragment {
             chipGroup.addView(chip);
         }
 
+        // set up specifications
         noSpecificationsTextView = binding.noSpecTextView;
         if (deviceModel.getSpecificationList().isEmpty()) {
             noSpecificationsTextView.setVisibility(View.VISIBLE);
@@ -65,12 +72,24 @@ public class DeviceDataFormFragment extends Fragment {
         }
         binding.addCustomFieldButton.setOnClickListener(v -> addCustomField("","",true));
 
+        // set up shipment info
+        viewModel.getShipmentTrackingNumbersLiveData().observe(getViewLifecycleOwner(),binding.shipmentDetailInputView::setTrackingNumbersOptions);
+        viewModel.getSitesLiveData().observe(getViewLifecycleOwner(),binding.shipmentDetailInputView::setDestinationOptions);
+        binding.shipmentDetailInputView.setOnTrackingNumberSelection(viewModel::onShipmentTrackerNumberChanged);
+        binding.shipmentDetailInputView.setOnDestinationSelection(viewModel::onShipmentDestinationChange);
+
+        // set up save
         binding.buttonSave.setOnClickListener(v -> onSaveClicked());
 
+        // set up errors
         viewModel.getErrorsLiveData().observe(getViewLifecycleOwner(),errors -> {
             for (Map.Entry<String,Integer> error : errors.entrySet()) {
                 if (error.getKey().equals("all")) {
                     Snackbar.make(requireView(),error.getValue(),Snackbar.LENGTH_LONG).show();
+                } else if (error.getKey().equals("destination")) {
+                    binding.shipmentDetailInputView.setDestinationError(error.getValue());
+                } else if (error.getKey().equals("trackingNumber")) {
+                    binding.shipmentDetailInputView.setTrackingNumberError(error.getValue());
                 }
             }
         });

@@ -149,7 +149,8 @@ public class ShipDeviceFragment extends Fragment {
 
         handleArguments();
 
-        deviceViewModel.getSaveShipmentRequestLiveData().observe(getViewLifecycleOwner(), request -> {
+        deviceViewModel.getSaveShipmentRequestLiveData().observe(getViewLifecycleOwner(), event -> {
+            Request request = event.getContentIfNotHandled();
             if (request.getStatus() == Request.Status.SUCCESS) {
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                 View nextView = requireActivity().findViewById(R.id.frame_layout);

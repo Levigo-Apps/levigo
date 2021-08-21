@@ -1,12 +1,20 @@
 package org.getcarebase.carebase.models;
 
+import android.util.Log;
+
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
+import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.utils.NonEmptyValidationRule;
+import org.getcarebase.carebase.utils.ValidationRule;
+
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -144,6 +152,25 @@ public class Shipment {
     @Exclude
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public Map<String,Integer> isValid() {
+        Map<String,Integer> errors = new HashMap<>();
+        List<ValidationRule<Shipment,?>> rules = new ArrayList<>();
+        rules.add(new NonEmptyValidationRule<>("trackingNumber",this::getTrackingNumber));
+        rules.add(new NonEmptyValidationRule<>("destination",this::getDestinationEntityName));
+
+        try {
+            for (ValidationRule<Shipment,?> rule : rules) {
+                String name = rule.getFieldName();
+                if (!rule.validate(this)) errors.put(name,rule.getReferenceString());
+            }
+        } catch (Exception e) {
+            Log.e(Shipment.class.getSimpleName(),e.getMessage(),e);
+            errors.clear();
+            errors.put("all", R.string.error_something_wrong);
+        }
+        return errors;
     }
 
 }

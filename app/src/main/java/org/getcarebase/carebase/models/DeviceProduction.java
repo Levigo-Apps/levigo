@@ -11,10 +11,12 @@ import org.getcarebase.carebase.utils.GreaterThanZeroValidationRule;
 import org.getcarebase.carebase.utils.NonEmptyValidationRule;
 import org.getcarebase.carebase.utils.ValidationRule;
 
-import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -123,8 +125,11 @@ public class DeviceProduction {
     public Map<String,Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("udi", uniqueDeviceIdentifier);
-        map.put("current_date",dateAdded);
-        map.put("current_time",timeAdded);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.US);
+        Date date = new Date();
+        map.put("current_date",dateFormat.format(date));
+        map.put("current_time",timeFormat.format(date));
         map.put("expiration",expirationDate);
         map.put("lot_number",lotNumber);
         map.put("notes",notes);
