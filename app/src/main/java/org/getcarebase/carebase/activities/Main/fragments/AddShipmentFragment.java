@@ -22,6 +22,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.getcarebase.carebase.R;
+import org.getcarebase.carebase.activities.Main.MainActivity;
 import org.getcarebase.carebase.activities.Main.adapters.AddShipmentAdapter;
 import org.getcarebase.carebase.models.Shipment;
 import org.getcarebase.carebase.utils.Request;
@@ -74,10 +75,16 @@ public class AddShipmentFragment extends Fragment {
 
        deviceViewModel.getReceiveShipmentRequestLiveData().observe(getViewLifecycleOwner(),request -> {
            if (request.getStatus() == Request.Status.SUCCESS) {
+               ((MainActivity) requireActivity()).removeLoadingScreen();
                Snackbar.make(requireActivity().findViewById(R.id.activity_main),request.getResourceString(),Snackbar.LENGTH_LONG).show();
                requireActivity().getSupportFragmentManager().popBackStack();
            } else if (request.getStatus() == Request.Status.ERROR) {
+               ((MainActivity) requireActivity()).removeLoadingScreen();
                Snackbar.make(rootView,request.getResourceString(),Snackbar.LENGTH_LONG).show();
+               saveButton.setEnabled(true);
+           } else if (request.getStatus() == Request.Status.LOADING) {
+               ((MainActivity) requireActivity()).showLoadingScreen();
+               saveButton.setEnabled(false);
            }
        });
 
