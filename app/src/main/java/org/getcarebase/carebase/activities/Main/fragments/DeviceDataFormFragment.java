@@ -50,6 +50,9 @@ public class DeviceDataFormFragment extends Fragment {
 
         DeviceModel deviceModel = Objects.requireNonNull(viewModel.getDeviceModelLiveData().getValue()).getData();
 
+        // TODO: Find better way to increment device model quantity
+        viewModel.onQuantityChanged("1");
+
         // set up chips
         ChipGroup chipGroup = binding.chipGroup;
         for (String tag : deviceModel.getTags()) {
@@ -83,6 +86,10 @@ public class DeviceDataFormFragment extends Fragment {
             for (Map.Entry<String,Integer> error : errors.entrySet()) {
                 if (error.getKey().equals("all")) {
                     Snackbar.make(requireView(),error.getValue(),Snackbar.LENGTH_LONG).show();
+                } else if (error.getKey().equals("destination")) {
+                    binding.shipmentDetailInputView.setDestinationError(error.getValue());
+                } else if (error.getKey().equals("trackingNumber")) {
+                    binding.shipmentDetailInputView.setTrackingNumberError(error.getValue());
                 }
             }
         });

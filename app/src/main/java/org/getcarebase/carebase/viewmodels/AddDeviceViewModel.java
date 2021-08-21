@@ -180,9 +180,17 @@ public class AddDeviceViewModel extends ViewModel {
      */
     public void onSave(Map<String,String> specifications) {
         errorsLiveData.setValue(Objects.requireNonNull(deviceModelLiveData.getValue()).getData().isValid());
-        DeviceModel device = deviceModelLiveData.getValue().getData();
-        device.setSpecifications(specifications);
-        saveDeviceLiveData.setValue(device);
+        if (saveShipment.getValue() != null && errorsLiveData.getValue() != null && errorsLiveData.getValue().size() == 0) {
+            Shipment shipment = saveShipment.getValue();
+            shipment.setDeviceName(deviceModelLiveData.getValue().getData().getName());
+            shipment.setQuantity(deviceModelLiveData.getValue().getData().getProductions().get(0).getQuantity());
+            errorsLiveData.setValue(saveShipment.getValue().isValid());
+        }
+        if (errorsLiveData.getValue() != null && errorsLiveData.getValue().size() == 0) {
+            DeviceModel device = deviceModelLiveData.getValue().getData();
+            device.setSpecifications(specifications);
+            saveDeviceLiveData.setValue(device);
+        }
     }
 
     private class DeviceSourceObserver implements Observer<Resource<DeviceModel>> {

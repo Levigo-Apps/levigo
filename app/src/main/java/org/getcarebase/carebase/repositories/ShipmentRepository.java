@@ -271,7 +271,7 @@ public class ShipmentRepository {
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 DocumentReference shipmentDocumentReference;
-                if (shipment.getTrackingNumber().contentEquals("temptrackingnumber")) {
+                if (shipment.getTrackingNumber().contentEquals("Get New Tracking Number")) {
                     shipmentDocumentReference = shipmentReference.document();
                     shippedItemsArray.add(shippedItem);
                 } else {
