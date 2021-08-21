@@ -22,7 +22,7 @@ public class DeviceModel implements Serializable {
     private String company;
     private String description;
     // fda product code classification
-    private String productCode;
+    private List<String> productCodes;
     private String equipmentType;
     private List<String> tags;
     private int quantity;
@@ -51,8 +51,8 @@ public class DeviceModel implements Serializable {
         this.description = description;
     }
 
-    public void setProductCode(String productCode) {
-        this.productCode = productCode;
+    public void setProductCodes(List<String> productCodes) {
+        this.productCodes = productCodes;
     }
 
     public void setEquipmentType(String equipmentType) {
@@ -96,8 +96,8 @@ public class DeviceModel implements Serializable {
         return description;
     }
 
-    public String getProductCode() {
-        return productCode;
+    public List<String> getProductCodes() {
+        return productCodes;
     }
 
     public String getEquipmentType() {
@@ -149,6 +149,8 @@ public class DeviceModel implements Serializable {
         data.remove("company");
         this.description = (String) data.get("device_description");
         data.remove("device_description");
+        this.productCodes = (List<String>) data.get("product_codes");
+        data.remove("product_codes");
         this.equipmentType = (String) data.get("equipment_type");
         data.remove("equipment_type");
         this.tags = (List<String>) data.get("tags");
@@ -179,6 +181,7 @@ public class DeviceModel implements Serializable {
         map.put("equipment_type",equipmentType);
         map.put("tags",tags);
         map.put("name",name);
+        map.put("product_codes",productCodes);
         map.put("quantity",quantity);
         map.putAll(specifications);
         return map;
