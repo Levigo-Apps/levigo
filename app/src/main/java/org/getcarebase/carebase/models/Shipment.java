@@ -131,7 +131,7 @@ public class Shipment {
 
     @Exclude
     public void setUdi(String udi) {
-        this.udi = udi;
+        this.udi = udi.replace('/','&');
     }
 
     @Exclude
@@ -154,6 +154,7 @@ public class Shipment {
         this.quantity = quantity;
     }
 
+    @Exclude
     public Map<String,Integer> isValid() {
         Map<String,Integer> errors = new HashMap<>();
         List<ValidationRule<Shipment,?>> rules = new ArrayList<>();
