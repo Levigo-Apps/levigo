@@ -468,7 +468,7 @@ public class DeviceRepository {
                     ProductCode productCode = documentSnapshot.toObject(ProductCode.class);
                     if (equipmentType == null || equipmentType.equals(productCode.getType())) {
                         codes.add(productCode.getId());
-                        equipmentType = productCode.getType();
+                        equipmentType = productCode.getType().replace("/"," and ");
                         tags.addAll(productCode.getTags());
                     }
                 }
